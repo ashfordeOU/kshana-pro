@@ -1,0 +1,3542 @@
+{
+ "format": "kshana-eloran-gri-db",
+ "version": 1,
+ "updated": "2026-11-18",
+ "description": "Preloaded LORAN-C / eLoran / Chayka chain database for kshana-eloran. See data/README.md. Positions in degrees (WGS 84 unless a station note says otherwise), delays in microseconds, power in kW (nominal radiated peak power as published).",
+ "chains": [
+  {
+   "id": "5930-canadian-east-coast",
+   "gri_us": 59300,
+   "name": "5930 Canadian East Coast",
+   "region": "North America (Atlantic)",
+   "countries": [
+    "CA",
+    "US"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "2010-08-03",
+   "time_ref": "UTC(USNO)",
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Caribou, ME",
+     "role": "master",
+     "position": {
+      "lat_deg": 46.8075847,
+      "lon_deg": -67.9269886
+     },
+     "power_kw": 800,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Nantucket, MA",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 41.2533461,
+      "lon_deg": -69.9773711
+     },
+     "power_kw": 350,
+     "emission_delay_us": 13131.88,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Cape Race, NL",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 46.775635,
+      "lon_deg": -53.174335
+     },
+     "power_kw": 1000,
+     "emission_delay_us": 28755.02,
+     "coding_delay_us": 25000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Fox Harbour, NL",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 52.3764589,
+      "lon_deg": -55.7077394
+     },
+     "power_kw": 900,
+     "emission_delay_us": 41594.59,
+     "coding_delay_us": 38000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "Canadian Loran-C transmissions ended 3 Aug 2010 (Wikipedia 'Loran-C'); US-operated stations in this chain may have stopped earlier. time_ref: USCG Loran-C chains were steered to UTC(USNO) (time-of-transmission control); recorded as single-source."
+  },
+  {
+   "id": "5990-canadian-west-coast",
+   "gri_us": 59900,
+   "name": "5990 Canadian West Coast",
+   "region": "North America (Pacific)",
+   "countries": [
+    "CA",
+    "US"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "2010-08-03",
+   "time_ref": "UTC(USNO)",
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Williams Lake, BC",
+     "role": "master",
+     "position": {
+      "lat_deg": 51.9663544,
+      "lon_deg": -122.367135
+     },
+     "power_kw": 400,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Shoal Cove, AK",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 55.43915,
+      "lon_deg": -131.2553039
+     },
+     "power_kw": 560,
+     "emission_delay_us": 13343.6,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "George, WA",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 47.06336,
+      "lon_deg": -119.74416
+     },
+     "power_kw": 1400,
+     "emission_delay_us": 28927.36,
+     "coding_delay_us": 27000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Port Hardy, BC",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 50.6082861,
+      "lon_deg": -127.3579136
+     },
+     "power_kw": 350,
+     "emission_delay_us": 42266.63,
+     "coding_delay_us": 41000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "Canadian Loran-C transmissions ended 3 Aug 2010; US-operated stations (Shoal Cove, George) stopped 8 Feb 2010 (Wikipedia 'Loran-C'). time_ref: USCG Loran-C chains were steered to UTC(USNO) (time-of-transmission control); recorded as single-source."
+  },
+  {
+   "id": "7930-labrador-sea",
+   "gri_us": 79300,
+   "name": "7930 Labrador Sea",
+   "region": "North Atlantic",
+   "countries": [
+    "CA",
+    "GL"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "1994-12-31",
+   "time_ref": "UTC(USNO)",
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Fox Harbour, NL",
+     "role": "master",
+     "position": {
+      "lat_deg": 52.3764589,
+      "lon_deg": -55.7077394
+     },
+     "power_kw": 900,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Cape Race, NL",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 46.775635,
+      "lon_deg": -53.174335
+     },
+     "power_kw": 1000,
+     "emission_delay_us": 13167.31,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Angissoq, Greenland",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 59.9881522,
+      "lon_deg": -45.1741433
+     },
+     "power_kw": 760,
+     "emission_delay_us": 29565.39,
+     "coding_delay_us": 26000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "Angissoq shut down 31 Dec 1994 (Wikipedia), ending the chain in this form."
+  },
+  {
+   "id": "7960-gulf-of-alaska",
+   "gri_us": 79600,
+   "name": "7960 Gulf of Alaska",
+   "region": "North America (Alaska)",
+   "countries": [
+    "US"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "2010-02-08",
+   "time_ref": "UTC(USNO)",
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Tok, AK",
+     "role": "master",
+     "position": {
+      "lat_deg": 63.3285789,
+      "lon_deg": -142.8087072
+     },
+     "power_kw": 560,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Kodiak (Narrow Cape), AK",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 57.4389725,
+      "lon_deg": -152.3696411
+     },
+     "power_kw": 400,
+     "emission_delay_us": 13804.45,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Shoal Cove, AK",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 55.43915,
+      "lon_deg": -131.2553039
+     },
+     "power_kw": 560,
+     "emission_delay_us": 29651.14,
+     "coding_delay_us": 26000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Port Clarence, AK",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 65.2445478,
+      "lon_deg": -166.8866656
+     },
+     "power_kw": 1000,
+     "emission_delay_us": 47932.52,
+     "coding_delay_us": 45000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "USCG terminated all US Loran-C transmissions 2000 UTC 8 Feb 2010 (Wikipedia 'Loran-C', citing USCG NAVCEN). Configuration and values are those of the 1992 handbook; later changes, if any, are not captured. time_ref: USCG Loran-C chains were steered to UTC(USNO) (time-of-transmission control); recorded as single-source."
+  },
+  {
+   "id": "7980-southeast-us",
+   "gri_us": 79800,
+   "name": "7980 Southeast U.S.",
+   "region": "North America (Gulf/Atlantic)",
+   "countries": [
+    "US"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "2010-02-08",
+   "time_ref": "UTC(USNO)",
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Malone, FL",
+     "role": "master",
+     "position": {
+      "lat_deg": 30.9941306,
+      "lon_deg": -85.1690975
+     },
+     "power_kw": 800,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Grangeville, LA",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 30.7258747,
+      "lon_deg": -90.8286239
+     },
+     "power_kw": 800,
+     "emission_delay_us": 12809.54,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Raymondville, TX",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 26.5319836,
+      "lon_deg": -97.8332053
+     },
+     "power_kw": 540,
+     "emission_delay_us": 27443.38,
+     "coding_delay_us": 23000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Jupiter, FL",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 27.0329244,
+      "lon_deg": -80.1146875
+     },
+     "power_kw": 350,
+     "emission_delay_us": 45201.88,
+     "coding_delay_us": 43000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Carolina Beach, NC",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 34.0628356,
+      "lon_deg": -77.9128056
+     },
+     "power_kw": 600,
+     "emission_delay_us": 61542.72,
+     "coding_delay_us": 59000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "USCG terminated all US Loran-C transmissions 2000 UTC 8 Feb 2010 (Wikipedia 'Loran-C', citing USCG NAVCEN). Configuration and values are those of the 1992 handbook; later changes, if any, are not captured. time_ref: USCG Loran-C chains were steered to UTC(USNO) (time-of-transmission control); recorded as single-source."
+  },
+  {
+   "id": "8290-north-central-us",
+   "gri_us": 82900,
+   "name": "8290 North Central U.S.",
+   "region": "North America (central)",
+   "countries": [
+    "US",
+    "CA"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "2010-02-08",
+   "time_ref": "UTC(USNO)",
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Havre, MT",
+     "role": "master",
+     "position": {
+      "lat_deg": 48.7440525,
+      "lon_deg": -109.9815592
+     },
+     "power_kw": 400,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Baudette, MN",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 48.6138742,
+      "lon_deg": -94.5549764
+     },
+     "power_kw": 800,
+     "emission_delay_us": 14786.56,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Gillette, WY",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 44.0031403,
+      "lon_deg": -105.6233042
+     },
+     "power_kw": 400,
+     "emission_delay_us": 29084.44,
+     "coding_delay_us": 27000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Williams Lake, BC",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 51.9663544,
+      "lon_deg": -122.367135
+     },
+     "power_kw": 400,
+     "emission_delay_us": 45171.62,
+     "coding_delay_us": 42000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "USCG terminated all US Loran-C transmissions 2000 UTC 8 Feb 2010 (Wikipedia 'Loran-C', citing USCG NAVCEN). Configuration and values are those of the 1992 handbook; later changes, if any, are not captured. time_ref: USCG Loran-C chains were steered to UTC(USNO) (time-of-transmission control); recorded as single-source."
+  },
+  {
+   "id": "8970-great-lakes",
+   "gri_us": 89700,
+   "name": "8970 Great Lakes",
+   "region": "North America (Great Lakes)",
+   "countries": [
+    "US"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "2010-02-08",
+   "time_ref": "UTC(USNO)",
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Dana, IN",
+     "role": "master",
+     "position": {
+      "lat_deg": 39.8521272,
+      "lon_deg": -87.4865517
+     },
+     "power_kw": 400,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Malone, FL",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 30.9941306,
+      "lon_deg": -85.1690975
+     },
+     "power_kw": 800,
+     "emission_delay_us": 14355.11,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Seneca, NY",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 42.7140878,
+      "lon_deg": -76.8259189
+     },
+     "power_kw": 800,
+     "emission_delay_us": 31162.06,
+     "coding_delay_us": 28000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Baudette, MN",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 48.6138742,
+      "lon_deg": -94.5549764
+     },
+     "power_kw": 800,
+     "emission_delay_us": 47753.74,
+     "coding_delay_us": 44000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Boise City, OK",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 36.5057731,
+      "lon_deg": -102.8998575
+     },
+     "power_kw": 900,
+     "emission_delay_us": 63669.46,
+     "coding_delay_us": 59000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "USCG terminated all US Loran-C transmissions 2000 UTC 8 Feb 2010 (Wikipedia 'Loran-C', citing USCG NAVCEN). Configuration and values are those of the 1992 handbook; later changes, if any, are not captured. time_ref: USCG Loran-C chains were steered to UTC(USNO) (time-of-transmission control); recorded as single-source."
+  },
+  {
+   "id": "9610-south-central-us",
+   "gri_us": 96100,
+   "name": "9610 South Central U.S.",
+   "region": "North America (central)",
+   "countries": [
+    "US"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "2010-02-08",
+   "time_ref": "UTC(USNO)",
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Boise City, OK",
+     "role": "master",
+     "position": {
+      "lat_deg": 36.5057731,
+      "lon_deg": -102.8998575
+     },
+     "power_kw": 800,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "V",
+     "name": "Gillette, WY",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 44.0031403,
+      "lon_deg": -105.6233042
+     },
+     "power_kw": 540,
+     "emission_delay_us": 13884.48,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Searchlight, NV",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 35.3217514,
+      "lon_deg": -114.8046892
+     },
+     "power_kw": 560,
+     "emission_delay_us": 28611.81,
+     "coding_delay_us": 25000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Las Cruces, NM",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 32.0717028,
+      "lon_deg": -106.8678856
+     },
+     "power_kw": 540,
+     "emission_delay_us": 42044.93,
+     "coding_delay_us": 40000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Raymondville, TX",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 26.5319836,
+      "lon_deg": -97.8332053
+     },
+     "power_kw": 540,
+     "emission_delay_us": 56024.8,
+     "coding_delay_us": 52000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Grangeville, LA",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 30.7258747,
+      "lon_deg": -90.8286239
+     },
+     "power_kw": 800,
+     "emission_delay_us": 69304.0,
+     "coding_delay_us": 65000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "USCG terminated all US Loran-C transmissions 2000 UTC 8 Feb 2010 (Wikipedia 'Loran-C', citing USCG NAVCEN). Configuration and values are those of the 1992 handbook; later changes, if any, are not captured. time_ref: USCG Loran-C chains were steered to UTC(USNO) (time-of-transmission control); recorded as single-source."
+  },
+  {
+   "id": "9940-us-west-coast",
+   "gri_us": 99400,
+   "name": "9940 U.S. West Coast",
+   "region": "North America (Pacific)",
+   "countries": [
+    "US"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "2010-02-08",
+   "time_ref": "UTC(USNO)",
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Fallon, NV",
+     "role": "master",
+     "position": {
+      "lat_deg": 39.5518722,
+      "lon_deg": -118.8321711
+     },
+     "power_kw": 400,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "George, WA",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 47.06336,
+      "lon_deg": -119.74416
+     },
+     "power_kw": 1400,
+     "emission_delay_us": 13796.9,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Middletown, CA",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 38.7825306,
+      "lon_deg": -122.4955486
+     },
+     "power_kw": 400,
+     "emission_delay_us": 28094.5,
+     "coding_delay_us": 27000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Searchlight, NV",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 35.3217514,
+      "lon_deg": -114.8046892
+     },
+     "power_kw": 560,
+     "emission_delay_us": 41967.3,
+     "coding_delay_us": 40000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "USCG terminated all US Loran-C transmissions 2000 UTC 8 Feb 2010 (Wikipedia 'Loran-C', citing USCG NAVCEN). Configuration and values are those of the 1992 handbook; later changes, if any, are not captured. time_ref: USCG Loran-C chains were steered to UTC(USNO) (time-of-transmission control); recorded as single-source."
+  },
+  {
+   "id": "9960-northeast-us",
+   "gri_us": 99600,
+   "name": "9960 Northeast U.S.",
+   "region": "North America (Atlantic/Great Lakes)",
+   "countries": [
+    "US"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "2010-02-08",
+   "time_ref": "UTC(USNO)",
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Seneca, NY",
+     "role": "master",
+     "position": {
+      "lat_deg": 42.7140878,
+      "lon_deg": -76.8259189
+     },
+     "power_kw": 800,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Caribou, ME",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 46.8075847,
+      "lon_deg": -67.9269886
+     },
+     "power_kw": 800,
+     "emission_delay_us": 13797.2,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Nantucket, MA",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 41.2533461,
+      "lon_deg": -69.9773711
+     },
+     "power_kw": 350,
+     "emission_delay_us": 26969.93,
+     "coding_delay_us": 25000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Carolina Beach, NC",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 34.0628356,
+      "lon_deg": -77.9128056
+     },
+     "power_kw": 600,
+     "emission_delay_us": 42221.64,
+     "coding_delay_us": 39000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Dana, IN",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 39.8521272,
+      "lon_deg": -87.4865517
+     },
+     "power_kw": 400,
+     "emission_delay_us": 57162.06,
+     "coding_delay_us": 54000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "USCG terminated all US Loran-C transmissions 2000 UTC 8 Feb 2010 (Wikipedia 'Loran-C', citing USCG NAVCEN). Configuration and values are those of the 1992 handbook; later changes, if any, are not captured. time_ref: USCG Loran-C chains were steered to UTC(USNO) (time-of-transmission control); recorded as single-source. Caribou ED 13797.2 us also used in a USNO timing calibration report (web-search excerpt)."
+  },
+  {
+   "id": "9990-north-pacific",
+   "gri_us": 99900,
+   "name": "9990 North Pacific",
+   "region": "North Pacific (Bering Sea)",
+   "countries": [
+    "US"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "2010-02-08",
+   "time_ref": "UTC(USNO)",
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Saint Paul, AK",
+     "role": "master",
+     "position": {
+      "lat_deg": 57.1534306,
+      "lon_deg": -170.2517347
+     },
+     "power_kw": 275,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Attu Island, AK",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 52.8289261,
+      "lon_deg": 173.1804244
+     },
+     "power_kw": 275,
+     "emission_delay_us": 14848.23,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Port Clarence, AK",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 65.2445478,
+      "lon_deg": -166.8866656
+     },
+     "power_kw": 1000,
+     "emission_delay_us": 32068.95,
+     "coding_delay_us": 29000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Kodiak (Narrow Cape), AK",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 57.4389725,
+      "lon_deg": -152.3696411
+     },
+     "power_kw": 400,
+     "emission_delay_us": 46590.45,
+     "coding_delay_us": 43000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "USCG terminated all US Loran-C transmissions 2000 UTC 8 Feb 2010 (Wikipedia 'Loran-C', citing USCG NAVCEN). Configuration and values are those of the 1992 handbook; later changes, if any, are not captured. time_ref: USCG Loran-C chains were steered to UTC(USNO) (time-of-transmission control); recorded as single-source."
+  },
+  {
+   "id": "7970-norwegian-sea",
+   "gri_us": 79700,
+   "name": "7970 Norwegian Sea",
+   "region": "Northwest Europe / North Atlantic",
+   "countries": [
+    "FO",
+    "NO",
+    "DE",
+    "IS"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "1994-12-31",
+   "time_ref": null,
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Ejde, Faroe Islands",
+     "role": "master",
+     "position": {
+      "lat_deg": 62.2999203,
+      "lon_deg": -7.0738844
+     },
+     "power_kw": 325,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Bø, Norway",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 68.6350575,
+      "lon_deg": 14.4632094
+     },
+     "power_kw": 165,
+     "emission_delay_us": 15048.1,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Sylt, Germany",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 54.8083228,
+      "lon_deg": 8.2935739
+     },
+     "power_kw": 325,
+     "emission_delay_us": 30065.64,
+     "coding_delay_us": 26000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Sandur (Hellissandur), Iceland",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 64.9074019,
+      "lon_deg": -23.9225544
+     },
+     "power_kw": 1500,
+     "emission_delay_us": 48944.53,
+     "coding_delay_us": 46000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Jan Mayen, Norway",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 70.9146283,
+      "lon_deg": -8.7328156
+     },
+     "power_kw": 165,
+     "emission_delay_us": 63216.3,
+     "coding_delay_us": 60000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "USCG-operated until the 1994/95 transfer; Sandur shut down 31 Dec 1994 (Wikipedia). Note the H92 table orders X before W. NELS chains 7001/9007/7499 replaced it."
+  },
+  {
+   "id": "7990-mediterranean-sea",
+   "gri_us": 79900,
+   "name": "7990 Mediterranean Sea",
+   "region": "Mediterranean",
+   "countries": [
+    "IT",
+    "TR",
+    "ES"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "1994-12-31",
+   "time_ref": null,
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Sellia Marina, Italy",
+     "role": "master",
+     "position": {
+      "lat_deg": 38.8724186,
+      "lon_deg": 16.7185314
+     },
+     "power_kw": 165,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Lampedusa, Italy",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 35.5224756,
+      "lon_deg": 12.5252219
+     },
+     "power_kw": 325,
+     "emission_delay_us": 12755.98,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Kargaburun, Turkey",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 40.9725183,
+      "lon_deg": 27.8672428
+     },
+     "power_kw": 165,
+     "emission_delay_us": 32273.29,
+     "coding_delay_us": 29000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Estartit, Spain",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 42.0601747,
+      "lon_deg": 3.2044628
+     },
+     "power_kw": 165,
+     "emission_delay_us": 50999.71,
+     "coding_delay_us": 47000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "End date: USCG overseas closures 1994/95 (all four stations listed as shut down by Wikipedia); exact date single-source/unverified."
+  },
+  {
+   "id": "9970-northwest-pacific-uscg",
+   "gri_us": 99700,
+   "name": "9970 Northwest Pacific (USCG)",
+   "region": "Northwest Pacific",
+   "countries": [
+    "JP",
+    "GU"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "1993-09",
+   "time_ref": null,
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Iwo Jima, Japan",
+     "role": "master",
+     "position": {
+      "lat_deg": 24.8010372,
+      "lon_deg": 141.3252381
+     },
+     "power_kw": 1815,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Marcus Island (Minami-Tori-shima), Japan",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 24.2855628,
+      "lon_deg": 153.9816072
+     },
+     "power_kw": 1000,
+     "emission_delay_us": 15283.94,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Hokkaido (Tokachibuto), Japan",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 42.7436714,
+      "lon_deg": 143.7193886
+     },
+     "power_kw": 600,
+     "emission_delay_us": 36685.12,
+     "coding_delay_us": 30000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Gesashi, Japan",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 26.606975,
+      "lon_deg": 128.1491664
+     },
+     "power_kw": 600,
+     "emission_delay_us": 59463.18,
+     "coding_delay_us": 55000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Barrigada, Guam",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 13.4639144,
+      "lon_deg": 144.8258297
+     },
+     "power_kw": 600,
+     "emission_delay_us": 85365.84,
+     "coding_delay_us": 81000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "Iwo Jima shut down September 1993 (Wikipedia); the Japanese stations were then operated by JMSA in chain 8930."
+  },
+  {
+   "id": "9980-icelandic",
+   "gri_us": 99800,
+   "name": "9980 Icelandic",
+   "region": "North Atlantic",
+   "countries": [
+    "IS",
+    "GL",
+    "FO"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "1994-12-31",
+   "time_ref": null,
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "verified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Sandur (Hellissandur), Iceland",
+     "role": "master",
+     "position": {
+      "lat_deg": 64.9074019,
+      "lon_deg": -23.9225544
+     },
+     "power_kw": 1500,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Angissoq, Greenland",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 59.9881522,
+      "lon_deg": -45.1741433
+     },
+     "power_kw": 760,
+     "emission_delay_us": 15068.03,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Ejde, Faroe Islands",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 62.2999203,
+      "lon_deg": -7.0738844
+     },
+     "power_kw": 325,
+     "emission_delay_us": 32944.54,
+     "coding_delay_us": 30000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "operator": "USCG",
+   "notes": "Sandur and Angissoq shut down 31 Dec 1994 (Wikipedia)."
+  },
+  {
+   "id": "8000-western-russia-chayka",
+   "gri_us": 80000,
+   "name": "8000 Western Russia (Chayka)",
+   "region": "Eastern Europe / Russia",
+   "countries": [
+    "RU",
+    "BY",
+    "UA"
+   ],
+   "system": "chayka",
+   "status": "unknown",
+   "operational_from": null,
+   "operational_to": null,
+   "time_ref": "UTC(SU)",
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Bryansk",
+     "role": "master",
+     "position": {
+      "lat_deg": 53.1307222,
+      "lon_deg": 34.9124444
+     },
+     "power_kw": 650,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "single-source"
+    },
+    {
+     "id": "W",
+     "name": "Petrozavodsk",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 61.759,
+      "lon_deg": 33.6945556
+     },
+     "power_kw": 700,
+     "emission_delay_us": 13217.21,
+     "coding_delay_us": 10000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "single-source",
+     "notes": "H92 designator '1'."
+    },
+    {
+     "id": "X",
+     "name": "Slonim",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 53.132,
+      "lon_deg": 25.3961111
+     },
+     "power_kw": 450,
+     "emission_delay_us": 27125.0,
+     "coding_delay_us": 25000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "single-source",
+     "notes": "H92 designator '2'; printed as 'Solnim' (Slonim, Belarus)."
+    },
+    {
+     "id": "Y",
+     "name": "Simferopol",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 44.8890556,
+      "lon_deg": 33.8755833
+     },
+     "power_kw": 550,
+     "emission_delay_us": 53070.25,
+     "coding_delay_us": 50000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "single-source",
+     "notes": "H92 designator '3'."
+    },
+    {
+     "id": "Z",
+     "name": "Syzran",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 53.2882222,
+      "lon_deg": 48.1148333
+     },
+     "power_kw": 700,
+     "emission_delay_us": 67941.6,
+     "coding_delay_us": 65000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "single-source",
+     "notes": "H92 designator '4'."
+    }
+   ],
+   "operator": "USSR / Russian Federation",
+   "notes": "Chayka is a pulse-phase system compatible with Loran-C (same 100 kHz pulse) but with its own phase codes; converting to chain::Chain uses the LORAN-C signal definition unless a Chayka PulseSignal is supplied. H92: 'geodetic datum unknown'. Designators 1-4 of H92 mapped to W-Z in order. Current status and configuration (e.g. after 1991/2014) are not verified; time_ref UTC(SU) is unverified."
+  },
+  {
+   "id": "7950-eastern-russia-chayka",
+   "gri_us": 79500,
+   "name": "7950 Eastern Russia (Chayka)",
+   "region": "Far East Russia",
+   "countries": [
+    "RU",
+    "JP"
+   ],
+   "system": "chayka",
+   "status": "unknown",
+   "operational_from": null,
+   "operational_to": null,
+   "time_ref": "UTC(SU)",
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Aleksandrovsk-Sakhalinsky",
+     "role": "master",
+     "position": {
+      "lat_deg": 51.0785556,
+      "lon_deg": 142.7013611
+     },
+     "power_kw": 700,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Petropavlovsk-Kamchatsky",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 53.1298611,
+      "lon_deg": 157.69525
+     },
+     "power_kw": 700,
+     "emission_delay_us": 14508.1,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "single-source",
+     "notes": "H92 designator '1'; Pub 117 (2005) designator W."
+    },
+    {
+     "id": "X",
+     "name": "Ussuriysk",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 44.53325,
+      "lon_deg": 131.6398333
+     },
+     "power_kw": 700,
+     "emission_delay_us": 33678.0,
+     "coding_delay_us": 30000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "single-source",
+     "notes": "H92 designator '2'; Pub 117 (2005) designator X."
+    },
+    {
+     "id": "Y",
+     "name": "Tokachibuto (Hokkaido), Japan",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 42.7436714,
+      "lon_deg": 143.7193886
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "single-source",
+     "notes": "Added by 2005 (Pub 117); position from H92 (as 9970-X). Japanese Loran-C ended Dec 2014 (ENC13)."
+    },
+    {
+     "id": "Z",
+     "name": "Okhotsk",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 59.4172222,
+      "lon_deg": 143.0897222
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "single-source",
+     "notes": "Listed in Pub 117 (2005) only; position to 1 arcsec."
+    }
+   ],
+   "operator": "Russian Federation",
+   "notes": "Chayka is a pulse-phase system compatible with Loran-C (same 100 kHz pulse) but with its own phase codes; converting to chain::Chain uses the LORAN-C signal definition unless a Chayka PulseSignal is supplied. H92: 'geodetic datum unknown'. The 1992 configuration (M, W, X) is complete; Y and Z (2005 list) lack emission delay and power. Status after 2015 unverified; time_ref unverified."
+  },
+  {
+   "id": "5980-russian-american",
+   "gri_us": 59800,
+   "name": "5980 Russian-American",
+   "region": "North Pacific",
+   "countries": [
+    "RU",
+    "US"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "2010-08-01",
+   "time_ref": null,
+   "sources": [
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+    "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Petropavlovsk-Kamchatsky",
+     "role": "master",
+     "position": {
+      "lat_deg": 53.1298844,
+      "lon_deg": 157.69525
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified",
+     "notes": "PRC68 position; Pub 117 53 07 48N 157 41 43E agrees."
+    },
+    {
+     "id": "X",
+     "name": "Attu Island, AK",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 52.8289261,
+      "lon_deg": 173.1804244
+     },
+     "power_kw": 275,
+     "emission_delay_us": null,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "single-source",
+     "notes": "Power from H92 (same transmitter in chain 9990). Coding delay 11000 from PRC68; ED unknown."
+    },
+    {
+     "id": "Y",
+     "name": "Aleksandrovsk-Sakhalinsky",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 51.0785556,
+      "lon_deg": 142.701375
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": 28000,
+     "sources": [
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "single-source",
+     "notes": "Coding delay 28000 from PRC68; ED unknown."
+    }
+   ],
+   "operator": "USCG / Russian Federation",
+   "notes": "USCG transmission of the Russian-American signal ended 1 Aug 2010 (Wikipedia 'Loran-C', citing NAVCEN). INCOMPLETE: emission delays and Russian station powers unknown."
+  },
+  {
+   "id": "8990-saudi-north-1992",
+   "gri_us": 89900,
+   "name": "8990 Saudi Arabia North (1992)",
+   "region": "Middle East",
+   "countries": [
+    "SA"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": null,
+   "time_ref": null,
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Afif",
+     "role": "master",
+     "position": {
+      "lat_deg": 23.8102667,
+      "lon_deg": 42.85505
+     },
+     "power_kw": 800,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "single-source"
+    },
+    {
+     "id": "V",
+     "name": "Salwa",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 24.8337889,
+      "lon_deg": 50.5701583
+     },
+     "power_kw": 800,
+     "emission_delay_us": 13641.09,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "single-source"
+    },
+    {
+     "id": "W",
+     "name": "Ar Ruqi",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 29.0179833,
+      "lon_deg": 46.6229167
+     },
+     "power_kw": 200,
+     "emission_delay_us": 27298.51,
+     "coding_delay_us": 25000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "single-source"
+    },
+    {
+     "id": "X",
+     "name": "Ash Shaykh Humayd",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 28.1544444,
+      "lon_deg": 34.7612611
+     },
+     "power_kw": 400,
+     "emission_delay_us": 43145.53,
+     "coding_delay_us": 40000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "single-source"
+    },
+    {
+     "id": "Y",
+     "name": "Al Lith",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 20.2329028,
+      "lon_deg": 40.2087694
+     },
+     "power_kw": 200,
+     "emission_delay_us": 57606.26,
+     "coding_delay_us": 56000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "single-source"
+    },
+    {
+     "id": "Z",
+     "name": "Al Muwassam",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 16.4322306,
+      "lon_deg": 42.8013556
+     },
+     "power_kw": 800,
+     "emission_delay_us": 71726.94,
+     "coding_delay_us": 69000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "single-source"
+    }
+   ],
+   "notes": "1992 configuration; later replaced by 8830 / 7030 (Pub 117 2005). End date unknown; status 'terminated' refers to this configuration."
+  },
+  {
+   "id": "7170-saudi-south-1992",
+   "gri_us": 71700,
+   "name": "7170 Saudi Arabia South (1992)",
+   "region": "Middle East",
+   "countries": [
+    "SA"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": null,
+   "time_ref": null,
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+   ],
+   "confidence": "unverified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Al Khamasin",
+     "role": "master",
+     "position": {
+      "lat_deg": 20.4672306,
+      "lon_deg": 44.5813583
+     },
+     "power_kw": 800,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "single-source"
+    },
+    {
+     "id": "W",
+     "name": "Salwa",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 24.8337889,
+      "lon_deg": 50.5701583
+     },
+     "power_kw": 800,
+     "emission_delay_us": null,
+     "coding_delay_us": 11000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "unverified"
+    },
+    {
+     "id": "X",
+     "name": "Afif",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 23.8102667,
+      "lon_deg": 42.85505
+     },
+     "power_kw": 800,
+     "emission_delay_us": null,
+     "coding_delay_us": 26000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "unverified"
+    },
+    {
+     "id": "Y",
+     "name": "Al Lith",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 20.2329028,
+      "lon_deg": 40.2087694
+     },
+     "power_kw": 200,
+     "emission_delay_us": null,
+     "coding_delay_us": 39000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "unverified"
+    },
+    {
+     "id": "Z",
+     "name": "Al Muwassam",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 16.4322306,
+      "lon_deg": 42.8013556
+     },
+     "power_kw": 800,
+     "emission_delay_us": null,
+     "coding_delay_us": 52000,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "unverified"
+    }
+   ],
+   "notes": "INCOMPLETE: in H92 Table B-1 the emission/coding-delay columns of this chain are offset by one row (values printed against the master, none against Z): 13612.55/11000, 27371.23/26000, 40526.50/39000, 53617.59/52000. The coding delays above assume a one-row shift (W..Z) and are UNVERIFIED; emission delays are left null. Supply them explicitly if you accept the shifted reading."
+  },
+  {
+   "id": "8830-saudi-north",
+   "gri_us": 88300,
+   "name": "8830 Saudi Arabia North",
+   "region": "Middle East",
+   "countries": [
+    "SA"
+   ],
+   "system": "loran-c",
+   "status": "unknown",
+   "operational_from": null,
+   "operational_to": null,
+   "time_ref": null,
+   "sources": [
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Afif",
+     "role": "master",
+     "position": {
+      "lat_deg": 23.8102667,
+      "lon_deg": 42.85505
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Salwa",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 24.8337889,
+      "lon_deg": 50.5701583
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Al Khamasin",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 20.4672306,
+      "lon_deg": 44.5813583
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified",
+     "notes": "Wikipedia: dismantled."
+    },
+    {
+     "id": "Y",
+     "name": "Ash Shaykh Humayd",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 28.1544444,
+      "lon_deg": 34.7612611
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Al Muwassam",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 16.4322306,
+      "lon_deg": 42.8013556
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified",
+     "notes": "Wikipedia: dismantled."
+    }
+   ],
+   "notes": "INCOMPLETE: emission delays and powers unknown. Positions from H92 (WGS 84), agreeing with Pub 117 2005 and Wikipedia to <1 arcsec. Operational status unknown (two stations reported dismantled)."
+  },
+  {
+   "id": "7030-saudi-south",
+   "gri_us": 70300,
+   "name": "7030 Saudi Arabia South",
+   "region": "Middle East",
+   "countries": [
+    "SA"
+   ],
+   "system": "loran-c",
+   "status": "unknown",
+   "operational_from": null,
+   "operational_to": null,
+   "time_ref": null,
+   "sources": [
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Al Khamasin",
+     "role": "master",
+     "position": {
+      "lat_deg": 20.4672306,
+      "lon_deg": 44.5813583
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified",
+     "notes": "Wikipedia: dismantled."
+    },
+    {
+     "id": "W",
+     "name": "Salwa",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 24.8337889,
+      "lon_deg": 50.5701583
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Afif",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 23.8102667,
+      "lon_deg": 42.85505
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Ash Shaykh Humayd",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 28.1544444,
+      "lon_deg": 34.7612611
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Al Muwassam",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 16.4322306,
+      "lon_deg": 42.8013556
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified",
+     "notes": "Wikipedia: dismantled."
+    }
+   ],
+   "notes": "INCOMPLETE: designators from Wikipedia only; emission delays and powers unknown; status unknown."
+  },
+  {
+   "id": "6731-lessay",
+   "gri_us": 67310,
+   "name": "6731 Lessay",
+   "region": "Northwest Europe",
+   "countries": [
+    "FR",
+    "GB",
+    "DE"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": "1997-09",
+   "operational_to": "2015-12-31",
+   "time_ref": null,
+   "sources": [
+    "ENSM Le Havre, 'Documentation nautique' v2.2 (A. Charbonnel, 2012), table '6731 - Chaine Sud Europe' (positions, power, ED) - https://ressources.profmarine.fr/doc_shom/AC_FS_sh91.pdf",
+    "Commissioners of Irish Lights, Notice to Mariners 13/2012 'Enhanced Loran (eLoran) Project Update' (Anthorn position, GRI 6731, ED 27300, station Y) - https://irishlights.ie/safety-navigation/notices-to-mariners/2012-13-eloran.aspx",
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+    "NGA Pub. 117 Radio Navigational Aids (2014), Chapter 6 Loran-C chain table - https://www.uscgexamprep.com/suppliesFiles/Publication117-RadioNavigationalAids-1643802363174.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Lessay, France",
+     "role": "master",
+     "position": {
+      "lat_deg": 49.1486733,
+      "lon_deg": -1.5047303
+     },
+     "power_kw": 250,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "ENSM Le Havre, 'Documentation nautique' v2.2 (A. Charbonnel, 2012), table '6731 - Chaine Sud Europe' (positions, power, ED) - https://ressources.profmarine.fr/doc_shom/AC_FS_sh91.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Soustons, France",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 43.7397497,
+      "lon_deg": -1.38044
+     },
+     "power_kw": 250,
+     "emission_delay_us": 13000.0,
+     "coding_delay_us": null,
+     "sources": [
+      "ENSM Le Havre, 'Documentation nautique' v2.2 (A. Charbonnel, 2012), table '6731 - Chaine Sud Europe' (positions, power, ED) - https://ressources.profmarine.fr/doc_shom/AC_FS_sh91.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified",
+     "notes": "ED from SHOM (single-source for the ED; position verified)."
+    },
+    {
+     "id": "Y",
+     "name": "Anthorn, UK",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 54.9112167,
+      "lon_deg": -3.2872833
+     },
+     "power_kw": null,
+     "emission_delay_us": 27300.0,
+     "coding_delay_us": null,
+     "sources": [
+      "Commissioners of Irish Lights, Notice to Mariners 13/2012 'Enhanced Loran (eLoran) Project Update' (Anthorn position, GRI 6731, ED 27300, station Y) - https://irishlights.ie/safety-navigation/notices-to-mariners/2012-13-eloran.aspx",
+      "ENSM Le Havre, 'Documentation nautique' v2.2 (A. Charbonnel, 2012), table '6731 - Chaine Sud Europe' (positions, power, ED) - https://ressources.profmarine.fr/doc_shom/AC_FS_sh91.pdf",
+      "NGA Pub. 117 Radio Navigational Aids (2014), Chapter 6 Loran-C chain table - https://www.uscgexamprep.com/suppliesFiles/Publication117-RadioNavigationalAids-1643802363174.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified",
+     "notes": "ED 27300 in both CIL 13/2012 and SHOM (SHOM lists the never-built Loop Head as Y). Position from CIL (54°54.673'N 3°17.237'W); Wikipedia gives 54°54'41.949\"N 3°16'42.58\"W (~0.6 km east) - position single-source. Radiated power unknown. Y from 2007/2008 (replacing the Rugby trial)."
+    },
+    {
+     "id": "Z",
+     "name": "Sylt, Germany",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 54.8083264,
+      "lon_deg": 8.2935711
+     },
+     "power_kw": 250,
+     "emission_delay_us": 42100.0,
+     "coding_delay_us": null,
+     "sources": [
+      "ENSM Le Havre, 'Documentation nautique' v2.2 (A. Charbonnel, 2012), table '6731 - Chaine Sud Europe' (positions, power, ED) - https://ressources.profmarine.fr/doc_shom/AC_FS_sh91.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified",
+     "notes": "Power 250 kW per SHOM (H92 lists 325 kW for the USCG era)."
+    }
+   ],
+   "notes": "NELS chain; Norway and France ended transmissions 31 Dec 2015 and Sylt stopped the same day (Wikipedia 'Loran-C', de.wikipedia 'LORAN'). Pub 117 2005: Bø and Ejde chains in experimental operation since 1995, Sylt chain operational late 1995, Lessay chain Sept 1997. NELS stations were synchronised to UTC; the specific UTC(k) is not recorded here. INCOMPLETE only because Anthorn's radiated power is not published in the sources used."
+  },
+  {
+   "id": "7499-sylt",
+   "gri_us": 74990,
+   "name": "7499 Sylt",
+   "region": "Northwest Europe",
+   "countries": [
+    "DE",
+    "FR",
+    "NO"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": "1995",
+   "operational_to": "2015-12-31",
+   "time_ref": null,
+   "sources": [
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+    "NGA Pub. 117 Radio Navigational Aids (2014), Chapter 6 Loran-C chain table - https://www.uscgexamprep.com/suppliesFiles/Publication117-RadioNavigationalAids-1643802363174.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+    "'Loran-C' eNav slide deck, SlideShare 38665335, NELS emission-delay table as quoted in a web-search excerpt (the deck itself could not be retrieved) - https://www.slideshare.net/slideshow/loran-c-enav/38665335"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Sylt, Germany",
+     "role": "master",
+     "position": {
+      "lat_deg": 54.8083264,
+      "lon_deg": 8.2935711
+     },
+     "power_kw": 250,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "ENSM Le Havre, 'Documentation nautique' v2.2 (A. Charbonnel, 2012), table '6731 - Chaine Sud Europe' (positions, power, ED) - https://ressources.profmarine.fr/doc_shom/AC_FS_sh91.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Lessay, France",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 49.1486733,
+      "lon_deg": -1.5047303
+     },
+     "power_kw": 250,
+     "emission_delay_us": 14100.0,
+     "coding_delay_us": null,
+     "sources": [
+      "'Loran-C' eNav slide deck, SlideShare 38665335, NELS emission-delay table as quoted in a web-search excerpt (the deck itself could not be retrieved) - https://www.slideshare.net/slideshow/loran-c-enav/38665335",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "single-source",
+     "notes": "ED 14100 from a web-search excerpt of a slide deck - single-source, treat with care."
+    },
+    {
+     "id": "Y",
+     "name": "Værlandet, Norway",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 61.2970806,
+      "lon_deg": 4.6964028
+     },
+     "power_kw": null,
+     "emission_delay_us": 29500.0,
+     "coding_delay_us": null,
+     "sources": [
+      "'Loran-C' eNav slide deck, SlideShare 38665335, NELS emission-delay table as quoted in a web-search excerpt (the deck itself could not be retrieved) - https://www.slideshare.net/slideshow/loran-c-enav/38665335",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "single-source",
+     "notes": "ED 29500 single-source (slide deck excerpt). Power unknown."
+    }
+   ],
+   "notes": "NELS chain; Norway and France ended transmissions 31 Dec 2015 and Sylt stopped the same day (Wikipedia 'Loran-C', de.wikipedia 'LORAN'). Pub 117 2005: Bø and Ejde chains in experimental operation since 1995, Sylt chain operational late 1995, Lessay chain Sept 1997. NELS stations were synchronised to UTC; the specific UTC(k) is not recorded here. INCOMPLETE: Værlandet power unknown; EDs single-source."
+  },
+  {
+   "id": "7001-bo",
+   "gri_us": 70010,
+   "name": "7001 Bø",
+   "region": "Northwest Europe / Norwegian Sea",
+   "countries": [
+    "NO"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": "1995",
+   "operational_to": "2015-12-31",
+   "time_ref": null,
+   "sources": [
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+    "NGA Pub. 117 Radio Navigational Aids (2014), Chapter 6 Loran-C chain table - https://www.uscgexamprep.com/suppliesFiles/Publication117-RadioNavigationalAids-1643802363174.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Bø, Norway",
+     "role": "master",
+     "position": {
+      "lat_deg": 68.6350575,
+      "lon_deg": 14.4632094
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Jan Mayen, Norway",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 70.9142994,
+      "lon_deg": -8.7323667
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified",
+     "notes": "NELS-era position (Wikipedia/Pub 117 agree); H92 gives 70°54'52.662\"N 8°43'58.136\"W for the USCG era."
+    },
+    {
+     "id": "Y",
+     "name": "Berlevåg, Norway",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 70.8452972,
+      "lon_deg": 29.2044556
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "notes": "NELS chain; Norway and France ended transmissions 31 Dec 2015 and Sylt stopped the same day (Wikipedia 'Loran-C', de.wikipedia 'LORAN'). Pub 117 2005: Bø and Ejde chains in experimental operation since 1995, Sylt chain operational late 1995, Lessay chain Sept 1997. NELS stations were synchronised to UTC; the specific UTC(k) is not recorded here. INCOMPLETE: emission delays and powers not found in the sources used."
+  },
+  {
+   "id": "9007-ejde",
+   "gri_us": 90070,
+   "name": "9007 Ejde",
+   "region": "Northwest Europe / North Atlantic",
+   "countries": [
+    "FO",
+    "NO"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": "1995",
+   "operational_to": "2015-12-31",
+   "time_ref": null,
+   "sources": [
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+    "NGA Pub. 117 Radio Navigational Aids (2014), Chapter 6 Loran-C chain table - https://www.uscgexamprep.com/suppliesFiles/Publication117-RadioNavigationalAids-1643802363174.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Ejde (Eiði), Faroe Islands",
+     "role": "master",
+     "position": {
+      "lat_deg": 62.2999203,
+      "lon_deg": -7.0738844
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Jan Mayen, Norway",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 70.9142994,
+      "lon_deg": -8.7323667
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Bø, Norway",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 68.6350575,
+      "lon_deg": 14.4632094
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Værlandet, Norway",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 61.2970806,
+      "lon_deg": 4.6964028
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "notes": "NELS chain; Norway and France ended transmissions 31 Dec 2015 and Sylt stopped the same day (Wikipedia 'Loran-C', de.wikipedia 'LORAN'). Pub 117 2005: Bø and Ejde chains in experimental operation since 1995, Sylt chain operational late 1995, Lessay chain Sept 1997. NELS stations were synchronised to UTC; the specific UTC(k) is not recorded here. INCOMPLETE: emission delays and powers not found in the sources used."
+  },
+  {
+   "id": "6731-anthorn-uk-eloran",
+   "gri_us": 67310,
+   "name": "6731 Anthorn (UK eLoran timing)",
+   "region": "Northwest Europe",
+   "countries": [
+    "GB"
+   ],
+   "system": "eloran",
+   "status": "unknown",
+   "operational_from": "2016-01-09",
+   "operational_to": null,
+   "time_ref": "UTC(NPL)",
+   "sources": [
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+    "Commissioners of Irish Lights, Notice to Mariners 13/2012 'Enhanced Loran (eLoran) Project Update' (Anthorn position, GRI 6731, ED 27300, station Y) - https://irishlights.ie/safety-navigation/notices-to-mariners/2012-13-eloran.aspx"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Anthorn, UK",
+     "role": "master",
+     "position": {
+      "lat_deg": 54.9112167,
+      "lon_deg": -3.2872833
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "Commissioners of Irish Lights, Notice to Mariners 13/2012 'Enhanced Loran (eLoran) Project Update' (Anthorn position, GRI 6731, ED 27300, station Y) - https://irishlights.ie/safety-navigation/notices-to-mariners/2012-13-eloran.aspx",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "single-source",
+     "notes": "Position per CIL 13/2012. Power unknown."
+    }
+   ],
+   "operator": "UK GLAs / Babcock",
+   "notes": "UK GLA eLoran: trial from Jan 2008 as 6731-Y (see chain 6731-lessay), initial operational capability 31 Oct 2014, navigation service discontinued 31 Dec 2015; from 9 Jan 2016 Anthorn transmits as master and secondary on 6731 and the eLoran timing signal remained active (Wikipedia 'Loran-C', citing GPS World 2020). Current (2026) status, emission delay of the secondary group and power are UNVERIFIED. time_ref UTC(NPL) is unverified (UK timing traceability). INCOMPLETE."
+  },
+  {
+   "id": "9930-east-asia-ferns",
+   "gri_us": 99300,
+   "name": "9930 East Asia (FERNS)",
+   "region": "East Asia",
+   "countries": [
+    "KR",
+    "JP",
+    "RU"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": "1996",
+   "operational_to": "2014-12",
+   "time_ref": null,
+   "sources": [
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+    "NGA Pub. 117 Radio Navigational Aids (2014), Chapter 6 Loran-C chain table - https://www.uscgexamprep.com/suppliesFiles/Publication117-RadioNavigationalAids-1643802363174.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+    "CheolJ, 'Loran-c-reference-code' README (emission delays of chains 7430, 8390, 9930; 2022) - https://github.com/CheolJ/Loran-c-reference-code",
+    "J. Seo et al., ENC 2013 paper (revised): Korea chain 9930 composition; Japan to discontinue Loran-C Dec 2014; Ussuriysk not yet operating - https://rntfnd.org/wp-content/uploads/2018/04/ENC2013_JiwonSeo_revised.pdf"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Pohang, South Korea",
+     "role": "master",
+     "position": {
+      "lat_deg": 36.1848139,
+      "lon_deg": 129.3409444
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Kwangju (Gwangju), South Korea",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 35.0399139,
+      "lon_deg": 126.5408889
+     },
+     "power_kw": null,
+     "emission_delay_us": 11946.97,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "CheolJ, 'Loran-c-reference-code' README (emission delays of chains 7430, 8390, 9930; 2022) - https://github.com/CheolJ/Loran-c-reference-code"
+     ],
+     "confidence": "single-source",
+     "notes": "ED single-source (CHEOLJ)."
+    },
+    {
+     "id": "X",
+     "name": "Gesashi, Japan",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 26.606975,
+      "lon_deg": 128.1491664
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Niijima, Japan",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 34.40335,
+      "lon_deg": 139.2720556
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Ussuriysk, Russia",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 44.53325,
+      "lon_deg": 131.6398333
+     },
+     "power_kw": null,
+     "emission_delay_us": 54162.44,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "CheolJ, 'Loran-c-reference-code' README (emission delays of chains 7430, 8390, 9930; 2022) - https://github.com/CheolJ/Loran-c-reference-code"
+     ],
+     "confidence": "single-source",
+     "notes": "ED single-source (CHEOLJ). ENC13 (2013): Ussuriysk 'does not yet operate' in 9930."
+    }
+   ],
+   "notes": "FERNS (Far East Radionavigation Service) chain from 1996 (Pub 117 2005). Japan planned to discontinue Loran-C in Dec 2014 (ENC13), after which 9930 continued as the Korean chain (see 9930-korea). INCOMPLETE: X/Y emission delays and all powers unknown."
+  },
+  {
+   "id": "9930-korea",
+   "gri_us": 99300,
+   "name": "9930 Korea",
+   "region": "East Asia",
+   "countries": [
+    "KR",
+    "RU"
+   ],
+   "system": "eloran",
+   "status": "operational",
+   "operational_from": "2015",
+   "operational_to": null,
+   "time_ref": "UTC(KRIS)",
+   "sources": [
+    "J. Seo et al., ENC 2013 paper (revised): Korea chain 9930 composition; Japan to discontinue Loran-C Dec 2014; Ussuriysk not yet operating - https://rntfnd.org/wp-content/uploads/2018/04/ENC2013_JiwonSeo_revised.pdf",
+    "P.-W. Son et al., 'Development of the Korean eLoran testbed and analysis of its expected positioning accuracy', IALA 2018 (Gyodong selected for the new transmitter; 9930M Pohang, 9930W Gwangju) - https://rntfnd.org/wp-content/uploads/Korea-eLoran-2018.IALA_.pdf",
+    "W. Kim et al., 'First demonstration of the Korean eLoran accuracy...', arXiv:2109.08990 (new eLoran transmitter 9930V in Incheon) - https://arxiv.org/abs/2109.08990",
+    "CheolJ, 'Loran-c-reference-code' README (emission delays of chains 7430, 8390, 9930; 2022) - https://github.com/CheolJ/Loran-c-reference-code",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Pohang",
+     "role": "master",
+     "position": {
+      "lat_deg": 36.1848139,
+      "lon_deg": 129.3409444
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "P.-W. Son et al., 'Development of the Korean eLoran testbed and analysis of its expected positioning accuracy', IALA 2018 (Gyodong selected for the new transmitter; 9930M Pohang, 9930W Gwangju) - https://rntfnd.org/wp-content/uploads/Korea-eLoran-2018.IALA_.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Gwangju (Kwangju)",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 35.0399139,
+      "lon_deg": 126.5408889
+     },
+     "power_kw": null,
+     "emission_delay_us": 11946.97,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "CheolJ, 'Loran-c-reference-code' README (emission delays of chains 7430, 8390, 9930; 2022) - https://github.com/CheolJ/Loran-c-reference-code"
+     ],
+     "confidence": "single-source",
+     "notes": "ED single-source (CHEOLJ). A Korean antenna paper describes the Gwangju antenna as rated 50 kW (web-search excerpt, not recorded as power)."
+    },
+    {
+     "id": "V",
+     "name": "Korean eLoran testbed transmitter (Gyodong/Incheon area)",
+     "role": "secondary",
+     "position": null,
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "P.-W. Son et al., 'Development of the Korean eLoran testbed and analysis of its expected positioning accuracy', IALA 2018 (Gyodong selected for the new transmitter; 9930M Pohang, 9930W Gwangju) - https://rntfnd.org/wp-content/uploads/Korea-eLoran-2018.IALA_.pdf",
+      "W. Kim et al., 'First demonstration of the Korean eLoran accuracy...', arXiv:2109.08990 (new eLoran transmitter 9930V in Incheon) - https://arxiv.org/abs/2109.08990"
+     ],
+     "confidence": "unverified",
+     "status": "testbed",
+     "notes": "KOR18 (2018): Gyodong selected for the new eLoran transmitter; ARX21: new transmitter 9930V in Incheon. A 2023 relocation to Socheong Island was reported in a web-search excerpt (unverified). Position, power and ED unknown."
+    }
+   ],
+   "operator": "Korea (MOF)",
+   "notes": "Pohang and Gwangju were time-synchronised to UTC for the Korean eLoran testbed (KOR18, ARX21); time_ref UTC(KRIS) is single-source (KOR18 simulations use UTC(KRIS)). Ussuriysk (formerly 9930-Z) omitted (not operating per ENC13). Status 'operational' per 2018-2021 papers; 2026 status unverified. INCOMPLETE: powers, V position/ED unknown. Supply overrides to simulate."
+  },
+  {
+   "id": "8930-northwest-pacific-japan",
+   "gri_us": 89300,
+   "name": "8930 Northwest Pacific (Japan)",
+   "region": "Northwest Pacific",
+   "countries": [
+    "JP",
+    "KR"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "2014-12",
+   "time_ref": null,
+   "sources": [
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+    "NGA Pub. 117 Radio Navigational Aids (2014), Chapter 6 Loran-C chain table - https://www.uscgexamprep.com/suppliesFiles/Publication117-RadioNavigationalAids-1643802363174.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+    "J. Seo et al., ENC 2013 paper (revised): Korea chain 9930 composition; Japan to discontinue Loran-C Dec 2014; Ussuriysk not yet operating - https://rntfnd.org/wp-content/uploads/2018/04/ENC2013_JiwonSeo_revised.pdf"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Niijima, Japan",
+     "role": "master",
+     "position": {
+      "lat_deg": 34.40335,
+      "lon_deg": 139.2720556
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Gesashi, Japan",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 26.606975,
+      "lon_deg": 128.1491664
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Minami-Tori-shima, Japan",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 24.2855628,
+      "lon_deg": 153.9816072
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified",
+     "notes": "H92 position (as 9970-W); Pub 117 agrees, Wikipedia differs by ~1.6 arcsec in longitude."
+    },
+    {
+     "id": "Y",
+     "name": "Tokachibuto, Japan",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 42.7436714,
+      "lon_deg": 143.7193886
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Z",
+     "name": "Pohang, South Korea",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 36.1848139,
+      "lon_deg": 129.3409444
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    }
+   ],
+   "notes": "Operated by the Japanese Maritime Safety Agency (Japan Coast Guard) after the USCG handover. End: Japan planned to discontinue Loran-C in Dec 2014 (ENC13) - exact date unverified. INCOMPLETE: emission delays and powers unknown."
+  },
+  {
+   "id": "7430-china-north-sea",
+   "gri_us": 74300,
+   "name": "7430 China North Sea",
+   "region": "East Asia",
+   "countries": [
+    "CN"
+   ],
+   "system": "loran-c",
+   "status": "operational",
+   "operational_from": "1996",
+   "operational_to": null,
+   "time_ref": "UTC(NTSC)",
+   "sources": [
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+    "NGA Pub. 117 Radio Navigational Aids (2014), Chapter 6 Loran-C chain table - https://www.uscgexamprep.com/suppliesFiles/Publication117-RadioNavigationalAids-1643802363174.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+    "CheolJ, 'Loran-c-reference-code' README (emission delays of chains 7430, 8390, 9930; 2022) - https://github.com/CheolJ/Loran-c-reference-code"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Rongcheng",
+     "role": "master",
+     "position": {
+      "lat_deg": 37.0643792,
+      "lon_deg": 122.323875
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Xuancheng",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 31.0689722,
+      "lon_deg": 118.8857722
+     },
+     "power_kw": null,
+     "emission_delay_us": 13459.7,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "CheolJ, 'Loran-c-reference-code' README (emission delays of chains 7430, 8390, 9930; 2022) - https://github.com/CheolJ/Loran-c-reference-code"
+     ],
+     "confidence": "single-source",
+     "notes": "ED single-source (CHEOLJ)."
+    },
+    {
+     "id": "Y",
+     "name": "Helong",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 42.7197222,
+      "lon_deg": 129.1075194
+     },
+     "power_kw": null,
+     "emission_delay_us": 30852.32,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "CheolJ, 'Loran-c-reference-code' README (emission delays of chains 7430, 8390, 9930; 2022) - https://github.com/CheolJ/Loran-c-reference-code"
+     ],
+     "confidence": "single-source",
+     "notes": "ED single-source (CHEOLJ)."
+    }
+   ],
+   "notes": "China MSA Loran-C chain (FERNS, operational from 1996 per Pub 117 2005). Status 'operational' is believed but unverified for 2026. time_ref UTC(NTSC) is UNVERIFIED. INCOMPLETE: powers unknown."
+  },
+  {
+   "id": "8390-china-east-sea",
+   "gri_us": 83900,
+   "name": "8390 China East Sea",
+   "region": "East Asia",
+   "countries": [
+    "CN"
+   ],
+   "system": "loran-c",
+   "status": "operational",
+   "operational_from": "1996",
+   "operational_to": null,
+   "time_ref": "UTC(NTSC)",
+   "sources": [
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+    "NGA Pub. 117 Radio Navigational Aids (2014), Chapter 6 Loran-C chain table - https://www.uscgexamprep.com/suppliesFiles/Publication117-RadioNavigationalAids-1643802363174.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+    "CheolJ, 'Loran-c-reference-code' README (emission delays of chains 7430, 8390, 9930; 2022) - https://github.com/CheolJ/Loran-c-reference-code"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Xuancheng",
+     "role": "master",
+     "position": {
+      "lat_deg": 31.0689722,
+      "lon_deg": 118.8857722
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Raoping",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 23.7238944,
+      "lon_deg": 116.89575
+     },
+     "power_kw": null,
+     "emission_delay_us": 13795.52,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "CheolJ, 'Loran-c-reference-code' README (emission delays of chains 7430, 8390, 9930; 2022) - https://github.com/CheolJ/Loran-c-reference-code"
+     ],
+     "confidence": "single-source",
+     "notes": "ED single-source (CHEOLJ)."
+    },
+    {
+     "id": "Y",
+     "name": "Rongcheng",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 37.0643792,
+      "lon_deg": 122.323875
+     },
+     "power_kw": null,
+     "emission_delay_us": 31459.7,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "CheolJ, 'Loran-c-reference-code' README (emission delays of chains 7430, 8390, 9930; 2022) - https://github.com/CheolJ/Loran-c-reference-code"
+     ],
+     "confidence": "single-source",
+     "notes": "ED single-source (CHEOLJ)."
+    }
+   ],
+   "notes": "China MSA Loran-C chain (FERNS, operational from 1996 per Pub 117 2005). Status 'operational' is believed but unverified for 2026. time_ref UTC(NTSC) is UNVERIFIED. jproc.ca quotes powers up to 1.2 MW for 8390 (not per station). INCOMPLETE: powers unknown."
+  },
+  {
+   "id": "6780-china-south-sea",
+   "gri_us": 67800,
+   "name": "6780 China South Sea",
+   "region": "East Asia",
+   "countries": [
+    "CN"
+   ],
+   "system": "loran-c",
+   "status": "operational",
+   "operational_from": "1996",
+   "operational_to": null,
+   "time_ref": "UTC(NTSC)",
+   "sources": [
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+    "NGA Pub. 117 Radio Navigational Aids (2014), Chapter 6 Loran-C chain table - https://www.uscgexamprep.com/suppliesFiles/Publication117-RadioNavigationalAids-1643802363174.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Hexian",
+     "role": "master",
+     "position": {
+      "lat_deg": 23.9675583,
+      "lon_deg": 111.7193833
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "X",
+     "name": "Raoping",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 23.7238944,
+      "lon_deg": 116.89575
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "Y",
+     "name": "Chongzuo",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 22.5432778,
+      "lon_deg": 107.2219444
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "verified",
+     "notes": "Wikipedia and Pub 117 differ by 3 arcsec in longitude."
+    }
+   ],
+   "notes": "China MSA Loran-C chain (FERNS, operational from 1996 per Pub 117 2005). Status 'operational' is believed but unverified for 2026. time_ref UTC(NTSC) is UNVERIFIED. INCOMPLETE: emission delays and powers unknown."
+  },
+  {
+   "id": "6930-chinese-1992",
+   "gri_us": 69300,
+   "name": "6930 Chinese chain (1992 listing)",
+   "region": "East Asia",
+   "countries": [
+    "CN"
+   ],
+   "system": "loran-c",
+   "status": "unknown",
+   "operational_from": null,
+   "operational_to": null,
+   "time_ref": null,
+   "sources": [
+    "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+   ],
+   "confidence": "unverified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Xindu",
+     "role": "master",
+     "position": {
+      "lat_deg": 23.9683333,
+      "lon_deg": 111.7183333
+     },
+     "power_kw": 1000,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "unverified",
+     "notes": "H92 gives 23°58.1'N 111°43.1'E (0.1' precision); appears to be the Hexian site."
+    },
+    {
+     "id": "W",
+     "name": "Xinhe",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 22.4166667,
+      "lon_deg": 107.35
+     },
+     "power_kw": 1000,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "unverified",
+     "notes": "H92 designator '1'; 22°25.0'N 107°21.0'E."
+    },
+    {
+     "id": "X",
+     "name": "Zhangxi",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 23.7283333,
+      "lon_deg": 116.8966667
+     },
+     "power_kw": 1000,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf"
+     ],
+     "confidence": "unverified",
+     "notes": "H92 designator '2'; 23°43.7'N 116°53.8'E; appears to be the Raoping site."
+    }
+   ],
+   "notes": "Listed in H92 'other Loran-C-like systems' with arc-minute positions and no delays; probably the predecessor of 6780. INCOMPLETE."
+  },
+  {
+   "id": "6000-bpl-time-service",
+   "gri_us": 60000,
+   "name": "BPL time service (Pucheng)",
+   "region": "East Asia",
+   "countries": [
+    "CN"
+   ],
+   "system": "loran-c-timing",
+   "status": "operational",
+   "operational_from": null,
+   "operational_to": null,
+   "time_ref": "UTC(NTSC)",
+   "sources": [
+    "BIPM, Time Signals 2025 (BPL entry: Pucheng 34°56'N 109°32'E, 100 kHz, Loran-C format, UTC(NTSC)) - https://webtai.bipm.org/ftp/pub/tai/annual-reports/bipm-annual-report/TIMESIGNALS/timesignals_2025.pdf"
+   ],
+   "confidence": "unverified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "BPL Pucheng",
+     "role": "master",
+     "position": {
+      "lat_deg": 34.9333333,
+      "lon_deg": 109.5333333
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "BIPM, Time Signals 2025 (BPL entry: Pucheng 34°56'N 109°32'E, 100 kHz, Loran-C format, UTC(NTSC)) - https://webtai.bipm.org/ftp/pub/tai/annual-reports/bipm-annual-report/TIMESIGNALS/timesignals_2025.pdf"
+     ],
+     "confidence": "single-source",
+     "notes": "Position to 1 arcmin (BIPM). Power quoted 800 kW (Wikipedia) or 1000-2000 kW (Chinese source via web-search excerpt) - not recorded."
+    }
+   ],
+   "notes": "NTSC long-wave time service on 100 kHz in Loran-C format, UTC(NTSC) (BIPM Time Signals 2025). The group repetition interval 60 000 us is UNVERIFIED (a 60 ms group period was quoted from a Chinese source in a web-search excerpt). Not a navigation chain. INCOMPLETE (power)."
+  },
+  {
+   "id": "6042-india-bombay",
+   "gri_us": 60420,
+   "name": "6042 India (Bombay)",
+   "region": "South Asia",
+   "countries": [
+    "IN"
+   ],
+   "system": "loran-c",
+   "status": "unknown",
+   "operational_from": null,
+   "operational_to": null,
+   "time_ref": null,
+   "sources": [
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Dhrangadhra",
+     "role": "master",
+     "position": {
+      "lat_deg": 23.0038889,
+      "lon_deg": 71.5275
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "single-source"
+    },
+    {
+     "id": "W",
+     "name": "Veraval",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 20.9519444,
+      "lon_deg": 70.3369444
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "single-source"
+    },
+    {
+     "id": "X",
+     "name": "Bilimora",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 20.7611111,
+      "lon_deg": 73.0380556
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "single-source"
+    }
+   ],
+   "notes": "Positions from Pub 117 (2005); Wikipedia gives positions 2-9 arcsec different (probably a datum difference). Status in 2026 unknown. jproc.ca quotes 11 kW minimum power for Bombay 6042 (not per station). INCOMPLETE: emission delays and powers unknown."
+  },
+  {
+   "id": "5543-india-calcutta",
+   "gri_us": 55430,
+   "name": "5543 India (Calcutta)",
+   "region": "South Asia",
+   "countries": [
+    "IN"
+   ],
+   "system": "loran-c",
+   "status": "unknown",
+   "operational_from": null,
+   "operational_to": null,
+   "time_ref": null,
+   "sources": [
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "unverified",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Balasore",
+     "role": "master",
+     "position": {
+      "lat_deg": 21.4855556,
+      "lon_deg": 86.9216667
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "single-source"
+    },
+    {
+     "id": "W",
+     "name": "Patpur (Patapur)",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 20.4466667,
+      "lon_deg": 85.8297222
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "unverified",
+     "notes": "Designator W per Pub 117 2005; Wikipedia gives Patapur as X."
+    },
+    {
+     "id": "X",
+     "name": "Diamond Harbour",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 22.1716667,
+      "lon_deg": 88.2069444
+     },
+     "power_kw": null,
+     "emission_delay_us": null,
+     "coding_delay_us": null,
+     "sources": [
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "unverified",
+     "notes": "Designator X per Pub 117 2005; Wikipedia gives Diamond Harbor as W."
+    }
+   ],
+   "notes": "Positions from Pub 117 (2005); Wikipedia gives positions 2-9 arcsec different (probably a datum difference). Status in 2026 unknown. Secondary designators conflict between sources (unverified). jproc.ca names it 'Calcutta 5943' (typo or older GRI). INCOMPLETE: emission delays and powers unknown."
+  },
+  {
+   "id": "7270-newfoundland-east-coast",
+   "gri_us": 72700,
+   "name": "7270 Newfoundland East Coast",
+   "region": "North America (Atlantic)",
+   "countries": [
+    "CA"
+   ],
+   "system": "loran-c",
+   "status": "terminated",
+   "operational_from": null,
+   "operational_to": "2010-08-03",
+   "time_ref": null,
+   "sources": [
+    "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+    "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+    "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+   ],
+   "confidence": "single-source",
+   "stations": [
+    {
+     "id": "M",
+     "name": "Comfort Cove, NL",
+     "role": "master",
+     "position": {
+      "lat_deg": 49.3315472,
+      "lon_deg": -54.861825
+     },
+     "power_kw": null,
+     "emission_delay_us": 0.0,
+     "coding_delay_us": null,
+     "sources": [
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf",
+      "Wikipedia 'Loran-C', section 'List of LORAN-C transmitters' (wikitext retrieved 2026-11-18) - https://en.wikipedia.org/wiki/Loran-C"
+     ],
+     "confidence": "verified"
+    },
+    {
+     "id": "W",
+     "name": "Cape Race, NL",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 46.775635,
+      "lon_deg": -53.174335
+     },
+     "power_kw": 1000,
+     "emission_delay_us": null,
+     "coding_delay_us": 11000,
+     "sources": [
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "single-source",
+     "notes": "Power from H92 (same transmitter, chain 5930). Coding delay from PRC68."
+    },
+    {
+     "id": "X",
+     "name": "Fox Harbour, NL",
+     "role": "secondary",
+     "position": {
+      "lat_deg": 52.3764589,
+      "lon_deg": -55.7077394
+     },
+     "power_kw": 900,
+     "emission_delay_us": null,
+     "coding_delay_us": 25000,
+     "sources": [
+      "B. Clarke (N6GCE), 'LORAN-C Chains' table of positions and coding delays - https://prc68.com/I/Loran-c.shtml",
+      "USCG, Loran-C User Handbook, COMDTPUB P16562.6 (1992), Appendix B, Table B-1 'Positions of Loran-C transmitters in WGS 84 coordinates' (positions, emission delay, coding delay, nominal power) - https://www.loran.org/otherarchives/1992%20Loran-C%20User%20Handbook%20-%20USCG.pdf",
+      "NGA Pub. 117 Radio Navigational Aids (2005), Chapter 6 Part I Loran-C, 600D station list - https://www.govinfo.gov/content/pkg/GOVPUB-D5_300-PURL-LPS59185/pdf/GOVPUB-D5_300-PURL-LPS59185.pdf"
+     ],
+     "confidence": "single-source",
+     "notes": "Power from H92 (same transmitter, chain 5930). Coding delay from PRC68."
+    }
+   ],
+   "notes": "Not in the 1992 handbook. Canadian Loran-C ended 3 Aug 2010 (Wikipedia). INCOMPLETE: emission delays and Comfort Cove power unknown (only coding delays published by PRC68)."
+  }
+ ]
+}
