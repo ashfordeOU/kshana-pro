@@ -106,6 +106,7 @@ name = "kshana-eloran"
 version = "0.1.0"
 dependencies = [
  "hex",
+ "libc",
  "rand",
  "rand_chacha",
  "serde",
