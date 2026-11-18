@@ -54,6 +54,7 @@ pub mod rx;
 #[cfg(test)]
 mod tests;
 
+use crate::chain::Chain;
 use crate::signal::GroupModulator;
 use crc::FrameCrc;
 use mapper::{Mapper, MapperSpec, DATA_PULSE};
@@ -93,7 +94,7 @@ fn d_log_limit() -> usize {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct LdcCommon {
     /// Round-robin message list of every station without its own schedule. Empty: station
-    /// ID, UTC time (when `gri_us` is set) and a null message.
+    /// ID, UTC time (when the GRI is known: from the chain, or `gri_us`) and a null message.
     #[serde(default)]
     pub schedule: Vec<ScheduleEntry>,
     #[serde(default)]
@@ -102,6 +103,8 @@ pub struct LdcCommon {
     #[serde(default)]
     pub stations: Option<Vec<usize>>,
     /// The chain's GRI (µs), needed by time-dependent messages (UTC time, DGNSS Z-count).
+    /// Optional: the scenario builder takes it from the chain ([`LdcConfig::for_chain`]);
+    /// an explicit value is an override that must equal the chain's GRI.
     #[serde(default)]
     pub gri_us: Option<u32>,
     /// HMAC key (hex) of authentication messages; empty key when absent.
@@ -310,6 +313,55 @@ impl LdcConfig {
         })
     }
 
+    /// Settings common to every scheme (`None` for no modulation).
+    pub fn common(&self) -> Option<&LdcCommon> {
+        match self {
+            LdcConfig::None => None,
+            LdcConfig::Generic(g) => Some(&g.common),
+            LdcConfig::Eurofix(e) => Some(&e.common),
+            LdcConfig::NinthPulse(p) => Some(&p.common),
+        }
+    }
+    fn common_mut(&mut self) -> Option<&mut LdcCommon> {
+        match self {
+            LdcConfig::None => None,
+            LdcConfig::Generic(g) => Some(&mut g.common),
+            LdcConfig::Eurofix(e) => Some(&mut e.common),
+            LdcConfig::NinthPulse(p) => Some(&mut p.common),
+        }
+    }
+
+    /// This configuration completed from the chain it modulates: `gri_us` is taken from
+    /// the chain (an explicit `gri_us` must agree with it, else an error), and the station
+    /// indices of `stations` / `station_schedules` are checked against the chain's
+    /// stations. The scenario builder and the receiver call this, so the `ldc` table need
+    /// not repeat the chain's GRI.
+    pub fn for_chain(&self, chain: &Chain) -> Result<LdcConfig, String> {
+        let mut c = self.clone();
+        let n = chain.stations.len();
+        if let Some(common) = c.common_mut() {
+            match common.gri_us {
+                Some(g) if g != chain.gri_us => {
+                    return Err(format!(
+                        "chain {}: ldc gri_us {g} disagrees with the chain's gri_us {}",
+                        chain.name, chain.gri_us
+                    ))
+                }
+                _ => common.gri_us = Some(chain.gri_us),
+            }
+            let bad = common
+                .stations
+                .iter()
+                .flatten()
+                .chain(common.station_schedules.iter().map(|s| &s.station))
+                .find(|s| **s >= n);
+            if let Some(s) = bad {
+                return Err(format!("chain {}: ldc station index {s} out of range (chain has {n} stations)", chain.name));
+            }
+        }
+        Ok(c)
+    }
+
     /// Compile to the shared transmit/receive description (`None` for no modulation).
     pub fn compile(&self) -> Result<Option<Compiled>, String> {
         let (name, mapper, fec, frame_crc, data_pulse, common) = match self {
@@ -398,7 +450,9 @@ impl LdcConfig {
             matches!(e.spec, MessageSpec::UtcTime { .. } | MessageSpec::Dgnss { z_count: None, .. })
         });
         if needs_time && common.gri_us.is_none() {
-            return Err("LDC: utc_time / dgnss (without z_count) messages need gri_us in the ldc table".into());
+            return Err("LDC: utc_time / dgnss (without z_count) messages need the chain's GRI: build with the \
+                        chain (LdcConfig::for_chain) or set gri_us in the ldc table"
+                .into());
         }
         if let Some(g) = common.gri_us {
             if !(40_000..=99_990).contains(&g) || g % 10 != 0 {
@@ -424,12 +478,19 @@ impl LdcConfig {
     }
 }
 
-/// Build the concrete modulator (keeps access to the symbol log and truth methods).
-pub fn build_modulator(cfg: &LdcConfig) -> Result<Option<LdcModulator>, String> {
+/// Build the concrete modulator (keeps access to the symbol log and truth methods) for
+/// `chain` (see [`LdcConfig::for_chain`]); `None` uses the configuration as it stands
+/// (time-dependent messages then need an explicit `gri_us`).
+pub fn build_modulator(cfg: &LdcConfig, chain: Option<&Chain>) -> Result<Option<LdcModulator>, String> {
+    let cfg = match chain {
+        Some(c) => cfg.for_chain(c)?,
+        None => cfg.clone(),
+    };
     Ok(cfg.compile()?.map(LdcModulator::new))
 }
 
-/// Build the modulator as a trait object (used by the scenario builder).
-pub fn build(cfg: &LdcConfig) -> Result<Option<Box<dyn GroupModulator>>, String> {
-    Ok(build_modulator(cfg)?.map(|m| Box::new(m) as Box<dyn GroupModulator>))
+/// Build the modulator as a trait object (used by the scenario builder, which passes the
+/// chain).
+pub fn build(cfg: &LdcConfig, chain: Option<&Chain>) -> Result<Option<Box<dyn GroupModulator>>, String> {
+    Ok(build_modulator(cfg, chain)?.map(|m| Box::new(m) as Box<dyn GroupModulator>))
 }

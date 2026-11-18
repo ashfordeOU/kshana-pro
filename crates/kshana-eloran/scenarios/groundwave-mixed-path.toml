@@ -62,8 +62,8 @@ eps_r = 15.0
 vertices = [[48.0, 2.0], [52.5, 2.0], [52.5, 8.0], [48.0, 8.0]]
 
 [propagation.ground.temporal]
-epoch_day_of_year = 322.0   # 2026-11-18
-epoch_hour_utc = 0.0
+# day of year and UTC hour come from [scene] start_utc; epoch_day_of_year / epoch_hour_utc
+# here would override them
 diurnal_amp_ns = 15.0
 diurnal_peak_hour_utc = 14.0
 seasonal_amp_ns = 40.0

@@ -50,7 +50,9 @@
 //!
 //! `temporal` adds a deterministic diurnal and seasonal term to ASF,
 //! `ΔASF(t) = L·[A_d cos(2π(h − h_d)/24) + A_s cos(2π(D − D_s)/365.2425)]`, with `h` the UTC
-//! hour and `D` the day of year at scene time `t` (from the configured epoch), and `L` the
+//! hour and `D` the day of year at scene time `t` (from the scene start given to [`build`]
+//! by its [`BuildContext`], or from an explicit `epoch_day_of_year` / `epoch_hour_utc`
+//! override in the `temporal` table), and `L` the
 //! land fraction of the path (`scale_by_land_fraction`, default true, so an all-sea path
 //! keeps ASF = 0). `sigma_seasonal_frac` scales every land conductivity (σ < 1 S/m) by
 //! `1 + f·cos(2π(D₀ − D_σ)/365.2425)` evaluated at the scene epoch `D₀` (frozen for the run:
@@ -74,10 +76,10 @@
 use super::conductivity::{ConductivityConfig, ConductivityMap, GroundConst};
 use super::millington::{millington, sections_from_samples};
 use super::smooth_earth::{near_field, Ground, GroundCurve, SEAWATER, GROUP_HALF_BAND_HZ};
-use super::{PathEffect, PathKind, PropagationModel, C};
+use super::{BuildContext, PathEffect, PathKind, PropagationModel, C};
 use crate::chain::Station;
 use crate::geo::{direct, inverse, path_points, Geo};
-use crate::time::Ps;
+use crate::time::{AbsTime, Ps};
 use crate::traj::RxState;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -174,11 +176,14 @@ impl Default for GroundConfig {
 /// Deterministic temporal variability of ASF (see the module documentation).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct TemporalConfig {
-    /// Day of year (1.0 = 1 January 00:00 UTC) and UTC hour at scene time 0.
-    #[serde(default = "d_one")]
-    pub epoch_day_of_year: f64,
-    #[serde(default)]
-    pub epoch_hour_utc: f64,
+    /// Override of the day of year (1.0 = 1 January 00:00 UTC) and UTC hour at scene time
+    /// 0. When both are absent they are derived from the scene start ([`build`] with its
+    /// [`BuildContext`]); when only one is given the other takes its former default (day
+    /// 1.0, hour 0.0), so older scenario files keep their meaning.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub epoch_day_of_year: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub epoch_hour_utc: Option<f64>,
     /// Diurnal amplitude (ns) and UTC hour of its maximum.
     #[serde(default)]
     pub diurnal_amp_ns: f64,
@@ -199,17 +204,36 @@ pub struct TemporalConfig {
     pub sigma_peak_day: f64,
 }
 
-fn d_one() -> f64 {
-    1.0
-}
-
 const YEAR_D: f64 = 365.2425;
 
 impl TemporalConfig {
+    /// Epoch (day of year, UTC hour) at scene time 0 used by the formulas: the explicit
+    /// override, else day 1.0 / hour 0.0 (see [`TemporalConfig::resolved`]).
+    pub fn epoch(&self) -> (f64, f64) {
+        (self.epoch_day_of_year.unwrap_or(1.0), self.epoch_hour_utc.unwrap_or(0.0))
+    }
+
+    /// A copy whose epoch is fixed: kept if either epoch field is set, otherwise taken
+    /// from the scene start `start` (day of year without its fractional part, and the
+    /// UTC hour).
+    pub fn resolved(&self, start: AbsTime) -> TemporalConfig {
+        let mut t = self.clone();
+        if t.epoch_day_of_year.is_none() && t.epoch_hour_utc.is_none() {
+            let u = start.utc_day_hour();
+            t.epoch_day_of_year = Some(u.day_of_year.floor());
+            t.epoch_hour_utc = Some(u.hour_utc);
+        }
+        let (d, h) = t.epoch();
+        t.epoch_day_of_year = Some(d);
+        t.epoch_hour_utc = Some(h);
+        t
+    }
+
     /// ΔASF (s) at scene time `t_s` for a path with land fraction `land`.
     pub fn delta_asf_s(&self, t_s: f64, land: f64) -> f64 {
-        let hours = self.epoch_hour_utc + t_s / 3600.0;
-        let day = self.epoch_day_of_year + hours / 24.0;
+        let (d0, h0) = self.epoch();
+        let hours = h0 + t_s / 3600.0;
+        let day = d0 + hours / 24.0;
         let h = hours.rem_euclid(24.0);
         let v = self.diurnal_amp_ns * (2.0 * PI * (h - self.diurnal_peak_hour_utc) / 24.0).cos()
             + self.seasonal_amp_ns * (2.0 * PI * (day - self.seasonal_peak_day) / YEAR_D).cos();
@@ -218,8 +242,8 @@ impl TemporalConfig {
     }
     /// Land-conductivity scale at the epoch.
     pub fn sigma_scale(&self) -> f64 {
-        1.0 + self.sigma_seasonal_frac
-            * (2.0 * PI * (self.epoch_day_of_year + self.epoch_hour_utc / 24.0 - self.sigma_peak_day) / YEAR_D).cos()
+        let (d0, h0) = self.epoch();
+        1.0 + self.sigma_seasonal_frac * (2.0 * PI * (d0 + h0 / 24.0 - self.sigma_peak_day) / YEAR_D).cos()
     }
 }
 
@@ -494,7 +518,10 @@ impl PropagationModel for Groundwave {
     }
 }
 
-pub fn build(cfg: &GroundConfig) -> Result<Box<dyn PropagationModel>, String> {
+/// Build a groundwave model; the temporal terms take their epoch from `ctx.start` unless
+/// the configuration overrides it (see [`TemporalConfig::resolved`]).
+pub fn build(cfg: &GroundConfig, ctx: &BuildContext) -> Result<Box<dyn PropagationModel>, String> {
+    let resolve = |t: &Option<TemporalConfig>| t.as_ref().map(|t| t.resolved(ctx.start));
     match cfg {
         GroundConfig::Simple { atten_db_per_1000km } => {
             Ok(Box::new(Simple { atten_db_per_1000km: *atten_db_per_1000km }))
@@ -502,12 +529,12 @@ pub fn build(cfg: &GroundConfig) -> Result<Box<dyn PropagationModel>, String> {
         GroundConfig::SmoothEarth { sigma_s_m, eps_r, k_factor, temporal } => {
             let map = ConductivityMap::build(&ConductivityConfig::Uniform { sigma_s_m: *sigma_s_m, eps_r: *eps_r })?;
             let label = format!("groundwave-smooth-earth(σ={sigma_s_m} S/m, k={k_factor})");
-            Ok(Box::new(Groundwave::new(map, *k_factor, d_sample(), d_grid(), temporal.clone(), &label)?))
+            Ok(Box::new(Groundwave::new(map, *k_factor, d_sample(), d_grid(), resolve(temporal), &label)?))
         }
         GroundConfig::Millington { conductivity, k_factor, sample_km, asf_grid_deg, temporal } => {
             let map = ConductivityMap::build(conductivity)?;
             let label = format!("groundwave-millington(k={k_factor})");
-            Ok(Box::new(Groundwave::new(map, *k_factor, *sample_km, *asf_grid_deg, temporal.clone(), &label)?))
+            Ok(Box::new(Groundwave::new(map, *k_factor, *sample_km, *asf_grid_deg, resolve(temporal), &label)?))
         }
     }
 }
@@ -761,8 +788,8 @@ mod tests {
     #[test]
     fn temporal_terms() {
         let t = TemporalConfig {
-            epoch_day_of_year: 1.0,
-            epoch_hour_utc: 0.0,
+            epoch_day_of_year: Some(1.0),
+            epoch_hour_utc: Some(0.0),
             diurnal_amp_ns: 10.0,
             diurnal_peak_hour_utc: 6.0,
             seasonal_amp_ns: 30.0,
@@ -801,8 +828,48 @@ diurnal_amp_ns = 5.0
         )
         .unwrap();
         assert!(matches!(c, GroundConfig::Millington { .. }));
-        build(&c).unwrap();
+        build(&c, &ctx("2026-11-18T00:00:00Z")).unwrap();
         let s: GroundConfig = toml::from_str("model = \"smooth_earth\"").unwrap();
         assert_eq!(s, GroundConfig::SmoothEarth { sigma_s_m: 5.0, eps_r: None, k_factor: K_LORAN, temporal: None });
+    }
+
+    fn ctx(utc: &str) -> BuildContext {
+        BuildContext::new(AbsTime::from_utc_iso(utc).unwrap(), 1.0, 0)
+    }
+
+    #[test]
+    fn temporal_epoch_comes_from_the_scene_start_unless_overridden() {
+        let t: TemporalConfig = toml::from_str("diurnal_amp_ns = 10.0\ndiurnal_peak_hour_utc = 6.0").unwrap();
+        assert_eq!(t.epoch_day_of_year, None);
+        let r = t.resolved(AbsTime::from_utc_iso("2026-11-18T06:00:00Z").unwrap());
+        assert_eq!((r.epoch_day_of_year, r.epoch_hour_utc), (Some(322.0), Some(6.0)));
+        // at the diurnal peak hour: ΔASF = +A on an all-land path
+        assert!((r.delta_asf_s(0.0, 1.0) * 1e9 - 10.0).abs() < 1e-9);
+        // through the model: a scene starting at 06:00 sees the peak, one at 18:00 the trough
+        let cfg = |toml_t: &str| -> GroundConfig {
+            toml::from_str(&format!("model = \"smooth_earth\"\nsigma_s_m = 0.003\n[temporal]\n{toml_t}")).unwrap()
+        };
+        let c = cfg("diurnal_amp_ns = 10.0\ndiurnal_peak_hour_utc = 6.0");
+        let st = Station {
+            id: "M".into(),
+            name: "M".into(),
+            role: crate::signal::Role::Master,
+            position: tx(),
+            power_kw: 1.0,
+            emission_delay_us: 0.0,
+            time_ref: String::new(),
+            tx_clock: None,
+            ecd_us: 0.0,
+            status: crate::chain::StationStatus::On,
+            faults: vec![],
+        };
+        let rx = RxState { t_s: 0.0, pos: at_km(300.0), heading_rad: 0.0, speed_mps: 0.0 };
+        let a = build(&c, &ctx("2026-11-18T06:00:00Z")).unwrap().paths(&st, &rx)[0];
+        let b = build(&c, &ctx("2026-11-18T18:00:00Z")).unwrap().paths(&st, &rx)[0];
+        assert!(((a.asf_ns - b.asf_ns) - 20.0).abs() < 1e-6, "{}", a.asf_ns - b.asf_ns);
+        // an explicit epoch overrides the scene start (backward-compatible files)
+        let o = cfg("diurnal_amp_ns = 10.0\ndiurnal_peak_hour_utc = 6.0\nepoch_day_of_year = 322.0\nepoch_hour_utc = 6.0");
+        let c2 = build(&o, &ctx("2026-11-18T18:00:00Z")).unwrap().paths(&st, &rx)[0];
+        assert_eq!(c2.asf_ns, a.asf_ns);
     }
 }
