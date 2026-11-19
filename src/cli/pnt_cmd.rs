@@ -9,6 +9,8 @@
 //! * `kshana-pro scorecard osnma <log.json> ...` and `scorecard osnma-synth` (C6, gate
 //!   `pro-receiver-scorecard`);
 //! * `kshana-pro exposure equipment|voyage ...` (C7, gate `pro-insurer-scorecard`);
+//! * `kshana-pro timing attack ...` and `timing attack-template` (C8, gate
+//!   `pro-timing-scorecard`).
 //!
 //! Producing a signed result needs the licence feature of its gate; verifying a signed
 //! directory needs none (`kshana-pro dossier verify`).
@@ -258,5 +260,99 @@ pub fn voyage(args: &[String]) -> ExitCode {
             ExitCode::SUCCESS
         }
         Err(e) => fail(e),
+    }
+}
+
+pub const ATTACK_USAGE: &str = "usage: kshana-pro timing attack <scenario.toml | prtc | eprtc | substation> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]\n\
+        A GNSS-disciplined clock (PRTC/ePRTC or substation PTP grandmaster) under a drag-and-step spoof: detector, holdover or eLoran fallback, time error against masks, signed (Pro)\n\
+    kshana-pro timing attack-template <prtc|eprtc|substation>\n\
+        Print a preset scenario as TOML (free)";
+
+fn attack_preset(name: &str) -> Option<crate::timing::attack::AttackScenario> {
+    use crate::timing::attack::{AttackScenario, DetectorKind, Fallback, Mask};
+    Some(match name {
+        "prtc" => AttackScenario::default(),
+        "eprtc" => {
+            let mut s = AttackScenario {
+                title: "ePRTC (cesium) with an eLoran cross-check under a drag-and-step spoof"
+                    .into(),
+                preset: "cesium".into(),
+                loop_tau_s: 1000.0,
+                duration_s: 21_600.0,
+                fallback: Fallback::Eloran,
+                ..AttackScenario::default()
+            };
+            s.spoof.start_s = 12_000.0;
+            s.spoof.step_s = 14_000.0;
+            s.detector.kind = DetectorKind::CrossCheck;
+            s.detector.window_s = 120.0;
+            s.detector.calib_from_s = 10_000.0;
+            s.detector.calib_to_s = 11_500.0;
+            s.masks.push(Mask {
+                name: "ePRTC holdover (14 days)".into(),
+                limit_ns: 100.0,
+                source: "ITU-T G.8272.1 (illustrative, confirm against the Recommendation)".into(),
+            });
+            s
+        }
+        "substation" => AttackScenario::substation(),
+        _ => return None,
+    })
+}
+
+/// `timing attack`.
+pub fn attack(args: &[String]) -> ExitCode {
+    use crate::timing::attack as a;
+    let Some(arg) = file_arg(args) else {
+        return fail(ATTACK_USAGE);
+    };
+    let r = producing(args, "pro-timing-scorecard").and_then(|(out, seed, signer, utc)| {
+        let (scn, src) = match attack_preset(arg) {
+            Some(s) => {
+                let t = toml::to_string_pretty(&s).map_err(|e| e.to_string())?;
+                (s, t)
+            }
+            None => {
+                let t = std::fs::read_to_string(arg).map_err(|e| format!("{arg}: {e}"))?;
+                let s: a::AttackScenario = toml::from_str(&t).map_err(|e| format!("{arg}: {e}"))?;
+                (s, t)
+            }
+        };
+        let rep = a::run(&scn)?;
+        let d = Path::new(&out);
+        let io = |e: std::io::Error| format!("{out}: {e}");
+        std::fs::create_dir_all(d).map_err(io)?;
+        std::fs::write(
+            d.join("attack-report.json"),
+            serde_json::to_string_pretty(&rep).unwrap_or_default() + "\n",
+        )
+        .map_err(io)?;
+        std::fs::write(d.join("scenario.toml"), src).map_err(io)?;
+        sign(&out, &seed, &signer, &utc)?;
+        Ok((rep, out))
+    });
+    match r {
+        Ok((rep, out)) => {
+            let met = rep.masks.iter().filter(|m| m.met).count();
+            eprintln!(
+                "[timing attack] alarm {}; max |TE| after the attack {:.1} ns; {met} of {} masks met; signed in {out}",
+                rep.alarm_s.map(|a| format!("at {a:.0} s")).unwrap_or_else(|| "none".into()),
+                rep.max_abs_te_after_attack_ns,
+                rep.masks.len()
+            );
+            ExitCode::SUCCESS
+        }
+        Err(e) => fail(e),
+    }
+}
+
+/// `timing attack-template`.
+pub fn attack_template(args: &[String]) -> ExitCode {
+    match args.get(1).and_then(|n| attack_preset(n)) {
+        Some(s) => {
+            print!("{}", toml::to_string_pretty(&s).unwrap_or_default());
+            ExitCode::SUCCESS
+        }
+        None => fail(ATTACK_USAGE),
     }
 }

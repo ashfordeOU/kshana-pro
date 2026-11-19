@@ -1,6 +1,6 @@
 // PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
-//! `kshana-pro timing <assess|console|metrics|history|audit>` (roadmap 0.42 T1-T3).
+//! `kshana-pro timing <assess|console|metrics|history|audit|attack>` (roadmap 0.42 T1-T3; W1119 C8).
 //! `assess` needs `pro-timing-holdover`; `console`, `metrics` and `history` need
 //! `pro-timing-fleet`; `audit` needs `pro-timing-audit`. Verifying an audit report needs no
 //! licence: `kshana-pro dossier verify <dir> --trust <key>`.
@@ -19,7 +19,8 @@ pub const USAGE: &str = "usage: kshana-pro timing <command>\n\
     metrics <fleet.toml> [--out <file.prom>] [--license <token>] [--dev]   The fleet in the Prometheus text format, for the Grafana dashboard (Pro)\n\
     history verify <dir>                                                     Check every clock's evidence chain (no licence needed)\n\
     scorecard <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Timing scorecard under threat library spoofing scenarios, signed (Pro, T4); verify with `kshana-pro dossier verify` (free)\n\
-    audit <fleet.toml> --profile <rts25-traceability|nist-ir-8323-profile> --out <dir> --signer <name> --key-file <file> [--evidence <dir>] [--operator <operator.toml>] [--utc <iso>] [--license <token>] [--dev]   Signed audit report mapped to the profile (Pro); verify with `kshana-pro dossier verify` (free)";
+    audit <fleet.toml> --profile <rts25-traceability|nist-ir-8323-profile> --out <dir> --signer <name> --key-file <file> [--evidence <dir>] [--operator <operator.toml>] [--utc <iso>] [--license <token>] [--dev]   Signed audit report mapped to the profile (Pro); verify with `kshana-pro dossier verify` (free)\n\
+    attack <scenario.toml|prtc|eprtc|substation> --out <dir> --signer <name> --key-file <file> [--dev]   Holdover under a GNSS drag-and-step spoof: detector, fallback, time error against masks, signed (Pro; `kshana-pro timing attack` for details)";
 
 fn fail(msg: impl std::fmt::Display) -> ExitCode {
     eprintln!("error: {msg}");
@@ -86,6 +87,8 @@ pub fn run(args: &[String]) -> ExitCode {
     let sub = args.first().map(String::as_str);
     let file = args.get(1).filter(|a| !a.starts_with("--")).cloned();
     match (sub, file) {
+        (Some("attack"), _) => super::pnt_cmd::attack(args),
+        (Some("attack-template"), _) => super::pnt_cmd::attack_template(args),
         (Some("history"), Some(v)) if v == "verify" => {
             let Some(dir) = args.get(2) else {
                 return fail(USAGE);
