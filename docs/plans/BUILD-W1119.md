@@ -27,7 +27,7 @@ Status: [ ] todo, [~] in progress, [x] done (commit sha).
 - [x] A10 eLoran-disciplined oscillator bench + GNSS->eLoran switchover transients (01-17/25)
 - [x] A11 Transmitter acceptance automation: ECD, zero-crossing jitter, phase code, PCI (01-22)
 - [x] A12 Impulsive atmospheric noise validated against receiver behaviour (01-10)
-- [~] A13 R-Mode (MF R-Mode done: synthesis, ranging, fix; VDES R-Mode and G1187 conformance pending): MF (≈300 kHz) and VDES R-Mode signals + propagation + IALA G1187 conformance (01-11, 02-3)
+- [~] A13 R-Mode (MF R-Mode done; VDES R-Mode physics done with placeholder burst parameters pending IALA G1139/G1158; G1187 conformance pending the specification text): MF (≈300 kHz) and VDES R-Mode signals + propagation + IALA G1187 conformance (01-11, 02-3)
 - [x] A14 Unified LF+GNSS interference event schema and report (01-23)
 - [x] A15 Coherent LF + L-band record and replay on one timeline (01-9)
 - [x] A16 Tactical/deployable transmitter and signals-of-opportunity scenarios (01-18/19)

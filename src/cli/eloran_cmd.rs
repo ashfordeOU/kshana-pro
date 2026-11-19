@@ -51,6 +51,9 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         Equal-power Gaussian vs Middleton Class A noise: timing error of the matched filter with no,\n\
         clip and blank impulse mitigation (Enterprise). `rx --impulse clip|blank [--impulse-k <k>]`\n\
         applies the mitigation to a recording before the receiver\n\
+    rmode-vdes <vdes.toml> --out <report.json> [--license <token>] [--dev]\n\
+        VDES R-Mode (VHF): radio horizon, two-ray sea multipath, Cramér–Rao burst timing, fix; burst\n\
+        parameters are placeholders pending IALA G1139/G1158 (Enterprise)\n\
     survey-plan <survey.toml> --out <plan.json> [--license <token>] [--dev]\n\
         Integrity-driven ASF survey planning: where to measure ASF so the protection level over the\n\
         service area falls fastest (Gaussian-process ASF prior, greedy selection) (Enterprise)\n\
@@ -197,6 +200,22 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("bench") => bench_cmd(args),
         Some("edo") => edo_cmd(args),
         Some("events") => events_cmd(args),
+        Some("rmode-vdes") => done((|| {
+            use kshana_eloran::rmode::vdes::{run, VdesConfig};
+            if licensed(args).is_err() {
+                return Err("licence: pro-eloran is required".into());
+            }
+            let path = args.get(1).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+            let out = flag(args, "--out").ok_or("--out <report.json> is required")?;
+            let cfg: VdesConfig =
+                toml::from_str(&read(path)?).map_err(|e| format!("{path}: {e}"))?;
+            let r = run(&cfg);
+            write_json(&out, &r)?;
+            Ok(match r.horizontal_error_m {
+                Some(e) => format!("VDES R-Mode: {} stations in the radio horizon, fix error {e:.1} m (burst parameters are placeholders pending IALA G1139/G1158) -> {out}", r.used),
+                None => format!("VDES R-Mode: only {} stations within the radio horizon: no fix -> {out}", r.used),
+            })
+        })()),
         Some("survey-plan") => done((|| {
             use kshana_eloran::plan::survey::{plan, SurveyConfig};
             if licensed(args).is_err() {

@@ -26,6 +26,8 @@
 //! here depend on the stated tone level, noise and skywave and are not fitted to the testbed.
 //! Not a G1187 conformance test.
 
+pub mod vdes;
+
 use crate::geo::{inverse, Geo};
 use crate::prop::smooth_earth::{Ground, GroundCurve, SEAWATER};
 use crate::prop::C;
