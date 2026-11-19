@@ -1,0 +1,38 @@
+[package]
+name = "kshana-eloran"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+description = "Kshana Pro eLoran/GNSS signal simulation engine (proprietary)"
+authors = ["Chakshu Baweja <contact@ashforde.org>"]
+# CLOSED: proprietary Kshana Pro component. Never publish.
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+sha2 = "0.10"
+hex = "0.4"
+rand = "0.8"
+rand_chacha = "0.3"
+
+# dlopen for the optional SoapySDR hardware driver (feature `soapy`, unix only).
+[target.'cfg(unix)'.dependencies]
+libc = { version = "0.2", optional = true }
+
+[features]
+default = []
+# SoapySDR 0.8 hardware output/capture, opened at run time with dlopen (no link dependency).
+soapy = ["dep:libc"]
+# Ettus UHD 4.x (C API) output/capture, opened at run time with dlopen (Unix).
+uhd = ["dep:libc"]
+# Red Pitaya STEMlab 125-14 over SCPI and its streaming server (pure std::net).
+redpitaya = []
+# Digilent Analog Discovery 2/3 through the WaveForms SDK (libdwf), dlopen (Unix).
+digilent = ["dep:libc"]
+
+[dev-dependencies]

@@ -1,0 +1,40 @@
+# Laboratory bench: bench AWG as eLoran source, a GNSS constellation simulator, a rubidium
+# reference with distribution, an SR620 counter, a PicoScope for the loopback capture.
+name = "Lab AWG + GNSS simulator bench"
+
+[requirements]
+need_gnss = true
+tic_resolution_s = 1e-10
+dut_input_vpp = 0.05
+
+[[device]]
+catalog = "keysight-33500b"
+role = "eloran_source"
+host = "192.168.1.60"
+
+[[device]]
+catalog = "spirent-gss7000"
+role = "gnss_source"
+host = "192.168.1.70"
+
+[[device]]
+catalog = "srs-fs725"
+role = "reference"
+
+[[device]]
+catalog = "srs-sr620"
+role = "tic"
+host = "192.168.1.80"
+
+[[device]]
+catalog = "keysight-53230a"
+role = "counter"
+host = "192.168.1.81"
+
+[[device]]
+catalog = "picotech-picoscope-5000d"
+role = "digitiser"
+
+[[device]]
+catalog = "reelektronika-loradd-utc"
+role = "eloran_rx"

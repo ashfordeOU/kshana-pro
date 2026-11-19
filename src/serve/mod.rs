@@ -39,6 +39,7 @@ pub mod backup;
 pub mod clients;
 pub mod conf;
 pub mod delivery;
+pub mod eloran;
 pub mod fleet;
 pub mod ha;
 pub mod hosted;

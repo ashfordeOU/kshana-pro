@@ -1,0 +1,99 @@
+# CONFORMANCE CASE CONF-DR-01: Dynamic range (near/far stations)
+#
+# MODELLED ON the kind of test described in eLoran / Loran-C receiver performance standards
+# (RTCM SC-127 Minimum Performance Standards for eLoran receivers; IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing)). The standards' texts were NOT consulted: stimulus levels and limits are
+# ILLUSTRATIVE and must be confirmed (see `to_confirm`). Synthetic geometry (not real
+# stations) unless stated.
+#
+# PURPOSE  One very strong nearby station and weaker distant ones: measure the weak stations
+#          while the near station is much stronger. ADC quantisation and front-end saturation are
+#          NOT modelled (samples are floating point); only the receiver's processing is tested.
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 1.2
+fs_hz = 400000
+seed = 3
+output_scale_uv_m = 1000000.0
+
+[receiver]
+type = "static"
+lat_deg = 56.3
+lon_deg = 1.3
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+offset_ns = 0.0
+
+[propagation.ground]
+model = "simple"
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 100.0
+seed = 3
+
+[[chains]]
+name = "conf-A"
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 56.5, lon_deg = 1.0 }
+power_kw = 400.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 50.0, lon_deg = -1.0 }
+power_kw = 400.0
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Y"
+role = "secondary"
+position = { lat_deg = 55.5, lon_deg = 12.0 }
+power_kw = 400.0
+emission_delay_us = 29000.0
+time_ref = "UTC(A)"
+
+[conformance]
+id = "CONF-DR-01"
+title = "Dynamic range (near/far stations)"
+category = "dynamic_range"
+intent = """Weak distant stations tracked while the master, ~30 km away, is much stronger."""
+modelled_on = ["RTCM SC-127 Minimum Performance Standards for eLoran receivers — dynamic range (text not consulted)", "IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing) — dynamic range / strong signal (text not consulted)"]
+to_confirm = ["test procedure and stimulus definitions of the governing standard", "noise definition (bandwidth, field vs voltage reference, atmospheric vs Gaussian)", "pass limits (all limits here are ILLUSTRATIVE)", "near/far field strengths and their ratio", "whether ADC/front-end limits are part of the test (not modelled here)"]
+requirements = ["REQ-RX-DR"]
+report = ["snr_truth_db"]
+
+[[conformance.variations]]
+label = "near-400kW"
+stimulus = { near_power_kw = 400 }
+set = { "chains[0].stations[0].power_kw" = 400.0 }
+
+[[conformance.variations]]
+label = "near-4MW"
+stimulus = { near_power_kw = 4000 }
+set = { "chains[0].stations[0].power_kw" = 4000.0 }
+
+[[conformance.criteria]]
+metric = "tracked_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[conformance.criteria]]
+metric = "toa_rms_ns"
+op = "le"
+limit = 50.0
+illustrative = true
+target = "conf-A/X"
+
+[[conformance.criteria]]
+metric = "cycle_errors"
+op = "eq"
+limit = 0.0
+illustrative = true

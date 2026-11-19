@@ -1,0 +1,68 @@
+# Receiver beside an electrified railway: traction-converter impulses all the time plus
+# pantograph-arcing bursts while a train passes (0.1–0.4 s), winter-evening atmospheric
+# noise (approximate P.372 table, Middleton Class A), a nearby switch-mode supply, a
+# pulsed carrier and a band-limited noise source. Chain positions are illustrative.
+[scene]
+start_utc = "2026-01-15T21:00:00Z"
+duration_s = 0.5
+fs_hz = 1000000
+seed = 3
+output_scale_uv_m = 200000.0
+
+[receiver]
+type = "static"
+lat_deg = 52.2
+lon_deg = 0.1
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+
+[propagation.ground]
+model = "simple"
+
+[[interference]]
+type = "impulsive"
+preset = "railway_traction"
+passage_from_s = 0.1
+passage_to_s = 0.4
+seed = 1
+
+[[interference]]
+type = "impulsive"
+preset = "smps"
+gain_db = -6.0
+seed = 2
+
+[[interference]]
+type = "atmospheric"
+season = "winter"
+time_block = "20-24"
+seed = 3
+
+[[interference]]
+type = "pulsed"
+period_s = 0.001
+duty = 0.1
+freq_hz = 104000.0
+rms_uv_m = 20.0
+
+[[interference]]
+type = "band_noise"
+centre_hz = 115000.0
+bw_hz = 8000.0
+rms_uv_m = 15.0
+taps = 129
+seed = 4
+
+[[chains]]
+name = "chain-R"
+gri_us = 74990
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 54.0, lon_deg = -1.0 }
+power_kw = 400.0
+time_ref = "UTC(A)"

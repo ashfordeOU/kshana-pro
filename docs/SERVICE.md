@@ -74,6 +74,14 @@ served. The job routes appear only when the server has a data directory.
 | GET | `/jobs/<id>/artefacts/<name>` | One artefact of a succeeded job. |
 | GET | `/ledger` | The delivery ledger as stored. |
 | GET | `/ledger/verify` | Verify the ledger and every delivered job's stored files. |
+| GET | `/eloran/example` | The eLoran simulator's example scenario (TOML). Free. |
+| POST | `/eloran/validate` | Check an eLoran scenario (body: TOML); its SHA-256, or 422 with the error. Free. |
+| POST | `/eloran/run` | Run an eLoran scenario (body: TOML; query `format`): an `eloran-run` job with a data directory, a synchronous run of at most 8 million samples without one. `pro-eloran` (Enterprise). |
+| POST | `/eloran/rx` | The software receiver on a stored run's recording, `{"run": <run_id>}`, with the truth comparison. `pro-eloran`. |
+| GET | `/eloran/gri`, `/eloran/gri/<chain>` | The GRI/chain database (query `region`, `active_on`, `search`); one entry with its `[[chains]]` snippet. Free. |
+
+The eLoran routes are described in [ELORAN.md](ELORAN.md#service-and-desktop). Hardware
+output (`kshana-pro eloran stream`) is never served over HTTP.
 
 ### Status codes
 
@@ -234,13 +242,14 @@ constellation job's delivered record:
 
 ## Operations
 
-`POST /jobs` takes `{"op": <name>, "request": <object>}`. Three operations ship:
+`POST /jobs` takes `{"op": <name>, "request": <object>}`. Four operations ship:
 
 | Operation | Request | Result | Artefacts | Entitlement |
 |---|---|---|---|---|
 | `run` | `{"scenario": "<TOML>"}`, any open or Pro kind | the run's result document, byte for byte | `chart.svg` and `table.csv` when the run gives them | the scenario kind's own tier (open kinds are free) |
 | `dossier` | `{"scenario": "<TOML>", "issued_utc": "<stamp>"}` (stamp optional) | the study dossier JSON | `dossier.json`, `dossier.html` | the study dossier feature (`pro-study-dossier`), and the kind's tier |
 | `ci` | `{"manifest": "<pack TOML>", "scenarios": {"<file>": "<TOML>", ...}, "baseline": <ci.json>, "threshold": <relative tolerance>, "generated_utc": "<stamp>"}` (last three optional) | the Pack C report JSON | `ci.json`, `report.html` | Pack C (`pro-scenario-ci`), and each scenario kind's tier |
+| `eloran-run` | `{"scenario": "<eLoran TOML>", "format": "ri16" \| "rf32" \| "none"}` (format optional) | the run record (statistics, scenario SHA-256, files, truth preview) | `run.json`, `truth.csv`, `recording.sigmf-meta`; the binary recording stays in the job's `inputs/` for `POST /eloran/rx` | the eLoran simulator (`pro-eloran`, Enterprise) |
 
 The entitlement is checked when the job is submitted (403, nothing queued) and again
 when it runs, since a licence can expire in between. In a `ci` request every manifest

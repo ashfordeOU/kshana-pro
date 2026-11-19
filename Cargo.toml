@@ -22,6 +22,11 @@ path = "src/main.rs"
 # `kshana_pro::extension`. This crate never depends on it (scripts/protect/source-guard.sh).
 
 [features]
+# eLoran simulator hardware output through SoapySDR (opened at run time; conducted use only).
+eloran-soapy = ["kshana-eloran/soapy"]
+eloran-uhd = ["kshana-eloran/uhd"]
+eloran-redpitaya = ["kshana-eloran/redpitaya"]
+eloran-digilent = ["kshana-eloran/digilent"]
 # Licence and pack signing through AWS KMS (key custody S7-a, src/license/kms.rs). Adds no
 # crate: SigV4 uses ring and sha2, the transport rustls, all already dependencies.
 kms = []
@@ -61,6 +66,10 @@ kms = []
 # The open core from crates.io, pinned exactly: Pro 0.2.0 is built and its showcases
 # recorded on this release.
 kshana = "=0.41.0"
+
+# The eLoran/GNSS signal simulation engine: a proprietary crate in this repository
+# (crates/kshana-eloran), kept separate so it builds and tests in seconds.
+kshana-eloran = { path = "crates/kshana-eloran" }
 
 # Versions kept in lock-step with the open core (kshana/Cargo.toml) so the two
 # graphs share one resolved copy of each crate.

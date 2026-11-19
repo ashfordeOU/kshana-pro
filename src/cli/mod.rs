@@ -9,6 +9,7 @@ mod alerts_cmd;
 mod area_cmd;
 mod attack_iq_cmd;
 mod dossier_cmd;
+mod eloran_cmd;
 mod evidence_cmd;
 mod forensics_cmd;
 mod license_cmd;
@@ -57,6 +58,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro packs <build|issue|serve|trace|install|status> ...   Pro pack delivery (C10; `kshana-pro packs` for details)\n\
        kshana-pro timing <assess|console|metrics|history|audit> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit report (Pro; `kshana-pro timing` for details)\n\
        kshana-pro trust <run|verify> ...   Multi-source trust (F3): choose epoch by epoch among GNSS, OSNMA, LEO, eLoran, PTP and holdover, with hash-chained evidence (Pro; verify free)\n\
+       kshana-pro eloran <run|validate|example> ...   eLoran/GNSS signal simulator: multi-chain, multi-time-reference eLoran signals with propagation, interference and truth, to SigMF files or LF hardware (Enterprise; validate and example free)
        kshana-pro area picture <console.toml> ...   Area console (F1): fuse Stations, receivers and customer feeds into an area trust picture with event timelines; never emitter positions (Pro)\n\
        kshana-pro alerts <route|raw> ...   Alert policy engine (F5): routes, quiet hours, escalation, de-duplication to I5 outputs (Pro); raw alerts free\n\
        kshana-pro integrity <score|verify> ...   AIS and position integrity scoring at fleet and area scale (E5, Pro); verify free\n\
@@ -118,6 +120,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "threats",
     "attack-iq",
     "trust",
+    "eloran",
     "area",
     "alerts",
     "integrity",
@@ -248,6 +251,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("threats") => threats_cmd::run(&args[1..]),
         Some("attack-iq") => attack_iq_cmd::run(&args[1..]),
         Some("trust") => trust_cmd::run(&args[1..]),
+        Some("eloran") => eloran_cmd::run(&args[1..]),
         Some("area") => area_cmd::run(&args[1..]),
         Some("alerts") => alerts_cmd::run(&args[1..]),
         Some("integrity") => evidence_cmd::integrity(&args[1..]),

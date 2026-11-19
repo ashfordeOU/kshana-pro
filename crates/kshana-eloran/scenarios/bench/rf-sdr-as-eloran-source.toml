@@ -1,0 +1,15 @@
+# Counter-example: an RF SDR cannot be the eLoran source (lowest frequency 70 MHz).
+# `bench check` must FAIL the 90–110 kHz band check with the datasheet value.
+name = "RF SDR as eLoran source (fails)"
+
+[requirements]
+need_gnss = false
+
+[[device]]
+catalog = "ettus-usrp-b210"
+role = "eloran_source"
+args = "type=b200"
+
+[[device]]
+catalog = "srs-fs725"
+role = "reference"

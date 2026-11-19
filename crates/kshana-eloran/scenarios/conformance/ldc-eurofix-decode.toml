@@ -1,0 +1,86 @@
+# CONFORMANCE CASE CONF-LDC-01: Data channel decoding (Eurofix)
+#
+# MODELLED ON the kind of test described in eLoran / Loran-C receiver performance standards
+# (RTCM SC-127 Minimum Performance Standards for eLoran receivers). The standards' texts were NOT consulted: stimulus levels and limits are
+# ILLUSTRATIVE and must be confirmed (see `to_confirm`). Synthetic geometry (not real
+# stations) unless stated.
+#
+# PURPOSE  Decode the Eurofix data channel (MODELLED format, see docs/VALIDATION.md) through the
+#          software receiver; scored on decoded messages and authentication failures. Several
+#          seconds of signal are needed (one Eurofix frame is 30 GRI): not run in CI.
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 6.0
+fs_hz = 400000
+seed = 7
+output_scale_uv_m = 200000.0
+
+[receiver]
+type = "static"
+lat_deg = 53.5
+lon_deg = 2.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+offset_ns = 4.0
+
+[propagation.ground]
+model = "simple"
+
+[[chains]]
+name = "chain-E"
+gri_us = 67310
+ldc = { scheme = "eurofix", auth_key_hex = "4b5348414e412d4c44432d544553542d4b4559", schedule = [
+  { type = "station_id", chain_id = 1 },
+  { type = "utc_time", tai_minus_utc_s = 37 },
+  { type = "almanac", station_code = 77, gri_us = 67310, lat_deg = 54.9, lon_deg = -3.3, power_kw = 250 },
+  { type = "almanac", station_code = 88, gri_us = 67310, secondary = true, lat_deg = 57.0, lon_deg = 9.5, emission_delay_us = 13000.0, power_kw = 250 },
+  { type = "warning", station_code = 88, kind = "propagation_anomaly", magnitude_ns = 60.0, valid_s = 900 },
+  { type = "dloran", reference_site = 12, age_s = 5, corrections = [ { station_code = 77, correction_ns = -42.0 }, { station_code = 88, correction_ns = 17.0 } ] },
+  { type = "dgnss", constellation = 0, sats = [ { prn = 3, iode = 21, prc_m = -4.12, rrc_m_s = 0.004, udre = 1 }, { prn = 17, iode = 9, prc_m = 2.5 } ] },
+  { type = "auth", key_id = 1, tag_bytes = 8 },
+] }
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 54.9, lon_deg = -3.3 }
+power_kw = 250.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 57.0, lon_deg = 9.5 }
+power_kw = 250.0
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+
+[conformance]
+id = "CONF-LDC-01"
+title = "Data channel decoding (Eurofix)"
+category = "data_channel"
+intent = """Messages decoded with no authentication failures."""
+modelled_on = ["RTCM SC-127 Minimum Performance Standards for eLoran receivers — LORAN data channel decoding (text not consulted)"]
+to_confirm = ["test procedure and stimulus definitions of the governing standard", "noise definition (bandwidth, field vs voltage reference, atmospheric vs Gaussian)", "pass limits (all limits here are ILLUSTRATIVE)", "data channel format (the Eurofix format here is MODELLED, not confirmed)", "message error rate requirement and SNR", "authentication scheme"]
+requirements = ["REQ-RX-LDC"]
+[conformance.receiver]
+ldc = true
+
+[[conformance.variations]]
+label = "clean"
+stimulus = { noise_uv_m = 0 }
+set = {  }
+
+[[conformance.criteria]]
+metric = "ldc_messages"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[conformance.criteria]]
+metric = "ldc_auth_failures"
+op = "eq"
+limit = 0.0
+illustrative = true

@@ -800,6 +800,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "kshana-eloran"
+version = "0.1.0"
+dependencies = [
+ "hex",
+ "libc",
+ "rand 0.8.6",
+ "rand_chacha 0.3.1",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "toml",
+]
+
+[[package]]
 name = "kshana-pro"
 version = "0.2.0"
 dependencies = [
@@ -807,6 +821,7 @@ dependencies = [
  "ed25519-dalek",
  "hex",
  "kshana",
+ "kshana-eloran",
  "lopdf",
  "p256",
  "printpdf",

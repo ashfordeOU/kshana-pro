@@ -14,6 +14,7 @@ import { scorecardModel, areaModel, timingModel, trustRunsModel, durText } from 
 import { accountModel, libraryModel, auditModel, auditCsv, wallModel } from "./enterprise.mjs";
 import { proApi, auditPath } from "./service.mjs";
 import { registerWork, WORK, workBadge, createWork } from "./work.mjs";
+import { rxModel, benchModel } from "./eloran.mjs";
 
 const NOW = 1_800_000_000;
 const here = dirname(fileURLToPath(import.meta.url));
@@ -292,6 +293,8 @@ test("work views: every view renders, signed in or not, with data or without", a
     if (a.name === "pro_service") {
       const p = a.args[1];
       if (p.startsWith("/audit/export")) return { status: 200, json: { format: "kshana-pro-audit-export/1", chain: { verified: true }, lines: [{ t: 1, who: "a", tenant: "t", role: "admin", source: "key", method: "GET", route: "/", status: 200, ms: 1, sha256: "x" }] } };
+      if (p === "/eloran/example") return { status: 200, text: "[scene]\nduration_s = 1.0\n" };
+      if (p === "/eloran/gri") return { status: 200, json: { count: 1, updated: "2026-10-01", chains: [{ id: "uk-6731", gri: 6731, name: "Anthorn", region: "Europe", status: "operational", confidence: "verified", complete: true, stations: [{ id: "M", name: "Anthorn", role: "master", lat_deg: 54.9, lon_deg: -3.3 }] }] } };
       return { status: 200, json: answers[p] };
     }
     return null;
@@ -307,6 +310,25 @@ test("work views: every view renders, signed in or not, with data or without", a
   while (pending.length) await pending.shift()();
   renderAll(); // with the service's answers
   for (const k of ["fleet", "area", "timing", "library", "wall", "audit"]) assert.ok(W[k], `${k}: ${JSON.stringify(W.msg[k])}`);
+  assert.equal(W.eloran.gri.count, 1, JSON.stringify(W.msg.eloran));
+  assert.match(W.eloran.text, /\[scene\]/);
+  W.eloran.sel = "uk-6731";
+  W.eloran.validation = { ok: false, tone: "bad", text: "scenario: bad", detail: "" };
+  W.eloran.run = { format: "kshana-eloran-run", run_id: "a".repeat(64), scenario_sha256: "b".repeat(64), stats: { pulses: 1, clipped_samples: 2 }, files: { samples: "/r.sigmf-data" }, truth_preview: { columns: ["chain", "toa_s"], rows: [["A", "0.1"]], total: 1 } };
+  W.eloran.rx = rxModel({ format: "kshana-eloran-rx", stations_tracked: 1, measurements: 2, position_solution: { error: "too few" }, time_by_reference: [{ time_ref: "UTC(A)", ref_minus_rx_ns: 1, stations: 1 }], truth_comparison: { stations: [{ chain: "A", station: "M", n: 2, toa_rms_ns: 1, cycle_errors: 0 }], position_error_m: null } });
+  W.eloran.monitor = "<!doctype html><title>m</title>";
+  W.eloran.bench.result = benchModel({
+    assessment: { ready: true, counts: { pass: 1 }, findings: [{ role: "eloran_source", device: "rp", check: "band", status: "pass", detail: "ok" }], runnable: ["pps_jitter"], not_runnable: [["dynamic_range", "needs a spectrum analyser"]] },
+    wiring_md: "| 1 | a | b | coax | n |",
+    twins: { rp: { levels: [{ level_dbfs: 0, vpeak_50ohm: 1, delay_bias_ns: 0, ecd_us: 0, snr_db: 80 }] }, rf: { error: "cannot output 90–110 kHz" } },
+  });
+  {
+    const el = document.createElement("div");
+    views.get("pro-eloran").render(el, ctx);
+    const t = el.textContent;
+    assert.ok(!t.includes("[object"), "a node was stringified into the eLoran page");
+    assert.ok(t.includes("Spec twin: rp") && t.includes("80.0 dB") && t.includes("cannot output 90–110 kHz"), "bench card renders the twins");
+  }
   W.packDir = "/packs/c1";
   W.replay = replayModel(replayDoc());
   W.cursor = T0 + 400;
