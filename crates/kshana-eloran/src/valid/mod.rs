@@ -38,7 +38,7 @@
 pub mod crosscheck;
 pub mod fidelity;
 pub mod inverse;
-#[cfg(feature = "unfiled-methods")]
+#[cfg(feature = "core-methods")]
 pub mod selfcal;
 
 use serde::{Deserialize, Serialize};

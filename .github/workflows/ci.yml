@@ -47,7 +47,7 @@ jobs:
       # The default feature set is what release builds use: it must compile and lint clean
       # WITHOUT the patent-candidate methods (feature `unfiled-methods`). The step above proves it.
       - name: Clippy (with unfiled-methods, so the gated code is linted)
-        run: cargo clippy --all-targets --features unfiled-methods -- -D warnings
+        run: cargo clippy --all-targets --features "unfiled-methods core-methods" -- -D warnings
       # Key custody S7-a: the AWS KMS signer, built and tested against a fake KMS endpoint.
       - name: KMS signer (S7-a)
         run: |
@@ -63,7 +63,7 @@ jobs:
       # dependency resolves reproducibly. --locked fails the build if the lockfile
       # is out of date rather than silently updating it.
       - name: Test
-        run: cargo test --all --locked --features unfiled-methods
+        run: cargo test --all --locked --features "unfiled-methods core-methods"
       # PRO-14: a release build and a signed licence token, which the debug tests above never
       # exercise. Builds with a CI-only key, issues a Pro token, runs one Pro pack with the
       # debug and the release binary and requires identical reports (scripts/release-smoke.sh).

@@ -44,7 +44,7 @@ jobs:
       - name: Clippy (hardware drivers, compile only)
         run: cargo clippy --all-targets --features soapy,uhd,redpitaya,digilent -- -D warnings
       - name: Tests
-        run: cargo test --locked --features unfiled-methods
+        run: cargo test --locked --features "unfiled-methods core-methods"
   nightly-bench:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: [self-hosted, macos, arm64, kshana-pro]
@@ -56,7 +56,7 @@ jobs:
         with:
           workspaces: crates/kshana-eloran
       - name: Virtual bench and acceptance (release)
-        run: "cargo test --release --locked --features unfiled-methods -- hw::virtual accept:: calreg sync::measure"
+        run: "cargo test --release --locked --features 'unfiled-methods core-methods' -- hw::virtual accept:: calreg sync::measure"
       - name: Conformance and campaign runner (release)
         run: "cargo test --release --locked -- campaign::"
       - name: Python SDK (unit and integration against a fresh kshana-pro build)
