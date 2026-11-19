@@ -110,3 +110,97 @@ fn cli_lunar_gates_computing_commands_and_frees_verification() {
     }
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+pub(crate) fn key_file(dir: &std::path::Path) -> (std::path::PathBuf, [u8; 32]) {
+    let seed = [7u8; 32];
+    std::fs::create_dir_all(dir).unwrap();
+    let p = dir.join("key");
+    std::fs::write(&p, format!("private_key={}\n", hex::encode(seed))).unwrap();
+    (p, seed)
+}
+
+pub(crate) fn s(v: &[&str]) -> Vec<String> {
+    v.iter().map(|x| x.to_string()).collect()
+}
+
+#[test]
+fn cli_lunar_lugre_example_is_free_and_score_is_gated_and_signed() {
+    let dir = std::env::temp_dir().join(format!("kshana-lunar-cli-d6-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    let ex = dir.join("ex");
+    assert!(ok(run(&[
+        "lunar",
+        "lugre",
+        "example",
+        "--out",
+        ex.to_str().unwrap()
+    ])));
+    let sha = std::fs::read_to_string(ex.join("prereg.sha256")).unwrap();
+    let p = |n: &str| ex.join(n).to_str().unwrap().to_string();
+    let out = dir.join("score");
+    let (kf, seed) = key_file(&dir);
+    let (pre, model, sp3, obs) = (
+        p("prereg.toml"),
+        p("model.toml"),
+        p("gnss.sp3"),
+        p("obs.csv"),
+    );
+    let args = |lic: &str| {
+        s(&[
+            "lunar",
+            "lugre",
+            "score",
+            "--prereg",
+            &pre,
+            "--prereg-sha256",
+            sha.trim(),
+            "--model",
+            &model,
+            "--sp3",
+            &sp3,
+            "--obs",
+            &obs,
+            "--out",
+            out.to_str().unwrap(),
+            "--signer",
+            "test",
+            "--key-file",
+            kf.to_str().unwrap(),
+            "--utc",
+            "2026-11-19T00:00:00Z",
+            lic,
+        ])
+    };
+    assert!(!ok(kshana_pro::cli::main_with_args(args("--no-licence"))));
+    if cfg!(debug_assertions) {
+        assert!(ok(kshana_pro::cli::main_with_args(args("--dev"))));
+        let pk = kshana_pro::license::public_key_for(&seed);
+        let v = kshana_pro::signed_dossier::verify(&out, &[pk]).unwrap();
+        assert!(v.passed(), "{:?}", v.problems);
+        let r: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(out.join("report.json")).unwrap())
+                .unwrap();
+        assert!(r["overall"]["overlap_published"].as_bool().unwrap());
+        let pred = dir.join("pred.csv");
+        assert!(ok(run(&[
+            "lunar",
+            "lugre",
+            "predict",
+            "--model",
+            &model,
+            "--sp3",
+            &sp3,
+            "--start",
+            "2025-03-03T00:00:00",
+            "--end",
+            "2025-03-03T01:00:00",
+            "--step",
+            "600",
+            "--out",
+            pred.to_str().unwrap(),
+            "--dev"
+        ])));
+        assert!(std::fs::read_to_string(&pred).unwrap().contains("cn0_dbhz"));
+    }
+    let _ = std::fs::remove_dir_all(&dir);
+}

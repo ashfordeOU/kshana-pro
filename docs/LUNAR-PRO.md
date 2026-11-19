@@ -176,6 +176,54 @@ Tests: CSV to LUNEX to text round-trips byte for byte and value for value; the e
 reads the same values; clean files (Earth GNSS and a TL-tagged AFS file) validate; ten injected
 faults are each caught; bad CSV is refused.
 
+## D6. LuGRE C/N0 reproduction harness, pre-registered (gap 14)
+
+LuGRE's received C/N0 was 7–12 dB below its planning simulation, cause unexplained (NAVIGATION
+doi:10.33012/navi.756; open data Zenodo doi:10.5281/zenodo.16411686). D6 is a harness for an
+independent, pre-registered reproduction. **MODELLED: no LuGRE observation has been scored, and
+the real data have not been downloaded.**
+
+* **Model** (`model.toml`): per satellite and epoch, `C/N0 = EIRP(θ) + G_R(z) − FSL + 228.6 −
+  10·log10(T_sys) − L_impl`, with `T_sys = T_A + (L−1)·T_0 + L·(F−1)·T_0`. The EIRP against the
+  off-nadir angle θ is an input table per satellite, block or system and band (`angle_deg,eirp_dbw`,
+  side lobes included); the receive gain an input table (`angle_deg,gain_dbi`). The link equation is
+  the open engine's `earth_gnss_lunar::measured_link`. GNSS positions come from SP3 (engine parser
+  and interpolator, TEME), the Moon from the engine series rotated to the mean equator of date, a
+  surface site from the engine's Moon PA frame; Earth (with a mask height) and Moon occultation
+  remove links. The model file pins every table by SHA-256.
+* **Pre-registration** (`prereg.toml`, `kshana-lugre-prereg/1`): fixes the model by SHA-256, the
+  signals, exclusion rules, cluster minimum, coverage factor, bootstrap seed and the bars, and
+  declares `data_seen = false`. `kshana-pro lunar lugre prereg` writes the template and prints the
+  hash to publish (a commit or a registry) before the data are opened. The scorer refuses a file
+  whose hash is not the published one, a model whose hash is not the registered one, a table whose
+  hash is not the model's, and `data_seen = true`.
+* **Scorer**: residuals `observed − predicted`, clustered by satellite and signal; bias = mean of
+  cluster means; `u_A` = cluster standard error (plus a percentile cluster bootstrap); `u_B` = the
+  model budget (each EIRP table's uncertainty weighted by the share of clusters using it, receive
+  gain, noise temperature and noise figure through `10·log10(T_sys)`, implementation loss, and the
+  geometric angle error times the pattern slope). The shortfall `−bias ± k·u` is compared with the
+  published 7–12 dB. Default bars: B1 ≥ 4 clusters, B2 `u ≤ 2 dB`, B3 shortfall interval above
+  zero, B4 interval overlaps 7–12 dB.
+
+```text
+kshana-pro lunar lugre example --out ex          # SYNTHETIC set: SP3, tables, model, prereg, obs (free)
+kshana-pro lunar lugre score --prereg ex/prereg.toml --prereg-sha256 $(cat ex/prereg.sha256) \
+  --model ex/model.toml --sp3 ex/gnss.sp3 --obs ex/obs.csv --out ex/score [--signer N --key-file K] --dev
+all  281 obs, 40 clusters, shortfall 9.50 dB, u_A 0.11, u_B 1.22, interval [7.05, 11.95]: inside 7-12
+```
+
+**Input schema needs confirmation against the Zenodo record.** Observations use the D5 LuGRE-style
+CSV (`time,sv,signal,pseudorange_m,carrier_cycles,doppler_hz,cn0_dbhz`, GPS time); a converter from
+the Zenodo files to it is the first step when the data are taken up. Tests: a hand link budget at
+lunar distance (FSL 208.08 dB on L1), the Friis noise cascade, inverse square, Earth and Moon
+occultation, the surface geometry, the correlated pattern term, recovery of an injected −9.5 dB bias
+and its bars, a zero-bias control that fails B3 and B4, k = 2 coverage of 89–99 % over 300 synthetic
+campaigns, and refusal of each tamper. The synthetic patterns are invented shapes, not ACE data.
+Known gaps: azimuth-averaged transmit tables only (Galileo phasing and yaw are not modelled; the
+engine's `GainPattern2D` is the route); the receiver's tracking threshold truncates the observed
+distribution near the floor, which biases residuals there (the `min_observed_dbhz` rule only
+partly handles it); the Moon series is ≈0.05° from Horizons (≈0.05° in θ).
+
 ## Honest limits
 
 * No lunar clock, TWTT link or lunar observation data exists yet: everything is MODELLED.

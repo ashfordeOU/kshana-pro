@@ -318,3 +318,6 @@ mod d5_lunex;
 
 #[path = "lunar_pro/cli.rs"]
 mod cli;
+
+#[path = "lunar_pro/d6_lugre.rs"]
+mod d6_lugre;
