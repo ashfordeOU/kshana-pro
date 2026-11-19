@@ -28,7 +28,7 @@ Status: [ ] todo, [~] in progress, [x] done (commit sha).
 - [x] A11 Transmitter acceptance automation: ECD, zero-crossing jitter, phase code, PCI (01-22)
 - [x] A12 Impulsive atmospheric noise validated against receiver behaviour (01-10)
 - [ ] A13 R-Mode: MF (≈300 kHz) and VDES R-Mode signals + propagation + IALA G1187 conformance (01-11, 02-3)
-- [ ] A14 Unified LF+GNSS interference event schema and report (01-23)
+- [x] A14 Unified LF+GNSS interference event schema and report (01-23)
 - [ ] A15 Coherent LF + L-band record and replay on one timeline (01-9)
 - [ ] A16 Tactical/deployable transmitter and signals-of-opportunity scenarios (01-18/19)
 

@@ -51,6 +51,9 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         Equal-power Gaussian vs Middleton Class A noise: timing error of the matched filter with no,\n\
         clip and blank impulse mitigation (Enterprise). `rx --impulse clip|blank [--impulse-k <k>]`\n\
         applies the mitigation to a recording before the receiver\n\
+    events <validate|merge|publish> <events.json|.jsonl>... [--out <file>] [--tol-s <s>] [--cell-deg <deg>] [--format json|geojson|csv] [--license <token>] [--dev]\n\
+        PNT interference events in one schema across GNSS, eLoran, R-Mode and LEO: validate, merge\n\
+        independent reports into corroborated events, publish coarsened (grid cell, hashed observers) (Enterprise)\n\
     edo [<edo.toml>] --out <report.json> [--license <token>] [--dev]\n\
         eLoran-disciplined oscillator bench: oscillator noise and ageing, GNSS/eLoran references,\n\
         PI discipline, GNSS-to-eLoran switchover transient, holdover; MTIE/TDEV (Enterprise)\n\
@@ -143,6 +146,7 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("calibrate") => calibrate_cmd(args),
         Some("bench") => bench_cmd(args),
         Some("edo") => edo_cmd(args),
+        Some("events") => events_cmd(args),
         Some("noise-experiment") => done((|| {
             use kshana_eloran::rx::impulse::{experiment, ExperimentConfig};
             if let Err(c) = licensed(args) {
@@ -1111,6 +1115,87 @@ fn edo_cmd(args: &[String]) -> ExitCode {
             if r.within_limit { "within" } else { "OUTSIDE" },
             cfg.time_error_limit_ns
         ))
+    })())
+}
+
+fn events_cmd(args: &[String]) -> ExitCode {
+    use crate::ievents::{coarsen, merge, to_csv, to_geojson, validate, Event};
+    let sub = args.get(1).map(String::as_str);
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let files: Vec<&String> = args
+            .iter()
+            .skip(2)
+            .take_while(|a| !a.starts_with("--"))
+            .collect();
+        if files.is_empty() {
+            return Err(USAGE.into());
+        }
+        let mut evs: Vec<Event> = vec![];
+        for f in &files {
+            let t = read(f)?;
+            let t = t.trim();
+            if t.starts_with('[') {
+                evs.extend(serde_json::from_str::<Vec<Event>>(t).map_err(|e| format!("{f}: {e}"))?);
+            } else {
+                for (i, l) in t.lines().filter(|l| !l.trim().is_empty()).enumerate() {
+                    evs.push(serde_json::from_str(l).map_err(|e| format!("{f}:{}: {e}", i + 1))?);
+                }
+            }
+        }
+        let mut bad = vec![];
+        for e in &evs {
+            for p in validate(e) {
+                bad.push(format!("{}: {p}", e.id));
+            }
+        }
+        match sub {
+            Some("validate") => {
+                if bad.is_empty() {
+                    Ok(format!(
+                        "{} events valid ({})",
+                        evs.len(),
+                        crate::ievents::FORMAT
+                    ))
+                } else {
+                    Err(format!("{} problems:\n  {}", bad.len(), bad.join("\n  ")))
+                }
+            }
+            Some("merge") | Some("publish") => {
+                if !bad.is_empty() {
+                    return Err(format!("fix the events first:\n  {}", bad.join("\n  ")));
+                }
+                let out = flag(args, "--out").ok_or("--out <file> is required")?;
+                let tol: i64 = num_flag(args, "--tol-s")?.unwrap_or(120);
+                let mut m = merge(&evs, tol);
+                if sub == Some("publish") {
+                    let cell: f64 = num_flag(args, "--cell-deg")?.unwrap_or(0.5);
+                    m = m.iter().map(|e| coarsen(e, cell)).collect();
+                }
+                let body = match flag(args, "--format").as_deref() {
+                    Some("geojson") => {
+                        serde_json::to_string_pretty(&to_geojson(&m)).map_err(|e| e.to_string())?
+                    }
+                    Some("csv") => to_csv(&m),
+                    _ => serde_json::to_string_pretty(&m).map_err(|e| e.to_string())?,
+                };
+                std::fs::write(&out, body).map_err(|e| format!("{out}: {e}"))?;
+                Ok(format!(
+                    "{} reports -> {} events ({} corroborated){} -> {out}",
+                    evs.len(),
+                    m.len(),
+                    m.iter().filter(|e| e.corroborated).count(),
+                    if sub == Some("publish") {
+                        ", coarsened for publication"
+                    } else {
+                        ""
+                    }
+                ))
+            }
+            _ => Err(USAGE.into()),
+        }
     })())
 }
 

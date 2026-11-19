@@ -50,6 +50,7 @@ pub mod exposure;
 pub mod extension;
 pub mod forensics;
 pub mod frameworks;
+pub mod ievents;
 pub mod integrity;
 pub mod lab_campaign;
 pub mod license;
