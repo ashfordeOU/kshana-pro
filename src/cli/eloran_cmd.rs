@@ -47,6 +47,10 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         amplitude stability, in-band power, against limits (defaults illustrative) (Enterprise)\n\
     accept software --out <report.json> [--license <token>] [--dev]\n\
         Run the software-only acceptance tests (resolution, SNR, skywave ranges) (Enterprise)\n\
+    noise-experiment --out <report.json> [--a-index <A>] [--gamma <Γ>] [--k <threshold>] [--license <token>] [--dev]\n\
+        Equal-power Gaussian vs Middleton Class A noise: timing error of the matched filter with no,\n\
+        clip and blank impulse mitigation (Enterprise). `rx --impulse clip|blank [--impulse-k <k>]`\n\
+        applies the mitigation to a recording before the receiver\n\
     edo [<edo.toml>] --out <report.json> [--license <token>] [--dev]\n\
         eLoran-disciplined oscillator bench: oscillator noise and ageing, GNSS/eLoran references,\n\
         PI discipline, GNSS-to-eLoran switchover transient, holdover; MTIE/TDEV (Enterprise)\n\
@@ -139,6 +143,40 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("calibrate") => calibrate_cmd(args),
         Some("bench") => bench_cmd(args),
         Some("edo") => edo_cmd(args),
+        Some("noise-experiment") => done((|| {
+            use kshana_eloran::rx::impulse::{experiment, ExperimentConfig};
+            if let Err(c) = licensed(args) {
+                let _ = c;
+                return Err("licence: pro-eloran is required".into());
+            }
+            let out = flag(args, "--out").ok_or("--out <report.json> is required")?;
+            let mut c = ExperimentConfig::default();
+            if let Some(v) = num_flag::<f64>(args, "--a-index")? {
+                c.a_index = v;
+            }
+            if let Some(v) = num_flag::<f64>(args, "--gamma")? {
+                c.gamma = v;
+            }
+            if let Some(v) = num_flag::<f64>(args, "--k")? {
+                c.mitigation.k = v;
+            }
+            let r = experiment(&c)?;
+            write_json(&out, &r)?;
+            let mut t = format!(
+                "equal-power noise experiment (Class A excess kurtosis {:.1}):\n",
+                r.class_a_excess_kurtosis
+            );
+            for x in &r.cells {
+                t += &format!(
+                    "  {:9} {:?}: ToA RMS {:.1} ns ({:.2} % samples changed)\n",
+                    x.noise,
+                    x.mitigation,
+                    x.toa_rms_ns,
+                    x.changed_fraction * 100.0
+                );
+            }
+            Ok(t + &format!("-> {out}"))
+        })()),
         Some("example") => {
             print!("{EXAMPLE}");
             ExitCode::SUCCESS
@@ -361,10 +399,38 @@ fn rx_cmd(args: &[String]) -> ExitCode {
         Ok(t) => t,
         Err(e) => return fail(e),
     };
-    let recording = match kshana_eloran::io::read_sigmf(Path::new(&rec), None) {
+    let mut recording = match kshana_eloran::io::read_sigmf(Path::new(&rec), None) {
         Ok(r) => r,
         Err(e) => return fail(e),
     };
+    // Optional impulsive-noise mitigation ahead of the receiver.
+    if let Some(m) = flag(args, "--impulse") {
+        use kshana_eloran::rx::impulse::{mitigate, Mitigation, Mode};
+        let mode = match m.as_str() {
+            "clip" => Mode::Clip,
+            "blank" => Mode::Blank,
+            "off" => Mode::Off,
+            _ => return fail("--impulse clip|blank|off"),
+        };
+        let k = match num_flag::<f64>(args, "--impulse-k") {
+            Ok(v) => v.unwrap_or(3.0),
+            Err(e) => return fail(e),
+        };
+        for ch in recording.channels.iter_mut() {
+            let f = mitigate(
+                ch,
+                &Mitigation {
+                    mode,
+                    k,
+                    ..Default::default()
+                },
+            );
+            eprintln!(
+                "impulse mitigation ({m}, k = {k}): {:.3} % of samples changed",
+                f * 100.0
+            );
+        }
+    }
     let chains: Vec<_> = sc.chains.iter().map(|c| c.chain.clone()).collect();
     let mut cfg = RxConfig {
         output_scale_uv_m: sc.scene.params.output_scale_uv_m,

@@ -60,6 +60,7 @@
 
 pub mod acquire;
 pub mod dsp;
+pub mod impulse;
 pub mod ldc;
 pub mod solve;
 pub mod track;
