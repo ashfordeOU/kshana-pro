@@ -1,0 +1,126 @@
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
+//
+//! `kshana-pro verdict ...`: ask the hosted verdict service for a method that ships in no Pro
+//! build, and verify what comes back ([`crate::remote_verdict`]).
+
+use std::path::Path;
+use std::process::ExitCode;
+
+use super::{flag, has_flag};
+use crate::license::activation::Store;
+use crate::remote_verdict::{request, verify, CurlVerdictTransport, SignedVerdict, METHODS};
+
+const USAGE: &str = "kshana-pro verdict — hosted methods, answered as signed verdicts\n\
+\n\
+USAGE:\n\
+    kshana-pro verdict <selfcal|survey> <request.json> [--url <base>] [--license <token>] --trust <key> [--out <verdict.json>]\n\
+        Send the request to the verdict service, authorised by your licence, and verify the\n\
+        signed verdict against the service's public key before printing or saving it.\n\
+    kshana-pro verdict verify <verdict.json> --trust <key>\n\
+        Check a saved verdict: intact, and signed by the trusted key.\n\
+\n\
+    --url     the service base URL (https://...), else KSHANA_VERDICT_URL\n\
+    --license a licence token, else the token activated on this machine\n\
+    --trust   the service's Ed25519 public key (64 hex), else KSHANA_VERDICT_KEY\n\
+\n\
+The method runs on the service; only its outcome and signature come back.\n";
+
+fn fail(msg: impl std::fmt::Display) -> ExitCode {
+    eprintln!("error: {msg}");
+    ExitCode::FAILURE
+}
+
+fn env(k: &str) -> Option<String> {
+    std::env::var(k).ok().filter(|v| !v.trim().is_empty())
+}
+
+fn trusted_key(args: &[String]) -> Result<String, String> {
+    flag(args, "--trust")
+        .or_else(|| env("KSHANA_VERDICT_KEY"))
+        .ok_or_else(|| "the service's public key is required (--trust <64 hex> or KSHANA_VERDICT_KEY): a verdict is only worth its signature".into())
+}
+
+fn summary(v: &SignedVerdict) -> String {
+    format!(
+        "verdict: {} ({}), signed by key {} at {} — signature valid",
+        v.method, v.evidence_class, v.key_id, v.utc
+    )
+}
+
+pub fn run(args: &[String]) -> ExitCode {
+    let sub = args.first().map(String::as_str);
+    if sub.is_none() || has_flag(args, "--help") || sub == Some("help") {
+        print!("{USAGE}");
+        return ExitCode::SUCCESS;
+    }
+    if sub == Some("verify") {
+        let Some(path) = args.get(1).filter(|a| !a.starts_with("--")) else {
+            return fail(USAGE);
+        };
+        let key = match trusted_key(args) {
+            Ok(k) => k,
+            Err(e) => return fail(e),
+        };
+        let v: SignedVerdict = match std::fs::read_to_string(path)
+            .map_err(|e| format!("{path}: {e}"))
+            .and_then(|s| serde_json::from_str(&s).map_err(|e| format!("{path}: {e}")))
+        {
+            Ok(v) => v,
+            Err(e) => return fail(e),
+        };
+        let problems = verify(&v, &key);
+        if problems.is_empty() {
+            println!("{}", summary(&v));
+            return ExitCode::SUCCESS;
+        }
+        return fail(format!("verdict NOT valid: {}", problems.join("; ")));
+    }
+    let method = sub.unwrap_or_default();
+    if !METHODS.iter().any(|(m, _)| *m == method) {
+        return fail(format!("unknown verdict method '{method}'\n\n{USAGE}"));
+    }
+    let Some(req_path) = args.get(1).filter(|a| !a.starts_with("--")) else {
+        return fail(USAGE);
+    };
+    let Some(url) = flag(args, "--url").or_else(|| env("KSHANA_VERDICT_URL")) else {
+        return fail("the verdict service URL is required (--url or KSHANA_VERDICT_URL)");
+    };
+    let key = match trusted_key(args) {
+        Ok(k) => k,
+        Err(e) => return fail(e),
+    };
+    let token = match flag(args, "--license").or_else(|| Store::default_dir().map(Store::open).and_then(|s| s.token())) {
+        Some(t) => t,
+        None => return fail("a licence is required: --license <token>, or activate one with `kshana-pro license activate`"),
+    };
+    let body = match std::fs::read_to_string(req_path) {
+        Ok(b) => b,
+        Err(e) => return fail(format!("{req_path}: {e}")),
+    };
+    let t = CurlVerdictTransport { base_url: url };
+    let v = match request(&t, method, &token, &body) {
+        Ok(v) => v,
+        Err(e) => return fail(e),
+    };
+    let problems = verify(&v, &key);
+    if !problems.is_empty() {
+        return fail(format!(
+            "the answer is NOT a valid verdict from the trusted key: {}",
+            problems.join("; ")
+        ));
+    }
+    let json = serde_json::to_string_pretty(&v).unwrap_or_default();
+    match flag(args, "--out") {
+        Some(out) => {
+            if let Err(e) = std::fs::write(Path::new(&out), json + "\n") {
+                return fail(format!("{out}: {e}"));
+            }
+            println!("{} -> {out}", summary(&v));
+        }
+        None => {
+            eprintln!("{}", summary(&v));
+            println!("{json}");
+        }
+    }
+    ExitCode::SUCCESS
+}

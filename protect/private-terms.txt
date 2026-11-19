@@ -80,6 +80,10 @@ src/suite/vcd.rs
 [core]
 kshana-core
 kshana_core
+meru/1
+meru::
+MERU_
+ashfordeOU/meru
 
 [pro]
 kshana_pro
