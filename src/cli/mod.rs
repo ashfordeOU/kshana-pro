@@ -15,6 +15,7 @@ mod forensics_cmd;
 mod license_cmd;
 mod packs_cmd;
 mod payments_cmd;
+mod pics_cmd;
 mod scorecard_cmd;
 mod threats_cmd;
 mod timing_cmd;
@@ -64,6 +65,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro integrity <score|verify> ...   AIS and position integrity scoring at fleet and area scale (E5, Pro); verify free\n\
        kshana-pro verify-service <run|template|verify> ...   Pre-registered user-side verification study of a new PNT service (E4, Pro); template and verify free\n\
        kshana-pro frameworks <list|show|pack|verify> ...   Framework evidence packs: signed evidence mapped to EASA, NIST, DHS, IMO, RTS 25, EU Space Act, NIS 2 duties (E6, Pro; list, show, verify free)\n\
+       kshana-pro pics <list|show|mapping|score|export|sample|verify> ...   PICS: PNT Interference Conformance Suite, versioned jamming/spoofing scenarios with pre-registered bars, clause mapping and signed scorecards (score Pro; the rest free)\n\
        kshana-pro exposure <run|verify> ...   Insurer scorecard: periodic signed exposure summary of a fleet or route (E7, Pro); verify free\n\
        kshana-pro license <keygen|pubkey|issue|issue-invoice|extend-invoice|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
      \n\
@@ -127,6 +129,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "verify-service",
     "frameworks",
     "exposure",
+    "pics",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -258,6 +261,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("verify-service") => evidence_cmd::verify_service(&args[1..]),
         Some("frameworks") => evidence_cmd::frameworks(&args[1..]),
         Some("exposure") => evidence_cmd::exposure(&args[1..]),
+        Some("pics") => pics_cmd::run(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
         Some(name) if crate::extension::commands().iter().any(|c| c.name == name) => {
             let c = crate::extension::commands()

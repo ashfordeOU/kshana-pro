@@ -58,6 +58,7 @@ pub mod pack_c;
 pub mod packs;
 pub mod payments;
 pub mod pdf_text;
+pub mod pics;
 pub mod planner_front;
 pub mod pnt_study;
 pub mod premium;
