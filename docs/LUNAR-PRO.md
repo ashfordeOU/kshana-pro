@@ -209,7 +209,7 @@ the real data have not been downloaded.**
 kshana-pro lunar lugre example --out ex          # SYNTHETIC set: SP3, tables, model, prereg, obs (free)
 kshana-pro lunar lugre score --prereg ex/prereg.toml --prereg-sha256 $(cat ex/prereg.sha256) \
   --model ex/model.toml --sp3 ex/gnss.sp3 --obs ex/obs.csv --out ex/score [--signer N --key-file K] --dev
-all  281 obs, 40 clusters, shortfall 9.50 dB, u_A 0.11, u_B 1.22, interval [7.05, 11.95]: inside 7-12
+all  712 obs, 56 clusters, shortfall 9.45 dB, u_A 0.10, u_B 1.19, interval [7.05, 11.84]: inside 7-12
 ```
 
 **Input schema needs confirmation against the Zenodo record.** Observations use the D5 LuGRE-style
@@ -223,6 +223,53 @@ Known gaps: azimuth-averaged transmit tables only (Galileo phasing and yaw are n
 engine's `GainPattern2D` is the route); the receiver's tracking threshold truncates the observed
 distribution near the floor, which biases residuals there (the `min_observed_dbhz` rule only
 partly handles it); the Moon series is ≈0.05° from Horizons (≈0.05° in θ).
+
+## D7. Lunar navigation service SLA verification (gaps 16, 25)
+
+`kshana-pro lunar sla verify --obs <samples.csv> --month YYYY-MM --out <dir> --signer <name>
+--key-file <f> [--sla lcrns-srd,moonlight-owr,lnss-ioc] [--sla-file <f.toml>]` gives, per provider,
+the range-domain SISE (UEE removed), availability, integrity events and continuity, each with a
+95 % interval and a three-way verdict (**Meets** if the whole interval is inside the target,
+**Breach** if wholly outside, else **Inconclusive**), and writes a signed monthly report
+(`report.json`, `report.txt`, `signature.json`). `kshana-pro lunar sla example --out s.csv` writes a
+SYNTHETIC month with one provider that meets and one that breaches. **MODELLED: no lunar navigation
+service exists yet.**
+
+* **Input**: `time,station,provider,node,status,range_residual_m,uee_sigma_m`; `status` is `ok`,
+  `unhealthy` or `missing` (scheduled but not received). The residual is the pseudorange minus the
+  range from the node's broadcast ephemeris and clock to the surveyed station, with the station
+  clock removed (SISE + UEE); `uee_sigma_m` is the station's own calibrated noise and multipath.
+* **SISE**: `k·RMS` (`RMS² = mean(e²) − mean(σ_UEE²)`, bias included) with a χ² interval, or the
+  `p` quantile of `|e|` corrected for UEE (`√(q² − z_p²σ_UEE²)`, Gaussian) with an order-statistic
+  interval (or a scale-family χ² interval when too few independent samples). Independent samples
+  `n_eff` = distinct `--decorrelation-s` blocks (default 1800 s). Windowed SLAs (Moonlight "any
+  24 h") are judged on the worst sliding window (step 1 h).
+* **Availability**: share of scheduled epochs with at least `min_nodes` healthy nodes inside the
+  alarm limit (Wilson interval on `n_eff`); healthy samples beyond the alarm limit are integrity
+  events. **Continuity**: losses of service per available hour `λ`, `exp(−λT)` over
+  `continuity_interval_s` with a Garwood interval; longest continuous run per day.
+
+| Profile | Target | Source (as cited in the research note) |
+|---|---|---|
+| `lcrns-srd` | SISE 13.43 m at 3σ | LCRNS SRD ESC-LCRNS-REQ-0090 [28]; the SRD states a **position** SISE, the station measures the range-domain projection plus clock: **illustrative until confirmed against the SRD** |
+| `moonlight-owr` | SISE 10 m at 95 % over any 24 h; availability 95 % | ESA Moonlight [29][30]; availability counted at one node (a positioning service needs `min_nodes = 4`) |
+| `lnss-ioc` | SISE 20 m at 2σ | JAXA LNSS IOC [17] |
+
+Custom targets: an `--sla-file` with `[[sla]]` tables (`id`, `source`, `sise_target_m`,
+`sise_metric = {kind = "ksigma", k}` or `{kind = "percentile", p}`, `window_h`,
+`availability_target`, `continuity_target`, `continuity_interval_s`, `min_nodes`,
+`alarm_limit_m`). In the example, MEETS-CO (σ 2.5 m) gets 3σ 7.60 m [7.32, 7.90] and Meets both
+profiles; BREACH-CO (σ 7 m, 10 % outage) gets 3σ 21.2 m and availability 0.91 and Breaches both.
+
+Tests: right verdicts for both synthetic providers; k-sigma χ² interval coverage 92–98 % and
+percentile coverage 90–99 % over 400 Monte Carlo trials; UEE removal; `n_eff` shrinking with
+correlation; a bad day found by the 24 h window and hidden in the month; integrity, availability
+and continuity counts exact on a constructed series; Inconclusive near the target with little
+data; month filtering; custom and malformed SLA files and samples; the signed report verifies and a
+changed verdict is detected. Limits: residuals must be formed upstream (station survey, broadcast
+ephemeris, station clock); judging the worst of many windows raises the false-breach rate at a
+fixed per-window confidence (no multiplicity correction); one station sees each node from one
+direction, so orbit errors orthogonal to the line of sight are not observed.
 
 ## Honest limits
 

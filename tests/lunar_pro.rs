@@ -321,3 +321,6 @@ mod cli;
 
 #[path = "lunar_pro/d6_lugre.rs"]
 mod d6_lugre;
+
+#[path = "lunar_pro/d7_sla.rs"]
+mod d7_sla;

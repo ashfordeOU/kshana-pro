@@ -279,19 +279,30 @@ pub fn fmt_epoch(t: &EpochUtc) -> String {
     )
 }
 
-fn epoch_from_secs(s: f64) -> EpochUtc {
-    let day = (s / 86_400.0).floor();
-    let sod = s - day * 86_400.0;
+/// The inverse of the D5 `secs` (seconds since 2000-01-01T12:00:00 of the same scale).
+pub fn epoch_from_secs(s: f64) -> EpochUtc {
+    // Seconds since 2000-01-01T00:00:00, split into whole days and seconds of day.
+    let m = s + 43_200.0;
+    let day = (m / 86_400.0).floor();
+    let mut sod = m - day * 86_400.0;
+    // Round to the microsecond so labels do not read 59.999999.
+    sod = (sod * 1e6).round() / 1e6;
+    let (day, sod) = if sod >= 86_400.0 {
+        (day + 1.0, sod - 86_400.0)
+    } else {
+        (day, sod)
+    };
+    // The civil date of that day's noon (robust against the JD's half-day origin).
     let c = kshana::timescales::civil_from_jd(kshana::timescales::JD_J2000 + day);
     let h = (sod / 3600.0).floor();
-    let m = ((sod - h * 3600.0) / 60.0).floor();
+    let mi = ((sod - h * 3600.0) / 60.0).floor();
     EpochUtc {
         year: c.year,
         month: c.month,
         day: c.day,
         hour: h as u32,
-        minute: m as u32,
-        second: sod - h * 3600.0 - m * 60.0,
+        minute: mi as u32,
+        second: sod - h * 3600.0 - mi * 60.0,
     }
 }
 

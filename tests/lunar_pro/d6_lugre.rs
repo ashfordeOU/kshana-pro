@@ -444,3 +444,25 @@ fn d6_pre_registration_template_round_trips_and_validates() {
     .is_err());
     assert!(PreRegistration::parse(&text.replace(PREREG_FORMAT, "other/1")).is_err());
 }
+
+#[test]
+fn d6_epoch_seconds_round_trip_across_midnight_and_month_ends() {
+    for s in [
+        "2025-03-03T00:00:00",
+        "2025-03-02T23:59:59.5",
+        "2029-06-30T12:00:00",
+        "2029-07-01T00:00:00",
+        "2000-01-01T00:00:00",
+        "2024-02-29T06:30:15.25",
+    ] {
+        let e = parse_epoch(s).unwrap();
+        let t = kshana_pro::lunar_pro::lunex::secs(&e);
+        let back = epoch_from_secs(t);
+        assert_eq!(
+            (back.year, back.month, back.day, back.hour, back.minute),
+            (e.year, e.month, e.day, e.hour, e.minute),
+            "{s}"
+        );
+        assert!((back.second - e.second).abs() < 1e-6, "{s}");
+    }
+}

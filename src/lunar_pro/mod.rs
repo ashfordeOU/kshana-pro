@@ -18,6 +18,7 @@
 //! | D4 TL–UTC broadcast offset codec | [`offset_codec`] | 5 | PROPOSAL pending LNIS AD5, not a standard; MODELLED |
 //! | D5 LUNEX prototype | [`lunex`] | 30 | PROTOTYPE proposal for the IGS RINEX Committee, not a standard; MODELLED |
 //! | D6 LuGRE C/N0 reproduction harness, pre-registered | [`lugre`] | 14 | MODELLED harness; no LuGRE data scored; input schema to be confirmed against the Zenodo record |
+//! | D7 LNSP SLA verification (SISE/UEE, availability, continuity), signed monthly report | [`sla`] | 16, 25 | MODELLED; synthetic providers; SRD/SLA mapping illustrative until confirmed |
 //!
 //! **Nothing here is VALIDATED** against external measured lunar data: there is no lunar clock
 //! data yet. Where a figure is compared with a published number, the comparison is a
@@ -32,6 +33,7 @@ pub mod holdover;
 pub mod lugre;
 pub mod lunex;
 pub mod offset_codec;
+pub mod sla;
 pub mod time;
 
 pub use budget::{Budget, Dist, Term, TermKind};

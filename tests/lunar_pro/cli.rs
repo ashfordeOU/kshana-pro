@@ -204,3 +204,56 @@ fn cli_lunar_lugre_example_is_free_and_score_is_gated_and_signed() {
     }
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn cli_lunar_sla_example_is_free_and_verify_is_gated_and_signed() {
+    let dir = std::env::temp_dir().join(format!("kshana-lunar-cli-d7-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let csv = dir.join("s.csv");
+    assert!(ok(run(&[
+        "lunar",
+        "sla",
+        "example",
+        "--out",
+        csv.to_str().unwrap()
+    ])));
+    let (kf, seed) = key_file(&dir);
+    let out = dir.join("r");
+    let args = |extra: &[&str]| {
+        let mut v = s(&[
+            "lunar",
+            "sla",
+            "verify",
+            "--obs",
+            csv.to_str().unwrap(),
+            "--month",
+            "2029-06",
+            "--out",
+            out.to_str().unwrap(),
+            "--sla",
+            "lcrns-srd,moonlight-owr,lnss-ioc",
+        ]);
+        v.extend(s(extra));
+        v
+    };
+    let signing = ["--signer", "t", "--key-file", kf.to_str().unwrap()];
+    assert!(!ok(kshana_pro::cli::main_with_args(args(&signing))));
+    if cfg!(debug_assertions) {
+        // Unsigned output is refused.
+        assert!(!ok(kshana_pro::cli::main_with_args(args(&["--dev"]))));
+        let mut a = signing.to_vec();
+        a.push("--dev");
+        assert!(ok(kshana_pro::cli::main_with_args(args(&a))));
+        let pk = kshana_pro::license::public_key_for(&seed);
+        assert!(kshana_pro::signed_dossier::verify(&out, &[pk])
+            .unwrap()
+            .passed());
+        let r: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(out.join("report.json")).unwrap())
+                .unwrap();
+        assert_eq!(r["providers"].as_array().unwrap().len(), 2);
+        assert_eq!(r["providers"][0]["results"].as_array().unwrap().len(), 3);
+    }
+    let _ = std::fs::remove_dir_all(&dir);
+}

@@ -8,7 +8,7 @@
 use std::path::Path;
 use std::process::ExitCode;
 
-use crate::lunar_pro::{self, circular, holdover, lugre, lunex, offset_codec, time};
+use crate::lunar_pro::{self, circular, holdover, lugre, lunex, offset_codec, sla, time};
 
 use super::scorecard_cmd::entitlement;
 use super::{flag, has_flag, now_unix, utc_iso8601_now};
@@ -34,6 +34,9 @@ pub const USAGE: &str = "usage: kshana-pro lunar <command>   (MODELLED; see docs
     lugre prereg --model <model.toml> --out <prereg.toml> --registrant <name> [--title <t>] [--utc <iso>] [--signals G:1C,G:5Q,...]   Write a pre-registration template and print its SHA-256 (Pro)\n\
     lugre score --prereg <prereg.toml> --prereg-sha256 <hex> --model <model.toml> --sp3 <file.sp3> --obs <obs.csv> --out <dir> [--signer <name> --key-file <f> [--utc <iso>]]\n\
         Score observed against predicted C/N0 under the pre-registration; bias with uncertainty vs the published 7-12 dB (Pro; MODELLED harness)\n\
+    sla verify --obs <samples.csv> --month <YYYY-MM> --out <dir> --signer <name> --key-file <f> [--sla lcrns-srd,moonlight-owr,lnss-ioc] [--sla-file <f.toml>] [--decorrelation-s <s>] [--confidence <c>] [--utc <iso>]\n\
+        Per-provider SISE/UEE, availability and continuity against SLA targets; signed monthly report (Pro)\n\
+    sla example --out <samples.csv> [--seed <n>]   SYNTHETIC month of reference-station samples, one provider meeting and one breaching (free)\n\
   W0 candidates: kshana-equatorial-j2 (default), point-mass-mean-radius, turyshev-selenoid, turyshev-south-pole, conventional:<m2/s2>\n\
   Licence: --license <token> | an activated licence | --dev (debug builds); feature pro-timing-holdover";
 
@@ -79,6 +82,11 @@ pub fn run(args: &[String]) -> ExitCode {
             Some("predict") => gated(args, lugre_predict),
             Some("prereg") => gated(args, lugre_prereg),
             Some("score") => gated(args, lugre_score),
+            _ => Err(USAGE.to_string()),
+        },
+        Some("sla") => match args.get(1).map(String::as_str) {
+            Some("example") => sla_example(args),
+            Some("verify") => gated(args, sla_verify),
             _ => Err(USAGE.to_string()),
         },
         Some("lunex") => match args.get(1).map(String::as_str) {
@@ -746,5 +754,66 @@ fn lugre_score(args: &[String]) -> Result<ExitCode, String> {
     if let Some(pk) = signed {
         eprintln!("[signed {out}; public key {pk}]");
     }
+    Ok(ExitCode::SUCCESS)
+}
+
+// ------------------------------------------------------------------ D7 LNSP SLA verification
+
+fn sla_example(args: &[String]) -> Result<ExitCode, String> {
+    let out = flag(args, "--out").ok_or(USAGE)?;
+    let seed = flag(args, "--seed")
+        .map(|s| s.parse::<u64>().map_err(|_| "--seed: bad number"))
+        .transpose()?
+        .unwrap_or(1);
+    let csv = sla::synthetic_csv(2029, 6, 300.0, 0.5, &sla::example_providers(), seed);
+    std::fs::write(&out, csv).map_err(|e| format!("{out}: {e}"))?;
+    println!(
+        "SYNTHETIC reference-station samples for 2029-06 written to {out} (MEETS-CO and BREACH-CO)"
+    );
+    Ok(ExitCode::SUCCESS)
+}
+
+fn sla_verify(args: &[String]) -> Result<ExitCode, String> {
+    let obs = flag(args, "--obs").ok_or("verify needs --obs")?;
+    let month = flag(args, "--month").ok_or("verify needs --month YYYY-MM")?;
+    let out = flag(args, "--out").ok_or("verify needs --out")?;
+    if flag(args, "--signer").is_none() || flag(args, "--key-file").is_none() {
+        return Err("verify needs --signer and --key-file (the monthly report is signed)".into());
+    }
+    let text = std::fs::read_to_string(&obs).map_err(|e| format!("{obs}: {e}"))?;
+    let samples = sla::parse_samples(&text)?;
+    let mut slas = Vec::new();
+    if let Some(list) = flag(args, "--sla") {
+        for id in list.split(',') {
+            slas.push(sla::Sla::builtin(id.trim())?);
+        }
+    }
+    if let Some(f) = flag(args, "--sla-file") {
+        slas.extend(sla::parse_sla_file(
+            &std::fs::read_to_string(&f).map_err(|e| format!("{f}: {e}"))?,
+        )?);
+    }
+    if slas.is_empty() {
+        slas = vec![
+            sla::Sla::builtin("lcrns-srd")?,
+            sla::Sla::builtin("moonlight-owr")?,
+        ];
+    }
+    let mut opt = sla::Options {
+        month,
+        ..sla::Options::default()
+    };
+    if let Some(d) = num(args, "--decorrelation-s")? {
+        opt.decorrelation_s = d;
+    }
+    if let Some(c) = num(args, "--confidence")? {
+        opt.confidence = c;
+    }
+    let r = sla::verify(&samples, &slas, &opt, &lugre::sha256_hex(text.as_bytes()))?;
+    let dir = Path::new(&out);
+    sla::write_dir(dir, &r)?;
+    let pk = sign_required(args, dir)?;
+    print!("{}", sla::render_text(&r));
+    eprintln!("[signed {out}; public key {pk}]");
     Ok(ExitCode::SUCCESS)
 }
