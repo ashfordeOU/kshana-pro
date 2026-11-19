@@ -475,6 +475,9 @@ fn cli_guard_requires_bound_licence() {
         err.contains("machine-bound"),
         "error should name the machine-bound requirement, got: {err}"
     );
-    assert!(!out.exists(), "no report should be written when the gate fails");
+    assert!(
+        !out.exists(),
+        "no report should be written when the gate fails"
+    );
     let _ = std::fs::remove_dir_all(&dir);
 }

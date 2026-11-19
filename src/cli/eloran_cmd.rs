@@ -269,28 +269,28 @@ pub fn run(args: &[String]) -> ExitCode {
                 return c;
             }
             done((|| {
-            use kshana_eloran::plan::survey::{plan, SurveyConfig};
-            let path = args.get(1).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
-            let out = flag(args, "--out").ok_or("--out <plan.json> is required")?;
-            let cfg: SurveyConfig =
-                toml::from_str(&read(path)?).map_err(|e| format!("{path}: {e}"))?;
-            let p = plan(&cfg)?;
-            write_json(&out, &p)?;
-            let mut t = format!(
+                use kshana_eloran::plan::survey::{plan, SurveyConfig};
+                let path = args.get(1).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+                let out = flag(args, "--out").ok_or("--out <plan.json> is required")?;
+                let cfg: SurveyConfig =
+                    toml::from_str(&read(path)?).map_err(|e| format!("{path}: {e}"))?;
+                let p = plan(&cfg)?;
+                write_json(&out, &p)?;
+                let mut t = format!(
                 "ASF survey plan: area meeting {:.0} m PL {:.1} % -> {:.1} %, mean PL {:.0} m -> {:.0} m\n",
                 cfg.target_pl_m, p.coverage_before * 100.0, p.coverage_after * 100.0, p.mean_pl_before_m, p.mean_pl_after_m
             );
-            for k in &p.picks {
-                t += &format!(
-                    "  {}. {:.4}, {:.4} (coverage {:.1} %)\n",
-                    k.order,
-                    k.lat_deg,
-                    k.lon_deg,
-                    k.coverage * 100.0
-                );
-            }
-            Ok(t + &format!("-> {out}"))
-        })())
+                for k in &p.picks {
+                    t += &format!(
+                        "  {}. {:.4}, {:.4} (coverage {:.1} %)\n",
+                        k.order,
+                        k.lat_deg,
+                        k.lon_deg,
+                        k.coverage * 100.0
+                    );
+                }
+                Ok(t + &format!("-> {out}"))
+            })())
         }
         Some("rmode") => done((|| {
             use kshana_eloran::rmode::{run, RModeConfig};
@@ -2619,53 +2619,54 @@ fn bench_cmd(args: &[String]) -> ExitCode {
                 }
             }
             done((|| {
-            use kshana_eloran::bench::firstplug;
-            let (inv, _, cat) = inventory()?;
-            let out = flag(args, "--out").ok_or("--out <dir> is required")?;
-            let rehearse = args.iter().any(|a| a == "--rehearse");
-            let src = inv
-                .in_role(check::BenchRole::EloranSource)
-                .into_iter()
-                .next()
-                .ok_or("the inventory has no eloran_source")?;
-            let spec = cat
-                .get(&src.catalog)
-                .ok_or_else(|| format!("{}: not in the catalogue", src.catalog))?;
-            let levels: Vec<f64> = match flag(args, "--levels") {
-                Some(l) => l
-                    .split(',')
-                    .map(|x| {
-                        x.trim()
-                            .parse::<f64>()
-                            .map_err(|_| format!("--levels: bad number {x:?}"))
-                    })
-                    .collect::<Result<_, _>>()?,
-                None => vec![-1.0, -20.0, -40.0],
-            };
-            let (addr, mut dev) = kshana_eloran::bench::open::open_item(src, &cat, fs, rehearse)?;
-            let (rep, files) = firstplug::run(
-                dev.as_mut(),
-                spec,
-                Some(addr.clone()),
-                fs,
-                &levels,
-                num_flag(args, "--pulses")?.unwrap_or(20),
-                &firstplug::Tolerances::default(),
-            )?;
-            let dir = Path::new(&out);
-            firstplug::write_evidence(dir, &rep, &files)?;
-            let signed = sign_if_requested(args, dir)?;
-            let mut msg = format!(
-                "first plug-in {}{}: {:?} on {addr} -> {out}{signed}",
-                if rehearse { "rehearsal" } else { "check" },
-                "",
-                rep.verdict
-            );
-            for d in &rep.diagnoses {
-                msg += &format!("\n  - {d}");
-            }
-            Ok(msg)
-        })())
+                use kshana_eloran::bench::firstplug;
+                let (inv, _, cat) = inventory()?;
+                let out = flag(args, "--out").ok_or("--out <dir> is required")?;
+                let rehearse = args.iter().any(|a| a == "--rehearse");
+                let src = inv
+                    .in_role(check::BenchRole::EloranSource)
+                    .into_iter()
+                    .next()
+                    .ok_or("the inventory has no eloran_source")?;
+                let spec = cat
+                    .get(&src.catalog)
+                    .ok_or_else(|| format!("{}: not in the catalogue", src.catalog))?;
+                let levels: Vec<f64> = match flag(args, "--levels") {
+                    Some(l) => l
+                        .split(',')
+                        .map(|x| {
+                            x.trim()
+                                .parse::<f64>()
+                                .map_err(|_| format!("--levels: bad number {x:?}"))
+                        })
+                        .collect::<Result<_, _>>()?,
+                    None => vec![-1.0, -20.0, -40.0],
+                };
+                let (addr, mut dev) =
+                    kshana_eloran::bench::open::open_item(src, &cat, fs, rehearse)?;
+                let (rep, files) = firstplug::run(
+                    dev.as_mut(),
+                    spec,
+                    Some(addr.clone()),
+                    fs,
+                    &levels,
+                    num_flag(args, "--pulses")?.unwrap_or(20),
+                    &firstplug::Tolerances::default(),
+                )?;
+                let dir = Path::new(&out);
+                firstplug::write_evidence(dir, &rep, &files)?;
+                let signed = sign_if_requested(args, dir)?;
+                let mut msg = format!(
+                    "first plug-in {}{}: {:?} on {addr} -> {out}{signed}",
+                    if rehearse { "rehearsal" } else { "check" },
+                    "",
+                    rep.verdict
+                );
+                for d in &rep.diagnoses {
+                    msg += &format!("\n  - {d}");
+                }
+                Ok(msg)
+            })())
         }
         #[cfg(not(feature = "unfiled-methods"))]
         Some("verify-evidence") => method_not_in_build("bench verify-evidence"),
