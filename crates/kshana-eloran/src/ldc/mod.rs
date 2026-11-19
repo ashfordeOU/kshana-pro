@@ -43,6 +43,7 @@
 
 pub mod bits;
 pub mod crc;
+pub mod delay_auth;
 pub mod gf;
 pub mod hmac;
 pub mod mapper;

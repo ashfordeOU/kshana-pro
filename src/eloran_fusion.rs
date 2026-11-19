@@ -298,7 +298,7 @@ fn zeros(n: usize) -> Mat {
 }
 
 /// Geodetic east, north, up unit vectors (ECEF) at `r`.
-fn enu(r: [f64; 3]) -> ([f64; 3], [f64; 3], [f64; 3]) {
+pub(crate) fn enu(r: [f64; 3]) -> ([f64; 3], [f64; 3], [f64; 3]) {
     let g = ecef_to_geodetic(r);
     let (sla, cla) = g.lat_rad.sin_cos();
     let (slo, clo) = g.lon_rad.sin_cos();
@@ -309,11 +309,11 @@ fn enu(r: [f64; 3]) -> ([f64; 3], [f64; 3], [f64; 3]) {
     )
 }
 
-fn dot(a: [f64; 3], b: [f64; 3]) -> f64 {
+pub(crate) fn dot(a: [f64; 3], b: [f64; 3]) -> f64 {
     a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 }
 
-fn sub(a: [f64; 3], b: [f64; 3]) -> [f64; 3] {
+pub(crate) fn sub(a: [f64; 3], b: [f64; 3]) -> [f64; 3] {
     [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
 }
 
@@ -321,7 +321,7 @@ fn norm(a: [f64; 3]) -> f64 {
     dot(a, a).sqrt()
 }
 
-fn to_geo(r: [f64; 3]) -> Geo {
+pub(crate) fn to_geo(r: [f64; 3]) -> Geo {
     let g = ecef_to_geodetic(r);
     Geo {
         lat_deg: g.lat_rad.to_degrees(),
@@ -352,7 +352,7 @@ pub struct State {
 }
 
 impl State {
-    fn weak(pos: [f64; 3]) -> State {
+    pub(crate) fn weak(pos: [f64; 3]) -> State {
         let mut cov = [[0.0; NS]; NS];
         for (i, row) in cov.iter_mut().enumerate() {
             row[i] = 1e12;
@@ -366,16 +366,16 @@ impl State {
     }
 }
 
-struct Solved {
-    state: State,
-    cost: f64,
-    m: usize,
-    n_prior: usize,
-    residuals: Vec<(String, f64)>,
+pub(crate) struct Solved {
+    pub(crate) state: State,
+    pub(crate) cost: f64,
+    pub(crate) m: usize,
+    pub(crate) n_prior: usize,
+    pub(crate) residuals: Vec<(String, f64)>,
 }
 
 /// Iterated MAP solve of `gnss`, `eloran` and the optional height aid against `prior`.
-fn solve(
+pub(crate) fn solve(
     prior: &State,
     gnss: &[GnssRange],
     eloran: &[EloranRange],

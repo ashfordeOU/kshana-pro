@@ -51,6 +51,7 @@ pub mod dloran;
 pub mod field;
 pub mod geo;
 pub mod gridb;
+pub mod guard;
 pub mod hw;
 pub mod instr;
 pub mod interf;
