@@ -1,0 +1,272 @@
+# eLoran-Bench v0.1 pass bars (pre-registered: the SHA-256 of this file is in
+# registration.toml; any change after registration is detected and scoring is refused).
+#
+# ILLUSTRATIVE: set by Kshana, not taken from a standard. They were set after observing the
+# in-house software receiver on these fixed seeds (roughly 2x its observed errors), so they
+# are not blind for that receiver; for any other receiver they are fixed before scoring.
+# Metric definitions: crates/kshana-eloran/src/refbench/mod.rs.
+
+benchmark = "eLoran-Bench"
+version = "0.1"
+
+# --- ELB-STATIC: fixed site, SNR about 10 dB -------------------------------------------
+[[bars]]
+scenario = "ELB-STATIC"
+metric = "tracked_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-STATIC"
+metric = "toa_rms_ns"
+op = "le"
+limit = 60.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-STATIC"
+metric = "toa_bias_ns"
+op = "le"
+limit = 25.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-STATIC"
+metric = "cycle_errors"
+op = "eq"
+limit = 0.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-STATIC"
+metric = "ecd_rms_us"
+op = "le"
+limit = 2.5
+illustrative = true
+
+[[bars]]
+scenario = "ELB-STATIC"
+metric = "snr_error_db"
+op = "le"
+limit = 2.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-STATIC"
+metric = "time_error_ns"
+op = "le"
+limit = 25.0
+illustrative = true
+
+# --- ELB-SHIP: 15 m/s --------------------------------------------------------------------
+[[bars]]
+scenario = "ELB-SHIP"
+metric = "tracked_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-SHIP"
+metric = "toa_rms_ns"
+op = "le"
+limit = 60.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-SHIP"
+metric = "cycle_errors"
+op = "eq"
+limit = 0.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-SHIP"
+metric = "cycle_slips"
+op = "eq"
+limit = 0.0
+illustrative = true
+
+# --- ELB-DRONE: 40 m/s diagonal ----------------------------------------------------------
+[[bars]]
+scenario = "ELB-DRONE"
+metric = "tracked_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-DRONE"
+metric = "toa_rms_ns"
+op = "le"
+limit = 50.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-DRONE"
+metric = "cycle_errors"
+op = "eq"
+limit = 0.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-DRONE"
+metric = "cycle_slips"
+op = "eq"
+limit = 0.0
+illustrative = true
+
+# --- ELB-SKY-NIGHT: night-time one-hop ionospheric skywave -------------------------------
+[[bars]]
+scenario = "ELB-SKY-NIGHT"
+metric = "tracked_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-SKY-NIGHT"
+metric = "toa_rms_ns"
+op = "le"
+limit = 20.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-SKY-NIGHT"
+metric = "toa_max_abs_ns"
+op = "le"
+limit = 50.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-SKY-NIGHT"
+metric = "cycle_errors"
+op = "eq"
+limit = 0.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-SKY-NIGHT"
+metric = "time_error_ns"
+op = "le"
+limit = 15.0
+illustrative = true
+
+# --- ELB-CRI: 1 MW cross-rate chain ------------------------------------------------------
+[[bars]]
+scenario = "ELB-CRI"
+metric = "tracked_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-CRI"
+metric = "toa_rms_ns"
+op = "le"
+limit = 15.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-CRI"
+metric = "cycle_errors"
+op = "eq"
+limit = 0.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-CRI"
+metric = "time_error_ns"
+op = "le"
+limit = 10.0
+illustrative = true
+
+# --- ELB-IMPULSIVE: motor + switch-mode supply impulses ----------------------------------
+[[bars]]
+scenario = "ELB-IMPULSIVE"
+metric = "tracked_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-IMPULSIVE"
+metric = "toa_rms_ns"
+op = "le"
+limit = 15.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-IMPULSIVE"
+metric = "cycle_errors"
+op = "eq"
+limit = 0.0
+illustrative = true
+
+# --- ELB-LDC: Eurofix with authentication ------------------------------------------------
+# No SNR bar: the in-house receiver's SNR estimate is biased under pulse-position
+# modulation (known limitation, recorded in the scorecard metrics).
+[[bars]]
+scenario = "ELB-LDC"
+metric = "tracked_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-LDC"
+metric = "ldc_symbols"
+op = "ge"
+limit = 100.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-LDC"
+metric = "ldc_symbol_error_rate"
+op = "le"
+limit = 0.01
+illustrative = true
+
+[[bars]]
+scenario = "ELB-LDC"
+metric = "toa_rms_ns"
+op = "le"
+limit = 25.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-LDC"
+metric = "cycle_errors"
+op = "eq"
+limit = 0.0
+illustrative = true
+
+# --- ELB-MULTI-UTCK: stations steered to UTC(A) +50 ns and UTC(B) -30 ns -----------------
+[[bars]]
+scenario = "ELB-MULTI-UTCK"
+metric = "tracked_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-MULTI-UTCK"
+metric = "time_error_ns"
+op = "le"
+limit = 50.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-MULTI-UTCK"
+metric = "toa_rms_ns"
+op = "le"
+limit = 60.0
+illustrative = true
+
+[[bars]]
+scenario = "ELB-MULTI-UTCK"
+metric = "cycle_errors"
+op = "eq"
+limit = 0.0
+illustrative = true

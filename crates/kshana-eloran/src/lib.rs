@@ -20,7 +20,10 @@
 //! * [`accept`]: calibration wizards and the hardware acceptance suite with RVM output;
 //! * [`calreg`]: the hash-chained calibration register;
 //! * [`field`]: unattended LF recording stations and receiver log importers;
-//! * [`campaign`]: conformance test library and validation campaign runner.
+//! * [`campaign`]: conformance test library and validation campaign runner;
+//! * [`elof`]: ELOF, the eLoran Observation & Scenario Format (reader, writer, validator);
+//! * [`refbench`]: eLoran-Bench, the reference benchmark (pre-registered bars, scorer, leaderboard);
+//! * [`tpl`]: ASF-aware timing protection level for UTC(k) time transfer.
 //!
 //! Evidence labels follow the Kshana convention: a model is VALIDATED only where an
 //! independent external reference backs it (see `docs/VALIDATION.md` of this crate).
@@ -48,6 +51,7 @@ pub mod calreg;
 pub mod campaign;
 pub mod chain;
 pub mod dloran;
+pub mod elof;
 pub mod field;
 pub mod geo;
 pub mod gridb;
@@ -60,6 +64,7 @@ pub mod ldc;
 pub mod monitor;
 pub mod plan;
 pub mod prop;
+pub mod refbench;
 pub mod replay;
 pub mod rmode;
 pub mod rt;
@@ -72,6 +77,7 @@ pub mod threat;
 pub mod time;
 pub mod timebase;
 pub mod timeref;
+pub mod tpl;
 pub mod traj;
 pub mod twin;
 pub mod valid;

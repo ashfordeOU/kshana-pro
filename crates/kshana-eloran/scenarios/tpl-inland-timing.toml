@@ -1,0 +1,72 @@
+# Timing protection level example: a UTC(k) timing receiver deep inland, four coastal stations
+# whose paths all cross one land class (σ = 3 mS/m). Synthetic geometry (not real stations).
+#
+#   kshana-pro eloran tpl crates/kshana-eloran/scenarios/tpl-inland-timing.toml --dev
+#
+# Evidence label: MODELLED (Monte Carlo propagation uncertainty with assumed input spreads).
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 0.2
+fs_hz = 400000
+seed = 5
+output_scale_uv_m = 1000000.0
+
+[receiver]
+type = "static"
+lat_deg = 52.5
+lon_deg = 0.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+
+[propagation.ground]
+model = "millington"
+k_factor = 1.24
+sample_km = 5.0
+
+[propagation.ground.conductivity]
+type = "polygons"
+background = { sigma_s_m = 5.0, eps_r = 80.0 }
+
+[[propagation.ground.conductivity.polygons]]
+name = "land"
+sigma_s_m = 0.003
+eps_r = 15.0
+vertices = [[50.0, -5.0], [55.0, -5.0], [55.0, 5.0], [50.0, 5.0]]
+
+[propagation.ground.temporal]
+sigma_seasonal_frac = 0.15
+
+[[chains]]
+name = "tpl-A"
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 49.0, lon_deg = 0.0 }
+power_kw = 400.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 56.5, lon_deg = 0.5 }
+power_kw = 400.0
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Y"
+role = "secondary"
+position = { lat_deg = 52.5, lon_deg = -7.0 }
+power_kw = 400.0
+emission_delay_us = 29000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Z"
+role = "secondary"
+position = { lat_deg = 52.3, lon_deg = 7.0 }
+power_kw = 400.0
+emission_delay_us = 46000.0
+time_ref = "UTC(A)"

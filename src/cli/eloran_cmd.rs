@@ -122,6 +122,25 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         for clean / GNSS spoofed / GNSS jammed / eLoran station fault / meaconing / clock fault (Enterprise)\n\
     guard meacon <signatures.json> --out <report.json> [--license <token>] [--dev]\n\
         Meacon/relay screen of measured station signatures against predicted ones (Enterprise)\n\
+    elof validate <file.elof.jsonl|file.elof.csv> [--json]\n\
+        Validate an ELOF v0.1 observation file: version, units, required fields, stations, ranges,\n\
+        phase code, monotonic time (free)\n\
+    elof convert <input> --out <file> [--from elof|truth-csv|obs-json] [--to jsonl|csv] [--scenario <scenario.toml>] [--license <token>] [--dev]\n\
+        Convert to ELOF: a simulator truth table (<base>.truth.csv), imported receiver records\n\
+        (`eloran import` JSON) or another ELOF profile; truth-csv and obs-json need --scenario (Enterprise)\n\
+    bench-eloran list [--bench <dir>]\n\
+        eLoran-Bench: the reference scenarios, their pre-registered bars and the registration hash (free)\n\
+    bench-eloran reference --out <dir> [--bench <dir>] [--license <token>] [--dev]\n\
+        The in-house software receiver's ELOF observations on every scenario (<ID>.elof.jsonl) (Enterprise)\n\
+    bench-eloran score --obs <dir> --receiver <name> --out <dir> [--leaderboard <file.json>] [--key-file <file> --signer <name>] [--bench <dir>] [--license <token>] [--dev]\n\
+        Score a receiver's ELOF observations (<dir>/<ID>.elof.jsonl or .elof.csv) against the\n\
+        pre-registered bars: <out>/scorecard.json (sealed; Ed25519-signed with --key-file), optional\n\
+        leaderboard update; refuses bars or scenarios changed after registration (Enterprise)\n\
+    tpl <scenario.toml> [--risk <p>] [--alert-ns <ns>] [--samples <n>] [--seed <n>] [--time-ref <id>] [--meas-ns <ns>] [--tx-ns <ns>] [--grid <lat1,lat2,lon1,lon2> --res <deg>] [--out <file.json>] [--license <token>] [--dev]\n\
+        ASF-aware timing protection level for UTC(k) time transfer at the scenario's receiver\n\
+        position (millington or smooth_earth ground model): ASF σ from conductivity class, terrain\n\
+        and seasonal variation, station-fault and ASF-model-error hypotheses; --grid writes an\n\
+        availability map (Enterprise)\n\
     validate <scenario.toml>\n\
         Check a scenario and print its SHA-256 (no licence needed)\n\
     example\n\
@@ -236,6 +255,9 @@ pub fn run(args: &[String]) -> ExitCode {
             Ok(t + &format!("-> {out}"))
         })()),
         Some("guard") => guard_cmd(args),
+        Some("elof") => elof_cmd(args),
+        Some("bench-eloran") => bench_eloran_cmd(args),
+        Some("tpl") => tpl_cmd(args),
         Some("example") => {
             print!("{EXAMPLE}");
             ExitCode::SUCCESS
@@ -1392,6 +1414,435 @@ fn import_cmd(args: &[String]) -> ExitCode {
             "import: {} observation record(s) -> {out}",
             obs.len()
         ))
+    })())
+}
+
+fn elof_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::elof::{self, convert, csv as elof_csv};
+    match args.get(1).map(String::as_str) {
+        Some("validate") => {
+            let Some(path) = args.get(2).filter(|a| !a.starts_with("--")) else {
+                return fail(USAGE);
+            };
+            let text = match read(path) {
+                Ok(t) => t,
+                Err(e) => return fail(e),
+            };
+            let (_, rep) = elof::validate_text(&text);
+            if super::has_flag(args, "--json") {
+                println!("{}", serde_json::to_string_pretty(&rep).unwrap_or_default());
+            } else {
+                for e in &rep.errors {
+                    match e.record {
+                        Some(i) => eprintln!("error: record {i}: {}", e.message),
+                        None => eprintln!("error: header: {}", e.message),
+                    }
+                }
+                for w in rep.warnings.iter().take(20) {
+                    eprintln!("warning: {}", w.message);
+                }
+                println!("{path}: {}", rep.summary());
+            }
+            if rep.ok() {
+                ExitCode::SUCCESS
+            } else {
+                ExitCode::FAILURE
+            }
+        }
+        Some("convert") => {
+            let Some(input) = args.get(2).filter(|a| !a.starts_with("--")).cloned() else {
+                return fail(USAGE);
+            };
+            let Some(out) = flag(args, "--out") else {
+                return fail(USAGE);
+            };
+            if let Err(c) = licensed(args) {
+                return c;
+            }
+            done((|| {
+                let text = read(&input)?;
+                let from = flag(args, "--from").unwrap_or_else(|| {
+                    if input.ends_with(".truth.csv") {
+                        "truth-csv".into()
+                    } else if input.ends_with(".json") && !input.ends_with(".jsonl") {
+                        "obs-json".into()
+                    } else {
+                        "elof".into()
+                    }
+                });
+                let scenario = || -> Result<(Scenario, String), String> {
+                    let p = flag(args, "--scenario")
+                        .ok_or_else(|| format!("--from {from} needs --scenario <scenario.toml>"))?;
+                    let name = Path::new(&p)
+                        .file_stem()
+                        .map(|s| s.to_string_lossy().into_owned())
+                        .unwrap_or_default();
+                    Ok((load(&p)?, name))
+                };
+                let file = match from.as_str() {
+                    "elof" => elof::read_valid(&text)?,
+                    "truth-csv" => {
+                        let (sc, name) = scenario()?;
+                        let truth = kshana_eloran::scene::truth_from_csv(&text)?;
+                        convert::from_truth(&sc, &name, &truth)?
+                    }
+                    "obs-json" => {
+                        let (sc, name) = scenario()?;
+                        let v: serde_json::Value =
+                            serde_json::from_str(&text).map_err(|e| format!("{input}: {e}"))?;
+                        let recs: Vec<kshana_eloran::field::importers::ObsRecord> =
+                            serde_json::from_value(v.get("observations").cloned().unwrap_or(v))
+                                .map_err(|e| format!("{input}: observations: {e}"))?;
+                        let mut h = convert::header_for_scenario(
+                            &sc,
+                            &name,
+                            elof::Source {
+                                kind: elof::SourceKind::HardwareReceiver,
+                                software: convert::software(),
+                                description: format!("imported from {input}"),
+                            },
+                        );
+                        h.time_scale = elof::TimeScale::Utc;
+                        let (records, skipped) = convert::obs_from_obs_records(&h, &recs)?;
+                        if skipped > 0 {
+                            eprintln!(
+                                "note: {skipped} record(s) without time, station or ToA skipped"
+                            );
+                        }
+                        let mut f = elof::ElofFile { header: h, records };
+                        f.sort();
+                        f
+                    }
+                    other => {
+                        return Err(format!("--from {other}: use elof, truth-csv or obs-json"))
+                    }
+                };
+                let rep = elof::validate(&file);
+                if !rep.ok() {
+                    return Err(format!("converted file is invalid: {}", rep.summary()));
+                }
+                let to = flag(args, "--to").unwrap_or_else(|| {
+                    if out.ends_with(".csv") {
+                        "csv".into()
+                    } else {
+                        "jsonl".into()
+                    }
+                });
+                let (body, note) = match to.as_str() {
+                    "jsonl" => (file.to_jsonl()?, String::new()),
+                    "csv" => {
+                        let (t, left) = elof_csv::to_csv(&file)?;
+                        (
+                            t,
+                            if left > 0 {
+                                format!(" ({left} truth/timing/ldc record(s) have no CSV form)")
+                            } else {
+                                String::new()
+                            },
+                        )
+                    }
+                    other => return Err(format!("--to {other}: use jsonl or csv")),
+                };
+                std::fs::write(&out, body).map_err(|e| format!("{out}: {e}"))?;
+                Ok(format!("elof: {} -> {out}{note}", rep.summary()))
+            })())
+        }
+        _ => fail(USAGE),
+    }
+}
+
+fn bench_eloran_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::refbench::{
+        bench_dir, score_receiver, software_receiver_observations, Benchmark, Leaderboard,
+    };
+    let dir = flag(args, "--bench")
+        .map(PathBuf::from)
+        .unwrap_or_else(bench_dir);
+    match args.get(1).map(String::as_str) {
+        Some("list") => done((|| {
+            let b = Benchmark::load(&dir)?;
+            let mut s = format!(
+                "{} {} (registered {}; registration SHA-256 {}; bars SHA-256 {})\n",
+                b.registration.benchmark,
+                b.registration.version,
+                b.registration.registered_utc,
+                b.registration_sha256,
+                b.registration.bars_sha256
+            );
+            for sc in &b.scenarios {
+                let bars: Vec<String> = b
+                    .bars_of(&sc.id)
+                    .iter()
+                    .map(|c| format!("{} {} {}", c.key(), c.op.symbol(), c.limit))
+                    .collect();
+                s.push_str(&format!(
+                    "{:<16} {:<16} {}\n    bars: {}\n",
+                    sc.id,
+                    sc.file.case.category,
+                    sc.file.case.title,
+                    bars.join("; ")
+                ));
+            }
+            s.push_str(
+                "bars are illustrative (set by Kshana, not from a standard); evidence MODELLED",
+            );
+            Ok(s)
+        })()),
+        Some("reference") => {
+            let Some(out) = flag(args, "--out") else {
+                return fail(USAGE);
+            };
+            if let Err(c) = licensed(args) {
+                return c;
+            }
+            done((|| {
+                let b = Benchmark::load(&dir)?;
+                std::fs::create_dir_all(&out).map_err(|e| format!("{out}: {e}"))?;
+                for sc in &b.scenarios {
+                    let run = sc.simulate()?;
+                    let f = software_receiver_observations(sc, &run)?;
+                    let p = Path::new(&out).join(format!("{}.elof.jsonl", sc.id));
+                    std::fs::write(&p, f.to_jsonl()?)
+                        .map_err(|e| format!("{}: {e}", p.display()))?;
+                }
+                Ok(format!(
+                    "bench-eloran: {} reference observation file(s) -> {out}",
+                    b.scenarios.len()
+                ))
+            })())
+        }
+        Some("score") => {
+            let (Some(obs_dir), Some(receiver), Some(out)) = (
+                flag(args, "--obs"),
+                flag(args, "--receiver"),
+                flag(args, "--out"),
+            ) else {
+                return fail(USAGE);
+            };
+            let now = now_unix();
+            let ent = match entitlement(args, now) {
+                Ok(e) => e,
+                Err(e) => return fail(e),
+            };
+            if let Err(e) = crate::license::check(&ent, FEATURE, now) {
+                return fail(e);
+            }
+            let key = flag(args, "--key-file");
+            if key.is_some() && !ent.allows("pro-signed-dossier", now) {
+                return fail("signing a scorecard requires the pro-signed-dossier feature");
+            }
+            done((|| {
+                let b = Benchmark::load(&dir)?;
+                let mut obs = std::collections::BTreeMap::new();
+                for sc in &b.scenarios {
+                    for ext in ["elof.jsonl", "elof.csv"] {
+                        let p = Path::new(&obs_dir).join(format!("{}.{ext}", sc.id));
+                        if p.exists() {
+                            let text = read(&p.to_string_lossy())?;
+                            let (f, rep) = kshana_eloran::elof::validate_text(&text);
+                            match f {
+                                Some(f) => {
+                                    if !rep.ok() {
+                                        eprintln!("warning: {}: {}", p.display(), rep.summary());
+                                    }
+                                    obs.insert(sc.id.clone(), f);
+                                }
+                                None => return Err(format!("{}: {}", p.display(), rep.summary())),
+                            }
+                            break;
+                        }
+                    }
+                }
+                let card = score_receiver(&b, &receiver, &obs)?;
+                std::fs::create_dir_all(&out).map_err(|e| format!("{out}: {e}"))?;
+                write_json(&format!("{out}/scorecard.json"), &card)?;
+                let mut msg = format!(
+                    "bench-eloran: {receiver}: {} pass, {} fail, {} not evaluated ({}/{} scenarios pass); seal {} -> {out}/scorecard.json",
+                    card.pass,
+                    card.fail,
+                    card.not_evaluated,
+                    card.scenarios_passed,
+                    card.results.len(),
+                    &card.seal_sha256[..16]
+                );
+                if let Some(kf) = &key {
+                    let signer =
+                        flag(args, "--signer").ok_or("--key-file needs --signer <name>")?;
+                    let seed = std::fs::read_to_string(kf)
+                        .map_err(|e| format!("{kf}: {e}"))
+                        .and_then(|s| {
+                            let s = s.trim();
+                            let s = s.strip_prefix("private_key=").unwrap_or(s);
+                            crate::license::parse_key_hex(s).map_err(|e| format!("{kf}: {e}"))
+                        })?;
+                    let utc = super::utc_iso8601_now();
+                    crate::signed_dossier::sign(Path::new(&out), &seed, &signer, &utc)
+                        .map_err(|e| e.to_string())?;
+                    msg.push_str(&format!(
+                        "; signed by {signer} (verify: kshana-pro dossier verify {out})"
+                    ));
+                }
+                if let Some(lp) = flag(args, "--leaderboard") {
+                    let mut lb = if Path::new(&lp).exists() {
+                        Leaderboard::from_json(&read(&lp)?)?
+                    } else {
+                        Leaderboard::new(&b)
+                    };
+                    let rank = lb.add(&card, &super::utc_iso8601_now())?;
+                    write_json(&lp, &lb)?;
+                    msg.push_str(&format!("; leaderboard rank {rank} -> {lp}"));
+                }
+                Ok(msg)
+            })())
+        }
+        _ => fail(USAGE),
+    }
+}
+
+fn tpl_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::prop::conductivity::{ConductivityConfig, ConductivityMap};
+    use kshana_eloran::prop::ground::GroundConfig;
+    use kshana_eloran::tpl::{availability_map, compute, TplConfig, TplProblem};
+    let Some(path) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let sc = load(&path)?;
+        let mut cfg = TplConfig::default();
+        let (map_cfg, k_factor, sample_km, temporal) = match &sc.propagation.ground {
+            GroundConfig::Millington {
+                conductivity,
+                k_factor,
+                sample_km,
+                temporal,
+                ..
+            } => (
+                conductivity.clone(),
+                *k_factor,
+                *sample_km,
+                temporal.clone(),
+            ),
+            GroundConfig::SmoothEarth {
+                sigma_s_m,
+                eps_r,
+                k_factor,
+                temporal,
+            } => (
+                ConductivityConfig::Uniform {
+                    sigma_s_m: *sigma_s_m,
+                    eps_r: *eps_r,
+                },
+                *k_factor,
+                2.0,
+                temporal.clone(),
+            ),
+            _ => {
+                return Err(
+                    "tpl needs a millington or smooth_earth ground model (a conductivity map)"
+                        .into(),
+                )
+            }
+        };
+        if let Some(t) = temporal.filter(|t| t.sigma_seasonal_frac > 0.0) {
+            cfg.seasonal_sigma_frac = t.sigma_seasonal_frac;
+        }
+        if let Some(v) = num_flag(args, "--risk")? {
+            cfg.integrity_risk = v;
+        }
+        if let Some(v) = num_flag(args, "--alert-ns")? {
+            cfg.alert_limit_ns = v;
+        }
+        if let Some(v) = num_flag(args, "--samples")? {
+            cfg.samples = v;
+        }
+        if let Some(v) = num_flag(args, "--seed")? {
+            cfg.seed = v;
+        }
+        if let Some(v) = num_flag(args, "--meas-ns")? {
+            cfg.meas_sigma_ns = v;
+        }
+        if let Some(v) = num_flag(args, "--tx-ns")? {
+            cfg.tx_sigma_ns = v;
+        }
+        cfg.time_ref = flag(args, "--time-ref");
+        let map = ConductivityMap::build(&map_cfg)?;
+        let stations: Vec<kshana_eloran::chain::Station> = sc
+            .chains
+            .iter()
+            .flat_map(|c| c.chain.stations.iter().cloned())
+            .collect();
+        let out = flag(args, "--out");
+        if let Some(g) = flag(args, "--grid") {
+            let b: Vec<f64> = g
+                .split(',')
+                .map(|x| x.trim().parse::<f64>())
+                .collect::<Result<_, _>>()
+                .map_err(|_| "--grid: lat1,lat2,lon1,lon2")?;
+            if b.len() != 4 {
+                return Err("--grid: lat1,lat2,lon1,lon2".into());
+            }
+            let res: f64 = num_flag(args, "--res")?.ok_or("--grid needs --res <deg>")?;
+            let m = availability_map(
+                &stations,
+                [b[0], b[1], b[2], b[3]],
+                res,
+                &map,
+                k_factor,
+                sample_km,
+                &cfg,
+            )?;
+            if let Some(o) = &out {
+                write_json(o, &m)?;
+            }
+            return Ok(format!(
+                "tpl map: {} point(s), availability {:.1} % at alert limit {} ns, integrity risk {:e}{}",
+                m.points.len(),
+                100.0 * m.availability,
+                m.alert_limit_ns,
+                m.integrity_risk,
+                out.map(|o| format!(" -> {o}")).unwrap_or_default()
+            ));
+        }
+        let pos = sc.receiver.state(0.0).pos;
+        let (r, _) = compute(
+            &TplProblem {
+                stations,
+                points: vec![pos],
+                map: &map,
+                k_factor,
+                sample_km,
+            },
+            &cfg,
+        )?
+        .remove(0);
+        let mut s = format!(
+            "TPL {:.1} ns at integrity risk {:e} (alert limit {} ns: {}); fault-free σ {:.2} ns, bias {:.2} ns, overbound ×{:.2}\n",
+            r.tpl_ns,
+            r.integrity_risk,
+            r.alert_limit_ns,
+            if r.available { "AVAILABLE" } else { "NOT AVAILABLE" },
+            r.sigma_ns,
+            r.bias_ns,
+            r.overbound_inflation
+        );
+        for st in &r.stations {
+            s.push_str(&format!(
+                "  {:<6} {:<10} ASF {:>8.1} ns  σ {:>6.2} ns  weight {:.3}\n",
+                st.station, st.time_ref, st.nominal_asf_ns, st.asf_sigma_ns, st.weight
+            ));
+        }
+        for h in &r.hypotheses {
+            s.push_str(&format!("  {:<28} TPL {:>9.1} ns\n", h.name, h.tpl_ns));
+        }
+        s.push_str(&format!("evidence: {}", r.evidence_label));
+        if let Some(o) = &out {
+            write_json(o, &r)?;
+            s.push_str(&format!("\n-> {o}"));
+        }
+        Ok(s)
     })())
 }
 

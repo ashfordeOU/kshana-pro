@@ -15,9 +15,9 @@ Rules:
 Status: [ ] todo, [~] in progress, [x] done (commit sha).
 
 ## A. eLoran programme (NAVISP EL1-133/145/151/152/153, UK eLoran IOC 2028)
-- [ ] A1 eLoran Observation & Scenario Format (ELOF v0.1): spec, reader/writer/validator, converters (gap 01-20)
-- [ ] A2 eLoran-Bench: reference scenarios + exact truth + pre-registered metrics + scorer (01-21, move 2)
-- [ ] A3 ASF-aware timing protection level with Monte Carlo coverage test (01-1/2, E2)
+- [x] A1 eLoran Observation & Scenario Format (ELOF v0.1): spec, reader/writer/validator, converters (gap 01-20)
+- [x] A2 eLoran-Bench: reference scenarios + exact truth + pre-registered metrics + scorer (01-21, move 2)
+- [x] A3 ASF-aware timing protection level with Monte Carlo coverage test (01-1/2, E2)
 - [x] A4 Cross-system spoofing attribution (E1) and meacon detection from propagation signature (E4) (01-3)
 - [x] A5 LDC delay-bounded authentication (E7) (01-27)
 - [x] A6 Spoof-safe online ASF learning gated by the protection level (E3) (01-12)

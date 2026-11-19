@@ -225,6 +225,39 @@ effects the datasheet does not state are not in them. Instrument command profile
 the kit are **generic placeholders** to confirm against each programming manual. Nothing in
 this section has been measured on hardware.
 
+## Observation format, reference benchmark and timing integrity
+
+| Command | What it does | Licence |
+|---|---|---|
+| `eloran elof validate <file>` | Validate an **ELOF v0.1** file (eLoran Observation & Scenario Format: JSON lines with a header record, or the compact CSV profile): version, units, required fields, declared stations, ranges, phase code against group parity, monotonic time | free |
+| `eloran elof convert <input> --out <file> [--from elof\|truth-csv\|obs-json] [--to jsonl\|csv] [--scenario <toml>]` | Convert a simulator truth table, imported receiver records or another ELOF profile to ELOF | Enterprise |
+| `eloran bench-eloran list` | **eLoran-Bench** v0.1: eight reference scenarios (static, ship, drone, night skywave, cross-rate, impulsive noise, LDC, two UTC(k)) with their pre-registered bars and the registration hash | free |
+| `eloran bench-eloran reference --out <dir>` | The in-house software receiver's ELOF observations on every scenario | Enterprise |
+| `eloran bench-eloran score --obs <dir> --receiver <name> --out <dir> [--leaderboard <file>] [--key-file <f> --signer <name>]` | Score a receiver's ELOF observations against exact truth: sealed scorecard (Ed25519-signed with a dossier key), leaderboard update; refuses bars or scenarios changed after registration | Enterprise |
+| `eloran tpl <scenario> [--risk <p>] [--alert-ns <ns>] [--time-ref <id>] [--grid lat1,lat2,lon1,lon2 --res <deg>]` | **ASF-aware timing protection level** for UTC(k) time transfer at the receiver position: per-station ASF σ from conductivity class, terrain and seasonal variation (Monte Carlo), cross-station correlation from shared ground classes, GLS timing solution, station-fault (solution separation) and ASF-model-error hypotheses; `--grid` gives an availability map | Enterprise |
+
+ELOF carries per-station ToA (as a pseudo-delay against the nominal Loran schedule), ECD, SNR,
+field strength, phase code, cycle flags, decided LDC symbols, the receiver's UTC(k) time
+solution, ASF metadata, receiver and antenna metadata, simulator truth when the stimulus is
+simulated, and the scenarios it relates to by SHA-256. Specification:
+`crates/kshana-eloran/docs/ELOF.md`. Evidence: **MODELLED** (internal round-trip and rejection
+tests; no external receiver writes ELOF yet).
+
+eLoran-Bench (`crates/kshana-eloran/scenarios/bench-eloran/`): `registration.toml` holds the
+SHA-256 of `bars.toml` and of every scenario, written before any scoring; the scorer re-simulates
+each scenario from its registered file (truth never comes from the submission) and refuses to
+run if a hash differs. Bars are **illustrative** (set by Kshana, not from a standard) and were
+set after observing the in-house receiver on the fixed seeds, so they are blind only for other
+receivers. Evidence: **MODELLED** (simulated stimuli; no live captures in v0.1).
+
+Timing protection level (`crates/kshana-eloran/src/tpl/`, patent candidate E2, do not publish):
+Monte Carlo coverage tests with fixed seeds build the bound from one seed and test it on
+independent conductivity draws; the error exceeds the bound no more often than the stated rate
+(one-sided binomial test at 10⁻³) under fault-free, station-bias and ASF-model-error worlds, and
+a bound that assumes independent station errors fails the same test. Evidence: **MODELLED**.
+The input spreads and priors are assumptions, and risks below about 10⁻³ rest on Gaussian tail
+extrapolation. Diurnal/weather ASF and skywave are not in the bound.
+
 ## Live monitor (GUI)
 
 `kshana-pro eloran monitor <scenario> --out <dir> [--recording <base>] [--interval <s>]` runs the
