@@ -51,6 +51,9 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         Equal-power Gaussian vs Middleton Class A noise: timing error of the matched filter with no,\n\
         clip and blank impulse mitigation (Enterprise). `rx --impulse clip|blank [--impulse-k <k>]`\n\
         applies the mitigation to a recording before the receiver\n\
+    survey-plan <survey.toml> --out <plan.json> [--license <token>] [--dev]\n\
+        Integrity-driven ASF survey planning: where to measure ASF so the protection level over the\n\
+        service area falls fastest (Gaussian-process ASF prior, greedy selection) (Enterprise)\n\
     rmode <rmode.toml> --out <report.json> [--license <token>] [--dev]\n\
         MF R-Mode (DGNSS beacons, CW tones at fc ± 225 Hz): synthesis with night skywave, tone-phase\n\
         ranging with ambiguity resolution, least-squares fix (Enterprise)\n\
@@ -155,6 +158,32 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("bench") => bench_cmd(args),
         Some("edo") => edo_cmd(args),
         Some("events") => events_cmd(args),
+        Some("survey-plan") => done((|| {
+            use kshana_eloran::plan::survey::{plan, SurveyConfig};
+            if licensed(args).is_err() {
+                return Err("licence: pro-eloran is required".into());
+            }
+            let path = args.get(1).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+            let out = flag(args, "--out").ok_or("--out <plan.json> is required")?;
+            let cfg: SurveyConfig =
+                toml::from_str(&read(path)?).map_err(|e| format!("{path}: {e}"))?;
+            let p = plan(&cfg)?;
+            write_json(&out, &p)?;
+            let mut t = format!(
+                "ASF survey plan: area meeting {:.0} m PL {:.1} % -> {:.1} %, mean PL {:.0} m -> {:.0} m\n",
+                cfg.target_pl_m, p.coverage_before * 100.0, p.coverage_after * 100.0, p.mean_pl_before_m, p.mean_pl_after_m
+            );
+            for k in &p.picks {
+                t += &format!(
+                    "  {}. {:.4}, {:.4} (coverage {:.1} %)\n",
+                    k.order,
+                    k.lat_deg,
+                    k.lon_deg,
+                    k.coverage * 100.0
+                );
+            }
+            Ok(t + &format!("-> {out}"))
+        })()),
         Some("rmode") => done((|| {
             use kshana_eloran::rmode::{run, RModeConfig};
             if licensed(args).is_err() {
