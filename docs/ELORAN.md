@@ -274,3 +274,16 @@ crate's own simulator, threat models and receiver; no recorded attacks yet).
   Monte Carlo draws (mapped-area priors): 0.67 % false rejects at `k` for a nominal 0.1 %
   (the ASF tails are heavier than Gaussian; widen `k` if 0.1 % is required); `k = 1`
   rejects 28 %.
+- **Spoof-safe online ASF learning (E3)**, `kshana_eloran::guard::asf_learn`. Per-station
+  Kalman refinement of the ASF from GNSS-derived truth, only while the timing protection
+  level is under its threshold and no E1 attribution alarm is active (an alarm rolls back to
+  the newest verified checkpoint). The learnt correction's component in the GNSS-attack
+  subspace (common mode = time push; bearing geometry = position push) is held inside the
+  ASF map's prior and stays in the integrity budget; a common-mode CUSUM catches drags.
+  Measured: clean learning 50 → ≤ 8 ns RMS in 6 h (20 maps); a 0.2 ns/s GNSS time drag over
+  3 h moves no station > 15 ns (unguarded: 1.1 µs); a 360 m position drag stays within the
+  per-station subspace bound (≈ 95 ns here); wired to E1, a 0.5 ns/s drag is attributed to
+  GNSS spoofing after 170 s and the ASF moves 2 ns.
+- CLI: `kshana-pro eloran guard attribute <epoch.json> --out <report.json>` and
+  `kshana-pro eloran guard meacon <signatures.json> --out <report.json>` (Enterprise,
+  feature `pro-eloran`).

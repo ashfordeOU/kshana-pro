@@ -14,7 +14,7 @@
 //!
 //! Evidence label: MODELLED (checked by the internal tests of each module; no external data).
 
-// (asf_learn: A6)
+pub mod asf_learn;
 pub mod meacon;
 
 /// Standard normal quantile Φ⁻¹(p) (Acklam's rational approximation, |ε| < 1.2e-9).

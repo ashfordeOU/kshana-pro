@@ -86,6 +86,11 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
     bench accept --inventory <bench.toml> --profiles <dir> --out <report.json> [--select <ids>] [--stimulus-s <s>] [--evidence <dir>] [--license <token>] [--dev]\n\
         Acceptance suite on the real bench: the eLoran source by its driver, instruments by their\n\
         profiles (Enterprise, hardware)\n\
+    guard attribute <epoch.json> --out <report.json> [--license <token>] [--dev]\n\
+        Cross-system attribution of one epoch (GNSS, eLoran, local clock, optional E4 verdicts): scores\n\
+        for clean / GNSS spoofed / GNSS jammed / eLoran station fault / meaconing / clock fault (Enterprise)\n\
+    guard meacon <signatures.json> --out <report.json> [--license <token>] [--dev]\n\
+        Meacon/relay screen of measured station signatures against predicted ones (Enterprise)\n\
     validate <scenario.toml>\n\
         Check a scenario and print its SHA-256 (no licence needed)\n\
     example\n\
@@ -120,6 +125,7 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("gri") => gri_cmd(args),
         Some("calibrate") => calibrate_cmd(args),
         Some("bench") => bench_cmd(args),
+        Some("guard") => guard_cmd(args),
         Some("example") => {
             print!("{EXAMPLE}");
             ExitCode::SUCCESS
@@ -1465,4 +1471,83 @@ fn bench_cmd(args: &[String]) -> ExitCode {
         })()),
         _ => fail(USAGE),
     }
+}
+
+/// Input of `eloran guard attribute`.
+#[derive(serde::Deserialize)]
+struct AttributeInput {
+    gnss: Vec<crate::eloran_fusion::GnssRange>,
+    eloran: Vec<crate::eloran_fusion::EloranRange>,
+    /// Local clock prediction (receiver clock − GPS time) and σ, ns.
+    clock_ns: (f64, f64),
+    #[serde(default)]
+    e4: Vec<kshana_eloran::guard::meacon::StationVerdict>,
+    #[serde(default)]
+    config: Option<crate::eloran_attrib::AttribConfig>,
+}
+
+/// Input of `eloran guard meacon`.
+#[derive(serde::Deserialize)]
+struct MeaconInput {
+    observed: Vec<kshana_eloran::guard::meacon::Observed>,
+    expected: Vec<kshana_eloran::guard::meacon::Expected>,
+    #[serde(default)]
+    clock: Option<kshana_eloran::guard::meacon::ClockRef>,
+    #[serde(default)]
+    config: Option<kshana_eloran::guard::meacon::MeaconConfig>,
+}
+
+fn guard_cmd(args: &[String]) -> ExitCode {
+    let sub = args.get(1).map(String::as_str);
+    let (Some(input), Some(out)) = (
+        args.get(2).filter(|a| !a.starts_with("--")).cloned(),
+        flag(args, "--out"),
+    ) else {
+        return fail(USAGE);
+    };
+    if !matches!(sub, Some("attribute") | Some("meacon")) {
+        return fail(USAGE);
+    }
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| match sub {
+        Some("attribute") => {
+            let i: AttributeInput =
+                serde_json::from_str(&read(&input)?).map_err(|e| format!("{input}: {e}"))?;
+            let ep = crate::eloran_attrib::AttribEpoch {
+                gnss: &i.gnss,
+                eloran: &i.eloran,
+                clock_ns: i.clock_ns,
+                e4: &i.e4,
+                approx_ecef: None,
+            };
+            let a = crate::eloran_attrib::attribute(&ep, &i.config.unwrap_or_default())?;
+            write_json(&out, &a)?;
+            Ok(format!(
+                "attribution: {} (alarm {}) -> {out}",
+                a.cause.label(),
+                a.alarm
+            ))
+        }
+        _ => {
+            let i: MeaconInput =
+                serde_json::from_str(&read(&input)?).map_err(|e| format!("{input}: {e}"))?;
+            let v = kshana_eloran::guard::meacon::screen(
+                &i.observed,
+                &i.expected,
+                i.clock,
+                &i.config.unwrap_or_default(),
+            );
+            write_json(&out, &v)?;
+            let relays = v
+                .iter()
+                .filter(|s| s.class == kshana_eloran::guard::meacon::Class::Relay)
+                .count();
+            Ok(format!(
+                "meacon screen: {} stations, {relays} relay -> {out}",
+                v.len()
+            ))
+        }
+    })())
 }
