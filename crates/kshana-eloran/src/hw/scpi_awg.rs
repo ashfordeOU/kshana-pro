@@ -798,7 +798,7 @@ mod tests {
         cfg.clock_source = RefSource::External;
         a.configure(&cfg).unwrap();
         let x: Vec<f64> = (0..400).map(|i| ((i as f64) * 0.05).sin() * 0.9).collect();
-        a.play(&[x.clone()], 2e6, true, StartTime::NextPps).unwrap();
+        a.play(std::slice::from_ref(&x), 2e6, true, StartTime::NextPps).unwrap();
         drop(a);
         std::thread::sleep(Duration::from_millis(50));
         let log = m.log.lock().unwrap().clone();
