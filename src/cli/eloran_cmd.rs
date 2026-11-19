@@ -86,6 +86,12 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
     bench accept --inventory <bench.toml> --profiles <dir> --out <report.json> [--select <ids>] [--stimulus-s <s>] [--evidence <dir>] [--license <token>] [--dev]\n\
         Acceptance suite on the real bench: the eLoran source by its driver, instruments by their\n\
         profiles (Enterprise, hardware)\n\
+    elof validate <file.elof.jsonl|file.elof.csv> [--json]\n\
+        Validate an ELOF v0.1 observation file: version, units, required fields, stations, ranges,\n\
+        phase code, monotonic time (free)\n\
+    elof convert <input> --out <file> [--from elof|truth-csv|obs-json] [--to jsonl|csv] [--scenario <scenario.toml>] [--license <token>] [--dev]\n\
+        Convert to ELOF: a simulator truth table (<base>.truth.csv), imported receiver records\n\
+        (`eloran import` JSON) or another ELOF profile; truth-csv and obs-json need --scenario (Enterprise)\n\
     validate <scenario.toml>\n\
         Check a scenario and print its SHA-256 (no licence needed)\n\
     example\n\
@@ -120,6 +126,7 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("gri") => gri_cmd(args),
         Some("calibrate") => calibrate_cmd(args),
         Some("bench") => bench_cmd(args),
+        Some("elof") => elof_cmd(args),
         Some("example") => {
             print!("{EXAMPLE}");
             ExitCode::SUCCESS
@@ -992,6 +999,140 @@ fn import_cmd(args: &[String]) -> ExitCode {
             obs.len()
         ))
     })())
+}
+
+fn elof_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::elof::{self, convert, csv as elof_csv};
+    match args.get(1).map(String::as_str) {
+        Some("validate") => {
+            let Some(path) = args.get(2).filter(|a| !a.starts_with("--")) else {
+                return fail(USAGE);
+            };
+            let text = match read(path) {
+                Ok(t) => t,
+                Err(e) => return fail(e),
+            };
+            let (_, rep) = elof::validate_text(&text);
+            if super::has_flag(args, "--json") {
+                println!("{}", serde_json::to_string_pretty(&rep).unwrap_or_default());
+            } else {
+                for e in &rep.errors {
+                    match e.record {
+                        Some(i) => eprintln!("error: record {i}: {}", e.message),
+                        None => eprintln!("error: header: {}", e.message),
+                    }
+                }
+                for w in rep.warnings.iter().take(20) {
+                    eprintln!("warning: {}", w.message);
+                }
+                println!("{path}: {}", rep.summary());
+            }
+            if rep.ok() {
+                ExitCode::SUCCESS
+            } else {
+                ExitCode::FAILURE
+            }
+        }
+        Some("convert") => {
+            let Some(input) = args.get(2).filter(|a| !a.starts_with("--")).cloned() else {
+                return fail(USAGE);
+            };
+            let Some(out) = flag(args, "--out") else {
+                return fail(USAGE);
+            };
+            if let Err(c) = licensed(args) {
+                return c;
+            }
+            done((|| {
+                let text = read(&input)?;
+                let from = flag(args, "--from").unwrap_or_else(|| {
+                    if input.ends_with(".truth.csv") {
+                        "truth-csv".into()
+                    } else if input.ends_with(".json") && !input.ends_with(".jsonl") {
+                        "obs-json".into()
+                    } else {
+                        "elof".into()
+                    }
+                });
+                let scenario = || -> Result<(Scenario, String), String> {
+                    let p = flag(args, "--scenario")
+                        .ok_or_else(|| format!("--from {from} needs --scenario <scenario.toml>"))?;
+                    let name = Path::new(&p)
+                        .file_stem()
+                        .map(|s| s.to_string_lossy().into_owned())
+                        .unwrap_or_default();
+                    Ok((load(&p)?, name))
+                };
+                let file = match from.as_str() {
+                    "elof" => elof::read_valid(&text)?,
+                    "truth-csv" => {
+                        let (sc, name) = scenario()?;
+                        let truth = kshana_eloran::scene::truth_from_csv(&text)?;
+                        convert::from_truth(&sc, &name, &truth)?
+                    }
+                    "obs-json" => {
+                        let (sc, name) = scenario()?;
+                        let v: serde_json::Value =
+                            serde_json::from_str(&text).map_err(|e| format!("{input}: {e}"))?;
+                        let recs: Vec<kshana_eloran::field::importers::ObsRecord> =
+                            serde_json::from_value(v.get("observations").cloned().unwrap_or(v))
+                                .map_err(|e| format!("{input}: observations: {e}"))?;
+                        let mut h = convert::header_for_scenario(
+                            &sc,
+                            &name,
+                            elof::Source {
+                                kind: elof::SourceKind::HardwareReceiver,
+                                software: convert::software(),
+                                description: format!("imported from {input}"),
+                            },
+                        );
+                        h.time_scale = elof::TimeScale::Utc;
+                        let (records, skipped) = convert::obs_from_obs_records(&h, &recs)?;
+                        if skipped > 0 {
+                            eprintln!(
+                                "note: {skipped} record(s) without time, station or ToA skipped"
+                            );
+                        }
+                        let mut f = elof::ElofFile { header: h, records };
+                        f.sort();
+                        f
+                    }
+                    other => {
+                        return Err(format!("--from {other}: use elof, truth-csv or obs-json"))
+                    }
+                };
+                let rep = elof::validate(&file);
+                if !rep.ok() {
+                    return Err(format!("converted file is invalid: {}", rep.summary()));
+                }
+                let to = flag(args, "--to").unwrap_or_else(|| {
+                    if out.ends_with(".csv") {
+                        "csv".into()
+                    } else {
+                        "jsonl".into()
+                    }
+                });
+                let (body, note) = match to.as_str() {
+                    "jsonl" => (file.to_jsonl()?, String::new()),
+                    "csv" => {
+                        let (t, left) = elof_csv::to_csv(&file)?;
+                        (
+                            t,
+                            if left > 0 {
+                                format!(" ({left} truth/timing/ldc record(s) have no CSV form)")
+                            } else {
+                                String::new()
+                            },
+                        )
+                    }
+                    other => return Err(format!("--to {other}: use jsonl or csv")),
+                };
+                std::fs::write(&out, body).map_err(|e| format!("{out}: {e}"))?;
+                Ok(format!("elof: {} -> {out}{note}", rep.summary()))
+            })())
+        }
+        _ => fail(USAGE),
+    }
 }
 
 fn conformance_cmd(args: &[String]) -> ExitCode {

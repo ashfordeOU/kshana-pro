@@ -216,6 +216,20 @@ effects the datasheet does not state are not in them. Instrument command profile
 the kit are **generic placeholders** to confirm against each programming manual. Nothing in
 this section has been measured on hardware.
 
+## Observation format, reference benchmark and timing integrity
+
+| Command | What it does | Licence |
+|---|---|---|
+| `eloran elof validate <file>` | Validate an **ELOF v0.1** file (eLoran Observation & Scenario Format: JSON lines with a header record, or the compact CSV profile): version, units, required fields, declared stations, ranges, phase code against group parity, monotonic time | free |
+| `eloran elof convert <input> --out <file> [--from elof\|truth-csv\|obs-json] [--to jsonl\|csv] [--scenario <toml>]` | Convert a simulator truth table, imported receiver records or another ELOF profile to ELOF | Enterprise |
+
+ELOF carries per-station ToA (as a pseudo-delay against the nominal Loran schedule), ECD, SNR,
+field strength, phase code, cycle flags, decided LDC symbols, the receiver's UTC(k) time
+solution, ASF metadata, receiver and antenna metadata, simulator truth when the stimulus is
+simulated, and the scenarios it relates to by SHA-256. Specification:
+`crates/kshana-eloran/docs/ELOF.md`. Evidence: **MODELLED** (internal round-trip and rejection
+tests; no external receiver writes ELOF yet).
+
 ## Live monitor (GUI)
 
 `kshana-pro eloran monitor <scenario> --out <dir> [--recording <base>] [--interval <s>]` runs the
