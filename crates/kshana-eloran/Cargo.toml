@@ -32,10 +32,6 @@ default = []
 # release build (default features) never contains them. Development and CI build with it; a
 # shipped build re-enables a method only after its patent application is filed.
 unfiled-methods = []
-# Hosted-only "Core" methods (D-K11): the self-calibrating simulator loop (F1) and the
-# integrity-driven ASF survey planner (F2). Enabled only in Ashforde's hosted Kshana service
-# (and vetted Sovereign deployments); never in a customer Pro build, even after filing.
-core-methods = []
 # SoapySDR 0.8 hardware output/capture, opened at run time with dlopen (no link dependency).
 soapy = ["dep:libc"]
 # Ettus UHD 4.x (C API) output/capture, opened at run time with dlopen (Unix).

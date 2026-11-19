@@ -38,8 +38,6 @@ pub mod benefits;
 pub mod brand_pdf;
 pub mod cli;
 pub mod connectors;
-#[cfg(feature = "core-methods")]
-pub mod core_service;
 pub mod criterion;
 pub mod desktop;
 #[cfg(feature = "unfiled-methods")]

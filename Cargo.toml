@@ -17,13 +17,6 @@ publish = false
 name = "kshana-pro"
 path = "src/main.rs"
 
-# The Kshana-hosted Core service (D-K11). Built only with `core-methods`, so it is never in a
-# customer build; the Ashforde-hosted deployment builds with that feature.
-[[bin]]
-name = "kshana-core"
-path = "src/bin/kshana_core.rs"
-required-features = ["core-methods"]
-
 # No Arksa-exclusive code is in this crate (roadmap 0.42 X3; docs/PROTECTION.md): it lives in
 # a private server-side crate that depends on this one and registers through
 # `kshana_pro::extension`. This crate never depends on it (scripts/protect/source-guard.sh).
@@ -38,9 +31,6 @@ eloran-digilent = ["kshana-eloran/digilent"]
 # LDC authentication, self-calibrating simulator, ASF survey planner, first-plug conformance and
 # waveform evidence. OFF by default, so a release build never contains them; dev and CI enable it.
 unfiled-methods = ["kshana-eloran/unfiled-methods"]
-# Hosted-only Core methods (F1 self-calibration, F2 ASF survey). Enabled only in the
-# Ashforde-hosted Kshana service build; never in Desktop Pro, the CLI, or packages.
-core-methods = ["kshana-eloran/core-methods"]
 # Licence and pack signing through AWS KMS (key custody S7-a, src/license/kms.rs). Adds no
 # crate: SigV4 uses ring and sha2, the transport rustls, all already dependencies.
 kms = []

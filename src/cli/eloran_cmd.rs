@@ -175,7 +175,7 @@ fn fail(msg: impl std::fmt::Display) -> ExitCode {
 
 /// A patent-candidate subcommand that is compiled out of release builds (feature
 /// `unfiled-methods`): shipped only after the method's patent application is filed.
-#[cfg(not(all(feature = "unfiled-methods", feature = "core-methods")))]
+#[cfg(not(feature = "unfiled-methods"))]
 fn method_not_in_build(name: &str) -> ExitCode {
     fail(format!(
         "`eloran {name}` is a patent-pending method not included in this build; it is shipped only after its patent application is filed"
@@ -195,9 +195,9 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("timeref") => timeref_cmd(args),
         Some("asfgrid") => asfgrid_cmd(args),
         Some("fidelity") => fidelity_cmd(args),
-        #[cfg(feature = "core-methods")]
+        #[cfg(feature = "unfiled-methods")]
         Some("selfcal") => selfcal_cmd(args),
-        #[cfg(not(feature = "core-methods"))]
+        #[cfg(not(feature = "unfiled-methods"))]
         Some("selfcal") => method_not_in_build("selfcal"),
         Some("capset") => capset_cmd(args),
         Some("tactical") => tactical_cmd(args),
@@ -228,9 +228,9 @@ pub fn run(args: &[String]) -> ExitCode {
                 None => format!("VDES R-Mode: only {} stations within the radio horizon: no fix -> {out}", r.used),
             })
         })()),
-        #[cfg(not(feature = "core-methods"))]
+        #[cfg(not(feature = "unfiled-methods"))]
         Some("survey-plan") => method_not_in_build("survey-plan"),
-        #[cfg(feature = "core-methods")]
+        #[cfg(feature = "unfiled-methods")]
         Some("survey-plan") => done((|| {
             use kshana_eloran::plan::survey::{plan, SurveyConfig};
             if licensed(args).is_err() {
@@ -1581,14 +1581,14 @@ fn tactical_cmd(args: &[String]) -> ExitCode {
 }
 
 /// `selfcal` job file: the loop configuration and the reference sites.
-#[cfg(feature = "core-methods")]
+#[cfg(feature = "unfiled-methods")]
 #[derive(serde::Deserialize)]
 struct SelfCalJob {
     config: kshana_eloran::valid::selfcal::SelfCalConfig,
     sites: Vec<kshana_eloran::valid::selfcal::RefSite>,
 }
 
-#[cfg(feature = "core-methods")]
+#[cfg(feature = "unfiled-methods")]
 fn selfcal_cmd(args: &[String]) -> ExitCode {
     use kshana_eloran::calreg::Register;
     use kshana_eloran::valid::selfcal::{run_selfcal, verify_lineage, SelfCalResult};
