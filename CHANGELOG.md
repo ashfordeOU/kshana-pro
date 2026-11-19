@@ -5,6 +5,15 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **OSNMA status block in every signed pack (B1404; docs/EVIDENCE-PRODUCTS.md).** Signed-dossier
+  format `kshana-dossier-signature/2` adds an OSNMA status block to the signed statement: status,
+  key id, chain id, Merkle root, verifier version, freshness checked, and nothing else. It is not a
+  time authentication. `kshana-pro dossier osnma-status` makes the block with the embedded open
+  verifier, and every signing command takes `--osnma-status <block.json>`. Without a block a
+  signature stays format 1, unchanged, and old packs verify as "not recorded". `kshana-pro
+  dossier migrate` re-signs a verified format-1 pack as format 2 and keeps the old signature's
+  hash in `supersedes`. The Python verifier reads both formats.
+
 - **Test-as-code kit, part 1 (research 2026-11-20 gaps 07, 08, 08b, 11, 12; docs/TEST-KIT.md).**
   `kshana-pro testkit validate|compile|from-library|packs|show`: neutral scenario spec
   `kshana-testkit-scenario/1` (signals, trajectory, environment, signal-parameter threats or

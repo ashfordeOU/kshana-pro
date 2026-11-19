@@ -55,7 +55,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro uncertainty <study.toml> --out <dir> [--resume] [--max-runs <n>] [--threads <n>] [--license <token>] [--dev]   Uncertainty and sensitivity of any open scenario, with stop and resume (Enterprise)\n\
        kshana-pro license <verify|activate|status|deactivate|machine-id|revocations|refresh> ...   Licence on this machine (offline; `kshana-pro license` for details)\n\
        kshana-pro backup <create --data-dir <dir> --out <backup-dir> | verify <backup-dir>>   Back up a service data directory while it runs; check a backup offline\n\
-       kshana-pro dossier <keygen|sign|verify> ...   Sign a dossier or any delivery directory (Pro); verify one offline (free; `kshana-pro dossier` for details)\n\
+       kshana-pro dossier <keygen|sign|verify|migrate|osnma-status> ...   Sign a dossier or any delivery directory (Pro); verify one offline (free); every signing command takes --osnma-status <block.json> (`kshana-pro dossier` for details)\n\
        kshana-pro forensics <run|review|verify|pack-payload> ...   Incident forensics (E1, Pro pack): signed, reproducible forensic report; review and verify (free; `kshana-pro forensics` for details)\n\
        kshana-pro scorecard <run|verify> ...   Receiver resilience scorecard and signed test report (E3, Pro); verify (free; `kshana-pro scorecard` for details)\n\
        kshana-pro attack-iq <generate|attestation-template|trace> ...   Synthetic attack IQ files for shielded labs and authorised ranges (F7): vetted buyers only, attestation first, files only, watermarked and logged\n\
@@ -167,6 +167,23 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
     if has_flag(&args, "--sample") {
         args.retain(|a| a != "--sample");
         crate::report_brand::set_sample(true);
+    }
+    // `--osnma-status <block.json>`, accepted by every command that signs: the OSNMA status
+    // block (from `kshana-pro dossier osnma-status`) that every signature this run writes
+    // carries (signed-dossier format 2, B1404). Read and checked here, once, for every command.
+    if let Some(i) = args.iter().position(|a| a == "--osnma-status") {
+        let Some(path) = args.get(i + 1).cloned() else {
+            eprintln!("error: --osnma-status needs a block file (kshana-pro dossier osnma-status)");
+            return ExitCode::FAILURE;
+        };
+        match crate::osnma_evidence::OsnmaBlock::read(std::path::Path::new(&path)) {
+            Ok(b) => crate::osnma_evidence::set_ambient(Some(b)),
+            Err(e) => {
+                eprintln!("error: --osnma-status: {e}");
+                return ExitCode::FAILURE;
+            }
+        }
+        args.drain(i..i + 2);
     }
     // `--dev` turns entitlement enforcement off, so it exists only in debug builds
     // (`cargo run`, `cargo test`). A release build — anything handed to a customer —

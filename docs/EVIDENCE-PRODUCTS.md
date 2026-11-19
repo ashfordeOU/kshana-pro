@@ -117,3 +117,49 @@ underwriting recommendation, premium advice, a forecast or a certification.
 
 Evidence: **MODELLED** (weights are stated engineering choices, tested for bounded and
 monotonic behaviour in `tests/insurer_voyage.rs`; not fitted to claims or loss data).
+
+## OSNMA status block in every signed pack (B1404)
+
+Every Pro pack is signed with the signed-dossier format (`src/signed_dossier.rs`), so the block
+lives there and every pack can carry it: scorecards, forensics, timing, frameworks, exposure,
+studies and plain dossiers.
+
+* `kshana-pro dossier osnma-status <pages|stream.ubx> --out <block.json> [--merkle-root <hex>]
+  [--public-key <id:type:hex>[,...]] [--reference-time <gst-s>]` runs the open OSNMA verifier
+  this build embeds and writes the block (free).
+* Every signing command takes `--osnma-status <block.json>` (handled once for all commands, like
+  `--sample`). The signature is then `kshana-dossier-signature/2` and its signed statement holds
+  the block. `kshana-pro dossier verify` and `scripts/verify-dossier-signature.py` print it.
+
+The block has six fields and nothing more:
+
+| Field | Meaning |
+|---|---|
+| `status` | `authenticated`, `failed` or `unavailable` (the open verifier's overall status); `not_recorded` for a migrated older pack |
+| `key_id` | public key id of the last DSM-KROOT that verified, or null |
+| `chain_id` | chain id of that KROOT, or null |
+| `merkle_root` | the Merkle root (SHA-256, hex) the verifier was given, or null |
+| `verifier` | `kshana <version>`, the open verifier that produced the status |
+| `freshness_checked` | whether freshness was enforced against an independent reference time |
+
+**Scope.** The block records the open verifier's status of the navigation data and the trust
+anchors it used. It is not a time authentication or a position authentication, and it holds no
+comparison of receiver time with any trusted time. With `freshness_checked: false` the status
+reads "authentic, not necessarily fresh". The open verifier's advisory applies: not type-approved
+navigation equipment, not a navigation integrity service. Evidence class: MODELLED for the
+synthetic samples. Nothing is validated against a live receiver here.
+
+**Compatibility and migration.**
+
+* A signature without a block stays format 1, byte for byte as before.
+* Format-1 packs, including every committed sample, verify unchanged and read as "OSNMA not
+  recorded".
+* `kshana-pro dossier migrate <dir> --trust <old signer key> --signer <name> --key-file <file>
+  [--osnma-status <block.json>]` re-signs a format-1 pack as format 2 (Pro). The block defaults to
+  `not_recorded`, and the SHA-256 of the replaced signature file is kept in `supersedes`.
+* A pack is migrated only if its old signature verifies against the pinned key and no file
+  changed.
+* Verification refuses a format-2 statement without a block, a format-1 statement with one, a
+  block with any other field, and any change to the block (it is signed).
+
+Tests: `tests/osnma_evidence.rs`.

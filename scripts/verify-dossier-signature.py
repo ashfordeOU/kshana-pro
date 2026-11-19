@@ -41,8 +41,22 @@ def main(argv):
     order = ["format", "signer", "utc", "public_key", "key_id", "files"]
     statement = {k: doc[k] for k in order}
     statement["files"] = [{"path": x["path"], "sha256": x["sha256"]} for x in doc["files"]]
+    # Format 2 (B1404) adds the OSNMA status block and, for a migrated pack, `supersedes`;
+    # both are signed, in this order, after `files`.
+    osnma_keys = ["status", "key_id", "chain_id", "merkle_root", "verifier", "freshness_checked"]
+    if "osnma" in doc:
+        statement["osnma"] = {k: doc["osnma"][k] for k in osnma_keys}
+    if "supersedes" in doc:
+        statement["supersedes"] = doc["supersedes"]
     msg = json.dumps(statement, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
     problems = []
+    fmt = doc.get("format")
+    if fmt not in ("kshana-dossier-signature/1", "kshana-dossier-signature/2"):
+        raise SystemExit(f"unknown format {fmt!r}")
+    if (fmt.endswith("/2")) != ("osnma" in doc):
+        problems.append("the OSNMA block does not match the format")
+    if "osnma" in doc and set(doc["osnma"]) != set(osnma_keys):
+        problems.append("the OSNMA block has other fields than the six defined")
     try:
         Ed25519PublicKey.from_public_bytes(bytes.fromhex(doc["public_key"])).verify(sig, msg)
     except Exception:
@@ -60,6 +74,8 @@ def main(argv):
     signed = {x["path"] for x in statement["files"]}
     problems += [f"{p}: not covered by the signature" for p in now if p not in signed]
     print(f"signer: {doc['signer']}  signed at: {doc['utc']}  key id: {doc['key_id']}")
+    o = doc.get("osnma")
+    print("osnma: " + ("not recorded (format 1)" if o is None else f"{o['status']} (key id {o['key_id']}, chain id {o['chain_id']}, freshness checked {o['freshness_checked']})"))
     for p in problems:
         print("problem:", p)
     print("VERIFIED" if not problems else "NOT VERIFIED")

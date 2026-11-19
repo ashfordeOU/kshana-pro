@@ -60,6 +60,7 @@ pub mod license;
 pub mod lunar_pro;
 pub mod multi_source;
 pub mod osnma_conformance;
+pub mod osnma_evidence;
 pub mod pack_c;
 pub mod packs;
 pub mod payments;

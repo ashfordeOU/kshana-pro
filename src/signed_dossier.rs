@@ -15,6 +15,17 @@
 //! (`pro-signed-dossier`); verifying is not gated, so a recipient without a licence
 //! checks a delivery with `kshana-pro dossier verify`, or with
 //! `scripts/verify-dossier-signature.py` (Python and its `cryptography` package).
+//!
+//! ## Formats
+//!
+//! * `kshana-dossier-signature/1`: the statement above.
+//! * `kshana-dossier-signature/2` (B1404): the same, plus an OSNMA status block (`osnma`,
+//!   [`crate::osnma_evidence::OsnmaBlock`]) and, for a pack migrated from format 1, the SHA-256
+//!   of the signature file it replaces (`supersedes`). Both are inside the signed statement.
+//!   A signature is written in format 2 only when it carries a block; without one it stays
+//!   format 1, byte for byte as before, so every existing pack and verifier keeps working.
+//!   Verification reads both; a format-1 pack reads as "OSNMA not recorded".
+//!   [`migrate`] re-signs a verified format-1 pack as format 2.
 
 use std::path::{Path, PathBuf};
 
@@ -23,11 +34,14 @@ use kshana::api::KshanaError;
 use sha2::{Digest, Sha256};
 
 use crate::license::{key_id, public_key_for, KEY_LEN};
+use crate::osnma_evidence::OsnmaBlock;
 
 /// The signature file's name.
 pub const SIGNATURE_FILE: &str = "signature.json";
-/// Its format tag.
+/// Its format tag (format 1: no OSNMA block).
 pub const FORMAT: &str = "kshana-dossier-signature/1";
+/// The format tag of a statement that carries an OSNMA status block.
+pub const FORMAT_V2: &str = "kshana-dossier-signature/2";
 
 /// One signed file.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
@@ -45,6 +59,12 @@ pub struct Statement {
     pub public_key: String,
     pub key_id: String,
     pub files: Vec<SignedFile>,
+    /// Format 2 only: the OSNMA status block.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub osnma: Option<OsnmaBlock>,
+    /// Format 2 only, for a migrated pack: SHA-256 of the format-1 signature file it replaces.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub supersedes: Option<String>,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -66,6 +86,10 @@ pub struct Verification {
     /// The signing key is one of the `--trust` keys (`None`: no key was pinned).
     pub trusted: Option<bool>,
     pub problems: Vec<String>,
+    /// The statement's format number (1 or 2).
+    pub format: u32,
+    /// The OSNMA status block; a format-1 pack has none ("not recorded").
+    pub osnma: Option<OsnmaBlock>,
 }
 
 impl Verification {
@@ -134,13 +158,46 @@ pub fn list_files(dir: &Path) -> Result<Vec<SignedFile>, KshanaError> {
     Ok(files)
 }
 
-/// Sign `dir` with `seed` as `signer` at `utc`; writes and returns `signature.json`.
+/// Sign `dir` with `seed` as `signer` at `utc`; writes and returns `signature.json`. The
+/// signature carries the OSNMA status block set for this process (`--osnma-status`, see
+/// [`crate::osnma_evidence::set_ambient`]), if any.
 pub fn sign(
     dir: &Path,
     seed: &[u8; KEY_LEN],
     signer: &str,
     utc: &str,
 ) -> Result<PathBuf, KshanaError> {
+    sign_with(
+        dir,
+        seed,
+        signer,
+        utc,
+        crate::osnma_evidence::ambient().as_ref(),
+    )
+}
+
+/// As [`sign`], with an explicit OSNMA status block (`None`: format 1, no block).
+pub fn sign_with(
+    dir: &Path,
+    seed: &[u8; KEY_LEN],
+    signer: &str,
+    utc: &str,
+    osnma: Option<&OsnmaBlock>,
+) -> Result<PathBuf, KshanaError> {
+    write_signature(dir, seed, signer, utc, osnma, None)
+}
+
+fn write_signature(
+    dir: &Path,
+    seed: &[u8; KEY_LEN],
+    signer: &str,
+    utc: &str,
+    osnma: Option<&OsnmaBlock>,
+    supersedes: Option<String>,
+) -> Result<PathBuf, KshanaError> {
+    if let Some(b) = osnma {
+        b.validate().map_err(KshanaError::InvalidInput)?;
+    }
     if signer.trim().is_empty() {
         return Err(KshanaError::InvalidInput(
             "a signature needs a signer name".into(),
@@ -155,12 +212,14 @@ pub fn sign(
     }
     let pk = public_key_for(seed);
     let statement = Statement {
-        format: FORMAT.into(),
+        format: if osnma.is_some() { FORMAT_V2 } else { FORMAT }.into(),
         signer: signer.trim().into(),
         utc: utc.into(),
         public_key: hex::encode(pk),
         key_id: key_id(&pk),
         files,
+        osnma: osnma.cloned(),
+        supersedes,
     };
     let sig = SigningKey::from_bytes(seed).sign(&canonical(&statement)?);
     let out = SignatureFile {
@@ -185,20 +244,42 @@ pub fn verify(dir: &Path, trust: &[[u8; KEY_LEN]]) -> Result<Verification, Kshan
     let sf: SignatureFile = serde_json::from_str(&text)
         .map_err(|e| KshanaError::InvalidInput(format!("{SIGNATURE_FILE}: {e}")))?;
     let st = sf.statement;
-    if st.format != FORMAT {
-        return Err(KshanaError::InvalidInput(format!(
-            "{SIGNATURE_FILE}: unknown format '{}'",
-            st.format
-        )));
-    }
+    let format = match st.format.as_str() {
+        FORMAT => 1,
+        FORMAT_V2 => 2,
+        other => {
+            return Err(KshanaError::InvalidInput(format!(
+                "{SIGNATURE_FILE}: unknown format '{other}'"
+            )))
+        }
+    };
     let pk = crate::license::parse_key_hex(&st.public_key)?;
     let mut v = Verification {
         signer: st.signer.clone(),
         utc: st.utc.clone(),
         key_id: key_id(&pk),
         files: st.files.len(),
+        format,
+        osnma: st.osnma.clone(),
         ..Default::default()
     };
+    match (format, &st.osnma) {
+        (1, Some(_)) => v
+            .problems
+            .push("a format-1 statement carries an OSNMA block".into()),
+        (1, None) if st.supersedes.is_some() => v
+            .problems
+            .push("a format-1 statement carries a supersedes field".into()),
+        (2, None) => v
+            .problems
+            .push("a format-2 statement has no OSNMA block".into()),
+        (2, Some(b)) => {
+            if let Err(e) = b.validate() {
+                v.problems.push(e);
+            }
+        }
+        _ => {}
+    }
     if v.key_id != st.key_id {
         v.problems.push("key_id does not match public_key".into());
     }
@@ -238,6 +319,51 @@ pub fn verify(dir: &Path, trust: &[[u8; KEY_LEN]]) -> Result<Verification, Kshan
         }
     }
     Ok(v)
+}
+
+/// Re-sign a format-1 pack as format 2 with `osnma` (default: "not recorded"). The pack must
+/// first verify against `trust` (its old signer pinned): a pack whose files changed, or whose
+/// signature does not hold, is never migrated. The new statement records the SHA-256 of the
+/// old signature file in `supersedes`. The file set is unchanged. A format-2 pack is refused.
+pub fn migrate(
+    dir: &Path,
+    trust: &[[u8; KEY_LEN]],
+    seed: &[u8; KEY_LEN],
+    signer: &str,
+    utc: &str,
+    osnma: Option<&OsnmaBlock>,
+) -> Result<PathBuf, KshanaError> {
+    let old = verify(dir, trust)?;
+    if old.format != 1 {
+        return Err(KshanaError::InvalidInput(format!(
+            "{}: already format {}",
+            dir.display(),
+            old.format
+        )));
+    }
+    if !old.passed() {
+        return Err(KshanaError::InvalidInput(format!(
+            "{}: the format-1 signature does not verify against a trusted key ({}); not migrated",
+            dir.display(),
+            if old.problems.is_empty() {
+                "no --trust key given".to_string()
+            } else {
+                old.problems.join("; ")
+            }
+        )));
+    }
+    let path = dir.join(SIGNATURE_FILE);
+    let bytes = std::fs::read(&path)
+        .map_err(|e| KshanaError::InvalidInput(format!("{}: {e}", path.display())))?;
+    let block = osnma.cloned().unwrap_or_else(OsnmaBlock::not_recorded);
+    write_signature(
+        dir,
+        seed,
+        signer,
+        utc,
+        Some(&block),
+        Some(hex::encode(Sha256::digest(&bytes))),
+    )
 }
 
 #[cfg(test)]
