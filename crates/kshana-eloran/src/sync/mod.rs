@@ -31,7 +31,9 @@
 //! [`bridge::SoftwareGnssBridge`] description of the data the open engine's IQ scene needs.
 
 pub mod bridge;
+pub mod certify;
 pub mod degrade;
+pub mod edo;
 pub mod export;
 pub mod gpssdrsim;
 pub mod labsat;

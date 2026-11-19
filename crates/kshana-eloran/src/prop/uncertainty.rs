@@ -19,7 +19,17 @@
 //! * terrain (when a DEM is given): heights plus a Gaussian noise field of standard
 //!   deviation `terrain_sd_m`, bilinear on a lattice of `terrain_corr_km` spacing,
 //!   seeded per sample (the same field on every path);
-//! * skywave: both virtual heights `+ N(0, sky_height_sd_km)`.
+//! * skywave: both virtual heights `+ N(0, sky_height_sd_km)`;
+//! * seasonal (when `seasonal_sigma_frac > 0`, drawn after the above so other seeds keep
+//!   their values): one phase `u ~ U(0, 1)` per sample scales every land conductivity
+//!   (σ < 1 S/m) by `max(0.05, 1 + f·cos 2πu)`, the deterministic seasonal model of
+//!   [`super::ground::TemporalConfig::sigma_seasonal_frac`] with the season unknown;
+//! * `sigma_log10_extra_sd` is added in quadrature to every class's sd of log₁₀ σ (an ASF
+//!   model-error hypothesis: the atlas class itself may be wrong by more than its spread).
+//!
+//! [`Engine::joint_samples`] returns the raw joint draws (all paths of one sample share
+//! the same ground draws), from which cross-station covariances follow
+//! ([`crate::tpl`]).
 //!
 //! The groundwave is evaluated per path by Millington over the sampled grounds (fresh,
 //! uncached homogeneous-ground curves per sample, 300 √d intervals) or, with a DEM, by the
@@ -73,6 +83,10 @@ pub struct UncertaintyConfig {
     pub terrain_corr_km: f64,
     pub terrain_realisations: usize,
     pub sky_height_sd_km: f64,
+    /// Seasonal relative variation of land conductivity with the season unknown (0 = off).
+    pub seasonal_sigma_frac: f64,
+    /// Extra sd of log₁₀ σ added in quadrature to every class (0 = off).
+    pub sigma_log10_extra_sd: f64,
     /// Percentiles reported (0–100).
     pub percentiles: Vec<f64>,
 }
@@ -89,6 +103,8 @@ impl Default for UncertaintyConfig {
             terrain_corr_km: 5.0,
             terrain_realisations: 8,
             sky_height_sd_km: 3.0,
+            seasonal_sigma_frac: 0.0,
+            sigma_log10_extra_sd: 0.0,
             percentiles: vec![5.0, 50.0, 95.0],
         }
     }
@@ -298,10 +314,18 @@ impl<'a> Engine<'a> {
         if problem.classes.is_empty() {
             return Err("uncertainty: no ground classes".into());
         }
-        for v in [cfg.k_factor_sd, cfg.terrain_sd_m, cfg.sky_height_sd_km]
-            .into_iter()
-            .chain(cfg.sigma_log10_sd)
-            .chain(cfg.eps_rel_sd)
+        if !(cfg.seasonal_sigma_frac >= 0.0 && cfg.seasonal_sigma_frac < 1.0) {
+            return Err("uncertainty: seasonal_sigma_frac in [0, 1)".into());
+        }
+        for v in [
+            cfg.k_factor_sd,
+            cfg.terrain_sd_m,
+            cfg.sky_height_sd_km,
+            cfg.sigma_log10_extra_sd,
+        ]
+        .into_iter()
+        .chain(cfg.sigma_log10_sd)
+        .chain(cfg.eps_rel_sd)
         {
             if !(v >= 0.0 && v.is_finite()) {
                 return Err("uncertainty: standard deviations must be finite and ≥ 0".into());
@@ -362,7 +386,10 @@ impl<'a> Engine<'a> {
     fn class_sd(&self, g: GroundConst) -> (f64, f64) {
         let c = nearest_class(&self.problem.classes, g);
         (
-            self.cfg.sigma_log10_sd.unwrap_or(c.sigma_log10_sd),
+            self.cfg
+                .sigma_log10_sd
+                .unwrap_or(c.sigma_log10_sd)
+                .hypot(self.cfg.sigma_log10_extra_sd),
             self.cfg.eps_rel_sd.unwrap_or(c.eps_rel_sd),
         )
     }
@@ -400,6 +427,17 @@ impl<'a> Engine<'a> {
                 self.cfg.seed.wrapping_mul(0x2545_F491_4F6C_DD1D) ^ sample as u64,
                 self.cfg.terrain_sd_m,
             ));
+        }
+        if self.cfg.seasonal_sigma_frac > 0.0 {
+            use rand::Rng;
+            let u: f64 = rng.gen();
+            let f = (1.0 + self.cfg.seasonal_sigma_frac * (2.0 * std::f64::consts::PI * u).cos())
+                .max(0.05);
+            for (i, g) in self.kinds.iter().enumerate() {
+                if g.sigma_s_m < 1.0 {
+                    d.grounds[i].sigma *= f;
+                }
+            }
         }
         d
     }
@@ -489,20 +527,32 @@ impl<'a> Engine<'a> {
         self.evaluate(&self.nominal_draw(), &mut HashMap::new())
     }
 
-    /// Run the Monte Carlo and the sensitivity analysis.
-    pub fn run(&self) -> Result<UncertaintyReport, String> {
-        let mut curves = HashMap::new();
-        let nominal = self.evaluate(&self.nominal_draw(), &mut curves);
+    /// The individual Monte Carlo samples: per sample, per path (station-major, then point)
+    /// `[delay ns, ASF ns, field dBµV/m, skywave delay µs]` (the draws [`Engine::run`]
+    /// summarises). For callers that test a decision rule over the propagation draws.
+    pub fn samples(&self) -> Vec<Vec<[f64; 4]>> {
+        self.samples_with(&mut HashMap::new())
+    }
+
+    fn samples_with(&self, curves: &mut HashMap<(u64, u64, u64), GroundCurve>) -> Vec<Out> {
         let mut rng = ChaCha8Rng::seed_from_u64(self.cfg.seed);
         let mut samples: Vec<Out> = Vec::with_capacity(self.cfg.samples);
         for s in 0..self.cfg.samples {
             let d = self.random_draw(&mut rng, s);
-            samples.push(self.evaluate(&d, &mut curves));
+            samples.push(self.evaluate(&d, curves));
             // the per-sample curves are not reused: keep the cache bounded
             if curves.len() > 64 {
                 curves.clear();
             }
         }
+        samples
+    }
+
+    /// Run the Monte Carlo and the sensitivity analysis.
+    pub fn run(&self) -> Result<UncertaintyReport, String> {
+        let mut curves = HashMap::new();
+        let nominal = self.evaluate(&self.nominal_draw(), &mut curves);
+        let samples = self.samples_with(&mut curves);
         let pcts = &self.cfg.percentiles;
         let results = self
             .paths
@@ -530,6 +580,21 @@ impl<'a> Engine<'a> {
             results,
             sensitivity: self.sensitivity(&mut curves),
         })
+    }
+
+    /// Index of the path (station `station`, point `point`) in an evaluation.
+    pub fn path_index(&self, station: usize, point: usize) -> usize {
+        station * self.problem.points.len() + point
+    }
+
+    /// The nominal evaluation and every Monte Carlo sample, per path ([`Self::path_index`]):
+    /// `[delay ns, ASF ns, field dBµV/m, sky delay µs]`. All paths of one sample share its
+    /// ground, k-factor, terrain and seasonal draws, so cross-path covariances are kept.
+    pub fn joint_samples(&self) -> (Vec<[f64; 4]>, Vec<Vec<[f64; 4]>>) {
+        let mut curves = HashMap::new();
+        let nominal = self.evaluate(&self.nominal_draw(), &mut curves);
+        let samples = self.samples_with(&mut curves);
+        (nominal, samples)
     }
 
     fn sensitivity(&self, curves: &mut HashMap<(u64, u64, u64), GroundCurve>) -> Vec<Sensitivity> {

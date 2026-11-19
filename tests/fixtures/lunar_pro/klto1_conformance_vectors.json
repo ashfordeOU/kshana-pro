@@ -1,0 +1,212 @@
+{
+  "format": "kshana-klto1-conformance-vectors v1",
+  "status": "KLTO-1 is a Kshana PROPOSAL pending LunaNet LNIS AD5; it is not a standard",
+  "bits": 147,
+  "vectors": [
+    {
+      "name": "d1-tl-2026-11-19-1d",
+      "description": "TL - UTC fitted to the D1 model (LTE440 rate, kshana-equatorial-j2 W0_L), centred 2026-11-19T12:00 TL, 1 day validity",
+      "message": {
+        "version": 1,
+        "scale": "tl",
+        "reference": 0,
+        "iod": 1,
+        "wn_ot": 46,
+        "t_ot": 2700,
+        "n": 70,
+        "a0": 879517382,
+        "a1": 571455,
+        "a2": -6714,
+        "validity": 5,
+        "uclass": 11
+      },
+      "hex": "1400405c1518008c68d8bd8c11707ffcb8cb60",
+      "eval": [
+        [
+          -43200.0,
+          70.20475599257392
+        ],
+        [
+          -21600.0,
+          70.20476746517716
+        ],
+        [
+          0.0,
+          70.20477859815583
+        ],
+        [
+          21600.0,
+          70.2047893915099
+        ],
+        [
+          43200.0,
+          70.20479984523942
+        ]
+      ]
+    },
+    {
+      "name": "d1-tcl-2026-11-19-1d",
+      "description": "TCL - UTC fitted to the D1 model (LTE440 rate), centred 2026-11-19T12:00 TCL, 1 day validity",
+      "message": {
+        "version": 1,
+        "scale": "tcl",
+        "reference": 0,
+        "iod": 2,
+        "wn_ot": 46,
+        "t_ot": 2700,
+        "n": 70,
+        "a0": 1091731290,
+        "a1": 606795,
+        "a2": -6714,
+        "validity": 5,
+        "uclass": 9
+      },
+      "hex": "1000805c1518008c8224feb4128497fcb8cb20",
+      "eval": [
+        [
+          -43200.0,
+          70.25416453739453
+        ],
+        [
+          -21600.0,
+          70.25417668798343
+        ],
+        [
+          0.0,
+          70.25418849894777
+        ],
+        [
+          21600.0,
+          70.25419997028752
+        ],
+        [
+          43200.0,
+          70.2542111020027
+        ]
+      ]
+    },
+    {
+      "name": "edge-max",
+      "description": "every field at its largest value",
+      "message": {
+        "version": 1,
+        "scale": "tl",
+        "reference": 15,
+        "iod": 255,
+        "wn_ot": 8191,
+        "t_ot": 37799,
+        "n": 32767,
+        "a0": 2147483647,
+        "a1": 8388607,
+        "a2": 524287,
+        "validity": 8,
+        "uclass": 15
+      },
+      "hex": "17ffffff274efffefffffffefffffefffff1e0",
+      "eval": [
+        [
+          -302400.0,
+          32767.500345984325
+        ],
+        [
+          -151200.0,
+          32767.49952323208
+        ],
+        [
+          0.0,
+          32767.499999999767
+        ],
+        [
+          151200.0,
+          32767.501776287383
+        ],
+        [
+          302400.0,
+          32767.50485209493
+        ]
+      ]
+    },
+    {
+      "name": "edge-min",
+      "description": "every field at its smallest value",
+      "message": {
+        "version": 1,
+        "scale": "tcl",
+        "reference": 0,
+        "iod": 0,
+        "wn_ot": 0,
+        "t_ot": 0,
+        "n": -32768,
+        "a0": -2147483648,
+        "a1": -8388608,
+        "a2": -524288,
+        "validity": 0,
+        "uclass": 0
+      },
+      "hex": "10000000000100010000000100000100000000",
+      "eval": [
+        [
+          -1800.0,
+          -32768.49998668104
+        ],
+        [
+          -900.0,
+          -32768.4999933175
+        ],
+        [
+          0.0,
+          -32768.5
+        ],
+        [
+          900.0,
+          -32768.500006728544
+        ],
+        [
+          1800.0,
+          -32768.50001350313
+        ]
+      ]
+    },
+    {
+      "name": "one-lsb",
+      "description": "single-LSB coefficients and alternating signs",
+      "message": {
+        "version": 1,
+        "scale": "tl",
+        "reference": 3,
+        "iod": 42,
+        "wn_ot": 46,
+        "t_ot": 1,
+        "n": 70,
+        "a0": 1,
+        "a1": -1,
+        "a2": 1,
+        "validity": 2,
+        "uclass": 7
+      },
+      "hex": "14ca805c0002008c00000003fffffe000024e0",
+      "eval": [
+        [
+          -7200.0,
+          70.00000000024204
+        ],
+        [
+          -3600.0,
+          70.00000000023672
+        ],
+        [
+          0.0,
+          70.00000000023283
+        ],
+        [
+          3600.0,
+          70.00000000023033
+        ],
+        [
+          7200.0,
+          70.00000000022925
+        ]
+      ]
+    }
+  ]
+}

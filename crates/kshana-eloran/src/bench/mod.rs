@@ -17,6 +17,7 @@
 
 pub mod catalog;
 pub mod check;
+pub mod firstplug;
 pub mod kit;
 pub mod open;
 pub mod probe;

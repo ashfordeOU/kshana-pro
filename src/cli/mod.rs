@@ -13,8 +13,12 @@ mod eloran_cmd;
 mod evidence_cmd;
 mod forensics_cmd;
 mod license_cmd;
+mod lunar_cmd;
 mod packs_cmd;
 mod payments_cmd;
+mod pics_cmd;
+mod pnt_cmd;
+mod pntdp_cmd;
 mod scorecard_cmd;
 mod threats_cmd;
 mod timing_cmd;
@@ -59,11 +63,14 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro timing <assess|console|metrics|history|audit> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit report (Pro; `kshana-pro timing` for details)\n\
        kshana-pro trust <run|verify> ...   Multi-source trust (F3): choose epoch by epoch among GNSS, OSNMA, LEO, eLoran, PTP and holdover, with hash-chained evidence (Pro; verify free)\n\
        kshana-pro eloran <run|validate|example> ...   eLoran/GNSS signal simulator: multi-chain, multi-time-reference eLoran signals with propagation, interference and truth, to SigMF files or LF hardware (Enterprise; validate and example free)
+       kshana-pro lunar <time|rates|w0|circular|holdover|offset|lunex> ...   Lunar time with GUM uncertainty (TCL or TL), W0_L sensitivity, Circular T for the Moon, Earth-Moon TWTT holdover, KLTO-1 offset codec proposal, LUNEX prototype (Pro; decode, vectors, example and validate free; `kshana-pro lunar` for details)\n\
        kshana-pro area picture <console.toml> ...   Area console (F1): fuse Stations, receivers and customer feeds into an area trust picture with event timelines; never emitter positions (Pro)\n\
        kshana-pro alerts <route|raw> ...   Alert policy engine (F5): routes, quiet hours, escalation, de-duplication to I5 outputs (Pro); raw alerts free\n\
        kshana-pro integrity <score|verify> ...   AIS and position integrity scoring at fleet and area scale (E5, Pro); verify free\n\
        kshana-pro verify-service <run|template|verify> ...   Pre-registered user-side verification study of a new PNT service (E4, Pro); template and verify free\n\
        kshana-pro frameworks <list|show|pack|verify> ...   Framework evidence packs: signed evidence mapped to EASA, NIST, DHS, IMO, RTS 25, EU Space Act, NIS 2 duties (E6, Pro; list, show, verify free)\n\
+       kshana-pro pics <list|show|mapping|score|export|sample|verify> ...   PICS: PNT Interference Conformance Suite, versioned jamming/spoofing scenarios with pre-registered bars, clause mapping and signed scorecards (score Pro; the rest free)\n\
+       kshana-pro pntdp <run|vectors|check> ...   PNT data processing reference (MSC.1/Circ.1575): multi-source plausibility, consistency, selected solution and integrity level (Pro; vectors and check free)\n\
        kshana-pro exposure <run|verify> ...   Insurer scorecard: periodic signed exposure summary of a fleet or route (E7, Pro); verify free\n\
        kshana-pro license <keygen|pubkey|issue|issue-invoice|extend-invoice|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
      \n\
@@ -121,12 +128,15 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "attack-iq",
     "trust",
     "eloran",
+    "lunar",
     "area",
     "alerts",
     "integrity",
     "verify-service",
     "frameworks",
     "exposure",
+    "pics",
+    "pntdp",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -252,12 +262,15 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("attack-iq") => attack_iq_cmd::run(&args[1..]),
         Some("trust") => trust_cmd::run(&args[1..]),
         Some("eloran") => eloran_cmd::run(&args[1..]),
+        Some("lunar") => lunar_cmd::run(&args[1..]),
         Some("area") => area_cmd::run(&args[1..]),
         Some("alerts") => alerts_cmd::run(&args[1..]),
         Some("integrity") => evidence_cmd::integrity(&args[1..]),
         Some("verify-service") => evidence_cmd::verify_service(&args[1..]),
         Some("frameworks") => evidence_cmd::frameworks(&args[1..]),
         Some("exposure") => evidence_cmd::exposure(&args[1..]),
+        Some("pics") => pics_cmd::run(&args[1..]),
+        Some("pntdp") => pntdp_cmd::run(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
         Some(name) if crate::extension::commands().iter().any(|c| c.name == name) => {
             let c = crate::extension::commands()

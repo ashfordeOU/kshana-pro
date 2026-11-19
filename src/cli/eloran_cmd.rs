@@ -14,7 +14,7 @@ use kshana_eloran::scene::{truth_csv, NullSink, SampleSink};
 use kshana_eloran::Scenario;
 
 use super::scorecard_cmd::entitlement;
-use super::{flag, now_unix};
+use super::{flag, now_unix, utc_iso8601_now};
 
 /// Licence feature of the simulator.
 pub const FEATURE: &str = "pro-eloran";
@@ -42,8 +42,35 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         never over the air (Enterprise, feature pro-eloran-hw)\n\
     awg <scenario.toml> --out <base> [--bits <n>] [--max-samples <n>] [--license <token>] [--dev]\n\
         Compile a periodic scenario into a repeating AWG segment (SigMF ri16 + report) (Enterprise)\n\
+    accept transmitter <capture base> --gri <µs> --first-group <s> --out <report.json> [--role master|secondary] [--parity A|B] [--groups <n>] [--channel <n>] [--limits <limits.toml>] [--license <token>] [--dev]\n\
+        Transmitter acceptance from a SigMF capture: phase codes, zero-crossing offset and jitter, ECD,\n\
+        amplitude stability, in-band power, against limits (defaults illustrative) (Enterprise)\n\
     accept software --out <report.json> [--license <token>] [--dev]\n\
         Run the software-only acceptance tests (resolution, SNR, skywave ranges) (Enterprise)\n\
+    noise-experiment --out <report.json> [--a-index <A>] [--gamma <Γ>] [--k <threshold>] [--license <token>] [--dev]\n\
+        Equal-power Gaussian vs Middleton Class A noise: timing error of the matched filter with no,\n\
+        clip and blank impulse mitigation (Enterprise). `rx --impulse clip|blank [--impulse-k <k>]`\n\
+        applies the mitigation to a recording before the receiver\n\
+    rmode-vdes <vdes.toml> --out <report.json> [--license <token>] [--dev]\n\
+        VDES R-Mode (VHF): radio horizon, two-ray sea multipath, Cramér–Rao burst timing, fix; burst\n\
+        parameters are placeholders pending IALA G1139/G1158 (Enterprise)\n\
+    survey-plan <survey.toml> --out <plan.json> [--license <token>] [--dev]\n\
+        Integrity-driven ASF survey planning: where to measure ASF so the protection level over the\n\
+        service area falls fastest (Gaussian-process ASF prior, greedy selection) (Enterprise)\n\
+    rmode <rmode.toml> --out <report.json> [--license <token>] [--dev]\n\
+        MF R-Mode (DGNSS beacons, CW tones at fc ± 225 Hz): synthesis with night skywave, tone-phase\n\
+        ranging with ambiguity resolution, least-squares fix (Enterprise)\n\
+    events <validate|merge|publish> <events.json|.jsonl>... [--out <file>] [--tol-s <s>] [--cell-deg <deg>] [--format json|geojson|csv] [--license <token>] [--dev]\n\
+        PNT interference events in one schema across GNSS, eLoran, R-Mode and LEO: validate, merge\n\
+        independent reports into corroborated events, publish coarsened (grid cell, hashed observers) (Enterprise)\n\
+    edo [<edo.toml>] --out <report.json> [--license <token>] [--dev]\n\
+        eLoran-disciplined oscillator bench: oscillator noise and ageing, GNSS/eLoran references,\n\
+        PI discipline, GNSS-to-eLoran switchover transient, holdover; MTIE/TDEV (Enterprise)\n\
+    sync certify --tic <readings.csv> --out <dir> --gnss-sim <name> --counter <model> [--counter-serial <s>] [--counter-cal-due <date>] [--target-ns <ns>] [--tolerance-ns <ns>] [--tdev-limit-ns <ns>] [--eloran-cable-ns <ns>] [--gnss-cable-ns <ns>] [--cable-u-ns <ns>] [--tic-u-ns <ns>] [--polarity eloran-start|gnss-start] [--signer <name> --key-file <file>] [--license <token>] [--dev]\n\
+        Sync-Verify: eLoran-to-GNSS alignment certificate for any GNSS simulator: offset ± U (k = 2),\n\
+        TDEV per decade, drift, guard-banded decision; readings stored and bound, optionally signed (Enterprise)\n\
+    sync verify-cert <dir>\n\
+        Recompute a sync certificate from its stored readings and check its signature\n\
     sync measure --tic <readings.csv> --out <report.json> [--unit s|ns] [--column <n>] [--target-ns <x>] [--license <token>] [--dev]\n\
         eLoran-vs-GNSS sync analysis: offset, TDEV/MTIE, drift, alarms, correction (Enterprise)\n\
     timeref circular-t <circular-t.txt> --labs <A,B> --start <utc> --duration <s>\n\
@@ -52,6 +79,23 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         ASF grid per station with the scenario's ground model: <base>.asf.csv and .asf.geojson (Enterprise)\n\
     fidelity <recording-base> --meta <capture.json> --scenario <scenario.toml> --out <report.json> [--license <token>] [--dev]\n\
         Compare a recording with its simulation at signal, observable and solution level (Enterprise)\n\
+    capset record <scenario.toml> --nav <rinex-3 nav> --out <dir> --id <set-id> [--fs <hz>] [--lf-delay-ns <x>] [--gnss-delay-ns <x>] [--gnss-offset-ns <x>] [--clock <text>] [--license <token>] [--dev]\n\
+        Coherent LF + L-band capture set: the eLoran SigMF channel and the GNSS baseband on one\n\
+        picosecond timeline with start times, rate ratio, clock source, cable delays and a PPS\n\
+        marker in both streams (Enterprise)\n\
+    capset check <dir>/<set-id>.capset.json [--out <report.json>]\n\
+        Replay check: data hashes and cross-stream PPS alignment within the stated tolerance (free)\n\
+    tactical templates [--lat <deg> --lon <deg>]\n\
+        Illustrative deployable-transmitter classes with antenna efficiency and radiated power (free)\n\
+    tactical study [--scenario <fusion.json>] [--trials <n>] [--seed <n>] [--out <study.json>] [--license <token>] [--dev]\n\
+        Signals-of-opportunity fusion study: eLoran alone vs eLoran + AM/LW carriers (weighted HDOP,\n\
+        Monte Carlo RMS/95 %, ambiguity success); default: the weak-geometry template (Enterprise)\n\
+    selfcal <scenario.toml> --config <selfcal.json> --observations <obs.json> --register <register.jsonl> --key-file <key> [--key-id <id>] --out <result.json> [--license <token>] [--dev]\n\
+        Self-calibrating simulator loop: fit section conductivity, ASF bias and skywave height to\n\
+        reference-receiver observations, regenerate until the fidelity converges; every pass is a\n\
+        hash-chained register entry and the run is HMAC-signed (Enterprise)\n\
+    selfcal verify --register <register.jsonl> --result <result.json> --key-file <key>\n\
+        Verify a self-calibration lineage: register chain, record digests and signature (free)\n\
     import <log> --profile <csv-profile.toml> --out <observations.json> [--license <token>] [--dev]\n\
         Import a receiver log into common observation records (Enterprise)\n\
     conformance list\n\
@@ -83,9 +127,40 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
     bench probe (--inventory <bench.toml> | --host <ip[:port]> ...) [--out <file>] [--license <token>] [--dev]\n\
         Find and identify connected instruments, read-only (*IDN?, serial ports, UHD/SoapySDR\n\
         discovery) (Enterprise, hardware)\n\
+    bench firstplug --inventory <bench.toml> --out <dir> [--rehearse] [--levels -1,-20,-40] [--signer <name> --key-file <file>] [--license <token>] [--dev]\n\
+        First plug-in check: the source plays the calibration train into its own loopback; each level is\n\
+        compared with the spec twin and every deviation is diagnosed; captures, hashes and measurements\n\
+        are bound into evidence (signed with the dossier key when given) (Enterprise, hardware unless --rehearse)\n\
+    bench verify-evidence <dir>\n\
+        Re-check first plug-in evidence: capture hashes, the binding hash, every number recomputed, and\n\
+        the signature when present (Enterprise)\n\
     bench accept --inventory <bench.toml> --profiles <dir> --out <report.json> [--select <ids>] [--stimulus-s <s>] [--evidence <dir>] [--license <token>] [--dev]\n\
         Acceptance suite on the real bench: the eLoran source by its driver, instruments by their\n\
         profiles (Enterprise, hardware)\n\
+    guard attribute <epoch.json> --out <report.json> [--license <token>] [--dev]\n\
+        Cross-system attribution of one epoch (GNSS, eLoran, local clock, optional E4 verdicts): scores\n\
+        for clean / GNSS spoofed / GNSS jammed / eLoran station fault / meaconing / clock fault (Enterprise)\n\
+    guard meacon <signatures.json> --out <report.json> [--license <token>] [--dev]\n\
+        Meacon/relay screen of measured station signatures against predicted ones (Enterprise)\n\
+    elof validate <file.elof.jsonl|file.elof.csv> [--json]\n\
+        Validate an ELOF v0.1 observation file: version, units, required fields, stations, ranges,\n\
+        phase code, monotonic time (free)\n\
+    elof convert <input> --out <file> [--from elof|truth-csv|obs-json] [--to jsonl|csv] [--scenario <scenario.toml>] [--license <token>] [--dev]\n\
+        Convert to ELOF: a simulator truth table (<base>.truth.csv), imported receiver records\n\
+        (`eloran import` JSON) or another ELOF profile; truth-csv and obs-json need --scenario (Enterprise)\n\
+    bench-eloran list [--bench <dir>]\n\
+        eLoran-Bench: the reference scenarios, their pre-registered bars and the registration hash (free)\n\
+    bench-eloran reference --out <dir> [--bench <dir>] [--license <token>] [--dev]\n\
+        The in-house software receiver's ELOF observations on every scenario (<ID>.elof.jsonl) (Enterprise)\n\
+    bench-eloran score --obs <dir> --receiver <name> --out <dir> [--leaderboard <file.json>] [--key-file <file> --signer <name>] [--bench <dir>] [--license <token>] [--dev]\n\
+        Score a receiver's ELOF observations (<dir>/<ID>.elof.jsonl or .elof.csv) against the\n\
+        pre-registered bars: <out>/scorecard.json (sealed; Ed25519-signed with --key-file), optional\n\
+        leaderboard update; refuses bars or scenarios changed after registration (Enterprise)\n\
+    tpl <scenario.toml> [--risk <p>] [--alert-ns <ns>] [--samples <n>] [--seed <n>] [--time-ref <id>] [--meas-ns <ns>] [--tx-ns <ns>] [--grid <lat1,lat2,lon1,lon2> --res <deg>] [--out <file.json>] [--license <token>] [--dev]\n\
+        ASF-aware timing protection level for UTC(k) time transfer at the scenario's receiver\n\
+        position (millington or smooth_earth ground model): ASF σ from conductivity class, terrain\n\
+        and seasonal variation, station-fault and ASF-model-error hypotheses; --grid writes an\n\
+        availability map (Enterprise)\n\
     validate <scenario.toml>\n\
         Check a scenario and print its SHA-256 (no licence needed)\n\
     example\n\
@@ -111,6 +186,9 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("timeref") => timeref_cmd(args),
         Some("asfgrid") => asfgrid_cmd(args),
         Some("fidelity") => fidelity_cmd(args),
+        Some("selfcal") => selfcal_cmd(args),
+        Some("capset") => capset_cmd(args),
+        Some("tactical") => tactical_cmd(args),
         Some("import") => import_cmd(args),
         Some("conformance") => conformance_cmd(args),
         Some("campaign") => campaign_cmd(args),
@@ -120,6 +198,105 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("gri") => gri_cmd(args),
         Some("calibrate") => calibrate_cmd(args),
         Some("bench") => bench_cmd(args),
+        Some("edo") => edo_cmd(args),
+        Some("events") => events_cmd(args),
+        Some("rmode-vdes") => done((|| {
+            use kshana_eloran::rmode::vdes::{run, VdesConfig};
+            if licensed(args).is_err() {
+                return Err("licence: pro-eloran is required".into());
+            }
+            let path = args.get(1).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+            let out = flag(args, "--out").ok_or("--out <report.json> is required")?;
+            let cfg: VdesConfig =
+                toml::from_str(&read(path)?).map_err(|e| format!("{path}: {e}"))?;
+            let r = run(&cfg);
+            write_json(&out, &r)?;
+            Ok(match r.horizontal_error_m {
+                Some(e) => format!("VDES R-Mode: {} stations in the radio horizon, fix error {e:.1} m (burst parameters are placeholders pending IALA G1139/G1158) -> {out}", r.used),
+                None => format!("VDES R-Mode: only {} stations within the radio horizon: no fix -> {out}", r.used),
+            })
+        })()),
+        Some("survey-plan") => done((|| {
+            use kshana_eloran::plan::survey::{plan, SurveyConfig};
+            if licensed(args).is_err() {
+                return Err("licence: pro-eloran is required".into());
+            }
+            let path = args.get(1).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+            let out = flag(args, "--out").ok_or("--out <plan.json> is required")?;
+            let cfg: SurveyConfig =
+                toml::from_str(&read(path)?).map_err(|e| format!("{path}: {e}"))?;
+            let p = plan(&cfg)?;
+            write_json(&out, &p)?;
+            let mut t = format!(
+                "ASF survey plan: area meeting {:.0} m PL {:.1} % -> {:.1} %, mean PL {:.0} m -> {:.0} m\n",
+                cfg.target_pl_m, p.coverage_before * 100.0, p.coverage_after * 100.0, p.mean_pl_before_m, p.mean_pl_after_m
+            );
+            for k in &p.picks {
+                t += &format!(
+                    "  {}. {:.4}, {:.4} (coverage {:.1} %)\n",
+                    k.order,
+                    k.lat_deg,
+                    k.lon_deg,
+                    k.coverage * 100.0
+                );
+            }
+            Ok(t + &format!("-> {out}"))
+        })()),
+        Some("rmode") => done((|| {
+            use kshana_eloran::rmode::{run, RModeConfig};
+            if licensed(args).is_err() {
+                return Err("licence: pro-eloran is required".into());
+            }
+            let path = args.get(1).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+            let out = flag(args, "--out").ok_or("--out <report.json> is required")?;
+            let cfg: RModeConfig =
+                toml::from_str(&read(path)?).map_err(|e| format!("{path}: {e}"))?;
+            let r = run(&cfg)?;
+            write_json(&out, &r)?;
+            Ok(format!(
+                "R-Mode fix {:.6}, {:.6}: horizontal error {:.1} m, residual RMS {:.1} m, {} of {} tone ambiguities resolved -> {out}",
+                r.fix_lat_deg, r.fix_lon_deg, r.horizontal_error_m, r.residual_rms_m,
+                r.beacons.iter().filter(|b| b.ambiguity_ok).count(), r.beacons.len()
+            ))
+        })()),
+        Some("noise-experiment") => done((|| {
+            use kshana_eloran::rx::impulse::{experiment, ExperimentConfig};
+            if let Err(c) = licensed(args) {
+                let _ = c;
+                return Err("licence: pro-eloran is required".into());
+            }
+            let out = flag(args, "--out").ok_or("--out <report.json> is required")?;
+            let mut c = ExperimentConfig::default();
+            if let Some(v) = num_flag::<f64>(args, "--a-index")? {
+                c.a_index = v;
+            }
+            if let Some(v) = num_flag::<f64>(args, "--gamma")? {
+                c.gamma = v;
+            }
+            if let Some(v) = num_flag::<f64>(args, "--k")? {
+                c.mitigation.k = v;
+            }
+            let r = experiment(&c)?;
+            write_json(&out, &r)?;
+            let mut t = format!(
+                "equal-power noise experiment (Class A excess kurtosis {:.1}):\n",
+                r.class_a_excess_kurtosis
+            );
+            for x in &r.cells {
+                t += &format!(
+                    "  {:9} {:?}: ToA RMS {:.1} ns ({:.2} % samples changed)\n",
+                    x.noise,
+                    x.mitigation,
+                    x.toa_rms_ns,
+                    x.changed_fraction * 100.0
+                );
+            }
+            Ok(t + &format!("-> {out}"))
+        })()),
+        Some("guard") => guard_cmd(args),
+        Some("elof") => elof_cmd(args),
+        Some("bench-eloran") => bench_eloran_cmd(args),
+        Some("tpl") => tpl_cmd(args),
         Some("example") => {
             print!("{EXAMPLE}");
             ExitCode::SUCCESS
@@ -342,10 +519,38 @@ fn rx_cmd(args: &[String]) -> ExitCode {
         Ok(t) => t,
         Err(e) => return fail(e),
     };
-    let recording = match kshana_eloran::io::read_sigmf(Path::new(&rec), None) {
+    let mut recording = match kshana_eloran::io::read_sigmf(Path::new(&rec), None) {
         Ok(r) => r,
         Err(e) => return fail(e),
     };
+    // Optional impulsive-noise mitigation ahead of the receiver.
+    if let Some(m) = flag(args, "--impulse") {
+        use kshana_eloran::rx::impulse::{mitigate, Mitigation, Mode};
+        let mode = match m.as_str() {
+            "clip" => Mode::Clip,
+            "blank" => Mode::Blank,
+            "off" => Mode::Off,
+            _ => return fail("--impulse clip|blank|off"),
+        };
+        let k = match num_flag::<f64>(args, "--impulse-k") {
+            Ok(v) => v.unwrap_or(3.0),
+            Err(e) => return fail(e),
+        };
+        for ch in recording.channels.iter_mut() {
+            let f = mitigate(
+                ch,
+                &Mitigation {
+                    mode,
+                    k,
+                    ..Default::default()
+                },
+            );
+            eprintln!(
+                "impulse mitigation ({m}, k = {k}): {:.3} % of samples changed",
+                f * 100.0
+            );
+        }
+    }
     let chains: Vec<_> = sc.chains.iter().map(|c| c.chain.clone()).collect();
     let mut cfg = RxConfig {
         output_scale_uv_m: sc.scene.params.output_scale_uv_m,
@@ -793,6 +998,9 @@ fn awg_cmd(args: &[String]) -> ExitCode {
 
 fn accept_cmd(args: &[String]) -> ExitCode {
     use kshana_eloran::accept::suite::{default_suite, run_suite, Bench};
+    if args.get(1).map(String::as_str) == Some("transmitter") {
+        return accept_transmitter(args);
+    }
     if args.get(1).map(String::as_str) != Some("software") {
         return fail(USAGE);
     }
@@ -821,11 +1029,91 @@ fn accept_cmd(args: &[String]) -> ExitCode {
     })())
 }
 
+fn accept_transmitter(args: &[String]) -> ExitCode {
+    use kshana_eloran::accept::transmitter::{measure, TxLimits, TxSchedule};
+    use kshana_eloran::signal::{Parity, Role};
+    let (Some(base), Some(out)) = (
+        args.get(2).filter(|a| !a.starts_with("--")),
+        flag(args, "--out"),
+    ) else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let rec = kshana_eloran::io::read_sigmf(Path::new(base), None)?;
+        let ch: usize = num_flag(args, "--channel")?.unwrap_or(0);
+        let x = rec
+            .channels
+            .get(ch)
+            .ok_or_else(|| format!("{base}: no channel {ch}"))?;
+        let sch = TxSchedule {
+            gri_us: num_flag(args, "--gri")?.ok_or("--gri <µs> is required")?,
+            role: match flag(args, "--role").as_deref() {
+                Some("secondary") => Role::Secondary,
+                _ => Role::Master,
+            },
+            first_group_s: num_flag(args, "--first-group")?.ok_or("--first-group <s> (capture time of the first group's first pulse origin) is required")?,
+            first_parity: match flag(args, "--parity").as_deref() {
+                Some("B") | Some("b") => Parity::B,
+                _ => Parity::A,
+            },
+            groups: num_flag(args, "--groups")?.unwrap_or(10),
+        };
+        let limits: TxLimits = match flag(args, "--limits") {
+            Some(p) => toml::from_str(&read(&p)?).map_err(|e| format!("{p}: {e}"))?,
+            None => TxLimits::default(),
+        };
+        let r = measure(x, rec.fs_hz, &sch, &limits)?;
+        write_json(&out, &r)?;
+        let failed: Vec<&str> = r
+            .checks
+            .iter()
+            .filter(|c| !c.pass)
+            .map(|c| c.name.as_str())
+            .collect();
+        Ok(format!(
+            "transmitter acceptance: {} pulses, ECD {:.3} ± {:.3} µs, ZC offset {:.1} ns, jitter {:.2} ns, phase-code errors {}, in-band {:.4}: {} -> {out}{}",
+            r.pulses.len(), r.ecd_mean_us, r.ecd_std_us, r.zc_offset_mean_ns, r.zc_jitter_ns, r.phase_code_errors, r.in_band_fraction,
+            if r.pass { "PASS" } else { "FAIL" },
+            if failed.is_empty() { String::new() } else { format!(" (failed: {})", failed.join(", ")) }
+        ))
+    })())
+}
+
 fn sync_cmd(args: &[String]) -> ExitCode {
     use kshana_eloran::hw::calib::TicUnit;
     use kshana_eloran::sync::measure::{analyse, MeasureConfig, TicSeries};
-    if args.get(1).map(String::as_str) != Some("measure") {
-        return fail(USAGE);
+    match args.get(1).map(String::as_str) {
+        Some("measure") => {}
+        Some("certify") => return sync_certify(args),
+        Some("verify-cert") => {
+            return done((|| {
+                let dir = args.get(2).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+                let p = Path::new(dir);
+                let bad = kshana_eloran::sync::certify::verify_certificate(p)?;
+                if !bad.is_empty() {
+                    return Err(format!("certificate NOT intact:\n  {}", bad.join("\n  ")));
+                }
+                let sig = if p.join("signature.json").exists() {
+                    let v = crate::signed_dossier::verify(p, &[]).map_err(|e| e.to_string())?;
+                    if !(v.signature_ok && v.problems.is_empty()) {
+                        return Err(format!(
+                            "signature does not hold: {}",
+                            v.problems.join("; ")
+                        ));
+                    }
+                    format!("; signed by {} (key {}) at {}", v.signer, v.key_id, v.utc)
+                } else {
+                    "; not signed".into()
+                };
+                Ok(format!(
+                    "certificate intact: recomputed from the stored readings{sig}"
+                ))
+            })())
+        }
+        _ => return fail(USAGE),
     }
     let (Some(tic), Some(out)) = (flag(args, "--tic"), flag(args, "--out")) else {
         return fail(USAGE);
@@ -850,6 +1138,180 @@ fn sync_cmd(args: &[String]) -> ExitCode {
             "sync: {} readings analysed -> {out}",
             series.readings_ns.len()
         ))
+    })())
+}
+
+fn sync_certify(args: &[String]) -> ExitCode {
+    use kshana_eloran::hw::calib::TicUnit;
+    use kshana_eloran::sync::certify::{certify, write, Setup};
+    use kshana_eloran::sync::measure::{MeasureConfig, TicPolarity, TicSeries};
+    let (Some(tic), Some(out)) = (flag(args, "--tic"), flag(args, "--out")) else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let unit = match flag(args, "--unit").as_deref() {
+            None | Some("ns") => TicUnit::Nanoseconds,
+            Some("s") => TicUnit::Seconds,
+            Some(u) => return Err(format!("--unit {u}: s or ns")),
+        };
+        let series = TicSeries::from_csv(&read(&tic)?, num_flag::<usize>(args, "--column")?, unit)?;
+        let mut cfg = MeasureConfig::default();
+        if let Some(v) = num_flag::<f64>(args, "--target-ns")? {
+            cfg.target_ns = v;
+        }
+        if let Some(v) = num_flag::<f64>(args, "--tolerance-ns")? {
+            cfg.offset_limit_ns = v;
+        }
+        if let Some(v) = num_flag::<f64>(args, "--tdev-limit-ns")? {
+            cfg.tdev_limit_ns = v;
+        }
+        if let Some(v) = num_flag::<f64>(args, "--tau0")? {
+            cfg.tau0_s = v;
+        }
+        if let Some(v) = num_flag::<f64>(args, "--eloran-cable-ns")? {
+            cfg.eloran_cable_ns = v;
+        }
+        if let Some(v) = num_flag::<f64>(args, "--gnss-cable-ns")? {
+            cfg.gnss_cable_ns = v;
+        }
+        if let Some(v) = num_flag::<f64>(args, "--cable-u-ns")? {
+            cfg.cable_u_ns = v;
+        }
+        if let Some(v) = num_flag::<f64>(args, "--tic-u-ns")? {
+            cfg.tic_u_ns = v;
+        }
+        if flag(args, "--polarity").as_deref() == Some("gnss-start") {
+            cfg.polarity = TicPolarity::StartGnssStopEloran;
+        }
+        let setup = Setup {
+            eloran_simulator: flag(args, "--eloran-sim")
+                .unwrap_or_else(|| "Kshana Pro eLoran simulator".into()),
+            gnss_simulator: flag(args, "--gnss-sim").ok_or("--gnss-sim <name> is required")?,
+            counter: flag(args, "--counter").ok_or("--counter <model> is required")?,
+            counter_serial: flag(args, "--counter-serial").unwrap_or_default(),
+            counter_cal_due: flag(args, "--counter-cal-due"),
+            reference: flag(args, "--reference").unwrap_or_default(),
+            laboratory: flag(args, "--lab").unwrap_or_default(),
+            notes: String::new(),
+        };
+        let (c, _) = certify(&series.readings_ns, &cfg, &setup)?;
+        let dir = Path::new(&out);
+        write(dir, &c, &series.readings_ns)?;
+        let signed = sign_if_requested(args, dir)?;
+        Ok(format!("{} -> {out}{signed}", c.statement))
+    })())
+}
+
+fn edo_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::sync::edo::{run, EdoConfig};
+    let Some(out) = flag(args, "--out") else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let cfg: EdoConfig = match args.get(1).filter(|a| !a.starts_with("--")) {
+            Some(p) => toml::from_str(&read(p)?).map_err(|e| format!("{p}: {e}"))?,
+            None => EdoConfig::default(),
+        };
+        let r = run(&cfg)?;
+        write_json(&out, &r)?;
+        Ok(format!(
+            "eDO: max |TE| {:.1} ns, RMS {:.2} ns after settling{}; {} the {:.0} ns limit -> {out}",
+            r.max_abs_te_ns,
+            r.rms_te_after_settle_ns,
+            match (r.switchover_peak_ns, r.switchover_settle_s, r.switchover_offset_ns) {
+                (Some(p), Some(s), Some(o)) => format!(", switchover peak {p:.1} ns, settled in {s:.0} s at {o:+.1} ns (uncalibrated eLoran offset)"),
+                _ => String::new(),
+            },
+            if r.within_limit { "within" } else { "OUTSIDE" },
+            cfg.time_error_limit_ns
+        ))
+    })())
+}
+
+fn events_cmd(args: &[String]) -> ExitCode {
+    use crate::ievents::{coarsen, merge, to_csv, to_geojson, validate, Event};
+    let sub = args.get(1).map(String::as_str);
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let files: Vec<&String> = args
+            .iter()
+            .skip(2)
+            .take_while(|a| !a.starts_with("--"))
+            .collect();
+        if files.is_empty() {
+            return Err(USAGE.into());
+        }
+        let mut evs: Vec<Event> = vec![];
+        for f in &files {
+            let t = read(f)?;
+            let t = t.trim();
+            if t.starts_with('[') {
+                evs.extend(serde_json::from_str::<Vec<Event>>(t).map_err(|e| format!("{f}: {e}"))?);
+            } else {
+                for (i, l) in t.lines().filter(|l| !l.trim().is_empty()).enumerate() {
+                    evs.push(serde_json::from_str(l).map_err(|e| format!("{f}:{}: {e}", i + 1))?);
+                }
+            }
+        }
+        let mut bad = vec![];
+        for e in &evs {
+            for p in validate(e) {
+                bad.push(format!("{}: {p}", e.id));
+            }
+        }
+        match sub {
+            Some("validate") => {
+                if bad.is_empty() {
+                    Ok(format!(
+                        "{} events valid ({})",
+                        evs.len(),
+                        crate::ievents::FORMAT
+                    ))
+                } else {
+                    Err(format!("{} problems:\n  {}", bad.len(), bad.join("\n  ")))
+                }
+            }
+            Some("merge") | Some("publish") => {
+                if !bad.is_empty() {
+                    return Err(format!("fix the events first:\n  {}", bad.join("\n  ")));
+                }
+                let out = flag(args, "--out").ok_or("--out <file> is required")?;
+                let tol: i64 = num_flag(args, "--tol-s")?.unwrap_or(120);
+                let mut m = merge(&evs, tol);
+                if sub == Some("publish") {
+                    let cell: f64 = num_flag(args, "--cell-deg")?.unwrap_or(0.5);
+                    m = m.iter().map(|e| coarsen(e, cell)).collect();
+                }
+                let body = match flag(args, "--format").as_deref() {
+                    Some("geojson") => {
+                        serde_json::to_string_pretty(&to_geojson(&m)).map_err(|e| e.to_string())?
+                    }
+                    Some("csv") => to_csv(&m),
+                    _ => serde_json::to_string_pretty(&m).map_err(|e| e.to_string())?,
+                };
+                std::fs::write(&out, body).map_err(|e| format!("{out}: {e}"))?;
+                Ok(format!(
+                    "{} reports -> {} events ({} corroborated){} -> {out}",
+                    evs.len(),
+                    m.len(),
+                    m.iter().filter(|e| e.corroborated).count(),
+                    if sub == Some("publish") {
+                        ", coarsened for publication"
+                    } else {
+                        ""
+                    }
+                ))
+            }
+            _ => Err(USAGE.into()),
+        }
     })())
 }
 
@@ -969,6 +1431,218 @@ fn fidelity_cmd(args: &[String]) -> ExitCode {
     })())
 }
 
+fn capset_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::capset::{record_capture_set, replay_check, RecordPlan, StreamSetup};
+    match args.get(1).map(String::as_str) {
+        Some("check") => {
+            let Some(path) = args.get(2).filter(|a| !a.starts_with("--")).cloned() else {
+                return fail(USAGE);
+            };
+            match replay_check(Path::new(&path)) {
+                Ok(rep) => {
+                    if let Some(out) = flag(args, "--out") {
+                        if let Err(e) = write_json(&out, &rep) {
+                            return fail(e);
+                        }
+                    }
+                    if rep.pass {
+                        println!(
+                            "capset {}: aligned, max cross-stream difference {:.3} ns (tolerance {:.1} ns)",
+                            rep.set_id,
+                            rep.max_abs_cross_ps / 1000.0,
+                            rep.tolerance_ps as f64 / 1000.0
+                        );
+                        ExitCode::SUCCESS
+                    } else {
+                        fail(format!(
+                            "capset {}: {}",
+                            rep.set_id,
+                            rep.problems.join("; ")
+                        ))
+                    }
+                }
+                Err(e) => fail(e),
+            }
+        }
+        Some("record") => {
+            let Some(scen) = args.get(2).filter(|a| !a.starts_with("--")).cloned() else {
+                return fail(USAGE);
+            };
+            let (Some(nav), Some(out), Some(id)) =
+                (flag(args, "--nav"), flag(args, "--out"), flag(args, "--id"))
+            else {
+                return fail(USAGE);
+            };
+            if let Err(c) = licensed(args) {
+                return c;
+            }
+            done((|| {
+                let sc = load(&scen)?;
+                let ns = |name: &str| -> Result<i64, String> {
+                    Ok((num_flag::<f64>(args, name)?.unwrap_or(0.0) * 1000.0).round() as i64)
+                };
+                let clock = flag(args, "--clock").unwrap_or_else(|| "unspecified".into());
+                let lf = StreamSetup::new(&clock, "clock-1", ns("--lf-delay-ns")?);
+                let mut g = StreamSetup::new(&clock, "clock-1", ns("--gnss-delay-ns")?);
+                g.start_offset_ps = ns("--gnss-offset-ns")?;
+                let opts = crate::eloran_gnss::GnssOptions {
+                    fs_hz: num_flag(args, "--fs")?.unwrap_or(4_000_000.0),
+                    ..Default::default()
+                };
+                let mut gen = crate::eloran_gnss::GnssBaseband::new(&read(&nav)?, opts)?;
+                let set = record_capture_set(
+                    &sc,
+                    &mut gen,
+                    &RecordPlan::new(&id, lf, g),
+                    Path::new(&out),
+                )?;
+                Ok(format!(
+                    "capset {}: {} streams, {} marker(s), {} satellites -> {out}/{id}.capset.json",
+                    set.set_id,
+                    set.streams.len(),
+                    set.markers.len(),
+                    gen.satellites.len()
+                ))
+            })())
+        }
+        _ => fail(USAGE),
+    }
+}
+
+fn tactical_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::geo::Geo;
+    use kshana_eloran::tactical::{
+        fusion_study, templates, weak_geometry_template, FusionScenario,
+    };
+    match args.get(1).map(String::as_str) {
+        Some("templates") => done((|| {
+            let lat = num_flag(args, "--lat")?.unwrap_or(50.0);
+            let lon = num_flag(args, "--lon")?.unwrap_or(10.0);
+            let rows: Vec<serde_json::Value> = templates(Geo::new(lat, lon))
+                .iter()
+                .map(|t| {
+                    serde_json::json!({
+                        "transmitter": t,
+                        "radiation_resistance_ohm": t.radiation_resistance_ohm(),
+                        "efficiency": t.efficiency(),
+                        "radiated_kw": t.radiated_kw(),
+                    })
+                })
+                .collect();
+            serde_json::to_string_pretty(&rows).map_err(|e| e.to_string())
+        })()),
+        Some("study") => {
+            if let Err(c) = licensed(args) {
+                return c;
+            }
+            done((|| {
+                let sc: FusionScenario = match flag(args, "--scenario") {
+                    Some(p) => serde_json::from_str(&read(&p)?).map_err(|e| format!("{p}: {e}"))?,
+                    None => weak_geometry_template(),
+                };
+                let trials = num_flag(args, "--trials")?.unwrap_or(1000);
+                let seed = num_flag(args, "--seed")?.unwrap_or(1);
+                let st = fusion_study(&sc, trials, seed)?;
+                if let Some(out) = flag(args, "--out") {
+                    write_json(&out, &st)?;
+                }
+                Ok(format!(
+                    "tactical study ({} trials): eLoran RMS {:.1} m (95 % {:.1} m) -> fused RMS {:.1} m (95 % {:.1} m); ambiguity success {:.3}; fallbacks {}",
+                    st.trials,
+                    st.rms_eloran_m,
+                    st.p95_eloran_m,
+                    st.rms_fused_m,
+                    st.p95_fused_m,
+                    st.ambiguity_success,
+                    st.fallbacks
+                ))
+            })())
+        }
+        _ => fail(USAGE),
+    }
+}
+
+/// `selfcal` job file: the loop configuration and the reference sites.
+#[derive(serde::Deserialize)]
+struct SelfCalJob {
+    config: kshana_eloran::valid::selfcal::SelfCalConfig,
+    sites: Vec<kshana_eloran::valid::selfcal::RefSite>,
+}
+
+fn selfcal_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::calreg::Register;
+    use kshana_eloran::valid::selfcal::{run_selfcal, verify_lineage, SelfCalResult};
+    let key_of = |args: &[String]| -> Result<Vec<u8>, String> {
+        let p = flag(args, "--key-file").ok_or("--key-file is required")?;
+        let k = std::fs::read(&p).map_err(|e| format!("{p}: {e}"))?;
+        if k.len() < 16 {
+            return Err("signing key: at least 16 bytes".into());
+        }
+        Ok(k)
+    };
+    if args.get(1).map(String::as_str) == Some("verify") {
+        let (Some(reg), Some(res)) = (flag(args, "--register"), flag(args, "--result")) else {
+            return fail(USAGE);
+        };
+        return match (|| {
+            let key = key_of(args)?;
+            let r: SelfCalResult =
+                serde_json::from_str(&read(&res)?).map_err(|e| format!("{res}: {e}"))?;
+            verify_lineage(&Register::open(Path::new(&reg)), &r.signature, &key)
+        })() {
+            Ok(c) if c.ok() => {
+                println!("selfcal lineage OK: {} entries", c.entries);
+                ExitCode::SUCCESS
+            }
+            Ok(c) => fail(format!("selfcal lineage FAILED: {}", c.problems.join("; "))),
+            Err(e) => fail(e),
+        };
+    }
+    let Some(scen) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else {
+        return fail(USAGE);
+    };
+    let (Some(cfg), Some(obs), Some(reg), Some(out)) = (
+        flag(args, "--config"),
+        flag(args, "--observations"),
+        flag(args, "--register"),
+        flag(args, "--out"),
+    ) else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let key = key_of(args)?;
+        let key_id = flag(args, "--key-id").unwrap_or_else(|| "default".into());
+        let sc = load(&scen)?;
+        let job: SelfCalJob =
+            serde_json::from_str(&read(&cfg)?).map_err(|e| format!("{cfg}: {e}"))?;
+        let observations: Vec<kshana_eloran::valid::selfcal::RefObservation> =
+            serde_json::from_str(&read(&obs)?).map_err(|e| format!("{obs}: {e}"))?;
+        let r = run_selfcal(
+            &sc,
+            &job.config,
+            &job.sites,
+            &observations,
+            None,
+            &Register::open(Path::new(&reg)),
+            &key,
+            &key_id,
+        )?;
+        write_json(&out, &r)?;
+        let last = r.records.last().ok_or("no passes")?;
+        Ok(format!(
+            "selfcal: {} passes ({}), fidelity {:.1} -> {:.1}, signed head {} -> {out}",
+            r.records.len(),
+            r.stop_reason,
+            r.records[0].fidelity_score,
+            last.fidelity_score,
+            &r.signature.head[..16]
+        ))
+    })())
+}
+
 fn import_cmd(args: &[String]) -> ExitCode {
     use kshana_eloran::field::importers::CsvProfile;
     let Some(log) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else {
@@ -991,6 +1665,435 @@ fn import_cmd(args: &[String]) -> ExitCode {
             "import: {} observation record(s) -> {out}",
             obs.len()
         ))
+    })())
+}
+
+fn elof_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::elof::{self, convert, csv as elof_csv};
+    match args.get(1).map(String::as_str) {
+        Some("validate") => {
+            let Some(path) = args.get(2).filter(|a| !a.starts_with("--")) else {
+                return fail(USAGE);
+            };
+            let text = match read(path) {
+                Ok(t) => t,
+                Err(e) => return fail(e),
+            };
+            let (_, rep) = elof::validate_text(&text);
+            if super::has_flag(args, "--json") {
+                println!("{}", serde_json::to_string_pretty(&rep).unwrap_or_default());
+            } else {
+                for e in &rep.errors {
+                    match e.record {
+                        Some(i) => eprintln!("error: record {i}: {}", e.message),
+                        None => eprintln!("error: header: {}", e.message),
+                    }
+                }
+                for w in rep.warnings.iter().take(20) {
+                    eprintln!("warning: {}", w.message);
+                }
+                println!("{path}: {}", rep.summary());
+            }
+            if rep.ok() {
+                ExitCode::SUCCESS
+            } else {
+                ExitCode::FAILURE
+            }
+        }
+        Some("convert") => {
+            let Some(input) = args.get(2).filter(|a| !a.starts_with("--")).cloned() else {
+                return fail(USAGE);
+            };
+            let Some(out) = flag(args, "--out") else {
+                return fail(USAGE);
+            };
+            if let Err(c) = licensed(args) {
+                return c;
+            }
+            done((|| {
+                let text = read(&input)?;
+                let from = flag(args, "--from").unwrap_or_else(|| {
+                    if input.ends_with(".truth.csv") {
+                        "truth-csv".into()
+                    } else if input.ends_with(".json") && !input.ends_with(".jsonl") {
+                        "obs-json".into()
+                    } else {
+                        "elof".into()
+                    }
+                });
+                let scenario = || -> Result<(Scenario, String), String> {
+                    let p = flag(args, "--scenario")
+                        .ok_or_else(|| format!("--from {from} needs --scenario <scenario.toml>"))?;
+                    let name = Path::new(&p)
+                        .file_stem()
+                        .map(|s| s.to_string_lossy().into_owned())
+                        .unwrap_or_default();
+                    Ok((load(&p)?, name))
+                };
+                let file = match from.as_str() {
+                    "elof" => elof::read_valid(&text)?,
+                    "truth-csv" => {
+                        let (sc, name) = scenario()?;
+                        let truth = kshana_eloran::scene::truth_from_csv(&text)?;
+                        convert::from_truth(&sc, &name, &truth)?
+                    }
+                    "obs-json" => {
+                        let (sc, name) = scenario()?;
+                        let v: serde_json::Value =
+                            serde_json::from_str(&text).map_err(|e| format!("{input}: {e}"))?;
+                        let recs: Vec<kshana_eloran::field::importers::ObsRecord> =
+                            serde_json::from_value(v.get("observations").cloned().unwrap_or(v))
+                                .map_err(|e| format!("{input}: observations: {e}"))?;
+                        let mut h = convert::header_for_scenario(
+                            &sc,
+                            &name,
+                            elof::Source {
+                                kind: elof::SourceKind::HardwareReceiver,
+                                software: convert::software(),
+                                description: format!("imported from {input}"),
+                            },
+                        );
+                        h.time_scale = elof::TimeScale::Utc;
+                        let (records, skipped) = convert::obs_from_obs_records(&h, &recs)?;
+                        if skipped > 0 {
+                            eprintln!(
+                                "note: {skipped} record(s) without time, station or ToA skipped"
+                            );
+                        }
+                        let mut f = elof::ElofFile { header: h, records };
+                        f.sort();
+                        f
+                    }
+                    other => {
+                        return Err(format!("--from {other}: use elof, truth-csv or obs-json"))
+                    }
+                };
+                let rep = elof::validate(&file);
+                if !rep.ok() {
+                    return Err(format!("converted file is invalid: {}", rep.summary()));
+                }
+                let to = flag(args, "--to").unwrap_or_else(|| {
+                    if out.ends_with(".csv") {
+                        "csv".into()
+                    } else {
+                        "jsonl".into()
+                    }
+                });
+                let (body, note) = match to.as_str() {
+                    "jsonl" => (file.to_jsonl()?, String::new()),
+                    "csv" => {
+                        let (t, left) = elof_csv::to_csv(&file)?;
+                        (
+                            t,
+                            if left > 0 {
+                                format!(" ({left} truth/timing/ldc record(s) have no CSV form)")
+                            } else {
+                                String::new()
+                            },
+                        )
+                    }
+                    other => return Err(format!("--to {other}: use jsonl or csv")),
+                };
+                std::fs::write(&out, body).map_err(|e| format!("{out}: {e}"))?;
+                Ok(format!("elof: {} -> {out}{note}", rep.summary()))
+            })())
+        }
+        _ => fail(USAGE),
+    }
+}
+
+fn bench_eloran_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::refbench::{
+        bench_dir, score_receiver, software_receiver_observations, Benchmark, Leaderboard,
+    };
+    let dir = flag(args, "--bench")
+        .map(PathBuf::from)
+        .unwrap_or_else(bench_dir);
+    match args.get(1).map(String::as_str) {
+        Some("list") => done((|| {
+            let b = Benchmark::load(&dir)?;
+            let mut s = format!(
+                "{} {} (registered {}; registration SHA-256 {}; bars SHA-256 {})\n",
+                b.registration.benchmark,
+                b.registration.version,
+                b.registration.registered_utc,
+                b.registration_sha256,
+                b.registration.bars_sha256
+            );
+            for sc in &b.scenarios {
+                let bars: Vec<String> = b
+                    .bars_of(&sc.id)
+                    .iter()
+                    .map(|c| format!("{} {} {}", c.key(), c.op.symbol(), c.limit))
+                    .collect();
+                s.push_str(&format!(
+                    "{:<16} {:<16} {}\n    bars: {}\n",
+                    sc.id,
+                    sc.file.case.category,
+                    sc.file.case.title,
+                    bars.join("; ")
+                ));
+            }
+            s.push_str(
+                "bars are illustrative (set by Kshana, not from a standard); evidence MODELLED",
+            );
+            Ok(s)
+        })()),
+        Some("reference") => {
+            let Some(out) = flag(args, "--out") else {
+                return fail(USAGE);
+            };
+            if let Err(c) = licensed(args) {
+                return c;
+            }
+            done((|| {
+                let b = Benchmark::load(&dir)?;
+                std::fs::create_dir_all(&out).map_err(|e| format!("{out}: {e}"))?;
+                for sc in &b.scenarios {
+                    let run = sc.simulate()?;
+                    let f = software_receiver_observations(sc, &run)?;
+                    let p = Path::new(&out).join(format!("{}.elof.jsonl", sc.id));
+                    std::fs::write(&p, f.to_jsonl()?)
+                        .map_err(|e| format!("{}: {e}", p.display()))?;
+                }
+                Ok(format!(
+                    "bench-eloran: {} reference observation file(s) -> {out}",
+                    b.scenarios.len()
+                ))
+            })())
+        }
+        Some("score") => {
+            let (Some(obs_dir), Some(receiver), Some(out)) = (
+                flag(args, "--obs"),
+                flag(args, "--receiver"),
+                flag(args, "--out"),
+            ) else {
+                return fail(USAGE);
+            };
+            let now = now_unix();
+            let ent = match entitlement(args, now) {
+                Ok(e) => e,
+                Err(e) => return fail(e),
+            };
+            if let Err(e) = crate::license::check(&ent, FEATURE, now) {
+                return fail(e);
+            }
+            let key = flag(args, "--key-file");
+            if key.is_some() && !ent.allows("pro-signed-dossier", now) {
+                return fail("signing a scorecard requires the pro-signed-dossier feature");
+            }
+            done((|| {
+                let b = Benchmark::load(&dir)?;
+                let mut obs = std::collections::BTreeMap::new();
+                for sc in &b.scenarios {
+                    for ext in ["elof.jsonl", "elof.csv"] {
+                        let p = Path::new(&obs_dir).join(format!("{}.{ext}", sc.id));
+                        if p.exists() {
+                            let text = read(&p.to_string_lossy())?;
+                            let (f, rep) = kshana_eloran::elof::validate_text(&text);
+                            match f {
+                                Some(f) => {
+                                    if !rep.ok() {
+                                        eprintln!("warning: {}: {}", p.display(), rep.summary());
+                                    }
+                                    obs.insert(sc.id.clone(), f);
+                                }
+                                None => return Err(format!("{}: {}", p.display(), rep.summary())),
+                            }
+                            break;
+                        }
+                    }
+                }
+                let card = score_receiver(&b, &receiver, &obs)?;
+                std::fs::create_dir_all(&out).map_err(|e| format!("{out}: {e}"))?;
+                write_json(&format!("{out}/scorecard.json"), &card)?;
+                let mut msg = format!(
+                    "bench-eloran: {receiver}: {} pass, {} fail, {} not evaluated ({}/{} scenarios pass); seal {} -> {out}/scorecard.json",
+                    card.pass,
+                    card.fail,
+                    card.not_evaluated,
+                    card.scenarios_passed,
+                    card.results.len(),
+                    &card.seal_sha256[..16]
+                );
+                if let Some(kf) = &key {
+                    let signer =
+                        flag(args, "--signer").ok_or("--key-file needs --signer <name>")?;
+                    let seed = std::fs::read_to_string(kf)
+                        .map_err(|e| format!("{kf}: {e}"))
+                        .and_then(|s| {
+                            let s = s.trim();
+                            let s = s.strip_prefix("private_key=").unwrap_or(s);
+                            crate::license::parse_key_hex(s).map_err(|e| format!("{kf}: {e}"))
+                        })?;
+                    let utc = super::utc_iso8601_now();
+                    crate::signed_dossier::sign(Path::new(&out), &seed, &signer, &utc)
+                        .map_err(|e| e.to_string())?;
+                    msg.push_str(&format!(
+                        "; signed by {signer} (verify: kshana-pro dossier verify {out})"
+                    ));
+                }
+                if let Some(lp) = flag(args, "--leaderboard") {
+                    let mut lb = if Path::new(&lp).exists() {
+                        Leaderboard::from_json(&read(&lp)?)?
+                    } else {
+                        Leaderboard::new(&b)
+                    };
+                    let rank = lb.add(&card, &super::utc_iso8601_now())?;
+                    write_json(&lp, &lb)?;
+                    msg.push_str(&format!("; leaderboard rank {rank} -> {lp}"));
+                }
+                Ok(msg)
+            })())
+        }
+        _ => fail(USAGE),
+    }
+}
+
+fn tpl_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::prop::conductivity::{ConductivityConfig, ConductivityMap};
+    use kshana_eloran::prop::ground::GroundConfig;
+    use kshana_eloran::tpl::{availability_map, compute, TplConfig, TplProblem};
+    let Some(path) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let sc = load(&path)?;
+        let mut cfg = TplConfig::default();
+        let (map_cfg, k_factor, sample_km, temporal) = match &sc.propagation.ground {
+            GroundConfig::Millington {
+                conductivity,
+                k_factor,
+                sample_km,
+                temporal,
+                ..
+            } => (
+                conductivity.clone(),
+                *k_factor,
+                *sample_km,
+                temporal.clone(),
+            ),
+            GroundConfig::SmoothEarth {
+                sigma_s_m,
+                eps_r,
+                k_factor,
+                temporal,
+            } => (
+                ConductivityConfig::Uniform {
+                    sigma_s_m: *sigma_s_m,
+                    eps_r: *eps_r,
+                },
+                *k_factor,
+                2.0,
+                temporal.clone(),
+            ),
+            _ => {
+                return Err(
+                    "tpl needs a millington or smooth_earth ground model (a conductivity map)"
+                        .into(),
+                )
+            }
+        };
+        if let Some(t) = temporal.filter(|t| t.sigma_seasonal_frac > 0.0) {
+            cfg.seasonal_sigma_frac = t.sigma_seasonal_frac;
+        }
+        if let Some(v) = num_flag(args, "--risk")? {
+            cfg.integrity_risk = v;
+        }
+        if let Some(v) = num_flag(args, "--alert-ns")? {
+            cfg.alert_limit_ns = v;
+        }
+        if let Some(v) = num_flag(args, "--samples")? {
+            cfg.samples = v;
+        }
+        if let Some(v) = num_flag(args, "--seed")? {
+            cfg.seed = v;
+        }
+        if let Some(v) = num_flag(args, "--meas-ns")? {
+            cfg.meas_sigma_ns = v;
+        }
+        if let Some(v) = num_flag(args, "--tx-ns")? {
+            cfg.tx_sigma_ns = v;
+        }
+        cfg.time_ref = flag(args, "--time-ref");
+        let map = ConductivityMap::build(&map_cfg)?;
+        let stations: Vec<kshana_eloran::chain::Station> = sc
+            .chains
+            .iter()
+            .flat_map(|c| c.chain.stations.iter().cloned())
+            .collect();
+        let out = flag(args, "--out");
+        if let Some(g) = flag(args, "--grid") {
+            let b: Vec<f64> = g
+                .split(',')
+                .map(|x| x.trim().parse::<f64>())
+                .collect::<Result<_, _>>()
+                .map_err(|_| "--grid: lat1,lat2,lon1,lon2")?;
+            if b.len() != 4 {
+                return Err("--grid: lat1,lat2,lon1,lon2".into());
+            }
+            let res: f64 = num_flag(args, "--res")?.ok_or("--grid needs --res <deg>")?;
+            let m = availability_map(
+                &stations,
+                [b[0], b[1], b[2], b[3]],
+                res,
+                &map,
+                k_factor,
+                sample_km,
+                &cfg,
+            )?;
+            if let Some(o) = &out {
+                write_json(o, &m)?;
+            }
+            return Ok(format!(
+                "tpl map: {} point(s), availability {:.1} % at alert limit {} ns, integrity risk {:e}{}",
+                m.points.len(),
+                100.0 * m.availability,
+                m.alert_limit_ns,
+                m.integrity_risk,
+                out.map(|o| format!(" -> {o}")).unwrap_or_default()
+            ));
+        }
+        let pos = sc.receiver.state(0.0).pos;
+        let (r, _) = compute(
+            &TplProblem {
+                stations,
+                points: vec![pos],
+                map: &map,
+                k_factor,
+                sample_km,
+            },
+            &cfg,
+        )?
+        .remove(0);
+        let mut s = format!(
+            "TPL {:.1} ns at integrity risk {:e} (alert limit {} ns: {}); fault-free σ {:.2} ns, bias {:.2} ns, overbound ×{:.2}\n",
+            r.tpl_ns,
+            r.integrity_risk,
+            r.alert_limit_ns,
+            if r.available { "AVAILABLE" } else { "NOT AVAILABLE" },
+            r.sigma_ns,
+            r.bias_ns,
+            r.overbound_inflation
+        );
+        for st in &r.stations {
+            s.push_str(&format!(
+                "  {:<6} {:<10} ASF {:>8.1} ns  σ {:>6.2} ns  weight {:.3}\n",
+                st.station, st.time_ref, st.nominal_asf_ns, st.asf_sigma_ns, st.weight
+            ));
+        }
+        for h in &r.hypotheses {
+            s.push_str(&format!("  {:<28} TPL {:>9.1} ns\n", h.name, h.tpl_ns));
+        }
+        s.push_str(&format!("evidence: {}", r.evidence_label));
+        if let Some(o) = &out {
+            write_json(o, &r)?;
+            s.push_str(&format!("\n-> {o}"));
+        }
+        Ok(s)
     })())
 }
 
@@ -1217,6 +2320,25 @@ fn licensed_hw(args: &[String]) -> Result<(), ExitCode> {
     Ok(())
 }
 
+/// Sign `dir` with `--signer <name> --key-file <file>` when both are given (the dossier key
+/// from `kshana-pro dossier keygen`); returns a note for the summary line.
+fn sign_if_requested(args: &[String], dir: &Path) -> Result<String, String> {
+    let (Some(signer), Some(kf)) = (flag(args, "--signer"), flag(args, "--key-file")) else {
+        return Ok(" (unsigned: add --signer <name> --key-file <file> to sign)".into());
+    };
+    let text = std::fs::read_to_string(&kf).map_err(|e| format!("{kf}: {e}"))?;
+    let t = text.trim();
+    let seed = crate::license::parse_key_hex(t.strip_prefix("private_key=").unwrap_or(t))
+        .map_err(|e| format!("{kf}: {e}"))?;
+    let utc = flag(args, "--utc").unwrap_or_else(utc_iso8601_now);
+    let p = crate::signed_dossier::sign(dir, &seed, &signer, &utc).map_err(|e| e.to_string())?;
+    Ok(format!(
+        ", signed by {signer} (key {}) -> {}",
+        crate::license::key_id(&crate::license::public_key_for(&seed)),
+        p.display()
+    ))
+}
+
 fn bench_catalog(args: &[String]) -> Result<kshana_eloran::bench::catalog::Catalog, String> {
     let mut c = kshana_eloran::bench::catalog::Catalog::builtin();
     if let Some(p) = flag(args, "--catalog") {
@@ -1295,7 +2417,8 @@ fn bench_cmd(args: &[String]) -> ExitCode {
         _ => {}
     }
     // Everything that touches hardware needs pro-eloran-hw; the rest pro-eloran.
-    let hw = matches!(sub, Some("probe") | Some("accept"));
+    let hw = matches!(sub, Some("probe") | Some("accept"))
+        || (sub == Some("firstplug") && !args.iter().any(|a| a == "--rehearse"));
     if hw {
         if let Err(c) = licensed_hw(args) {
             return c;
@@ -1429,6 +2552,81 @@ fn bench_cmd(args: &[String]) -> ExitCode {
             }
             Ok(msg)
         })()),
+        Some("firstplug") => done((|| {
+            use kshana_eloran::bench::firstplug;
+            let (inv, _, cat) = inventory()?;
+            let out = flag(args, "--out").ok_or("--out <dir> is required")?;
+            let rehearse = args.iter().any(|a| a == "--rehearse");
+            let src = inv
+                .in_role(check::BenchRole::EloranSource)
+                .into_iter()
+                .next()
+                .ok_or("the inventory has no eloran_source")?;
+            let spec = cat
+                .get(&src.catalog)
+                .ok_or_else(|| format!("{}: not in the catalogue", src.catalog))?;
+            let levels: Vec<f64> = match flag(args, "--levels") {
+                Some(l) => l
+                    .split(',')
+                    .map(|x| {
+                        x.trim()
+                            .parse::<f64>()
+                            .map_err(|_| format!("--levels: bad number {x:?}"))
+                    })
+                    .collect::<Result<_, _>>()?,
+                None => vec![-1.0, -20.0, -40.0],
+            };
+            let (addr, mut dev) = kshana_eloran::bench::open::open_item(src, &cat, fs, rehearse)?;
+            let (rep, files) = firstplug::run(
+                dev.as_mut(),
+                spec,
+                Some(addr.clone()),
+                fs,
+                &levels,
+                num_flag(args, "--pulses")?.unwrap_or(20),
+                &firstplug::Tolerances::default(),
+            )?;
+            let dir = Path::new(&out);
+            firstplug::write_evidence(dir, &rep, &files)?;
+            let signed = sign_if_requested(args, dir)?;
+            let mut msg = format!(
+                "first plug-in {}{}: {:?} on {addr} -> {out}{signed}",
+                if rehearse { "rehearsal" } else { "check" },
+                "",
+                rep.verdict
+            );
+            for d in &rep.diagnoses {
+                msg += &format!("\n  - {d}");
+            }
+            Ok(msg)
+        })()),
+        Some("verify-evidence") => done((|| {
+            let dir = args.get(2).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+            let bad = kshana_eloran::bench::firstplug::verify_evidence(Path::new(dir))?;
+            let sig = Path::new(dir).join("signature.json");
+            let sig_note = if sig.exists() {
+                match crate::signed_dossier::verify(Path::new(dir), &[]) {
+                    Ok(v) if v.signature_ok && v.problems.is_empty() => format!(
+                        "; signature valid: {} files signed by {} (key {}) at {}; pin the key with `dossier verify --trust` to trust it",
+                        v.files, v.signer, v.key_id, v.utc
+                    ),
+                    Ok(v) => {
+                        return Err(format!(
+                            "signature does not hold: {}",
+                            if v.problems.is_empty() { "bad signature".to_string() } else { v.problems.join("; ") }
+                        ))
+                    }
+                    Err(e) => return Err(format!("signature: {e}")),
+                }
+            } else {
+                "; not signed".to_string()
+            };
+            if bad.is_empty() {
+                Ok(format!("evidence intact: hashes, binding and every measurement recomputed from the captures{sig_note}"))
+            } else {
+                Err(format!("evidence NOT intact:\n  {}", bad.join("\n  ")))
+            }
+        })()),
         Some("probe") => done((|| {
             let cat = bench_catalog(args)?;
             let timeout =
@@ -1465,4 +2663,83 @@ fn bench_cmd(args: &[String]) -> ExitCode {
         })()),
         _ => fail(USAGE),
     }
+}
+
+/// Input of `eloran guard attribute`.
+#[derive(serde::Deserialize)]
+struct AttributeInput {
+    gnss: Vec<crate::eloran_fusion::GnssRange>,
+    eloran: Vec<crate::eloran_fusion::EloranRange>,
+    /// Local clock prediction (receiver clock − GPS time) and σ, ns.
+    clock_ns: (f64, f64),
+    #[serde(default)]
+    e4: Vec<kshana_eloran::guard::meacon::StationVerdict>,
+    #[serde(default)]
+    config: Option<crate::eloran_attrib::AttribConfig>,
+}
+
+/// Input of `eloran guard meacon`.
+#[derive(serde::Deserialize)]
+struct MeaconInput {
+    observed: Vec<kshana_eloran::guard::meacon::Observed>,
+    expected: Vec<kshana_eloran::guard::meacon::Expected>,
+    #[serde(default)]
+    clock: Option<kshana_eloran::guard::meacon::ClockRef>,
+    #[serde(default)]
+    config: Option<kshana_eloran::guard::meacon::MeaconConfig>,
+}
+
+fn guard_cmd(args: &[String]) -> ExitCode {
+    let sub = args.get(1).map(String::as_str);
+    let (Some(input), Some(out)) = (
+        args.get(2).filter(|a| !a.starts_with("--")).cloned(),
+        flag(args, "--out"),
+    ) else {
+        return fail(USAGE);
+    };
+    if !matches!(sub, Some("attribute") | Some("meacon")) {
+        return fail(USAGE);
+    }
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| match sub {
+        Some("attribute") => {
+            let i: AttributeInput =
+                serde_json::from_str(&read(&input)?).map_err(|e| format!("{input}: {e}"))?;
+            let ep = crate::eloran_attrib::AttribEpoch {
+                gnss: &i.gnss,
+                eloran: &i.eloran,
+                clock_ns: i.clock_ns,
+                e4: &i.e4,
+                approx_ecef: None,
+            };
+            let a = crate::eloran_attrib::attribute(&ep, &i.config.unwrap_or_default())?;
+            write_json(&out, &a)?;
+            Ok(format!(
+                "attribution: {} (alarm {}) -> {out}",
+                a.cause.label(),
+                a.alarm
+            ))
+        }
+        _ => {
+            let i: MeaconInput =
+                serde_json::from_str(&read(&input)?).map_err(|e| format!("{input}: {e}"))?;
+            let v = kshana_eloran::guard::meacon::screen(
+                &i.observed,
+                &i.expected,
+                i.clock,
+                &i.config.unwrap_or_default(),
+            );
+            write_json(&out, &v)?;
+            let relays = v
+                .iter()
+                .filter(|s| s.class == kshana_eloran::guard::meacon::Class::Relay)
+                .count();
+            Ok(format!(
+                "meacon screen: {} stations, {relays} relay -> {out}",
+                v.len()
+            ))
+        }
+    })())
 }

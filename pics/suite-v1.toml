@@ -1,0 +1,241 @@
+# PROPRIETARY — Kshana Pro. Not part of the open-source engine. See LICENSE.
+#
+# PICS: PNT Interference Conformance Suite, version 1.0.0.
+#
+# Pre-registered: every [scenario.bars] table below is hashed (canonical JSON, SHA-256) into
+# pics/suite-v1.lock. The bars may not change inside version 1; a change is a new suite
+# version with a new lock. `kshana-pro pics score` refuses a suite whose bars do not match the
+# lock compiled into the binary, and the signed scorecard carries the bars' hashes.
+#
+# Evidence label: MODELLED. The threat parameters are representative values chosen for a
+# reproducible test, not read off any recording and not taken from any standard's test
+# annex. Where a standard names a test or a class, the mapping (pics/mapping-v1.toml) says
+# so; every other mapping is marked "mapping to be confirmed". The bars are Kshana's
+# pre-registered pass bars, illustrative until confirmed against the standards they are
+# mapped to.
+
+[suite]
+id = "kshana-pics"
+version = "1.0.0"
+title = "PNT Interference Conformance Suite"
+# Static truth of the device under test unless the device log states its own.
+truth_lat_deg = 59.4370
+truth_lon_deg = 24.7536
+truth_height_m = 30.0
+# Every scenario: baseline (locked, clean), threat, recovery (threat removed).
+baseline_s = 120.0
+threat_s = 300.0
+recovery_s = 300.0
+# A recovery counts once the output has been correct for this long.
+recovery_dwell_s = 30.0
+
+# ---------------------------------------------------------------------------------------
+# Jamming
+# ---------------------------------------------------------------------------------------
+
+[[scenario]]
+id = "PICS-JAM-CW"
+class = "jamming"
+technique = "cw"
+domains = ["position", "timing"]
+title = "Continuous-wave jammer on GPS L1"
+expected = "The device raises an interference indication or withdraws its fix within 10 s of onset, gives no position or time outside the bars without warning, and is back to a correct, unflagged output within 60 s of the jammer being switched off."
+[scenario.params]
+center_hz = 1575420000.0
+bandwidth_hz = 0.0
+js_db = 40.0
+[scenario.bars]
+explicit_flag_required = false
+detect_within_s = 10.0
+max_unflagged_h_error_m = 50.0
+max_unflagged_time_error_ns = 100.0
+recover_within_s = 60.0
+recover_h_error_m = 10.0
+recover_time_error_ns = 50.0
+bounded_h_error_m = 100.0
+bounded_time_error_ns = 1000.0
+full_availability = 0.95
+full_h_error_m = 10.0
+full_time_error_ns = 50.0
+
+[[scenario]]
+id = "PICS-JAM-CHIRP"
+class = "jamming"
+technique = "chirp"
+domains = ["position", "timing"]
+title = "Swept (chirp) jammer across GPS L1, personal-privacy-device class"
+expected = "As PICS-JAM-CW: indication or fix withdrawn within 10 s, no misleading output, recovery within 60 s."
+[scenario.params]
+center_hz = 1575420000.0
+bandwidth_hz = 20000000.0
+sweep_period_s = 0.00001
+js_db = 45.0
+[scenario.bars]
+explicit_flag_required = false
+detect_within_s = 10.0
+max_unflagged_h_error_m = 50.0
+max_unflagged_time_error_ns = 100.0
+recover_within_s = 60.0
+recover_h_error_m = 10.0
+recover_time_error_ns = 50.0
+bounded_h_error_m = 100.0
+bounded_time_error_ns = 1000.0
+full_availability = 0.95
+full_h_error_m = 10.0
+full_time_error_ns = 50.0
+
+[[scenario]]
+id = "PICS-JAM-BB"
+class = "jamming"
+technique = "broadband"
+domains = ["position", "timing"]
+title = "Broadband noise jammer, 20 MHz around GPS L1"
+expected = "As PICS-JAM-CW: indication or fix withdrawn within 10 s, no misleading output, recovery within 60 s."
+[scenario.params]
+center_hz = 1575420000.0
+bandwidth_hz = 20000000.0
+js_db = 50.0
+[scenario.bars]
+explicit_flag_required = false
+detect_within_s = 10.0
+max_unflagged_h_error_m = 50.0
+max_unflagged_time_error_ns = 100.0
+recover_within_s = 60.0
+recover_h_error_m = 10.0
+recover_time_error_ns = 50.0
+bounded_h_error_m = 100.0
+bounded_time_error_ns = 1000.0
+full_availability = 0.95
+full_h_error_m = 10.0
+full_time_error_ns = 50.0
+
+# ---------------------------------------------------------------------------------------
+# Spoofing
+# ---------------------------------------------------------------------------------------
+
+[[scenario]]
+id = "PICS-SPF-SIMPLE"
+class = "spoofing"
+technique = "simplistic"
+domains = ["position", "timing"]
+title = "Simplistic spoofer: unsynchronised signals for a false position 10 km away"
+expected = "The device raises an explicit spoofing or integrity flag within 5 s of onset and never reports the false position (or the matching time step) as valid and unflagged; correct output within 60 s of the spoofer being switched off."
+[scenario.params]
+false_offset_east_m = 10000.0
+false_offset_north_m = 0.0
+time_offset_ns = 0.0
+power_advantage_db = 10.0
+synchronised = 0.0
+[scenario.bars]
+explicit_flag_required = true
+detect_within_s = 5.0
+max_unflagged_h_error_m = 50.0
+max_unflagged_time_error_ns = 100.0
+recover_within_s = 60.0
+recover_h_error_m = 10.0
+recover_time_error_ns = 50.0
+bounded_h_error_m = 100.0
+bounded_time_error_ns = 1000.0
+full_availability = 0.95
+full_h_error_m = 10.0
+full_time_error_ns = 50.0
+
+[[scenario]]
+id = "PICS-SPF-INTER"
+class = "spoofing"
+technique = "intermediate"
+domains = ["position", "timing"]
+title = "Intermediate spoofer: code- and carrier-aligned takeover, then a 1 m/s position drag"
+expected = "The device raises an explicit spoofing or integrity flag before its horizontal error passes 50 m (that is, within 50 s of the drag starting), and is correct within 60 s after the spoofer is off."
+[scenario.params]
+takeover_s = 20.0
+drag_rate_mps = 1.0
+drag_bearing_deg = 90.0
+power_advantage_db = 3.0
+synchronised = 1.0
+[scenario.bars]
+explicit_flag_required = true
+detect_within_s = 70.0
+max_unflagged_h_error_m = 50.0
+max_unflagged_time_error_ns = 100.0
+recover_within_s = 60.0
+recover_h_error_m = 10.0
+recover_time_error_ns = 50.0
+bounded_h_error_m = 100.0
+bounded_time_error_ns = 1000.0
+full_availability = 0.95
+full_h_error_m = 10.0
+full_time_error_ns = 50.0
+
+[[scenario]]
+id = "PICS-SPF-TPUSH"
+class = "spoofing"
+technique = "time-push"
+domains = ["timing"]
+title = "Time push: synchronised spoofer walking GNSS time at 10 ns/s, position held"
+expected = "A timing device raises an explicit flag or leaves GNSS for holdover before its time error passes 100 ns unflagged (within 10 s of the push starting), keeps its time error within 1 us over the threat, and is back within 50 ns within 60 s after the spoofer is off."
+[scenario.params]
+takeover_s = 20.0
+push_rate_ns_per_s = 10.0
+power_advantage_db = 3.0
+synchronised = 1.0
+[scenario.bars]
+explicit_flag_required = true
+detect_within_s = 30.0
+max_unflagged_time_error_ns = 100.0
+recover_within_s = 60.0
+recover_time_error_ns = 50.0
+bounded_time_error_ns = 1000.0
+full_availability = 0.95
+full_time_error_ns = 50.0
+
+[[scenario]]
+id = "PICS-SPF-DRAG"
+class = "spoofing"
+technique = "position-drag"
+domains = ["position"]
+title = "Position drag: accelerating walk-off at 0.05 m/s2 up to 5 m/s, time held"
+expected = "The device raises an explicit spoofing or integrity flag before its horizontal error passes 50 m unflagged, and is correct within 60 s after the spoofer is off."
+[scenario.params]
+takeover_s = 20.0
+drag_accel_mps2 = 0.05
+drag_max_mps = 5.0
+drag_bearing_deg = 0.0
+power_advantage_db = 3.0
+synchronised = 1.0
+[scenario.bars]
+explicit_flag_required = true
+detect_within_s = 70.0
+max_unflagged_h_error_m = 50.0
+recover_within_s = 60.0
+recover_h_error_m = 10.0
+bounded_h_error_m = 100.0
+full_availability = 0.95
+full_h_error_m = 10.0
+
+[[scenario]]
+id = "PICS-SPF-MEACON"
+class = "spoofing"
+technique = "meaconing"
+domains = ["position", "timing"]
+title = "Meaconing: the live sky re-broadcast from 500 m away with a 2 us delay"
+expected = "The device flags the re-broadcast (spoofing or integrity flag) within 10 s, never reports the meacon's position (500 m off) or the 2 us time step as valid and unflagged, and recovers within 60 s."
+[scenario.params]
+delay_ns = 2000.0
+meacon_offset_east_m = 0.0
+meacon_offset_north_m = 500.0
+power_advantage_db = 6.0
+synchronised = 0.0
+[scenario.bars]
+explicit_flag_required = true
+detect_within_s = 10.0
+max_unflagged_h_error_m = 50.0
+max_unflagged_time_error_ns = 100.0
+recover_within_s = 60.0
+recover_h_error_m = 10.0
+recover_time_error_ns = 50.0
+bounded_h_error_m = 100.0
+bounded_time_error_ns = 1000.0
+full_availability = 0.95
+full_h_error_m = 10.0
+full_time_error_ns = 50.0

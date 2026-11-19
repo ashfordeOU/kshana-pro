@@ -158,6 +158,47 @@ the levels of the E3 scoring. Public sample: `examples/timing-scorecard/request.
 pre-registered (`docs/evidence/t4-timing-scorecard/`), all three claim bars met; signed sample
 `report-templates/samples/timing-scorecard-public/`. It inherits T1's unvalidated holdover model.
 
+## C4: timing evidence packs for regulation (W1119)
+
+`kshana-pro timing compliance <framework> inputs.toml --out <dir> --signer <name> --key-file <key>`
+(Pro, feature `pro-timing-audit`) writes one signed annual pack. Each pack is a table of
+requirement, evidence and verdict. `kshana-pro timing compliance list` names the frameworks:
+
+| Framework | Source | Limits |
+|---|---|---|
+| `mifid2-rts25` | Delegated Regulation (EU) 2017/574, Articles 1 to 4 and the Annex | Annex divergence and granularity by activity, as `kshana::rts25` transcribes and pins them |
+| `dora-rts-2024-1774` | Delegated Regulation (EU) 2024/1774, Article 12 | none in the text per the research; the operator's tolerance, marked "to confirm with the regulation text" |
+| `eu-cer` | Directive (EU) 2022/2557 | no named GNSS rule found; article numbers to confirm |
+| `india-ist-draft` | draft Legal Metrology (IST) Rules, 2025 | a draft as found; every provision to confirm |
+
+The inputs file names these items:
+
+- the clock's time-error record against its local reference (`[clock]`, any clock-log format);
+- BIPM Circular T section 1 and the laboratory code (`[circular_t]`);
+- an open-engine `holdover-test` result (`[holdover]`);
+- a spoof test: a T4 timing scorecard or a PICS scorecard (`[spoof]`);
+- a T1 fleet assessment (`[fleet]`);
+- the operator's statements (`[operator]`).
+
+For RTS 25, the bound on the divergence from UTC is max |offset from UTC(k)| + max |UTC − UTC(k)|
++ 2u from Circular T, compared with the Annex limit.
+
+Every requirement gets one of five verdicts:
+
+- `supported by the evidence`;
+- `not supported by the evidence`;
+- `insufficient evidence`;
+- `operator statement (not verified)`;
+- `to be completed by the operator`.
+
+A pack never states that a requirement is met, and the T3 forbidden-words rule is tested on
+every framework. Every input file is copied under `inputs/` and hashed before the pack is
+signed. Verify a pack with `kshana-pro dossier verify` (free).
+
+Evidence label: MODELLED. The packs are tested on synthetic inputs (`tests/timing_compliance.rs`),
+and no operator's records have been packed. Kshana's reading of what DORA "reliable", the CER
+duties and the India draft ask is marked as such, to be reviewed by the operator.
+
 ## Not done here
 
 * PTP management (`pmc`), SNMP and NTP mode-6 status snapshots: the open engine reads them in its
@@ -167,3 +208,28 @@ pre-registered (`docs/evidence/t4-timing-scorecard/`), all three claim bars met;
   The V5c predictor passed its pre-registered bars (`V5c_RESULTS.md`) but is not yet the one the
   fleet assessment runs; until it is, do not present the time to breach as a validated figure.
 * A PDF rendering of the audit report; the HTML is the deliverable.
+
+## Holdover under attack: PRTC/ePRTC and substation PTP (W1119 C8)
+
+`kshana-pro timing attack <scenario.toml | prtc | eprtc | substation> --out <dir> --signer <name> --key-file <file>`
+(licence: `pro-timing-scorecard`) runs a GNSS-disciplined clock through a spoof that drags GNSS
+time slowly and then steps it, and reports the time error against masks. The oscillator is the
+eLoran crate's `sync::edo` model (presets `ocxo`, `rubidium`, `cesium`, or explicit ADEV terms)
+and the discipline is the same type-2 loop. Detectors: `none`; `rate_guard` (the loop's phase
+error over a window: catches steps, not the drags a type-2 loop tracks); `cross_check` (GNSS
+against eLoran after a calibration window: catches a drag once it passes the threshold). On
+alarm the clock goes to `holdover` (steering rolled back `rollback_s` before the alarm, so the
+drag's frequency stays out of holdover) or to `eloran` (its uncalibrated bias carried into the
+output). The report gives the alarm time and latency, TE at alarm, max |TE| before and after
+the attack, a result per mask, MTIE, and a 10 s TE trace.
+
+Default masks are single max |TE| bars citing ITU-T G.8272 (PRTC-A 100 ns, PRTC-B 40 ns),
+G.8272.1 (ePRTC 30 ns locked; 100 ns holdover in the `eprtc` preset), a G.8271-class
+end-application budget (1.5 µs) and, for `substation`, the IEEE C37.238 example ±1 µs budget less
+a 200 ns network allowance. All are illustrative defaults, configurable, to be confirmed against
+the Recommendations and the standard; the full MTIE/TDEV masks are not applied. The substation
+case also checks the C37.238 time-inaccuracy view: the inaccuracy the grandmaster would advertise
+(locked value, plus a holdover growth model) against its actual TE; an advertised value below the
+actual TE is reported as misleading. `kshana-pro timing attack-template <preset>` prints a preset.
+
+Evidence: **MODELLED** (closed-form checks in `tests/holdover_attack.rs`); not run on a real clock.

@@ -98,6 +98,50 @@ so the choice moves between PTP and eLoran a few times (`examples/multi-source/`
 24). Nothing misleading is output (both are healthy), but a v2 rule should drop the vote of a
 group that is itself inconsistent, under a new pre-registration.
 
+## PNT-DP: shipborne PNT data processing reference (W1119 C2)
+
+A reference implementation of the processing IMO MSC.1/Circ.1575 describes, in the position
+domain. It is the counterpart of F3, which handles time. Sources are GNSS, a second GNSS,
+DGNSS, eLoran and an inertial/log velocity, each with a group (sources sharing a signal path,
+such as every L-band GNSS service, never confirm each other).
+
+```
+kshana-pro pntdp run inputs.csv [--config config.toml] [--out outputs.csv | --json]   # Pro
+kshana-pro pntdp vectors --out <dir>       # free: the test vectors
+kshana-pro pntdp check <vector-dir>        # free: run one vector and compare with expected.csv
+```
+
+Each epoch runs four steps:
+
+1. Input checks (paragraphs 53 to 57): incomplete, invalid, stale, frozen, jump.
+2. Dead reckoning from an anchor, its sigma growing linearly with the velocity error. It is
+   re-anchored only on a high-integrity solution that it agrees with.
+3. Consistency (paragraphs 84 to 88): the mutually consistent set spanning the most groups
+   wins. Sources outside it are flagged `inconsistent`, and a tie is an unresolved
+   `disagreement`.
+4. Selection and integrity (paragraph 47): high needs three agreeing groups and a protection
+   level within the alert limit. Two groups give medium, one group gives low, and an
+   unresolved disagreement gives none. Status is `raised` when the level falls (paragraphs 92
+   and 93).
+
+The protection level is `min (|solution - r| + k sigma_r)` over agreeing members of other
+groups.
+
+The test vectors are in `pntdp/vectors/`: nominal, a coherent GNSS spoof, a jump, a frozen
+sensor and a disagreement. Each has inputs and the integrity flags expected of it, written
+from the geometry, with `*` for transition epochs that depend on noise.
+
+Evidence label: MODELLED. The checks are the vectors plus a Monte Carlo test of the protection
+level on Gaussian errors (`tests/pntdp.rs`). No recorded ship data has been processed. This is
+not type-approved equipment, and the limits are configuration, illustrative until confirmed.
+
+Known limits:
+
+- A coherent spoof of every L-band service is excluded only once its drag exceeds the
+  consistency bound against eLoran (about 80 m with sigma 20 m and k = 4). Until then the
+  output is a `disagreement` at low integrity.
+- A walk-off slower than the dead-reckoning error budget could be absorbed at a re-anchor.
+
 ## F5: alert policy engine
 
 A policy (`kshana-pro-alert-policy/1`) has recipients (each with default I5 outputs) and routes:

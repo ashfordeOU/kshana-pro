@@ -277,65 +277,25 @@ pub fn expected_performance(
     levels_dbfs: &[f64],
     pulses: usize,
 ) -> Result<TwinReport, String> {
-    const T0: f64 = 1e-3;
-    let period = 1e-3;
     let mut out = vec![];
     let mut assumptions = vec![];
     let mut dac_bits = 0;
     for &lvl in levels_dbfs {
-        let amp = 10f64.powf(lvl / 20.0);
         let mut tw = SpecTwin::from_spec(spec, fs_hz)?;
         dac_bits = tw.inner.virtual_config().dac_bits;
         if assumptions.is_empty() {
             assumptions = tw.assumptions.clone();
         }
-        let mut cfg = DeviceConfig::tx(fs_hz, 1);
-        cfg.rx_channels = 1;
-        cfg.clock_source = if spec.takes_10mhz() == Some(true) {
-            RefSource::External
-        } else {
-            RefSource::Internal
-        };
-        tw.configure(&cfg)?;
-        tw.start_rx(StartTime::NextPps)?;
-        tw.start_tx(StartTime::AtDeviceTimeNs((T0 * 1e9) as i64))?;
-        let dur = pulses as f64 * period;
-        write_calibration_train(
-            &mut DeviceSink { device: &mut tw },
+        let vfs = tw.full_scale_vpeak();
+        let m = measure_level(
+            &mut tw,
             fs_hz,
-            dur,
-            period,
-            1,
-            amp,
+            lvl,
+            pulses,
+            spec.takes_10mhz() == Some(true),
+            vfs,
         )?;
-        tw.stop_tx()?;
-        let n = ((T0 + dur + 1e-3) * fs_hz) as usize;
-        let cap = read_exact(&mut tw, n)?
-            .into_iter()
-            .next()
-            .ok_or("twin returned no capture")?;
-        let pps: Vec<f64> = (0..pulses).map(|k| T0 + k as f64 * period).collect();
-        let est = characterise_from_capture(&cap, fs_hz, &pps, &CharacteriseOptions::default())?;
-        let ideal = calibration_pulse_train(fs_hz, cap.len(), &pps, 0.0, amp);
-        let (mut sig, mut err) = (0.0, 0.0);
-        for (a, b) in cap.iter().zip(&ideal) {
-            sig += b * b;
-            err += (a - b) * (a - b);
-        }
-        let snr_db = if err > 0.0 {
-            10.0 * (sig / err).log10()
-        } else {
-            f64::INFINITY
-        };
-        let ecd = envelope_ecd_us(&cap, fs_hz, pps[0]).unwrap_or(f64::NAN);
-        out.push(LevelResult {
-            level_dbfs: lvl,
-            vpeak_50ohm: tw.full_scale_vpeak().map(|v| v * amp),
-            delay_bias_ns: est.delay_ns,
-            delay_std_ns: est.std_ns,
-            ecd_us: ecd,
-            snr_db: (snr_db * 100.0).round() / 100.0,
-        });
+        out.push(m.result);
     }
     Ok(TwinReport {
         device: spec.id.clone(),
@@ -344,6 +304,113 @@ pub fn expected_performance(
         levels: out,
         assumptions,
         evidence: "MODELLED from datasheet values (converter only); replace with the acceptance suite on the real device".into(),
+    })
+}
+
+/// One level measured through a device's own loopback (twin or hardware).
+#[derive(Clone, Debug)]
+pub struct LevelCapture {
+    pub result: LevelResult,
+    /// Amplitude of the capture relative to the commanded pulse (dB; 0 = as commanded).
+    pub gain_db: f64,
+    /// Commanded peak amplitude (full-scale units).
+    pub amp: f64,
+    /// PPS instants used (s, device time from the receive start).
+    pub pps_s: Vec<f64>,
+    /// The channel-0 capture (full-scale units).
+    pub capture: Vec<f64>,
+}
+
+/// Play the calibration pulse train (one pulse per ms, `pulses` pulses) at `level_dbfs`
+/// through `dev` (transmit and receive configured on the same device, output looped back to
+/// input) and measure: zero-crossing delay and spread, ECD, gain and waveform SNR after
+/// removing the measured delay and gain. Works on a [`SpecTwin`] or on hardware.
+pub fn measure_level(
+    dev: &mut dyn Device,
+    fs_hz: f64,
+    level_dbfs: f64,
+    pulses: usize,
+    external_ref: bool,
+    vpeak_full_scale: Option<f64>,
+) -> Result<LevelCapture, String> {
+    const T0: f64 = 1e-3;
+    let period = 1e-3;
+    let amp = 10f64.powf(level_dbfs / 20.0);
+    let mut cfg = DeviceConfig::tx(fs_hz, 1);
+    cfg.rx_channels = 1;
+    cfg.clock_source = if external_ref {
+        RefSource::External
+    } else {
+        RefSource::Internal
+    };
+    dev.configure(&cfg)?;
+    // Transmit 1 ms after the receive start, on the device clock (the device may have run
+    // before: its clock does not restart).
+    let rx0 = dev.start_rx(StartTime::NextPps)?.unwrap_or(0);
+    dev.start_tx(StartTime::AtDeviceTimeNs(rx0 + (T0 * 1e9) as i64))?;
+    let dur = pulses as f64 * period;
+    write_calibration_train(&mut DeviceSink { device: dev }, fs_hz, dur, period, 1, amp)?;
+    dev.stop_tx()?;
+    let n = ((T0 + dur + 1e-3) * fs_hz) as usize;
+    let cap = read_exact(dev, n)?
+        .into_iter()
+        .next()
+        .ok_or("the device returned no capture")?;
+    dev.stop_rx().ok();
+    let pps: Vec<f64> = (0..pulses).map(|k| T0 + k as f64 * period).collect();
+    analyse_capture(cap, fs_hz, pps, amp, level_dbfs, vpeak_full_scale)
+}
+
+/// Measure a looped-back capture of the calibration pulse train (PPS instants `pps_s`,
+/// commanded amplitude `amp`): delay and spread, ECD, least-squares gain and waveform SNR
+/// after removing them. Deterministic: the same capture gives the same numbers, which is
+/// what lets [`super::firstplug::verify_evidence`] recompute a recorded result.
+pub fn analyse_capture(
+    cap: Vec<f64>,
+    fs_hz: f64,
+    pps: Vec<f64>,
+    amp: f64,
+    level_dbfs: f64,
+    vpeak_full_scale: Option<f64>,
+) -> Result<LevelCapture, String> {
+    let est = characterise_from_capture(&cap, fs_hz, &pps, &CharacteriseOptions::default())?;
+    let ideal = calibration_pulse_train(fs_hz, cap.len(), &pps, est.delay_ns, amp);
+    let (mut xy, mut yy) = (0.0, 0.0);
+    for (a, b) in cap.iter().zip(&ideal) {
+        xy += a * b;
+        yy += b * b;
+    }
+    let g = if yy > 0.0 { xy / yy } else { 0.0 };
+    let (mut sig, mut err) = (0.0, 0.0);
+    for (a, b) in cap.iter().zip(&ideal) {
+        let r = g * b;
+        sig += r * r;
+        err += (a - r) * (a - r);
+    }
+    let snr_db = if err > 0.0 {
+        10.0 * (sig / err).log10()
+    } else {
+        f64::INFINITY
+    };
+    let t_origin = pps[0] + est.delay_ns * 1e-9;
+    let ecd = envelope_ecd_us(&cap, fs_hz, t_origin).unwrap_or(f64::NAN);
+    Ok(LevelCapture {
+        result: LevelResult {
+            level_dbfs,
+            vpeak_50ohm: vpeak_full_scale.map(|v| v * amp),
+            delay_bias_ns: est.delay_ns,
+            delay_std_ns: est.std_ns,
+            ecd_us: ecd,
+            snr_db: (snr_db * 100.0).round() / 100.0,
+        },
+        gain_db: if g > 0.0 {
+            20.0 * g.log10()
+        } else {
+            f64::NEG_INFINITY
+        },
+        amp,
+        pps_s: pps,
+        capture: cap,
     })
 }
 

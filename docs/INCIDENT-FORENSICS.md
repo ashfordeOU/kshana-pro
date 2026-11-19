@@ -141,3 +141,50 @@ mismatch and missing kind refused, licence tier gate after loading.
   engine's existing download path, never committed.
 * AIS on-land detection (the open map's land mask) and emitter localisation are not used.
 * Claim-grade has no contracted reviewer.
+
+## Maritime incident evidence pack: actor vs victim (W1119 C3)
+
+`kshana-pro forensics maritime <request.toml> --out <dir> --signer <name> --key-file <file>`
+(licence: `pro-incident-forensics`) answers the insurer's question after a GNSS incident at
+sea: was the vessel's GNSS attacked, or was its AIS report manipulated?
+
+Inputs (`request.toml`): `title`, `vessel_id` (its id in the AIS CSV), `nmea` (the vessel's own
+NMEA 0183 log or VDR export: GGA, RMC, GSV, GSA, and HDT/VHW where present), optional `ais`
+(CSV `timestamp,vessel_id,lat,lon[,sog_kn]` of the vessel and its neighbours), optional
+`station_events` (a JSON array of unified interference events, `kshana-pnt-interference-event/1`)
+and optional `[params]` (every threshold of method `kshana-pro/maritime-actor-victim/v1`).
+
+The method finds episodes in the vessel's own NMEA: **jamming** (C/N0 drop against the
+calibration window, loss of fix), **spoofing** (position jump above the vessel speed limit, GNSS
+SOG/COG departing from the log and gyro, C/N0 raised and uniform across satellites, false
+positions clustering with the neighbours') or a **ship-side fault** (no fix while the signals
+are normal). It then compares the vessel's AIS broadcast with its own NMEA, and asks whether
+AIS neighbours or a Station saw the same anomaly. The conclusion is one of: no event, victim
+of external interference, localised to the vessel, AIS manipulation, ship-side fault, or
+inconclusive.
+
+The signed directory holds `evidence-pack.json` (findings labelled MEASURED / DERIVED /
+REPORTED, episodes with onset and end bounds, the verdict, uncertainty and limits),
+`events.json` and `events.geojson` (unified events), `timeline.csv`, `inputs/` and
+`signature.json`. `kshana-pro forensics maritime-synth <case> <dir>` writes a synthetic
+scenario of each class to try it. It is an evidence pack, not a legal opinion.
+
+Evidence: **MODELLED** (synthetic scenarios with known truth, `tests/maritime_evidence.rs`);
+not validated on a labelled set of real incidents.
+
+## FDM GNSS jamming and spoofing event detector (W1119 C5)
+
+`kshana-pro forensics fdm <flight.csv> --flight <id> --out <dir> --signer <name> --key-file <file>`
+(licence: `pro-incident-forensics`) reads a flight-data CSV export (`time`, `lat`, `lon`,
+`gnss_alt_ft`, `baro_alt_ft`, `gs_kt`, `track_deg`, and where present `ins_gs_kt`, `nic`, `nacp`,
+`hfom_m`, `gnss_status`, `gnss_utc`; aliases in `src/fdm.rs`) and finds GNSS **jamming**
+(integrity loss: NIC/NACp low, HFOM high, status lost, position missing) and **spoofing**
+(position jump, GNSS time jump, GNSS-vs-baro altitude against the flight's own offset,
+GNSS-vs-inertial ground speed, and the circle pattern: GNSS course through 360° while the
+inertial/FMS track is straight). Output: `fdm-report.json`, unified events (`events.json`) and
+`sib-summary.txt`, a summary oriented to EASA SIB 2022-02R4 (the SIB is cited; its themes are
+as summarised in Kshana research and are illustrative until confirmed against the SIB text).
+`kshana-pro forensics fdm-synth <case> <file>` writes a synthetic flight.
+
+Evidence: **MODELLED** (synthetic flights, `tests/fdm_detector.rs`); not validated on labelled
+operator FDM data.

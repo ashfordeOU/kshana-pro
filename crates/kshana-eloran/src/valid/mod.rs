@@ -16,6 +16,11 @@
 //! * [`crosscheck`] (D5): independent cross-check harnesses. GRWAVE output tables and an
 //!   optional GRWAVE runner, digitised ITU-R P.368 / P.684 curves, and published ASF/ECD
 //!   survey points, each compared with the model under stated tolerances.
+//! * [`selfcal`] (A7, gap 26): the self-calibrating simulator loop. Generate a scenario,
+//!   compare reference-receiver observations with the simulator's prediction, update
+//!   propagation parameters (σ per path section, ASF bias, skywave height) by inverse
+//!   modelling with uncertainty, regenerate, repeat; every iteration is a hash-chained
+//!   calibration-register entry and the lineage is signed (HMAC-SHA256).
 //!
 //! # Evidence labels
 //!
@@ -33,6 +38,7 @@
 pub mod crosscheck;
 pub mod fidelity;
 pub mod inverse;
+pub mod selfcal;
 
 use serde::{Deserialize, Serialize};
 
