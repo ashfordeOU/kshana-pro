@@ -239,3 +239,29 @@ the dashboard in a sandboxed frame.
 `kshana-pro eloran` command, `ServiceClient` the `/eloran/*` service routes, plus readers
 (`read_sigmf`, `read_truth`, `read_monitor`) and a `ScenarioBuilder`. See `sdk/python/README.md`.
 The generated service clients in `clients/` include the monitor route.
+
+## Receiver integrity guards (W1119, CONFIDENTIAL patent candidates)
+
+Kshana Pro only; do not describe these mechanisms publicly before counsel decides on filing
+(research 04 §2). Evidence label for all of them: **MODELLED** (internal Monte Carlo and the
+crate's own simulator, threat models and receiver; no recorded attacks yet).
+
+- **Meacon / relay detection from the propagation signature (E4)**,
+  `kshana_eloran::guard::meacon`. Per station, the measured arrival delay, ECD, field
+  strength, skywave delay/ratio, bearing and phase-code alignment are compared with the
+  propagation model's prediction for the claimed path, normalised by the model and
+  measurement σ (the delay and field σ can come from `prop::uncertainty`). Classes:
+  `Consistent`, `TimingOnly` (transmitter timing fault, or a relay that matches field and
+  ECD) and `Relay`. Without a clock reference the delay uses the other stations'
+  leave-one-out clock (cross-station TOA geometry). Measured rates (MC, 1500 cases per class):
+  clean ≈ 1e-3 false alarms per station; relay → `Relay` 99.9 %; transmitter fault →
+  `TimingOnly` 99.2 %, taken for a relay 0.5 %. End-to-end runs with `threat::Meaconer` and
+  station timing faults through the receiver are classified correctly.
+- **Cross-system attribution (E1)**, `kshana_pro::eloran_attrib`. From the GNSS-only fix, the
+  eLoran-only fix (and its leave-one-station-out variants), the local clock prediction and the
+  E4 verdicts, each cause is scored by a generalised log-likelihood with an Occam penalty:
+  clean, GNSS spoofed, GNSS jammed, eLoran station fault, eLoran meaconing/relay, local clock
+  fault. Output: posterior-like scores, the cause, the station, the exclusion to apply and an
+  explanation. Measured (400 cases per class): 0 clean false alarms; every class identified at
+  ≥ 99 % (with the right station). Limits: snapshot, one cause at a time, no whole-band relay
+  hypothesis, GNSS loss is attributed to jamming.
