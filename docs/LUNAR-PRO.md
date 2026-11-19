@@ -271,6 +271,42 @@ ephemeris, station clock); judging the worst of many windows raises the false-br
 fixed per-window confidence (no multiplicity correction); one station sees each node from one
 direction, so orbit errors orthogonal to the line of sight are not observed.
 
+## D8. Lunar mission-review evidence pack (gap 24)
+
+`kshana-pro lunar pack build --spec pack.toml --out <dir> --signer <name> --key-file <f>
+[--require-complete]` writes a signed pack for a navigation review (PDR, CDR, FRR);
+`kshana-pro lunar pack verify <dir> --trust <public-key-hex>` (free) checks it;
+`kshana-pro lunar pack example --out <dir>` writes an example spec with SYNTHETIC numbers.
+**A format proposal, not an agency standard; the mapping to CGPM Resolution 6 is illustrative
+until confirmed against the resolution text.** A pack carries the evidence labels of its inputs.
+
+The pack (`pack.json`, `pack.txt`, `time_budget.json`, `attachments/`, `signature.json`) holds:
+
+1. **Time scale**: TL or TCL with the CGPM option named, the rate source, the `W0_L` candidate
+   and its source, lunar time − UTC at the reference epoch with `u_c` and `U(k=2)`, the secular
+   rate against TT with its uncertainty, every D1 model term with its source, and the stated
+   traceability route to UTC (the disclosure CGPM Res. 6 asks for: model, ephemerides,
+   uncertainties).
+2. **Ephemerides and frames**: each input with a version and a SHA-256 computed from the file
+   (`computed`), declared without a file (`declared`) or neither (`unverified`); a declared hash
+   that differs from the file is refused. The open engine version (`kshana 0.41.0`, checked against
+   `Cargo.toml` by a test) and its built-in models (Moon and Sun series, lunar orientation,
+   precession, leap seconds, TDB − TT) are listed.
+3. **Performance**: each result `value ± k·u` with its unit, source and evidence label.
+4. **Conformance**: Meets / Breach / Inconclusive (the whole `k·u` interval against `le <x>` or
+   `ge <x>`); attached D6 scores and D7 SLA reports have their verdicts imported.
+5. **Disclosure checklist** C1–C12 (time option, full model, `W0_L`, uncertainties, UTC route,
+   ephemerides named, ephemerides hashed, frames, performance with uncertainty, labels, verdicts,
+   engine and models), each derived from the content; `--require-complete` refuses an incomplete
+   pack.
+
+`verify` checks the signature and the pinned key, every attachment's hash, that the checklist and
+the verdicts follow from the content, and recomputes the time conversion from the declared model,
+so a pack whose numbers were changed and re-signed (with any key) is caught. Tests: a complete pack
+verifies (unpinned or wrong key fails); a changed text, offset, checklist item, verdict, attachment
+or deleted file is detected; missing traceability and an unhashed ephemeris are flagged C5 and C7;
+a wrong declared hash is refused; the TCL option; D7 verdicts imported; the verdict rule.
+
 ## Honest limits
 
 * No lunar clock, TWTT link or lunar observation data exists yet: everything is MODELLED.

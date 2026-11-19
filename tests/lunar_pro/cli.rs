@@ -257,3 +257,47 @@ fn cli_lunar_sla_example_is_free_and_verify_is_gated_and_signed() {
     }
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn cli_lunar_pack_build_is_gated_and_signed_and_verify_is_free() {
+    let dir = std::env::temp_dir().join(format!("kshana-lunar-cli-d8-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    let ex = dir.join("ex");
+    assert!(ok(run(&[
+        "lunar",
+        "pack",
+        "example",
+        "--out",
+        ex.to_str().unwrap()
+    ])));
+    let (kf, seed) = key_file(&dir);
+    let out = dir.join("pack");
+    let spec = ex.join("pack.toml");
+    let base = [
+        "lunar",
+        "pack",
+        "build",
+        "--spec",
+        spec.to_str().unwrap(),
+        "--out",
+        out.to_str().unwrap(),
+        "--signer",
+        "t",
+        "--key-file",
+        kf.to_str().unwrap(),
+        "--require-complete",
+    ];
+    assert!(!ok(run(&base)));
+    if cfg!(debug_assertions) {
+        let mut a = base.to_vec();
+        a.push("--dev");
+        assert!(ok(run(&a)));
+        let pk = hex::encode(kshana_pro::license::public_key_for(&seed));
+        let o = out.to_str().unwrap();
+        assert!(ok(run(&["lunar", "pack", "verify", o, "--trust", &pk])));
+        assert!(!ok(run(&["lunar", "pack", "verify", o])));
+        std::fs::write(out.join("pack.txt"), "changed").unwrap();
+        assert!(!ok(run(&["lunar", "pack", "verify", o, "--trust", &pk])));
+    }
+    let _ = std::fs::remove_dir_all(&dir);
+}

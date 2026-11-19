@@ -8,7 +8,7 @@
 use std::path::Path;
 use std::process::ExitCode;
 
-use crate::lunar_pro::{self, circular, holdover, lugre, lunex, offset_codec, sla, time};
+use crate::lunar_pro::{self, circular, holdover, lugre, lunex, offset_codec, pack, sla, time};
 
 use super::scorecard_cmd::entitlement;
 use super::{flag, has_flag, now_unix, utc_iso8601_now};
@@ -37,6 +37,10 @@ pub const USAGE: &str = "usage: kshana-pro lunar <command>   (MODELLED; see docs
     sla verify --obs <samples.csv> --month <YYYY-MM> --out <dir> --signer <name> --key-file <f> [--sla lcrns-srd,moonlight-owr,lnss-ioc] [--sla-file <f.toml>] [--decorrelation-s <s>] [--confidence <c>] [--utc <iso>]\n\
         Per-provider SISE/UEE, availability and continuity against SLA targets; signed monthly report (Pro)\n\
     sla example --out <samples.csv> [--seed <n>]   SYNTHETIC month of reference-station samples, one provider meeting and one breaching (free)\n\
+    pack build --spec <pack.toml> --out <dir> --signer <name> --key-file <f> [--require-complete] [--utc <iso>]\n\
+        Signed mission-review (PDR/CDR/FRR) navigation evidence pack: time scale with model disclosure, ephemerides and frames with hashes, performance, verdicts, checklist (Pro)\n\
+    pack verify <dir> --trust <public-key-hex>   Verify a pack: signature, hashes, checklist and time recomputed (free)\n\
+    pack example --out <dir>   Write an example pack spec (SYNTHETIC numbers) (free)\n\
   W0 candidates: kshana-equatorial-j2 (default), point-mass-mean-radius, turyshev-selenoid, turyshev-south-pole, conventional:<m2/s2>\n\
   Licence: --license <token> | an activated licence | --dev (debug builds); feature pro-timing-holdover";
 
@@ -87,6 +91,12 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("sla") => match args.get(1).map(String::as_str) {
             Some("example") => sla_example(args),
             Some("verify") => gated(args, sla_verify),
+            _ => Err(USAGE.to_string()),
+        },
+        Some("pack") => match args.get(1).map(String::as_str) {
+            Some("example") => pack_example(args),
+            Some("build") => gated(args, pack_build),
+            Some("verify") => return pack_verify(args),
             _ => Err(USAGE.to_string()),
         },
         Some("lunex") => match args.get(1).map(String::as_str) {
@@ -816,4 +826,79 @@ fn sla_verify(args: &[String]) -> Result<ExitCode, String> {
     print!("{}", sla::render_text(&r));
     eprintln!("[signed {out}; public key {pk}]");
     Ok(ExitCode::SUCCESS)
+}
+
+// ------------------------------------------------------------------ D8 mission-review pack
+
+fn pack_example(args: &[String]) -> Result<ExitCode, String> {
+    let out = flag(args, "--out").ok_or(USAGE)?;
+    let p = pack::write_example(Path::new(&out))?;
+    println!(
+        "example pack spec (SYNTHETIC numbers) written to {}",
+        p.display()
+    );
+    Ok(ExitCode::SUCCESS)
+}
+
+fn pack_build(args: &[String]) -> Result<ExitCode, String> {
+    let spec = flag(args, "--spec").ok_or("build needs --spec")?;
+    let out = flag(args, "--out").ok_or("build needs --out")?;
+    if flag(args, "--signer").is_none() || flag(args, "--key-file").is_none() {
+        return Err("build needs --signer and --key-file (a pack is signed)".into());
+    }
+    let (s, base) = pack::read_spec(Path::new(&spec))?;
+    if has_flag(args, "--require-complete") {
+        let (p, _, _) = pack::build(&s, &base)?;
+        if !p.complete {
+            let missing: Vec<String> = p
+                .checklist
+                .iter()
+                .filter(|c| !c.provided)
+                .map(|c| format!("{} {}", c.id, c.item))
+                .collect();
+            return Err(format!("pack incomplete: {}", missing.join("; ")));
+        }
+    }
+    let dir = Path::new(&out);
+    let p = pack::write_pack(dir, &s, &base)?;
+    let pk = sign_required(args, dir)?;
+    print!("{}", pack::render_text(&p));
+    eprintln!("[signed {out}; public key {pk}]");
+    Ok(ExitCode::SUCCESS)
+}
+
+fn pack_verify(args: &[String]) -> ExitCode {
+    let Some(dir) = args.get(2).filter(|a| !a.starts_with("--")) else {
+        return fail(USAGE);
+    };
+    let trust = match super::forensics_cmd::keys(args, "--trust") {
+        Ok(t) => t,
+        Err(e) => return fail(e),
+    };
+    match pack::verify_pack(Path::new(dir), &trust) {
+        Ok(v) => {
+            println!(
+                "signer {}; signature {}; key {}; complete {}",
+                v.signer,
+                if v.signature_ok { "valid" } else { "INVALID" },
+                match v.trusted {
+                    Some(true) => "trusted",
+                    Some(false) => "NOT trusted",
+                    None => "not pinned (give --trust)",
+                },
+                v.complete
+            );
+            for p in &v.problems {
+                println!("problem: {p}");
+            }
+            if v.passed() {
+                println!("PASS");
+                ExitCode::SUCCESS
+            } else {
+                println!("FAIL");
+                ExitCode::FAILURE
+            }
+        }
+        Err(e) => fail(e),
+    }
 }
