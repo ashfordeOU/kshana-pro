@@ -9,8 +9,10 @@
 //! service: the endpoint is configuration (`--url` or `KSHANA_VERDICT_URL`), and the verdict
 //! is trusted only after its signature verifies against a pinned public key.
 //!
-//! Methods served today: `selfcal` (self-calibrating simulator loop) and `survey`
-//! (integrity-driven ASF survey planner).
+//! Methods served today: `selfcal` (self-calibrating simulator loop), `survey`
+//! (integrity-driven ASF survey planner) and `cause` (what caused a vessel or aircraft
+//! position episode: jamming, spoofing, self-reported track falsification, equipment fault,
+//! or insufficient evidence).
 
 use ed25519_dalek::{Signature, Verifier, VerifyingKey};
 use serde::{Deserialize, Serialize};
@@ -18,7 +20,11 @@ use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
 /// The methods the verdict service serves, with the `method` name its verdicts carry.
-pub const METHODS: &[(&str, &str)] = &[("selfcal", "selfcal"), ("survey", "survey-plan")];
+pub const METHODS: &[(&str, &str)] = &[
+    ("selfcal", "selfcal"),
+    ("survey", "survey-plan"),
+    ("cause", "cause"),
+];
 
 /// A signed verdict as the service returns it.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -188,7 +194,7 @@ impl VerdictTransport for CurlVerdictTransport {
     }
 }
 
-/// Ask the service for a verdict on `method` (`selfcal` or `survey`) with the JSON request
+/// Ask the service for a verdict on `method` (one of [`METHODS`]) with the JSON request
 /// `body`, authorised by the licence token `bearer`. Checks the answer is a verdict for the
 /// method asked. Signature verification is separate ([`verify`]) so the caller chooses the
 /// trusted key.
@@ -282,6 +288,41 @@ mod tests {
             t.seen.borrow()[0],
             ("/verdict/survey".to_string(), "tok".to_string())
         );
+    }
+
+    #[test]
+    fn cause_round_trip_verifies() {
+        let v = signed(
+            "cause",
+            json!({
+                "classification": "external_spoofing",
+                "confidence": 0.9,
+                "questions": {"reported_track": "false", "origin": "external"},
+            }),
+        );
+        let t = fake(Ok(serde_json::to_string(&v).unwrap()));
+        let got = request(&t, "cause", "tok", r#"{"platform":"vessel","reported":[]}"#).unwrap();
+        assert_eq!(got, v);
+        assert!(verify(&got, &pk()).is_empty());
+        assert_eq!(t.seen.borrow()[0].0, "/verdict/cause");
+        // A verdict of another method is not accepted as a cause verdict, nor the reverse.
+        let other = serde_json::to_string(&signed("survey-plan", json!({}))).unwrap();
+        assert!(request(&fake(Ok(other)), "cause", "tok", "{}")
+            .unwrap_err()
+            .contains("not 'cause'"));
+        let cause = serde_json::to_string(&v).unwrap();
+        assert!(request(&fake(Ok(cause)), "survey", "tok", "{}")
+            .unwrap_err()
+            .contains("not 'survey-plan'"));
+    }
+
+    #[test]
+    fn methods_are_unique() {
+        let mut names: Vec<_> = METHODS.iter().map(|(m, _)| *m).collect();
+        names.sort();
+        names.dedup();
+        assert_eq!(names.len(), METHODS.len());
+        assert!(names.contains(&"cause"));
     }
 
     #[test]

@@ -15,9 +15,19 @@ use crate::remote_verdict::{
 const USAGE: &str = "kshana-pro verdict — hosted methods, answered as signed verdicts\n\
 \n\
 USAGE:\n\
-    kshana-pro verdict <selfcal|survey> <request.json> [--url <base>] [--license <token>] [--trust <key>] [--out <verdict.json>]\n\
+    kshana-pro verdict <selfcal|survey|cause> <request.json> [--url <base>] [--license <token>] [--trust <key>] [--out <verdict.json>]\n\
         Send the request to the verdict service, authorised by your licence, and verify the\n\
         signed verdict against the service's public key before printing or saving it.\n\
+\n\
+    Methods:\n\
+      selfcal  self-calibrating simulator loop\n\
+      survey   integrity-driven ASF survey planner\n\
+      cause    what caused a vessel or aircraft position episode: external jamming,\n\
+               external spoofing, self-reported track falsification, equipment fault, or\n\
+               insufficient evidence. The request holds the reported AIS/ADS-B track and\n\
+               any independent tracks (radar, SAR, MLAT, LRIT, AIS relays), receiver\n\
+               observables and regional interference reports (docs/REMOTE-VERDICTS.md)\n\
+\n\
     kshana-pro verdict verify <verdict.json> [--trust <key>]\n\
         Check a saved verdict: intact, and signed by the trusted key.\n\
 \n\
@@ -127,4 +137,20 @@ pub fn run(args: &[String]) -> ExitCode {
         }
     }
     ExitCode::SUCCESS
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn usage_lists_every_method() {
+        for (m, _) in METHODS {
+            assert!(
+                USAGE.contains(&format!("\n{m}  ")),
+                "{m} missing from usage"
+            );
+        }
+        assert!(USAGE.contains("<selfcal|survey|cause>"));
+    }
 }
