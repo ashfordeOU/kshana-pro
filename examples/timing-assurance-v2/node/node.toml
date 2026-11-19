@@ -1,0 +1,40 @@
+# Clock self-check of one node (SYNTHETIC logs: see ../generate.py).
+# Each source gives the node's offset from that source (node minus source) with a stated
+# standard uncertainty per 120 s bin (every bin holds at least one chrony sample). The node is disciplined to its GNSS PPS.
+node = "gnb-0417 (SYNTHETIC)"
+bin_s = 120
+k = 3
+
+[[sources]]
+name = "gnss-pps"
+kind = "gnss"
+format = "pps-assert"
+path = "pps.assert"
+u_s = 50e-9
+disciplining = true
+
+[[sources]]
+name = "ptp-regional-gm"
+kind = "ptp"
+format = "ptp4l"
+path = "ptp4l.log"
+u_s = 200e-9
+
+[[sources]]
+name = "ntp-a"
+kind = "ntp"
+format = "chrony-statistics"
+path = "chrony-statistics.log"
+select = "192.0.2.10"
+u_s = 400e-6
+
+[[sources]]
+name = "ntp-b"
+kind = "ntp"
+format = "chrony-statistics"
+path = "chrony-statistics.log"
+select = "198.51.100.20"
+u_s = 600e-6
+
+[holdover]
+path = "holdover-state.csv"

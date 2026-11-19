@@ -5,6 +5,22 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Timing assurance v2 (W1120 TA1-TA4; docs/TIMING-ASSURANCE.md).** `kshana-pro timing
+  timebomb` (feature `pro-timing-timebomb`, Pro): future-epoch replay vectors (NMEA ZDA/RMC,
+  UBX NAV-TIMEGPS/TIMEUTC/TIMELS, simulator sheet with the gps-sdr-sim command, expected
+  output) for the 2038 and 8192-week rollovers, NTP 2036, Unix 2038, the RMC century, synthetic
+  positive and negative leap seconds, the 8-bit WN_LSF ambiguity and firmware-pivot rollovers;
+  an analyser of the device's output during a replay; a fleet check of an inventory against the
+  epoch hazards and an extendable advisory table (seed entries traceable to research 05 and 08b
+  only). `timing selfcheck node` (`pro-timing-selfcheck`, Pro): a node's time voted against its
+  independent sources, flagging a wrong time behind a healthy GNSS; `timing selfcheck sites`
+  (`pro-timing-correlation`, Enterprise): single-site, operator-wide, regional and common-mode
+  divergence with a CUSUM for slow drift. `timing holdover-evidence`
+  (`pro-timing-holdover-evidence`, Pro): holdover time-error growth with a GUM budget against a
+  limit for a period (preset `finland-reg54`), signed. Evidence packs: RTS25-6 cable delay,
+  RTS25-7 holdover documented, and the new `itu-g8271-1` framework. All MODELLED or COMPUTED;
+  tested on synthetic inputs (`tests/timing_assurance_v2.rs`, demo in
+  `examples/timing-assurance-v2/`).
 - **Interference reports (research 05 G1/G12/G13, 07 G5; docs/INTERFERENCE-REPORTS.md).**
   `kshana-pro reports` (also `forensics reports`): a normaliser for DGCA-style and EASA
   ECR-like forms, ASRS-like records, NOTAM text, ship logs and CSV exports into one versioned

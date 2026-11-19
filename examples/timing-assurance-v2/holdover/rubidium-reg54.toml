@@ -1,0 +1,16 @@
+# Holdover evidence: a rubidium-disciplined site against Finland's two-week rule
+# (preset finland-reg54: 336 h, ±1.5 µs; the limit is the operator's choice). Datasheet-style
+# figures, illustrative.
+site = "RAN cluster 4 (SYNTHETIC)"
+preset = "finland-reg54"
+equipment_class = "t-bc-class-b"
+u_initial_te_s = 20e-9
+
+[oscillator]
+adev = [[1, 3e-11], [10, 1e-11], [100, 3e-12], [1000, 1e-12], [10000, 5e-13]]
+initial_freq = 0.0
+u_initial_freq = 5e-13
+ageing_per_day = 1e-12
+u_ageing_per_day = 5e-13
+temp_coeff_per_k = 1e-13
+temp_range_k = 5

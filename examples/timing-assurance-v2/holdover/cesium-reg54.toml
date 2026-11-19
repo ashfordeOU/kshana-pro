@@ -1,0 +1,12 @@
+# Holdover evidence: a caesium reference against the same rule. Datasheet-style Allan
+# deviations, illustrative.
+site = "Core timing site (SYNTHETIC)"
+preset = "finland-reg54"
+equipment_class = "prtc-b"
+
+[oscillator]
+adev = [[1, 5e-12], [100, 8.5e-13], [10000, 8.5e-14], [100000, 2.7e-14]]
+initial_freq = 0.0
+u_initial_freq = 2e-14
+ageing_per_day = 0.0
+u_ageing_per_day = 0.0

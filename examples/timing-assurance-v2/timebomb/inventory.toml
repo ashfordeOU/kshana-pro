@@ -1,0 +1,53 @@
+# Device inventory for `kshana-pro timing timebomb fleet` (SYNTHETIC inventory; model names
+# are those the seed advisory table cites, plus an illustrative example vendor).
+title = "Demo timing inventory (SYNTHETIC)"
+
+[[devices]]
+id = "gm-ldn-1"
+site = "LD4"
+vendor = "Microchip"
+model = "TimeProvider 4100"
+firmware = "2.4.1"
+firmware_date = "2024-03-01"
+role = "grandmaster"
+week_resolution = "unknown"
+ntp = true
+
+[[devices]]
+id = "gm-ldn-2"
+site = "LD4"
+vendor = "Microchip"
+model = "TimeProvider 4100"
+firmware = "2.5"
+firmware_date = "2025-06-10"
+role = "grandmaster"
+
+[[devices]]
+id = "ntp-fra-1"
+site = "FR2"
+vendor = "Meinberg"
+model = "LANTIME M300"
+firmware = "7.08.007"
+role = "ntp-server"
+nmea_input = true
+
+[[devices]]
+id = "gpsdo-lab"
+site = "lab"
+vendor = "Agilent"
+model = "Z3805A"
+firmware_date = "1999-06-01"
+role = "gpsdo"
+week_resolution = "pivot"
+time_t_32bit = true
+
+[[devices]]
+id = "edge-gm-7"
+site = "cell-7"
+vendor = "Example Vendor"
+model = "GM-Example 100"
+firmware = "3.1.4"
+firmware_date = "2023-11-02"
+week_resolution = "full"
+ntp = false
+time_t_32bit = false

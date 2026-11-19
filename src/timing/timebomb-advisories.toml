@@ -1,0 +1,118 @@
+# Seed advisory table of the time-bomb auditor (kshana-pro timing timebomb fleet).
+#
+# Every entry names its source and how it was checked. Entries come only from the research
+# reports of 20 Nov 2026 (records/ops/kshana/research-2026-11-20-gaps, reports 05 and 08b),
+# which summarised vendor pages and NVD records; several vendor pages were not read directly
+# (they returned 403). Check every entry against the vendor's advisory before acting on it.
+# The operator extends this table with `--advisories <file.toml>` (same layout); entries of
+# kind "example" are illustrative and their ids start with EXAMPLE-.
+#
+# kind: vendor-security-advisory | vendor-time-advisory | community-report | example
+# vendor: alternatives separated by "|"; models: "*" for every model of the vendor.
+
+[[advisory]]
+id = "CVE-2024-9054"
+kind = "vendor-security-advisory"
+vendor = "Microchip"
+models = ["TimeProvider 4100"]
+hazard = "OS command injection in the grandmaster's management interface"
+source = "research 08b finding 7 [S14]: Microchip PSIRT and NVD (nvd.nist.gov/vuln/detail/CVE-2024-9054)"
+verification = "as summarised in the research; fixed version not transcribed: read the vendor advisory"
+
+[[advisory]]
+id = "CVE-2024-43684"
+kind = "vendor-security-advisory"
+vendor = "Microchip"
+models = ["TimeProvider 4100"]
+hazard = "cross-site request forgery in the management interface"
+source = "research 08b finding 7 [S14]: Microchip PSIRT (via search; page returned 403)"
+verification = "as summarised in the research; fixed version not transcribed: read the vendor advisory"
+
+[[advisory]]
+id = "CVE-2024-43685"
+kind = "vendor-security-advisory"
+vendor = "Microchip"
+models = ["TimeProvider 4100"]
+hazard = "session fixation (CVSS 8.7 as reported)"
+source = "research 08b finding 7 [S14]: Microchip PSIRT (via search; page returned 403)"
+verification = "as summarised in the research; fixed version not transcribed: read the vendor advisory"
+
+[[advisory]]
+id = "CVE-2025-47900"
+kind = "vendor-security-advisory"
+vendor = "Microchip"
+models = ["TimeProvider 4100"]
+fixed_in = "2.5"
+hazard = "command injection leading to remote code execution"
+source = "research 08b finding 7 [S14]: Microchip PSIRT and cvepremium.circl.lu (via search summary; page returned 403)"
+verification = "fixed version 2.5 as stated in the research summary; confirm with the vendor advisory"
+
+[[advisory]]
+id = "CVE-2025-47901"
+kind = "vendor-security-advisory"
+vendor = "Microchip"
+models = ["TimeProvider 4100"]
+fixed_in = "2.5"
+hazard = "command injection leading to remote code execution"
+source = "research 08b finding 7 [S14]: Microchip PSIRT and cvepremium.circl.lu/vuln/CVE-2025-47901 (via search summary; page returned 403)"
+verification = "fixed version 2.5 as stated in the research summary; confirm with the vendor advisory"
+
+[[advisory]]
+id = "CVE-2025-47904"
+kind = "vendor-security-advisory"
+vendor = "Microchip"
+models = ["TimeProvider 4100"]
+hazard = "upgrade images not signed (disclosed 19 Feb 2026 as reported): a firmware image can be replaced"
+source = "research 08b finding 7 [S14]: Microchip PSIRT page 'timeprovider-4100-unsigned-upgrade-vulnerability'"
+verification = "as summarised in the research; fixed version not transcribed: read the vendor advisory"
+
+[[advisory]]
+id = "MBGSA-2025.07"
+kind = "vendor-security-advisory"
+vendor = "Meinberg"
+models = ["*"]
+fixed_in = "7.10.006"
+hazard = "LANTIME firmware security advisory (one of seven Meinberg advisories of 2025)"
+source = "research 08b finding 7 [S15]: Meinberg advisory page 'meinberg-security-advisory-mbgsa-2025-07-lantime-firmware-v7-10-006'"
+verification = "the fixed version is read from the advisory page's title in the research, not from its text; applies to LANTIME models only: confirm the affected models"
+
+[[advisory]]
+id = "MBGSA-2025.01-06"
+kind = "vendor-security-advisory"
+vendor = "Meinberg"
+models = ["*"]
+hazard = "six further LANTIME firmware security advisories of 2025"
+source = "research 08b finding 7 [S15]: www.meinbergglobal.com/english/sw/mbgsecurityadvisory.htm"
+verification = "count only, from the research; models and versions not transcribed: read each advisory"
+
+[[advisory]]
+id = "RNTF-2026-07-17-rollover"
+kind = "community-report"
+vendor = "Microchip"
+models = ["*"]
+hazard = "a vendor warning of January 2026 about a GPS rollover-type firmware flaw; a national mobile network outage of 8 Jul 2026 was reported as caused by not applying the update (the product is not named in the research)"
+vector = "gps-wnro-2038"
+source = "research 05 [91][92]: RNTF / Streamline, 'Telco ignored GPS rollover warning & crashed', 17 Jul 2026"
+verification = "secondary sources only; the root cause is to verify against the regulator's and the operator's statements and the vendor's notice"
+
+[[advisory]]
+id = "TIME-NUTS-2024-11-Z3805A"
+kind = "community-report"
+vendor = "HP|Agilent|Symmetricom"
+models = ["Z3805A"]
+hazard = "unit runs but shows the March 2004 rollover date problem (a week-number pivot rollover)"
+vector = "pivot-rollover"
+source = "research 05 [82]: time-nuts, 'Samsung-Symmetricom GPSDO Rollover Problem', 11 Nov 2024"
+verification = "one user report on a mailing list; not a vendor statement"
+
+[[advisory]]
+id = "EXAMPLE-0001"
+kind = "example"
+vendor = "Example Vendor"
+models = ["GM-Example 100"]
+fixed_in = "3.2.0"
+trigger_date = "2027-03-14"
+hazard = "ILLUSTRATIVE ENTRY: a firmware week-resolution pivot that acts on the trigger date"
+vector = "custom"
+source = "example only; not a real product or advisory"
+verification = "example"
