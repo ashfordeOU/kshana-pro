@@ -91,3 +91,29 @@ result `report-templates/samples/insurer-exposure-public/summary/` (all inputs s
 - **V6** (`docs/evidence/v6-spoofing-and-area-trust/2026-11-15_DECISION.md`): E5 v3 spoofing not
   scored (no blind data; a method is written down for a future blind set); B5 v4 not registered
   (no method can meet T2 as defined).
+
+## Equipment-resilience rating and voyage risk score (W1119 C7)
+
+Two signed outputs for underwriters (licence: `pro-insurer-scorecard`):
+
+* `kshana-pro exposure equipment <equipment.toml> --out <dir> --signer <name> --key-file <file> [--trust <hex>]`
+  rates a vessel's PNT equipment 0–100 (bands A ≥ 80, B ≥ 60, C ≥ 40, D) from, per device
+  (`[[devices]]` with `name`, `role` = `primary_gnss` / `secondary_gnss` / `eloran` / `rmode` /
+  `inertial` / `timing`): a signed receiver scorecard directory (`scorecard`), an OSNMA
+  scorecard (`osnma_scorecard`, W1119 C6), a PICS scorecard if present (`pics`), or, without
+  test evidence, declared capabilities (`[devices.declared]`), capped at 50. A scorecard whose
+  signature fails, or whose signer is not among the `--trust` keys, counts for nothing. The
+  vessel rating is 0.6 × primary GNSS + 0.4 × the best independent alternative.
+* `kshana-pro exposure voyage <voyage.toml> --out <dir> ...` scores a voyage 0–100 (low,
+  moderate, elevated, high): `waypoints`, `departure_utc`, `events` (unified event files with
+  the interference history; area-console history converts with `ievents::from_area_event`),
+  `corridor_km` (default 25) and `equipment` (an equipment request or an
+  `equipment-rating.json`). Exposure E = 1 − exp(−Σwᵢ/5), with wᵢ = kind weight × confidence ×
+  exp(−age/180 d) × the share of the route within the event's reach; risk = 100 × E × (0.2 +
+  0.8 × (1 − rating/100)). The output lists the contributing events and legs.
+
+The method text is written into every output. A rating of the evidence supplied, not an
+underwriting recommendation, premium advice, a forecast or a certification.
+
+Evidence: **MODELLED** (weights are stated engineering choices, tested for bounded and
+monotonic behaviour in `tests/insurer_voyage.rs`; not fitted to claims or loss data).

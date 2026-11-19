@@ -17,6 +17,8 @@
 //! underwriter, not an underwriting recommendation, a rating, a premium advice or a finding of
 //! fact.
 
+pub mod voyage;
+
 use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
@@ -153,7 +155,7 @@ pub struct ExposureSummary {
 /// Verify the source directory `dir`; `named` is its path as the request names it, which is what
 /// the summary records (never the resolved absolute path, so a summary is the same on every machine
 /// and does not disclose local directories).
-fn check(dir: &Path, named: &str, trust: &[[u8; 32]]) -> SourceCheck {
+pub(crate) fn check(dir: &Path, named: &str, trust: &[[u8; 32]]) -> SourceCheck {
     match crate::signed_dossier::verify(dir, trust) {
         Ok(v) => SourceCheck {
             path: named.to_string(),

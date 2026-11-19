@@ -8,6 +8,7 @@
 //! * `kshana-pro forensics fdm <flight.csv> ...` and `forensics fdm-synth` (C5, same gate);
 //! * `kshana-pro scorecard osnma <log.json> ...` and `scorecard osnma-synth` (C6, gate
 //!   `pro-receiver-scorecard`);
+//! * `kshana-pro exposure equipment|voyage ...` (C7, gate `pro-insurer-scorecard`);
 //!
 //! Producing a signed result needs the licence feature of its gate; verifying a signed
 //! directory needs none (`kshana-pro dossier verify`).
@@ -197,5 +198,65 @@ pub fn osnma_synth(args: &[String]) -> ExitCode {
     match std::fs::write(file, serde_json::to_string_pretty(&log).unwrap_or_default()) {
         Ok(()) => ExitCode::SUCCESS,
         Err(e) => fail(format!("{file}: {e}")),
+    }
+}
+
+pub const VOYAGE_USAGE: &str = "usage: kshana-pro exposure equipment <equipment.toml> --out <dir> --signer <name> --key-file <file> [--trust <hex>[,...]] [--utc <iso>] [--license <token>] [--dev]\n\
+        Equipment-resilience rating of a vessel from receiver, OSNMA and PICS scorecards or declared capabilities (Pro)\n\
+    kshana-pro exposure voyage <voyage.toml> --out <dir> --signer <name> --key-file <file> [--trust <hex>[,...]] [--utc <iso>] [--license <token>] [--dev]\n\
+        Voyage risk score: route exposure to historic interference events combined with the equipment rating (Pro)";
+
+/// `exposure equipment`.
+pub fn equipment(args: &[String]) -> ExitCode {
+    use crate::exposure::voyage as v;
+    let Some(file) = file_arg(args) else {
+        return fail(VOYAGE_USAGE);
+    };
+    let r = producing(args, crate::exposure::FEATURE).and_then(|(out, seed, signer, utc)| {
+        let trust = super::forensics_cmd::keys(args, "--trust")?;
+        let req = v::EquipmentRequest::from_file(Path::new(file))?;
+        let src = std::fs::read_to_string(file).map_err(|e| format!("{file}: {e}"))?;
+        let e = v::rate_equipment(&req, &trust)?;
+        v::write_json(Path::new(&out), "equipment-rating.json", &e, &src)?;
+        sign(&out, &seed, &signer, &utc)?;
+        Ok((e, out))
+    });
+    match r {
+        Ok((e, out)) => {
+            eprintln!(
+                "[equipment] rating {:.1} (band {}); signed in {out}",
+                e.rating, e.band
+            );
+            ExitCode::SUCCESS
+        }
+        Err(e) => fail(e),
+    }
+}
+
+/// `exposure voyage`.
+pub fn voyage(args: &[String]) -> ExitCode {
+    use crate::exposure::voyage as v;
+    let Some(file) = file_arg(args) else {
+        return fail(VOYAGE_USAGE);
+    };
+    let r = producing(args, crate::exposure::FEATURE).and_then(|(out, seed, signer, utc)| {
+        let trust = super::forensics_cmd::keys(args, "--trust")?;
+        let req = v::VoyageRequest::from_file(Path::new(file))?;
+        let src = std::fs::read_to_string(file).map_err(|e| format!("{file}: {e}"))?;
+        let (events, rating) = req.load(&trust)?;
+        let x = v::voyage_risk(&req, &events, rating)?;
+        v::write_json(Path::new(&out), "voyage-risk.json", &x, &src)?;
+        sign(&out, &seed, &signer, &utc)?;
+        Ok((x, out))
+    });
+    match r {
+        Ok((x, out)) => {
+            eprintln!(
+                "[voyage] risk {:.1} ({}), exposure {:.3}; signed in {out}",
+                x.risk, x.band, x.exposure
+            );
+            ExitCode::SUCCESS
+        }
+        Err(e) => fail(e),
     }
 }
