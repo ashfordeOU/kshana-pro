@@ -301,3 +301,15 @@ fn cli_lunar_pack_build_is_gated_and_signed_and_verify_is_free() {
     }
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn cli_lunar_mars_is_gated() {
+    let a = ["lunar", "mars", "--at", "2000-01-06T00:00:00"];
+    assert!(!ok(run(&a)));
+    if cfg!(debug_assertions) {
+        let mut d = a.to_vec();
+        d.extend(["--lon-west", "0", "--json", "--dev"]);
+        assert!(ok(run(&d)));
+        assert!(!ok(run(&["lunar", "mars", "--at", "bad", "--dev"])));
+    }
+}

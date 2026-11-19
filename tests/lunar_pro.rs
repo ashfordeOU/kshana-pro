@@ -327,3 +327,6 @@ mod d7_sla;
 
 #[path = "lunar_pro/d8_pack.rs"]
 mod d8_pack;
+
+#[path = "lunar_pro/d9_mars.rs"]
+mod d9_mars;

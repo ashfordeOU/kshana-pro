@@ -307,6 +307,40 @@ verifies (unpinned or wrong key fails); a changed text, offset, checklist item, 
 or deleted file is detected; missing traceability and an unhashed ephemeris are flagged C5 and C7;
 a wrong declared hash is refused; the TCL option; D7 verdicts imported; the verdict rule.
 
+## D9. Mars coordinate time and MSD/MTC (gap 9)
+
+`kshana-pro lunar mars --at <UTC> [--lon-west <deg>] [--json]` gives the Mars Sol Date, Coordinated
+Mars Time and local mean and true solar time (Mars24), and Kshana's Mars coordinate time TCM and
+areoid time TM with uncertainty. **MODELLED.**
+
+* **MSD and MTC**: Allison and McEwen (2000) as in NASA GISS "Mars24 Sunclock — Algorithm and
+  Worked Examples" (updated 2025-01-07), steps A-2 to C-5 (TT − UTC from the leap-second table,
+  the page's polynomial before 1972). The tests reproduce both of the page's worked examples
+  (2000-01-06 00:00 UTC at 0° W: MST 23:59:39, LTST 23:38:54; Spirit landing 2004-01-03
+  13:46:31 UTC at 184.702° W: MST 13:09:55, LTST ≈ 00:00:00) to its printed fifth decimal. One
+  exception is disclosed: the page prints LTST 0.00025 h for example 2 while its own printed LMST +
+  EOT/15 is 0.00020 h, which is what we get (0.18 s).
+* **TCM** (Kshana's name; no Mars coordinate time is adopted): `dTCM/dTCB = 1 − L_CM`,
+  `L_CM = (3/2)·GM_⊙/(a c²) + Σ GM_p/(a_p c²)` (Kepler average, `a` from the engine's Standish
+  elements; outer-planet term with a 30 % half-width) = 9.72e-9; periodic term
+  `−(2/c²)√(GM_⊙ a)·e·sin E` (≈ 11.4 ms amplitude); origin TCM = TCB at the 1977 `T0` by analogy.
+* **TM**: `dTM/dTCM = 1 − W0_M/c²`, `W0_M` = 12 652 010 m²/s² (degree-2 equatorial value from the
+  engine's Mars body, MRO110 J2; u half its difference from the point-mass mean-radius value),
+  i.e. 12.16 µs/day.
+* **Areoid clock against TT**: `L_B − L_CM − L_M` = **487.75 µs/day** (u 0.03 µs/day). Ashby and
+  Patla (arXiv:2507.21388, 2025) give **477 µs/day** with a 226 µs/day variation over a Martian
+  year. That figure is not in the research note (it gives no Mars rate); it is from the arXiv
+  abstract read in this pass. The **≈10.7 µs/day (2.2 %) difference is unresolved** and far outside
+  both stated uncertainties; it is disclosed, not tuned away (a test pins its size). Our Mars-only
+  peak-to-peak rate variation is 211 µs/day; theirs also includes the Earth's annual term
+  (±28 µs/day).
+
+Tests: both Mars24 worked examples step by step; one MSD per sol; the pre-1972 polynomial and
+69.184 s after 2017; longitude; `L_CM` against the Earth analogue (the same formula gives IAU `L_C`
+within 2e-4); `W0_M`; the rate and the published cross-check; the rate variation and its zero mean;
+the periodic amplitude and that its derivative is the rate deviation; budget consistency over ten
+years.
+
 ## Honest limits
 
 * No lunar clock, TWTT link or lunar observation data exists yet: everything is MODELLED.
@@ -317,3 +351,10 @@ a wrong declared hash is refused; the TCL option; D7 verdicts imported; the verd
   illustrative until confirmed against the IAU 2024 Resolution II text.
 * KLTO-1 and LUNEX field choices are proposals; nothing is taken from LNIS AD5 (not public).
 * Flicker FM in D3 uses the `τ·σ_y(τ)` rule of thumb, not an exact prediction variance.
+* D6 has scored no LuGRE data; its CSV schema needs confirming against the Zenodo record, and its
+  transmit patterns are azimuth-averaged.
+* D7's SRD/SLA mappings are illustrative until confirmed against the documents; residuals must be
+  formed upstream.
+* D8's pack format and CGPM Res. 6 checklist are a proposal, not an agency standard.
+* D9's areoid clock rate differs from Ashby and Patla's published 477 µs/day by ≈2 %, unresolved.
+  The Mars "TCM"/"TM" names and origin are Kshana's, not adopted.

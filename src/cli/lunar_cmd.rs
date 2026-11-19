@@ -8,7 +8,9 @@
 use std::path::Path;
 use std::process::ExitCode;
 
-use crate::lunar_pro::{self, circular, holdover, lugre, lunex, offset_codec, pack, sla, time};
+use crate::lunar_pro::{
+    self, circular, holdover, lugre, lunex, mars, offset_codec, pack, sla, time,
+};
 
 use super::scorecard_cmd::entitlement;
 use super::{flag, has_flag, now_unix, utc_iso8601_now};
@@ -41,6 +43,7 @@ pub const USAGE: &str = "usage: kshana-pro lunar <command>   (MODELLED; see docs
         Signed mission-review (PDR/CDR/FRR) navigation evidence pack: time scale with model disclosure, ephemerides and frames with hashes, performance, verdicts, checklist (Pro)\n\
     pack verify <dir> --trust <public-key-hex>   Verify a pack: signature, hashes, checklist and time recomputed (free)\n\
     pack example --out <dir>   Write an example pack spec (SYNTHETIC numbers) (free)\n\
+    mars --at <YYYY-MM-DDTHH:MM:SS UTC> [--lon-west <deg>] [--json]   Mars Sol Date, MTC, local solar time (Mars24) and Mars coordinate time TCM/TM with uncertainty (Pro)\n\
   W0 candidates: kshana-equatorial-j2 (default), point-mass-mean-radius, turyshev-selenoid, turyshev-south-pole, conventional:<m2/s2>\n\
   Licence: --license <token> | an activated licence | --dev (debug builds); feature pro-timing-holdover";
 
@@ -99,6 +102,7 @@ pub fn run(args: &[String]) -> ExitCode {
             Some("verify") => return pack_verify(args),
             _ => Err(USAGE.to_string()),
         },
+        Some("mars") => gated(args, mars_cmd),
         Some("lunex") => match args.get(1).map(String::as_str) {
             Some("convert") => gated(args, lunex_convert),
             Some("validate") => return lunex_validate(args),
@@ -901,4 +905,48 @@ fn pack_verify(args: &[String]) -> ExitCode {
         }
         Err(e) => fail(e),
     }
+}
+
+// ------------------------------------------------------------------ D9 Mars time
+
+fn mars_cmd(args: &[String]) -> Result<ExitCode, String> {
+    let at = flag(args, "--at").ok_or("mars needs --at <YYYY-MM-DDTHH:MM:SS> (UTC)")?;
+    let lon = num(args, "--lon-west")?.unwrap_or(0.0);
+    let jd = time::parse_iso(&at)?.to_f64();
+    let m = mars::mars24(jd, lon);
+    let c = mars::coordinate_time(&at)?;
+    if has_flag(args, "--json") {
+        return Ok(print_json(&serde_json::json!({
+            "status": mars::STATUS, "mars24": m, "coordinate_time": c,
+        })));
+    }
+    println!("{}", mars::STATUS);
+    println!(
+        "UTC {at}  (TT - UTC {} s)\nMSD {:.5}  MTC {} ({:.5} h)  Ls {:.3} deg  EOT {:.3} deg\n\
+         at {lon} deg W: LMST {}  LTST {}\n",
+        m.tt_minus_utc_s,
+        m.msd,
+        mars::hms(m.mtc_h),
+        m.mtc_h,
+        m.ls_deg,
+        m.eot_deg,
+        mars::hms(m.lmst_h),
+        mars::hms(m.ltst_h)
+    );
+    for (n, b) in [
+        ("TCM - TCB", &c.tcm_minus_tcb),
+        ("TM - TCB", &c.tm_minus_tcb),
+        ("TM - TT", &c.tm_minus_tt),
+    ] {
+        println!("{n:<10} {:>18.9} s  u_c {:.3e} s", b.value(), b.u_c());
+    }
+    println!(
+        "mean rate d(TM - TT)/dt = {:.2} us/day (u {:.2} ns/day); areoid W0 {:.0} m2/s2\n\
+         published cross-check: Ashby & Patla (arXiv:2507.21388) {} us/day (disclosed ~2 % difference)",
+        c.rate_tm_minus_tt_us_day,
+        c.rate_u_ns_day,
+        c.w0_m2_s2,
+        mars::ASHBY_PATLA_MARS_US_DAY
+    );
+    Ok(ExitCode::SUCCESS)
 }
