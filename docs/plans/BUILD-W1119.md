@@ -23,7 +23,7 @@ Status: [ ] todo, [~] in progress, [x] done (commit sha).
 - [ ] A6 Spoof-safe online ASF learning gated by the protection level (E3) (01-12)
 - [ ] A7 Self-calibrating simulator loop with signed lineage (F1) (01-26)
 - [ ] A8 Integrity-driven ASF survey planner (F2) (02-31)
-- [ ] A9 Sync-Verify: LF<->GNSS alignment certificate, any simulator vendor (D3) (01-29, move 4)
+- [x] A9 Sync-Verify: LF<->GNSS alignment certificate, any simulator vendor (D3) (01-29, move 4)
 - [ ] A10 eLoran-disciplined oscillator bench + GNSS->eLoran switchover transients (01-17/25)
 - [ ] A11 Transmitter acceptance automation: ECD, zero-crossing jitter, phase code, PCI (01-22)
 - [ ] A12 Impulsive atmospheric noise validated against receiver behaviour (01-10)

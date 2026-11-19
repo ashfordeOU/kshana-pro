@@ -44,6 +44,11 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         Compile a periodic scenario into a repeating AWG segment (SigMF ri16 + report) (Enterprise)\n\
     accept software --out <report.json> [--license <token>] [--dev]\n\
         Run the software-only acceptance tests (resolution, SNR, skywave ranges) (Enterprise)\n\
+    sync certify --tic <readings.csv> --out <dir> --gnss-sim <name> --counter <model> [--counter-serial <s>] [--counter-cal-due <date>] [--target-ns <ns>] [--tolerance-ns <ns>] [--tdev-limit-ns <ns>] [--eloran-cable-ns <ns>] [--gnss-cable-ns <ns>] [--cable-u-ns <ns>] [--tic-u-ns <ns>] [--polarity eloran-start|gnss-start] [--signer <name> --key-file <file>] [--license <token>] [--dev]\n\
+        Sync-Verify: eLoran-to-GNSS alignment certificate for any GNSS simulator: offset ± U (k = 2),\n\
+        TDEV per decade, drift, guard-banded decision; readings stored and bound, optionally signed (Enterprise)\n\
+    sync verify-cert <dir>\n\
+        Recompute a sync certificate from its stored readings and check its signature\n\
     sync measure --tic <readings.csv> --out <report.json> [--unit s|ns] [--column <n>] [--target-ns <x>] [--license <token>] [--dev]\n\
         eLoran-vs-GNSS sync analysis: offset, TDEV/MTIE, drift, alarms, correction (Enterprise)\n\
     timeref circular-t <circular-t.txt> --labs <A,B> --start <utc> --duration <s>\n\
@@ -831,8 +836,35 @@ fn accept_cmd(args: &[String]) -> ExitCode {
 fn sync_cmd(args: &[String]) -> ExitCode {
     use kshana_eloran::hw::calib::TicUnit;
     use kshana_eloran::sync::measure::{analyse, MeasureConfig, TicSeries};
-    if args.get(1).map(String::as_str) != Some("measure") {
-        return fail(USAGE);
+    match args.get(1).map(String::as_str) {
+        Some("measure") => {}
+        Some("certify") => return sync_certify(args),
+        Some("verify-cert") => {
+            return done((|| {
+                let dir = args.get(2).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+                let p = Path::new(dir);
+                let bad = kshana_eloran::sync::certify::verify_certificate(p)?;
+                if !bad.is_empty() {
+                    return Err(format!("certificate NOT intact:\n  {}", bad.join("\n  ")));
+                }
+                let sig = if p.join("signature.json").exists() {
+                    let v = crate::signed_dossier::verify(p, &[]).map_err(|e| e.to_string())?;
+                    if !(v.signature_ok && v.problems.is_empty()) {
+                        return Err(format!(
+                            "signature does not hold: {}",
+                            v.problems.join("; ")
+                        ));
+                    }
+                    format!("; signed by {} (key {}) at {}", v.signer, v.key_id, v.utc)
+                } else {
+                    "; not signed".into()
+                };
+                Ok(format!(
+                    "certificate intact: recomputed from the stored readings{sig}"
+                ))
+            })())
+        }
+        _ => return fail(USAGE),
     }
     let (Some(tic), Some(out)) = (flag(args, "--tic"), flag(args, "--out")) else {
         return fail(USAGE);
@@ -857,6 +889,70 @@ fn sync_cmd(args: &[String]) -> ExitCode {
             "sync: {} readings analysed -> {out}",
             series.readings_ns.len()
         ))
+    })())
+}
+
+fn sync_certify(args: &[String]) -> ExitCode {
+    use kshana_eloran::hw::calib::TicUnit;
+    use kshana_eloran::sync::certify::{certify, write, Setup};
+    use kshana_eloran::sync::measure::{MeasureConfig, TicPolarity, TicSeries};
+    let (Some(tic), Some(out)) = (flag(args, "--tic"), flag(args, "--out")) else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let unit = match flag(args, "--unit").as_deref() {
+            None | Some("ns") => TicUnit::Nanoseconds,
+            Some("s") => TicUnit::Seconds,
+            Some(u) => return Err(format!("--unit {u}: s or ns")),
+        };
+        let series = TicSeries::from_csv(&read(&tic)?, num_flag::<usize>(args, "--column")?, unit)?;
+        let mut cfg = MeasureConfig::default();
+        if let Some(v) = num_flag::<f64>(args, "--target-ns")? {
+            cfg.target_ns = v;
+        }
+        if let Some(v) = num_flag::<f64>(args, "--tolerance-ns")? {
+            cfg.offset_limit_ns = v;
+        }
+        if let Some(v) = num_flag::<f64>(args, "--tdev-limit-ns")? {
+            cfg.tdev_limit_ns = v;
+        }
+        if let Some(v) = num_flag::<f64>(args, "--tau0")? {
+            cfg.tau0_s = v;
+        }
+        if let Some(v) = num_flag::<f64>(args, "--eloran-cable-ns")? {
+            cfg.eloran_cable_ns = v;
+        }
+        if let Some(v) = num_flag::<f64>(args, "--gnss-cable-ns")? {
+            cfg.gnss_cable_ns = v;
+        }
+        if let Some(v) = num_flag::<f64>(args, "--cable-u-ns")? {
+            cfg.cable_u_ns = v;
+        }
+        if let Some(v) = num_flag::<f64>(args, "--tic-u-ns")? {
+            cfg.tic_u_ns = v;
+        }
+        if flag(args, "--polarity").as_deref() == Some("gnss-start") {
+            cfg.polarity = TicPolarity::StartGnssStopEloran;
+        }
+        let setup = Setup {
+            eloran_simulator: flag(args, "--eloran-sim")
+                .unwrap_or_else(|| "Kshana Pro eLoran simulator".into()),
+            gnss_simulator: flag(args, "--gnss-sim").ok_or("--gnss-sim <name> is required")?,
+            counter: flag(args, "--counter").ok_or("--counter <model> is required")?,
+            counter_serial: flag(args, "--counter-serial").unwrap_or_default(),
+            counter_cal_due: flag(args, "--counter-cal-due"),
+            reference: flag(args, "--reference").unwrap_or_default(),
+            laboratory: flag(args, "--lab").unwrap_or_default(),
+            notes: String::new(),
+        };
+        let (c, _) = certify(&series.readings_ns, &cfg, &setup)?;
+        let dir = Path::new(&out);
+        write(dir, &c, &series.readings_ns)?;
+        let signed = sign_if_requested(args, dir)?;
+        Ok(format!("{} -> {out}{signed}", c.statement))
     })())
 }
 

@@ -251,3 +251,82 @@ fn first_plug_rehearsal_writes_verifiable_evidence_and_detects_tampering() {
     assert!(!o.status.success());
     let _ = std::fs::remove_dir_all(&d);
 }
+
+#[test]
+fn sync_certificate_is_guard_banded_recomputable_and_tamper_evident() {
+    let d = tmp("synccert");
+    let tic = d.join("tic.csv");
+    let mut s = String::from("reading_ns\n");
+    let mut k: u64 = 3;
+    for _ in 0..600 {
+        k = k
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
+        let u = (k >> 11) as f64 / (1u64 << 53) as f64 - 0.5;
+        s += &format!("{}\n", -(4.0 + 0.5 * u));
+    }
+    std::fs::write(&tic, s).unwrap();
+    let cert = d.join("cert");
+    let o = run(&[
+        "eloran",
+        "sync",
+        "certify",
+        "--tic",
+        tic.to_str().unwrap(),
+        "--out",
+        cert.to_str().unwrap(),
+        "--gnss-sim",
+        "GNSS simulator",
+        "--counter",
+        "TIC",
+        "--tic-u-ns",
+        "0.1",
+        "--dev",
+    ]);
+    assert!(o.status.success(), "{}", text(&o));
+    assert!(text(&o).contains("CONFORMS"), "{}", text(&o));
+    let o = run(&[
+        "eloran",
+        "sync",
+        "verify-cert",
+        cert.to_str().unwrap(),
+        "--dev",
+    ]);
+    assert!(o.status.success(), "{}", text(&o));
+    let o = run(&[
+        "eloran",
+        "sync",
+        "certify",
+        "--tic",
+        tic.to_str().unwrap(),
+        "--out",
+        cert.to_str().unwrap(),
+        "--gnss-sim",
+        "G",
+        "--counter",
+        "TIC",
+        "--tolerance-ns",
+        "4.0",
+        "--dev",
+    ]);
+    assert!(
+        text(&o).contains("INCONCLUSIVE") || text(&o).contains("DOES NOT"),
+        "{}",
+        text(&o)
+    );
+    let c = cert.join("certificate.json");
+    let t = std::fs::read_to_string(&c)
+        .unwrap()
+        .replace("\"inconclusive\"", "\"conforms\"")
+        .replace("\"does_not_conform\"", "\"conforms\"");
+    std::fs::write(&c, t).unwrap();
+    let o = run(&[
+        "eloran",
+        "sync",
+        "verify-cert",
+        cert.to_str().unwrap(),
+        "--dev",
+    ]);
+    assert!(!o.status.success(), "{}", text(&o));
+    let _ = std::fs::remove_dir_all(&d);
+}
