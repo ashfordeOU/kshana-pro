@@ -504,6 +504,43 @@ impl Receiver {
         v
     }
 
+    /// The unmodulated pulses of a station whose chain carries a pulse-position data channel
+    /// in its standard pulses (Eurofix): the receiver's noise estimate uses only these, so the
+    /// data modulation is not counted as noise. `None` when no pulse is data-modulated.
+    fn noise_pulses_for(
+        &self,
+        ci: usize,
+        si: usize,
+        groups: std::ops::Range<i64>,
+        g_ref: i64,
+    ) -> Option<Vec<PulseRef>> {
+        let modulated: Vec<usize> = match self.cfg.ldc.get(ci) {
+            Some(Some(crate::ldc::LdcConfig::Eurofix(e))) => e.pulses.clone(),
+            _ => return None,
+        };
+        let ch = &self.chains[ci];
+        let st = &ch.stations[si];
+        let gri = ch.gri_us as f64 * 1e-6;
+        let mut v = Vec::new();
+        for g in groups {
+            for (k, p) in ch
+                .signal
+                .group(st.role, Parity::of_group(g))
+                .into_iter()
+                .enumerate()
+            {
+                if modulated.contains(&k) {
+                    continue;
+                }
+                v.push(PulseRef {
+                    d_s: (g - g_ref) as f64 * gri + p.offset.as_s(),
+                    phase_rad: p.phase_rad,
+                });
+            }
+        }
+        Some(v)
+    }
+
     /// Steering angle from the per-loop least-squares amplitudes at envelope time `t_env`.
     fn steer_angle(
         &self,
@@ -580,6 +617,7 @@ impl Receiver {
             let g0 = a.group0 + j;
             let g_ref = g0 + len / 2;
             let pulses = self.pulses_for(ci, si, g0..g0 + len, g_ref);
+            let noise_pulses = self.noise_pulses_for(ci, si, g0..g0 + len, g_ref);
             let (anchor, search) = match &prev {
                 Some((pg, pf)) => (
                     pf.t_env + (g_ref - pg) as f64 * gri,
@@ -608,6 +646,7 @@ impl Receiver {
                     blank,
                     ecd_exp,
                     polarity_known,
+                    noise_pulses.as_deref(),
                 )
             };
             let mut fit = None;

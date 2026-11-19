@@ -1,10 +1,10 @@
 # eLoran-Bench pre-registration: SHA-256 of the bars and scenarios, written before
 # any receiver is scored. Do not edit by hand.
 benchmark = "eLoran-Bench"
-version = "0.1"
-registered_utc = "2026-11-19T00:00:00Z"
+version = "0.2"
+registered_utc = "2026-11-19T02:30:00Z"
 bars_file = "bars.toml"
-bars_sha256 = "f9205f486babf99cd1e536a711a6e66e5092262ebedd5b2f51226c9a606bda46"
+bars_sha256 = "31a7fac904535b00fe34e13c1cc9687a9e70f0e6d4e118ce84ae89bc4e5faa6e"
 
 [[scenarios]]
 id = "ELB-STATIC"

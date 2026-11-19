@@ -358,6 +358,7 @@ pub fn fit_window(
     blank: &Blanking,
     ecd_expected_s: f64,
     polarity_known: bool,
+    noise_pulses: Option<&[PulseRef]>,
 ) -> Option<WindowFit> {
     let d0 = collect(src, tpl, pulses, anchor, w, blank);
     if d0.y.len() < 16 {
@@ -377,11 +378,26 @@ pub fn fit_window(
     let t_env = anchor1 + delta1;
     let (t_car, flipped) = select_cycle(wv, tpl.omega, t_env - ecd_expected_s, polarity_known);
     let k = d1.y.len();
+    // Residual variance (the noise estimate behind the SNR). When some pulses carry data the
+    // template does not model (e.g. Eurofix PPM), the residual is taken over the unmodulated
+    // pulses only, so data modulation is not counted as noise.
+    let res_var = match noise_pulses {
+        Some(np) if !np.is_empty() => {
+            let dn = collect(src, tpl, np, anchor1, w, blank);
+            if dn.y.len() >= 16 {
+                let (en, _) = fit_w(&dn, tpl, delta1);
+                ((dn.sum_y2 - en) / (dn.y.len() as f64 - 2.0)).max(0.0)
+            } else {
+                ((d1.sum_y2 - e) / (k as f64 - 2.0)).max(0.0)
+            }
+        }
+        _ => ((d1.sum_y2 - e) / (k as f64 - 2.0)).max(0.0),
+    };
     Some(WindowFit {
         t_env,
         t_car,
         w: if flipped { wv.scale(-1.0) } else { wv },
-        res_var: ((d1.sum_y2 - e) / (k as f64 - 2.0)).max(0.0),
+        res_var,
         samples: k,
         pulses: d1.pulses,
         flipped,
@@ -437,6 +453,7 @@ mod tests {
             &Blanking::default(),
             0.0,
             true,
+            None,
         )
         .unwrap();
         assert!((f.t_car - t_c).abs() < 1e-11, "{}", (f.t_car - t_c) * 1e9);
@@ -468,6 +485,7 @@ mod tests {
             &Blanking::default(),
             0.0,
             false,
+            None,
         )
         .unwrap();
         assert!(f.flipped);

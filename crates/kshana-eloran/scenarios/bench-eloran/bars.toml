@@ -1,13 +1,18 @@
-# eLoran-Bench v0.1 pass bars (pre-registered: the SHA-256 of this file is in
+# eLoran-Bench v0.2 pass bars (pre-registered: the SHA-256 of this file is in
 # registration.toml; any change after registration is detected and scoring is refused).
 #
 # ILLUSTRATIVE: set by Kshana, not taken from a standard. They were set after observing the
 # in-house software receiver on these fixed seeds (roughly 2x its observed errors), so they
 # are not blind for that receiver; for any other receiver they are fixed before scoring.
 # Metric definitions: crates/kshana-eloran/src/refbench/mod.rs.
+#
+# v0.2 (2026-11-19): adds the SNR bar on ELB-LDC. v0.1 had none because the in-house receiver's
+# SNR estimate was biased ~26 dB low under Eurofix pulse-position modulation; the receiver now
+# estimates noise from the unmodulated pulses (A17). The new bar uses the same 2 dB limit as the
+# other scenarios' SNR bars. All other bars are unchanged from v0.1.
 
 benchmark = "eLoran-Bench"
-version = "0.1"
+version = "0.2"
 
 # --- ELB-STATIC: fixed site, SNR about 10 dB -------------------------------------------
 [[bars]]
@@ -205,8 +210,13 @@ limit = 0.0
 illustrative = true
 
 # --- ELB-LDC: Eurofix with authentication ------------------------------------------------
-# No SNR bar: the in-house receiver's SNR estimate is biased under pulse-position
-# modulation (known limitation, recorded in the scorecard metrics).
+[[bars]]
+scenario = "ELB-LDC"
+metric = "snr_error_db"
+op = "le"
+limit = 2.0
+illustrative = true
+
 [[bars]]
 scenario = "ELB-LDC"
 metric = "tracked_fraction"

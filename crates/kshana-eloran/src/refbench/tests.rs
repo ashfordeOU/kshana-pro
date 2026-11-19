@@ -20,7 +20,7 @@ const SCENARIOS: &[(&str, &str)] = &[
 #[test]
 #[ignore]
 fn write_registration() {
-    register(&bench_dir(), "0.1", "2026-11-19T00:00:00Z", SCENARIOS).unwrap();
+    register(&bench_dir(), "0.2", "2026-11-19T02:30:00Z", SCENARIOS).unwrap();
 }
 
 fn bench() -> &'static Benchmark {
@@ -168,7 +168,7 @@ fn tampered_bars_or_scenarios_are_detected() {
     let e = Benchmark::load(&d).unwrap_err();
     assert!(e.contains("static.toml"), "{e}");
     // re-registering is possible, but changes the registration hash every scorecard carries
-    let reg = register(&d, "0.1", "2026-11-20T00:00:00Z", SCENARIOS).unwrap();
+    let reg = register(&d, "0.2", "2026-11-20T00:00:00Z", SCENARIOS).unwrap();
     let b2 = Benchmark::load(&d).unwrap();
     assert_ne!(
         reg.scenarios[0].sha256,

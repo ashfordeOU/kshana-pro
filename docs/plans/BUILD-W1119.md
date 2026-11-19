@@ -32,9 +32,9 @@ Status: [ ] todo, [~] in progress, [x] done (commit sha).
 - [ ] A15 Coherent LF + L-band record and replay on one timeline (01-9)
 - [ ] A16 Tactical/deployable transmitter and signals-of-opportunity scenarios (01-18/19)
 
-- [ ] A17 Receiver SNR estimate biased low (~28 dB) under Eurofix PPM: rx/mod.rs derives σ from the
+- [x] A17 Receiver SNR estimate biased low (~28 dB) under Eurofix PPM: rx/mod.rs derives σ from the
       tracking-fit residual, which includes the unmodelled ±1 µs data shifts on pulses 3–8. Fix: noise
-      from unmodulated pulses only (or demodulate before the residual); add an SNR bar to eLoran-Bench LDC.
+      from unmodulated pulses only (or demodulate before the residual); add an SNR bar to eLoran-Bench LDC. DONE: before 13–14 dB vs truth 39–41 dB; after within 0.7 dB; eLoran-Bench v0.2 adds the LDC SNR bar (re-registered, change recorded in bars.toml).
 
 ## B. Hardware (plug in and test)
 - [~] B1 Vendor command profiles (Keysight 33500B/33600A, Rigol DG1000Z AWGs; Keysight 53230A, CNT-91 counters done; Siglent pending byte order; Spirent/LabSat manuals unreachable) from programming manuals (AWGs, counters, GNSS simulators), cited
