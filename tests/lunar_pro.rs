@@ -318,3 +318,15 @@ mod d5_lunex;
 
 #[path = "lunar_pro/cli.rs"]
 mod cli;
+
+#[path = "lunar_pro/d6_lugre.rs"]
+mod d6_lugre;
+
+#[path = "lunar_pro/d7_sla.rs"]
+mod d7_sla;
+
+#[path = "lunar_pro/d8_pack.rs"]
+mod d8_pack;
+
+#[path = "lunar_pro/d9_mars.rs"]
+mod d9_mars;

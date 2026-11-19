@@ -8,10 +8,12 @@
 use std::path::Path;
 use std::process::ExitCode;
 
-use crate::lunar_pro::{self, circular, holdover, lunex, offset_codec, time};
+use crate::lunar_pro::{
+    self, circular, holdover, lugre, lunex, mars, offset_codec, pack, sla, time,
+};
 
 use super::scorecard_cmd::entitlement;
-use super::{flag, has_flag, now_unix};
+use super::{flag, has_flag, now_unix, utc_iso8601_now};
 
 pub const USAGE: &str = "usage: kshana-pro lunar <command>   (MODELLED; see docs/LUNAR-PRO.md)\n\
     time --from <scale> --to <scale> (--at <YYYY-MM-DDTHH:MM:SS> | --jd <jd>) [--rate-source lte440|first-principles] [--w0 <candidate>] [--kernel <file.bsp>... [--kernel-start <iso>] [--kernel-days <n>]] [--json]\n\
@@ -29,6 +31,19 @@ pub const USAGE: &str = "usage: kshana-pro lunar <command>   (MODELLED; see docs
     lunex convert --csv <in.csv> --out <file.lnx> [--time-tag <GPS|GAL|UTC|TAI|TT|TCL|TL>] [--platform <p>] [--frame <f>] [--marker <m>] [--interval <s>] [--w0 <m2/s2>] [--realisation <code>]\n\
         LuGRE-style CSV to LUNEX (Pro; a prototype proposal for the IGS RINEX Committee, not a standard)\n\
     lunex validate <file.lnx> [--json]   Validate a LUNEX file (free)\n\
+    lugre example --out <dir> [--bias-db <b>] [--seed <n>]   Write a SYNTHETIC LuGRE-like data set, model and pre-registration (free)\n\
+    lugre predict --model <model.toml> --sp3 <file.sp3> --start <iso> --end <iso> [--step <s>] [--out <file.csv>]   Predicted C/N0 per satellite and epoch (Pro)\n\
+    lugre prereg --model <model.toml> --out <prereg.toml> --registrant <name> [--title <t>] [--utc <iso>] [--signals G:1C,G:5Q,...]   Write a pre-registration template and print its SHA-256 (Pro)\n\
+    lugre score --prereg <prereg.toml> --prereg-sha256 <hex> --model <model.toml> --sp3 <file.sp3> --obs <obs.csv> --out <dir> [--signer <name> --key-file <f> [--utc <iso>]]\n\
+        Score observed against predicted C/N0 under the pre-registration; bias with uncertainty vs the published 7-12 dB (Pro; MODELLED harness)\n\
+    sla verify --obs <samples.csv> --month <YYYY-MM> --out <dir> --signer <name> --key-file <f> [--sla lcrns-srd,moonlight-owr,lnss-ioc] [--sla-file <f.toml>] [--decorrelation-s <s>] [--confidence <c>] [--utc <iso>]\n\
+        Per-provider SISE/UEE, availability and continuity against SLA targets; signed monthly report (Pro)\n\
+    sla example --out <samples.csv> [--seed <n>]   SYNTHETIC month of reference-station samples, one provider meeting and one breaching (free)\n\
+    pack build --spec <pack.toml> --out <dir> --signer <name> --key-file <f> [--require-complete] [--utc <iso>]\n\
+        Signed mission-review (PDR/CDR/FRR) navigation evidence pack: time scale with model disclosure, ephemerides and frames with hashes, performance, verdicts, checklist (Pro)\n\
+    pack verify <dir> --trust <public-key-hex>   Verify a pack: signature, hashes, checklist and time recomputed (free)\n\
+    pack example --out <dir>   Write an example pack spec (SYNTHETIC numbers) (free)\n\
+    mars --at <YYYY-MM-DDTHH:MM:SS UTC> [--lon-west <deg>] [--json]   Mars Sol Date, MTC, local solar time (Mars24) and Mars coordinate time TCM/TM with uncertainty (Pro)\n\
   W0 candidates: kshana-equatorial-j2 (default), point-mass-mean-radius, turyshev-selenoid, turyshev-south-pole, conventional:<m2/s2>\n\
   Licence: --license <token> | an activated licence | --dev (debug builds); feature pro-timing-holdover";
 
@@ -69,6 +84,25 @@ pub fn run(args: &[String]) -> ExitCode {
             Some("vectors") => offset_vectors(args),
             _ => Err(USAGE.to_string()),
         },
+        Some("lugre") => match args.get(1).map(String::as_str) {
+            Some("example") => lugre_example(args),
+            Some("predict") => gated(args, lugre_predict),
+            Some("prereg") => gated(args, lugre_prereg),
+            Some("score") => gated(args, lugre_score),
+            _ => Err(USAGE.to_string()),
+        },
+        Some("sla") => match args.get(1).map(String::as_str) {
+            Some("example") => sla_example(args),
+            Some("verify") => gated(args, sla_verify),
+            _ => Err(USAGE.to_string()),
+        },
+        Some("pack") => match args.get(1).map(String::as_str) {
+            Some("example") => pack_example(args),
+            Some("build") => gated(args, pack_build),
+            Some("verify") => return pack_verify(args),
+            _ => Err(USAGE.to_string()),
+        },
+        Some("mars") => gated(args, mars_cmd),
         Some("lunex") => match args.get(1).map(String::as_str) {
             Some("convert") => gated(args, lunex_convert),
             Some("validate") => return lunex_validate(args),
@@ -613,4 +647,306 @@ fn lunex_validate(args: &[String]) -> ExitCode {
     } else {
         ExitCode::FAILURE
     }
+}
+
+// ------------------------------------------------------------------ signing helpers
+
+/// Sign `out` when `--signer` and `--key-file` are given (both or neither).
+fn sign_optional(args: &[String], out: &Path) -> Result<Option<String>, String> {
+    match (flag(args, "--signer"), flag(args, "--key-file")) {
+        (None, None) => Ok(None),
+        (Some(_), Some(_)) => sign_required(args, out).map(Some),
+        _ => Err("give both --signer and --key-file to sign".into()),
+    }
+}
+
+/// Sign `out` with `--signer` and `--key-file` (required); returns the public key (hex).
+fn sign_required(args: &[String], out: &Path) -> Result<String, String> {
+    let (Some(signer), Some(kf)) = (flag(args, "--signer"), flag(args, "--key-file")) else {
+        return Err("needs --signer and --key-file (a signed output)".into());
+    };
+    let seed = super::forensics_cmd::read_seed(&kf)?;
+    let utc = flag(args, "--utc").unwrap_or_else(utc_iso8601_now);
+    crate::signed_dossier::sign(out, &seed, &signer, &utc).map_err(|e| e.to_string())?;
+    Ok(hex::encode(crate::license::public_key_for(&seed)))
+}
+
+// ------------------------------------------------------------------ D6 LuGRE harness
+
+fn lugre_example(args: &[String]) -> Result<ExitCode, String> {
+    let out = flag(args, "--out").ok_or(USAGE)?;
+    let bias = num(args, "--bias-db")?.unwrap_or(-9.5);
+    let seed = flag(args, "--seed")
+        .map(|s| s.parse::<u64>().map_err(|_| "--seed: bad number"))
+        .transpose()?
+        .unwrap_or(1);
+    let t = lugre::write_synthetic(Path::new(&out), bias, seed)?;
+    println!(
+        "SYNTHETIC LuGRE-like data set written to {out} (injected bias {bias} dB).\n\
+         pre-registration SHA-256: {}\n\
+         score it with: kshana-pro lunar lugre score --prereg {out}/prereg.toml --prereg-sha256 {} \\\n  \
+         --model {out}/model.toml --sp3 {out}/gnss.sp3 --obs {out}/obs.csv --out {out}/score",
+        t.prereg_sha256, t.prereg_sha256
+    );
+    Ok(ExitCode::SUCCESS)
+}
+
+fn lugre_predict(args: &[String]) -> Result<ExitCode, String> {
+    let m = lugre::Model::load(Path::new(&flag(args, "--model").ok_or(USAGE)?))?;
+    let sp3 = flag(args, "--sp3").ok_or(USAGE)?;
+    let src = lugre::Sp3Source::parse(
+        &std::fs::read_to_string(&sp3).map_err(|e| format!("{sp3}: {e}"))?,
+    )?;
+    let start = lugre::parse_epoch(&flag(args, "--start").ok_or(USAGE)?)?;
+    let end = lugre::parse_epoch(&flag(args, "--end").ok_or(USAGE)?)?;
+    let step = num(args, "--step")?.unwrap_or(60.0);
+    let p = lugre::predict_series(&m, &src, &start, &end, step)?;
+    let csv = format!("# {}\n{}", lugre::STATUS, lugre::predictions_csv(&p));
+    match flag(args, "--out") {
+        Some(o) => {
+            std::fs::write(&o, csv).map_err(|e| format!("{o}: {e}"))?;
+            eprintln!(
+                "[lugre] {} links ({} with a predicted C/N0) written to {o}",
+                p.len(),
+                p.iter().filter(|x| x.cn0_dbhz.is_some()).count()
+            );
+        }
+        None => print!("{csv}"),
+    }
+    Ok(ExitCode::SUCCESS)
+}
+
+fn lugre_prereg(args: &[String]) -> Result<ExitCode, String> {
+    let mp = flag(args, "--model").ok_or(USAGE)?;
+    let bytes = std::fs::read(&mp).map_err(|e| format!("{mp}: {e}"))?;
+    let m = lugre::Model::load(Path::new(&mp))?;
+    let out = flag(args, "--out").ok_or(USAGE)?;
+    let registrant = flag(args, "--registrant").ok_or("needs --registrant")?;
+    let signals = match flag(args, "--signals") {
+        Some(s) => s.split(',').map(|x| x.trim().to_string()).collect(),
+        None => m.config.signals.keys().cloned().collect(),
+    };
+    let p = lugre::PreRegistration::template(
+        &lugre::sha256_hex(&bytes),
+        &flag(args, "--title").unwrap_or_else(|| "LuGRE C/N0 reproduction".into()),
+        &registrant,
+        &flag(args, "--utc").unwrap_or_else(utc_iso8601_now),
+        signals,
+    );
+    let text = p.to_toml()?;
+    std::fs::write(&out, &text).map_err(|e| format!("{out}: {e}"))?;
+    println!(
+        "pre-registration written to {out}\nSHA-256: {}\n\
+         Edit the bars and analysis now if needed, then publish the final file's SHA-256 (a commit, a registry) \
+         BEFORE opening any observation data.",
+        lugre::sha256_hex(text.as_bytes())
+    );
+    Ok(ExitCode::SUCCESS)
+}
+
+fn lugre_score(args: &[String]) -> Result<ExitCode, String> {
+    let need = |n: &str| flag(args, n).ok_or_else(|| format!("score needs {n}"));
+    let (pre, sha, model, sp3, obs, out) = (
+        need("--prereg")?,
+        need("--prereg-sha256")?,
+        need("--model")?,
+        need("--sp3")?,
+        need("--obs")?,
+        need("--out")?,
+    );
+    let (r, res) = lugre::score(&lugre::ScoreInputs {
+        prereg: Path::new(&pre),
+        prereg_sha256: &sha,
+        model: Path::new(&model),
+        sp3: Path::new(&sp3),
+        observations: Path::new(&obs),
+    })?;
+    let dir = Path::new(&out);
+    lugre::write_dir(dir, &r, &res)?;
+    let signed = sign_optional(args, dir)?;
+    print!("{}", lugre::render_text(&r));
+    if let Some(pk) = signed {
+        eprintln!("[signed {out}; public key {pk}]");
+    }
+    Ok(ExitCode::SUCCESS)
+}
+
+// ------------------------------------------------------------------ D7 LNSP SLA verification
+
+fn sla_example(args: &[String]) -> Result<ExitCode, String> {
+    let out = flag(args, "--out").ok_or(USAGE)?;
+    let seed = flag(args, "--seed")
+        .map(|s| s.parse::<u64>().map_err(|_| "--seed: bad number"))
+        .transpose()?
+        .unwrap_or(1);
+    let csv = sla::synthetic_csv(2029, 6, 300.0, 0.5, &sla::example_providers(), seed);
+    std::fs::write(&out, csv).map_err(|e| format!("{out}: {e}"))?;
+    println!(
+        "SYNTHETIC reference-station samples for 2029-06 written to {out} (MEETS-CO and BREACH-CO)"
+    );
+    Ok(ExitCode::SUCCESS)
+}
+
+fn sla_verify(args: &[String]) -> Result<ExitCode, String> {
+    let obs = flag(args, "--obs").ok_or("verify needs --obs")?;
+    let month = flag(args, "--month").ok_or("verify needs --month YYYY-MM")?;
+    let out = flag(args, "--out").ok_or("verify needs --out")?;
+    if flag(args, "--signer").is_none() || flag(args, "--key-file").is_none() {
+        return Err("verify needs --signer and --key-file (the monthly report is signed)".into());
+    }
+    let text = std::fs::read_to_string(&obs).map_err(|e| format!("{obs}: {e}"))?;
+    let samples = sla::parse_samples(&text)?;
+    let mut slas = Vec::new();
+    if let Some(list) = flag(args, "--sla") {
+        for id in list.split(',') {
+            slas.push(sla::Sla::builtin(id.trim())?);
+        }
+    }
+    if let Some(f) = flag(args, "--sla-file") {
+        slas.extend(sla::parse_sla_file(
+            &std::fs::read_to_string(&f).map_err(|e| format!("{f}: {e}"))?,
+        )?);
+    }
+    if slas.is_empty() {
+        slas = vec![
+            sla::Sla::builtin("lcrns-srd")?,
+            sla::Sla::builtin("moonlight-owr")?,
+        ];
+    }
+    let mut opt = sla::Options {
+        month,
+        ..sla::Options::default()
+    };
+    if let Some(d) = num(args, "--decorrelation-s")? {
+        opt.decorrelation_s = d;
+    }
+    if let Some(c) = num(args, "--confidence")? {
+        opt.confidence = c;
+    }
+    let r = sla::verify(&samples, &slas, &opt, &lugre::sha256_hex(text.as_bytes()))?;
+    let dir = Path::new(&out);
+    sla::write_dir(dir, &r)?;
+    let pk = sign_required(args, dir)?;
+    print!("{}", sla::render_text(&r));
+    eprintln!("[signed {out}; public key {pk}]");
+    Ok(ExitCode::SUCCESS)
+}
+
+// ------------------------------------------------------------------ D8 mission-review pack
+
+fn pack_example(args: &[String]) -> Result<ExitCode, String> {
+    let out = flag(args, "--out").ok_or(USAGE)?;
+    let p = pack::write_example(Path::new(&out))?;
+    println!(
+        "example pack spec (SYNTHETIC numbers) written to {}",
+        p.display()
+    );
+    Ok(ExitCode::SUCCESS)
+}
+
+fn pack_build(args: &[String]) -> Result<ExitCode, String> {
+    let spec = flag(args, "--spec").ok_or("build needs --spec")?;
+    let out = flag(args, "--out").ok_or("build needs --out")?;
+    if flag(args, "--signer").is_none() || flag(args, "--key-file").is_none() {
+        return Err("build needs --signer and --key-file (a pack is signed)".into());
+    }
+    let (s, base) = pack::read_spec(Path::new(&spec))?;
+    if has_flag(args, "--require-complete") {
+        let (p, _, _) = pack::build(&s, &base)?;
+        if !p.complete {
+            let missing: Vec<String> = p
+                .checklist
+                .iter()
+                .filter(|c| !c.provided)
+                .map(|c| format!("{} {}", c.id, c.item))
+                .collect();
+            return Err(format!("pack incomplete: {}", missing.join("; ")));
+        }
+    }
+    let dir = Path::new(&out);
+    let p = pack::write_pack(dir, &s, &base)?;
+    let pk = sign_required(args, dir)?;
+    print!("{}", pack::render_text(&p));
+    eprintln!("[signed {out}; public key {pk}]");
+    Ok(ExitCode::SUCCESS)
+}
+
+fn pack_verify(args: &[String]) -> ExitCode {
+    let Some(dir) = args.get(2).filter(|a| !a.starts_with("--")) else {
+        return fail(USAGE);
+    };
+    let trust = match super::forensics_cmd::keys(args, "--trust") {
+        Ok(t) => t,
+        Err(e) => return fail(e),
+    };
+    match pack::verify_pack(Path::new(dir), &trust) {
+        Ok(v) => {
+            println!(
+                "signer {}; signature {}; key {}; complete {}",
+                v.signer,
+                if v.signature_ok { "valid" } else { "INVALID" },
+                match v.trusted {
+                    Some(true) => "trusted",
+                    Some(false) => "NOT trusted",
+                    None => "not pinned (give --trust)",
+                },
+                v.complete
+            );
+            for p in &v.problems {
+                println!("problem: {p}");
+            }
+            if v.passed() {
+                println!("PASS");
+                ExitCode::SUCCESS
+            } else {
+                println!("FAIL");
+                ExitCode::FAILURE
+            }
+        }
+        Err(e) => fail(e),
+    }
+}
+
+// ------------------------------------------------------------------ D9 Mars time
+
+fn mars_cmd(args: &[String]) -> Result<ExitCode, String> {
+    let at = flag(args, "--at").ok_or("mars needs --at <YYYY-MM-DDTHH:MM:SS> (UTC)")?;
+    let lon = num(args, "--lon-west")?.unwrap_or(0.0);
+    let jd = time::parse_iso(&at)?.to_f64();
+    let m = mars::mars24(jd, lon);
+    let c = mars::coordinate_time(&at)?;
+    if has_flag(args, "--json") {
+        return Ok(print_json(&serde_json::json!({
+            "status": mars::STATUS, "mars24": m, "coordinate_time": c,
+        })));
+    }
+    println!("{}", mars::STATUS);
+    println!(
+        "UTC {at}  (TT - UTC {} s)\nMSD {:.5}  MTC {} ({:.5} h)  Ls {:.3} deg  EOT {:.3} deg\n\
+         at {lon} deg W: LMST {}  LTST {}\n",
+        m.tt_minus_utc_s,
+        m.msd,
+        mars::hms(m.mtc_h),
+        m.mtc_h,
+        m.ls_deg,
+        m.eot_deg,
+        mars::hms(m.lmst_h),
+        mars::hms(m.ltst_h)
+    );
+    for (n, b) in [
+        ("TCM - TCB", &c.tcm_minus_tcb),
+        ("TM - TCB", &c.tm_minus_tcb),
+        ("TM - TT", &c.tm_minus_tt),
+    ] {
+        println!("{n:<10} {:>18.9} s  u_c {:.3e} s", b.value(), b.u_c());
+    }
+    println!(
+        "mean rate d(TM - TT)/dt = {:.2} us/day (u {:.2} ns/day); areoid W0 {:.0} m2/s2\n\
+         published cross-check: Ashby & Patla (arXiv:2507.21388) {} us/day (disclosed ~2 % difference)",
+        c.rate_tm_minus_tt_us_day,
+        c.rate_u_ns_day,
+        c.w0_m2_s2,
+        mars::ASHBY_PATLA_MARS_US_DAY
+    );
+    Ok(ExitCode::SUCCESS)
 }

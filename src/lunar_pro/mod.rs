@@ -17,6 +17,10 @@
 //! | D3 Earth–Moon TWTT holdover calculator | [`holdover`] | 4 | MODELLED; checked against closed-form ADEV to time-error relations and Monte Carlo |
 //! | D4 TL–UTC broadcast offset codec | [`offset_codec`] | 5 | PROPOSAL pending LNIS AD5, not a standard; MODELLED |
 //! | D5 LUNEX prototype | [`lunex`] | 30 | PROTOTYPE proposal for the IGS RINEX Committee, not a standard; MODELLED |
+//! | D6 LuGRE C/N0 reproduction harness, pre-registered | [`lugre`] | 14 | MODELLED harness; no LuGRE data scored; input schema to be confirmed against the Zenodo record |
+//! | D7 LNSP SLA verification (SISE/UEE, availability, continuity), signed monthly report | [`sla`] | 16, 25 | MODELLED; synthetic providers; SRD/SLA mapping illustrative until confirmed |
+//! | D8 Lunar mission-review evidence pack (PDR/CDR/FRR), signed | [`pack`] | 24 | format PROPOSAL; carries its inputs' labels; CGPM Res. 6 mapping illustrative |
+//! | D9 Mars coordinate time (TCM/TM) with uncertainty; MSD/MTC per Mars24 | [`mars`] | 9 | MODELLED; MSD/MTC reproduce the Mars24 worked examples; TCM rate cross-checked against Ashby & Patla 2025 with a disclosed 2 % difference |
 //!
 //! **Nothing here is VALIDATED** against external measured lunar data: there is no lunar clock
 //! data yet. Where a figure is compared with a published number, the comparison is a
@@ -28,8 +32,12 @@
 pub mod budget;
 pub mod circular;
 pub mod holdover;
+pub mod lugre;
 pub mod lunex;
+pub mod mars;
 pub mod offset_codec;
+pub mod pack;
+pub mod sla;
 pub mod time;
 
 pub use budget::{Budget, Dist, Term, TermKind};

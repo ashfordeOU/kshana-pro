@@ -176,6 +176,171 @@ Tests: CSV to LUNEX to text round-trips byte for byte and value for value; the e
 reads the same values; clean files (Earth GNSS and a TL-tagged AFS file) validate; ten injected
 faults are each caught; bad CSV is refused.
 
+## D6. LuGRE C/N0 reproduction harness, pre-registered (gap 14)
+
+LuGRE's received C/N0 was 7–12 dB below its planning simulation, cause unexplained (NAVIGATION
+doi:10.33012/navi.756; open data Zenodo doi:10.5281/zenodo.16411686). D6 is a harness for an
+independent, pre-registered reproduction. **MODELLED: no LuGRE observation has been scored, and
+the real data have not been downloaded.**
+
+* **Model** (`model.toml`): per satellite and epoch, `C/N0 = EIRP(θ) + G_R(z) − FSL + 228.6 −
+  10·log10(T_sys) − L_impl`, with `T_sys = T_A + (L−1)·T_0 + L·(F−1)·T_0`. The EIRP against the
+  off-nadir angle θ is an input table per satellite, block or system and band (`angle_deg,eirp_dbw`,
+  side lobes included); the receive gain an input table (`angle_deg,gain_dbi`). The link equation is
+  the open engine's `earth_gnss_lunar::measured_link`. GNSS positions come from SP3 (engine parser
+  and interpolator, TEME), the Moon from the engine series rotated to the mean equator of date, a
+  surface site from the engine's Moon PA frame; Earth (with a mask height) and Moon occultation
+  remove links. The model file pins every table by SHA-256.
+* **Pre-registration** (`prereg.toml`, `kshana-lugre-prereg/1`): fixes the model by SHA-256, the
+  signals, exclusion rules, cluster minimum, coverage factor, bootstrap seed and the bars, and
+  declares `data_seen = false`. `kshana-pro lunar lugre prereg` writes the template and prints the
+  hash to publish (a commit or a registry) before the data are opened. The scorer refuses a file
+  whose hash is not the published one, a model whose hash is not the registered one, a table whose
+  hash is not the model's, and `data_seen = true`.
+* **Scorer**: residuals `observed − predicted`, clustered by satellite and signal; bias = mean of
+  cluster means; `u_A` = cluster standard error (plus a percentile cluster bootstrap); `u_B` = the
+  model budget (each EIRP table's uncertainty weighted by the share of clusters using it, receive
+  gain, noise temperature and noise figure through `10·log10(T_sys)`, implementation loss, and the
+  geometric angle error times the pattern slope). The shortfall `−bias ± k·u` is compared with the
+  published 7–12 dB. Default bars: B1 ≥ 4 clusters, B2 `u ≤ 2 dB`, B3 shortfall interval above
+  zero, B4 interval overlaps 7–12 dB.
+
+```text
+kshana-pro lunar lugre example --out ex          # SYNTHETIC set: SP3, tables, model, prereg, obs (free)
+kshana-pro lunar lugre score --prereg ex/prereg.toml --prereg-sha256 $(cat ex/prereg.sha256) \
+  --model ex/model.toml --sp3 ex/gnss.sp3 --obs ex/obs.csv --out ex/score [--signer N --key-file K] --dev
+all  712 obs, 56 clusters, shortfall 9.45 dB, u_A 0.10, u_B 1.19, interval [7.05, 11.84]: inside 7-12
+```
+
+**Input schema needs confirmation against the Zenodo record.** Observations use the D5 LuGRE-style
+CSV (`time,sv,signal,pseudorange_m,carrier_cycles,doppler_hz,cn0_dbhz`, GPS time); a converter from
+the Zenodo files to it is the first step when the data are taken up. Tests: a hand link budget at
+lunar distance (FSL 208.08 dB on L1), the Friis noise cascade, inverse square, Earth and Moon
+occultation, the surface geometry, the correlated pattern term, recovery of an injected −9.5 dB bias
+and its bars, a zero-bias control that fails B3 and B4, k = 2 coverage of 89–99 % over 300 synthetic
+campaigns, and refusal of each tamper. The synthetic patterns are invented shapes, not ACE data.
+Known gaps: azimuth-averaged transmit tables only (Galileo phasing and yaw are not modelled; the
+engine's `GainPattern2D` is the route); the receiver's tracking threshold truncates the observed
+distribution near the floor, which biases residuals there (the `min_observed_dbhz` rule only
+partly handles it); the Moon series is ≈0.05° from Horizons (≈0.05° in θ).
+
+## D7. Lunar navigation service SLA verification (gaps 16, 25)
+
+`kshana-pro lunar sla verify --obs <samples.csv> --month YYYY-MM --out <dir> --signer <name>
+--key-file <f> [--sla lcrns-srd,moonlight-owr,lnss-ioc] [--sla-file <f.toml>]` gives, per provider,
+the range-domain SISE (UEE removed), availability, integrity events and continuity, each with a
+95 % interval and a three-way verdict (**Meets** if the whole interval is inside the target,
+**Breach** if wholly outside, else **Inconclusive**), and writes a signed monthly report
+(`report.json`, `report.txt`, `signature.json`). `kshana-pro lunar sla example --out s.csv` writes a
+SYNTHETIC month with one provider that meets and one that breaches. **MODELLED: no lunar navigation
+service exists yet.**
+
+* **Input**: `time,station,provider,node,status,range_residual_m,uee_sigma_m`; `status` is `ok`,
+  `unhealthy` or `missing` (scheduled but not received). The residual is the pseudorange minus the
+  range from the node's broadcast ephemeris and clock to the surveyed station, with the station
+  clock removed (SISE + UEE); `uee_sigma_m` is the station's own calibrated noise and multipath.
+* **SISE**: `k·RMS` (`RMS² = mean(e²) − mean(σ_UEE²)`, bias included) with a χ² interval, or the
+  `p` quantile of `|e|` corrected for UEE (`√(q² − z_p²σ_UEE²)`, Gaussian) with an order-statistic
+  interval (or a scale-family χ² interval when too few independent samples). Independent samples
+  `n_eff` = distinct `--decorrelation-s` blocks (default 1800 s). Windowed SLAs (Moonlight "any
+  24 h") are judged on the worst sliding window (step 1 h).
+* **Availability**: share of scheduled epochs with at least `min_nodes` healthy nodes inside the
+  alarm limit (Wilson interval on `n_eff`); healthy samples beyond the alarm limit are integrity
+  events. **Continuity**: losses of service per available hour `λ`, `exp(−λT)` over
+  `continuity_interval_s` with a Garwood interval; longest continuous run per day.
+
+| Profile | Target | Source (as cited in the research note) |
+|---|---|---|
+| `lcrns-srd` | SISE 13.43 m at 3σ | LCRNS SRD ESC-LCRNS-REQ-0090 [28]; the SRD states a **position** SISE, the station measures the range-domain projection plus clock: **illustrative until confirmed against the SRD** |
+| `moonlight-owr` | SISE 10 m at 95 % over any 24 h; availability 95 % | ESA Moonlight [29][30]; availability counted at one node (a positioning service needs `min_nodes = 4`) |
+| `lnss-ioc` | SISE 20 m at 2σ | JAXA LNSS IOC [17] |
+
+Custom targets: an `--sla-file` with `[[sla]]` tables (`id`, `source`, `sise_target_m`,
+`sise_metric = {kind = "ksigma", k}` or `{kind = "percentile", p}`, `window_h`,
+`availability_target`, `continuity_target`, `continuity_interval_s`, `min_nodes`,
+`alarm_limit_m`). In the example, MEETS-CO (σ 2.5 m) gets 3σ 7.60 m [7.32, 7.90] and Meets both
+profiles; BREACH-CO (σ 7 m, 10 % outage) gets 3σ 21.2 m and availability 0.91 and Breaches both.
+
+Tests: right verdicts for both synthetic providers; k-sigma χ² interval coverage 92–98 % and
+percentile coverage 90–99 % over 400 Monte Carlo trials; UEE removal; `n_eff` shrinking with
+correlation; a bad day found by the 24 h window and hidden in the month; integrity, availability
+and continuity counts exact on a constructed series; Inconclusive near the target with little
+data; month filtering; custom and malformed SLA files and samples; the signed report verifies and a
+changed verdict is detected. Limits: residuals must be formed upstream (station survey, broadcast
+ephemeris, station clock); judging the worst of many windows raises the false-breach rate at a
+fixed per-window confidence (no multiplicity correction); one station sees each node from one
+direction, so orbit errors orthogonal to the line of sight are not observed.
+
+## D8. Lunar mission-review evidence pack (gap 24)
+
+`kshana-pro lunar pack build --spec pack.toml --out <dir> --signer <name> --key-file <f>
+[--require-complete]` writes a signed pack for a navigation review (PDR, CDR, FRR);
+`kshana-pro lunar pack verify <dir> --trust <public-key-hex>` (free) checks it;
+`kshana-pro lunar pack example --out <dir>` writes an example spec with SYNTHETIC numbers.
+**A format proposal, not an agency standard; the mapping to CGPM Resolution 6 is illustrative
+until confirmed against the resolution text.** A pack carries the evidence labels of its inputs.
+
+The pack (`pack.json`, `pack.txt`, `time_budget.json`, `attachments/`, `signature.json`) holds:
+
+1. **Time scale**: TL or TCL with the CGPM option named, the rate source, the `W0_L` candidate
+   and its source, lunar time − UTC at the reference epoch with `u_c` and `U(k=2)`, the secular
+   rate against TT with its uncertainty, every D1 model term with its source, and the stated
+   traceability route to UTC (the disclosure CGPM Res. 6 asks for: model, ephemerides,
+   uncertainties).
+2. **Ephemerides and frames**: each input with a version and a SHA-256 computed from the file
+   (`computed`), declared without a file (`declared`) or neither (`unverified`); a declared hash
+   that differs from the file is refused. The open engine version (`kshana 0.41.0`, checked against
+   `Cargo.toml` by a test) and its built-in models (Moon and Sun series, lunar orientation,
+   precession, leap seconds, TDB − TT) are listed.
+3. **Performance**: each result `value ± k·u` with its unit, source and evidence label.
+4. **Conformance**: Meets / Breach / Inconclusive (the whole `k·u` interval against `le <x>` or
+   `ge <x>`); attached D6 scores and D7 SLA reports have their verdicts imported.
+5. **Disclosure checklist** C1–C12 (time option, full model, `W0_L`, uncertainties, UTC route,
+   ephemerides named, ephemerides hashed, frames, performance with uncertainty, labels, verdicts,
+   engine and models), each derived from the content; `--require-complete` refuses an incomplete
+   pack.
+
+`verify` checks the signature and the pinned key, every attachment's hash, that the checklist and
+the verdicts follow from the content, and recomputes the time conversion from the declared model,
+so a pack whose numbers were changed and re-signed (with any key) is caught. Tests: a complete pack
+verifies (unpinned or wrong key fails); a changed text, offset, checklist item, verdict, attachment
+or deleted file is detected; missing traceability and an unhashed ephemeris are flagged C5 and C7;
+a wrong declared hash is refused; the TCL option; D7 verdicts imported; the verdict rule.
+
+## D9. Mars coordinate time and MSD/MTC (gap 9)
+
+`kshana-pro lunar mars --at <UTC> [--lon-west <deg>] [--json]` gives the Mars Sol Date, Coordinated
+Mars Time and local mean and true solar time (Mars24), and Kshana's Mars coordinate time TCM and
+areoid time TM with uncertainty. **MODELLED.**
+
+* **MSD and MTC**: Allison and McEwen (2000) as in NASA GISS "Mars24 Sunclock — Algorithm and
+  Worked Examples" (updated 2025-01-07), steps A-2 to C-5 (TT − UTC from the leap-second table,
+  the page's polynomial before 1972). The tests reproduce both of the page's worked examples
+  (2000-01-06 00:00 UTC at 0° W: MST 23:59:39, LTST 23:38:54; Spirit landing 2004-01-03
+  13:46:31 UTC at 184.702° W: MST 13:09:55, LTST ≈ 00:00:00) to its printed fifth decimal. One
+  exception is disclosed: the page prints LTST 0.00025 h for example 2 while its own printed LMST +
+  EOT/15 is 0.00020 h, which is what we get (0.18 s).
+* **TCM** (Kshana's name; no Mars coordinate time is adopted): `dTCM/dTCB = 1 − L_CM`,
+  `L_CM = (3/2)·GM_⊙/(a c²) + Σ GM_p/(a_p c²)` (Kepler average, `a` from the engine's Standish
+  elements; outer-planet term with a 30 % half-width) = 9.72e-9; periodic term
+  `−(2/c²)√(GM_⊙ a)·e·sin E` (≈ 11.4 ms amplitude); origin TCM = TCB at the 1977 `T0` by analogy.
+* **TM**: `dTM/dTCM = 1 − W0_M/c²`, `W0_M` = 12 652 010 m²/s² (degree-2 equatorial value from the
+  engine's Mars body, MRO110 J2; u half its difference from the point-mass mean-radius value),
+  i.e. 12.16 µs/day.
+* **Areoid clock against TT**: `L_B − L_CM − L_M` = **487.75 µs/day** (u 0.03 µs/day). Ashby and
+  Patla (arXiv:2507.21388, 2025) give **477 µs/day** with a 226 µs/day variation over a Martian
+  year. That figure is not in the research note (it gives no Mars rate); it is from the arXiv
+  abstract read in this pass. The **≈10.7 µs/day (2.2 %) difference is unresolved** and far outside
+  both stated uncertainties; it is disclosed, not tuned away (a test pins its size). Our Mars-only
+  peak-to-peak rate variation is 211 µs/day; theirs also includes the Earth's annual term
+  (±28 µs/day).
+
+Tests: both Mars24 worked examples step by step; one MSD per sol; the pre-1972 polynomial and
+69.184 s after 2017; longitude; `L_CM` against the Earth analogue (the same formula gives IAU `L_C`
+within 2e-4); `W0_M`; the rate and the published cross-check; the rate variation and its zero mean;
+the periodic amplitude and that its derivative is the rate deviation; budget consistency over ten
+years.
+
 ## Honest limits
 
 * No lunar clock, TWTT link or lunar observation data exists yet: everything is MODELLED.
@@ -186,3 +351,10 @@ faults are each caught; bad CSV is refused.
   illustrative until confirmed against the IAU 2024 Resolution II text.
 * KLTO-1 and LUNEX field choices are proposals; nothing is taken from LNIS AD5 (not public).
 * Flicker FM in D3 uses the `τ·σ_y(τ)` rule of thumb, not an exact prediction variance.
+* D6 has scored no LuGRE data; its CSV schema needs confirming against the Zenodo record, and its
+  transmit patterns are azimuth-averaged.
+* D7's SRD/SLA mappings are illustrative until confirmed against the documents; residuals must be
+  formed upstream.
+* D8's pack format and CGPM Res. 6 checklist are a proposal, not an agency standard.
+* D9's areoid clock rate differs from Ashby and Patla's published 477 µs/day by ≈2 %, unresolved.
+  The Mars "TCM"/"TM" names and origin are Kshana's, not adopted.
