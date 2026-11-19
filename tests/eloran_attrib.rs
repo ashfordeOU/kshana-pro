@@ -449,3 +449,35 @@ fn cli_guard_attribute() {
     assert_eq!(rep["alarm"], true);
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// The patent-candidate `guard` method is node-locked (`require_bound`): with neither a
+/// `--license` token nor the debug `--dev` bypass it refuses to run and names the
+/// machine-bound requirement, so a hardened on-prem build cannot execute it off a
+/// licensed, machine-bound seat. (`--dev` success is covered by `cli_guard_attribute`.)
+#[test]
+fn cli_guard_requires_bound_licence() {
+    let dir = std::env::temp_dir().join(format!("kshana-guard-nolic-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let inp = dir.join("epoch.json");
+    let out = dir.join("report.json");
+    // A minimal, well-formed epoch: the gate must fire before the body parses it.
+    std::fs::write(&inp, "{}").unwrap();
+    let o = std::process::Command::new(env!("CARGO_BIN_EXE_kshana-pro"))
+        .args(["eloran", "guard", "attribute"])
+        .arg(&inp)
+        .arg("--out")
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(!o.status.success(), "unlicensed patent method must fail");
+    let err = String::from_utf8_lossy(&o.stderr);
+    assert!(
+        err.contains("machine-bound"),
+        "error should name the machine-bound requirement, got: {err}"
+    );
+    assert!(
+        !out.exists(),
+        "no report should be written when the gate fails"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}

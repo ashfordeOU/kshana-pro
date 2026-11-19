@@ -182,6 +182,39 @@ fn method_not_in_build(name: &str) -> ExitCode {
     ))
 }
 
+/// Node-locked gate for a patent-candidate method (roadmap 0.42, owner decision 19
+/// November 2026). A method compiled only with `unfiled-methods`, and shipped only in a
+/// hardened on-prem build (`scripts/protect/build-onprem.sh`), runs only under a
+/// *machine-bound* `pro-eloran` licence: there is no Evaluation fallback, and the token
+/// must name this machine (`kshana-pro license machine-id`). Node-locking is what stops
+/// the method being lifted onto another machine; the strip and the on-prem profile raise
+/// the cost of reading it off the one it is licensed to. Neither is extraction-proof,
+/// which is why these methods are filed as patents. See `docs/OFFLINE-PROTECTION.md`.
+///
+/// `--dev` still bypasses in a debug build (tests); the on-prem profile is a release
+/// build, where `--dev` has no effect.
+#[cfg(feature = "unfiled-methods")]
+fn require_bound(args: &[String]) -> Result<String, ExitCode> {
+    let now = now_unix();
+    if args.iter().any(|a| a == "--dev") && cfg!(debug_assertions) {
+        return Ok("(dev)".into());
+    }
+    let Some(token) = flag(args, "--license") else {
+        return Err(fail(
+            "licence: this method needs a machine-bound pro-eloran token (--license); run `kshana-pro license machine-id` and have the licence bound to this machine",
+        ));
+    };
+    let lic = super::license_cmd::verify_licence_for(&token, now, crate::license::Product::Cli)
+        .map_err(|e| fail(format!("license invalid: {e}")))?;
+    crate::license::check(&lic.entitlement, FEATURE, now).map_err(fail)?;
+    if lic.claims.machine.is_none() {
+        return Err(fail(
+            "licence: this method ships only under a machine-bound licence; the token must name this machine (`kshana-pro license machine-id`)",
+        ));
+    }
+    Ok(lic.entitlement.licensee)
+}
+
 pub fn run(args: &[String]) -> ExitCode {
     match args.first().map(String::as_str) {
         Some("run") => run_cmd(args),
@@ -231,32 +264,34 @@ pub fn run(args: &[String]) -> ExitCode {
         #[cfg(not(feature = "unfiled-methods"))]
         Some("survey-plan") => method_not_in_build("survey-plan"),
         #[cfg(feature = "unfiled-methods")]
-        Some("survey-plan") => done((|| {
-            use kshana_eloran::plan::survey::{plan, SurveyConfig};
-            if licensed(args).is_err() {
-                return Err("licence: pro-eloran is required".into());
+        Some("survey-plan") => {
+            if let Err(c) = require_bound(args) {
+                return c;
             }
-            let path = args.get(1).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
-            let out = flag(args, "--out").ok_or("--out <plan.json> is required")?;
-            let cfg: SurveyConfig =
-                toml::from_str(&read(path)?).map_err(|e| format!("{path}: {e}"))?;
-            let p = plan(&cfg)?;
-            write_json(&out, &p)?;
-            let mut t = format!(
+            done((|| {
+                use kshana_eloran::plan::survey::{plan, SurveyConfig};
+                let path = args.get(1).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+                let out = flag(args, "--out").ok_or("--out <plan.json> is required")?;
+                let cfg: SurveyConfig =
+                    toml::from_str(&read(path)?).map_err(|e| format!("{path}: {e}"))?;
+                let p = plan(&cfg)?;
+                write_json(&out, &p)?;
+                let mut t = format!(
                 "ASF survey plan: area meeting {:.0} m PL {:.1} % -> {:.1} %, mean PL {:.0} m -> {:.0} m\n",
                 cfg.target_pl_m, p.coverage_before * 100.0, p.coverage_after * 100.0, p.mean_pl_before_m, p.mean_pl_after_m
             );
-            for k in &p.picks {
-                t += &format!(
-                    "  {}. {:.4}, {:.4} (coverage {:.1} %)\n",
-                    k.order,
-                    k.lat_deg,
-                    k.lon_deg,
-                    k.coverage * 100.0
-                );
-            }
-            Ok(t + &format!("-> {out}"))
-        })()),
+                for k in &p.picks {
+                    t += &format!(
+                        "  {}. {:.4}, {:.4} (coverage {:.1} %)\n",
+                        k.order,
+                        k.lat_deg,
+                        k.lon_deg,
+                        k.coverage * 100.0
+                    );
+                }
+                Ok(t + &format!("-> {out}"))
+            })())
+        }
         Some("rmode") => done((|| {
             use kshana_eloran::rmode::{run, RModeConfig};
             if licensed(args).is_err() {
@@ -1629,7 +1664,7 @@ fn selfcal_cmd(args: &[String]) -> ExitCode {
     ) else {
         return fail(USAGE);
     };
-    if let Err(c) = licensed(args) {
+    if let Err(c) = require_bound(args) {
         return c;
     }
     done((|| {
@@ -2575,54 +2610,64 @@ fn bench_cmd(args: &[String]) -> ExitCode {
         #[cfg(not(feature = "unfiled-methods"))]
         Some("firstplug") => method_not_in_build("bench firstplug"),
         #[cfg(feature = "unfiled-methods")]
-        Some("firstplug") => done((|| {
-            use kshana_eloran::bench::firstplug;
-            let (inv, _, cat) = inventory()?;
-            let out = flag(args, "--out").ok_or("--out <dir> is required")?;
-            let rehearse = args.iter().any(|a| a == "--rehearse");
-            let src = inv
-                .in_role(check::BenchRole::EloranSource)
-                .into_iter()
-                .next()
-                .ok_or("the inventory has no eloran_source")?;
-            let spec = cat
-                .get(&src.catalog)
-                .ok_or_else(|| format!("{}: not in the catalogue", src.catalog))?;
-            let levels: Vec<f64> = match flag(args, "--levels") {
-                Some(l) => l
-                    .split(',')
-                    .map(|x| {
-                        x.trim()
-                            .parse::<f64>()
-                            .map_err(|_| format!("--levels: bad number {x:?}"))
-                    })
-                    .collect::<Result<_, _>>()?,
-                None => vec![-1.0, -20.0, -40.0],
-            };
-            let (addr, mut dev) = kshana_eloran::bench::open::open_item(src, &cat, fs, rehearse)?;
-            let (rep, files) = firstplug::run(
-                dev.as_mut(),
-                spec,
-                Some(addr.clone()),
-                fs,
-                &levels,
-                num_flag(args, "--pulses")?.unwrap_or(20),
-                &firstplug::Tolerances::default(),
-            )?;
-            let dir = Path::new(&out);
-            firstplug::write_evidence(dir, &rep, &files)?;
-            let signed = sign_if_requested(args, dir)?;
-            let mut msg = format!(
-                "first plug-in {}{}: {:?} on {addr} -> {out}{signed}",
-                if rehearse { "rehearsal" } else { "check" },
-                "",
-                rep.verdict
-            );
-            for d in &rep.diagnoses {
-                msg += &format!("\n  - {d}");
+        Some("firstplug") => {
+            // C2 first-plug conformance is a patent candidate: the generating run (not a
+            // dry `--rehearse`) is node-locked on top of the pro-eloran-hw gate above.
+            if !args.iter().any(|a| a == "--rehearse") {
+                if let Err(c) = require_bound(args) {
+                    return c;
+                }
             }
-            Ok(msg)
-        })()),
+            done((|| {
+                use kshana_eloran::bench::firstplug;
+                let (inv, _, cat) = inventory()?;
+                let out = flag(args, "--out").ok_or("--out <dir> is required")?;
+                let rehearse = args.iter().any(|a| a == "--rehearse");
+                let src = inv
+                    .in_role(check::BenchRole::EloranSource)
+                    .into_iter()
+                    .next()
+                    .ok_or("the inventory has no eloran_source")?;
+                let spec = cat
+                    .get(&src.catalog)
+                    .ok_or_else(|| format!("{}: not in the catalogue", src.catalog))?;
+                let levels: Vec<f64> = match flag(args, "--levels") {
+                    Some(l) => l
+                        .split(',')
+                        .map(|x| {
+                            x.trim()
+                                .parse::<f64>()
+                                .map_err(|_| format!("--levels: bad number {x:?}"))
+                        })
+                        .collect::<Result<_, _>>()?,
+                    None => vec![-1.0, -20.0, -40.0],
+                };
+                let (addr, mut dev) =
+                    kshana_eloran::bench::open::open_item(src, &cat, fs, rehearse)?;
+                let (rep, files) = firstplug::run(
+                    dev.as_mut(),
+                    spec,
+                    Some(addr.clone()),
+                    fs,
+                    &levels,
+                    num_flag(args, "--pulses")?.unwrap_or(20),
+                    &firstplug::Tolerances::default(),
+                )?;
+                let dir = Path::new(&out);
+                firstplug::write_evidence(dir, &rep, &files)?;
+                let signed = sign_if_requested(args, dir)?;
+                let mut msg = format!(
+                    "first plug-in {}{}: {:?} on {addr} -> {out}{signed}",
+                    if rehearse { "rehearsal" } else { "check" },
+                    "",
+                    rep.verdict
+                );
+                for d in &rep.diagnoses {
+                    msg += &format!("\n  - {d}");
+                }
+                Ok(msg)
+            })())
+        }
         #[cfg(not(feature = "unfiled-methods"))]
         Some("verify-evidence") => method_not_in_build("bench verify-evidence"),
         #[cfg(feature = "unfiled-methods")]
@@ -2729,7 +2774,7 @@ fn guard_cmd(args: &[String]) -> ExitCode {
     if !matches!(sub, Some("attribute") | Some("meacon")) {
         return fail(USAGE);
     }
-    if let Err(c) = licensed(args) {
+    if let Err(c) = require_bound(args) {
         return c;
     }
     done((|| match sub {

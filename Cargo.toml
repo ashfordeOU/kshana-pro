@@ -140,3 +140,22 @@ opt-level = 3
 [profile.release]
 strip = "symbols"
 debug = false
+
+# Hardened build for the on-prem / airgapped delivery of the patent-candidate methods
+# (compiled only with `--features unfiled-methods`; owner decision 19 November 2026).
+# Built and verified by scripts/protect/build-onprem.sh, never shipped to the public or
+# Desktop. Fat LTO and a single codegen unit inline the method bodies across crate
+# boundaries so they do not survive as tidy, separately named functions; panic=abort drops
+# the unwinding tables and their source strings. Symbols are stripped as in release. This
+# raises the cost of reading a method off the one machine it is licensed to; it is not
+# extraction-proof, which is why the methods are also node-locked (require_bound) and are
+# filed as patents. See docs/OFFLINE-PROTECTION.md.
+[profile.release-onprem]
+inherits = "release"
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+opt-level = 3
+strip = "symbols"
+debug = false
+overflow-checks = false
