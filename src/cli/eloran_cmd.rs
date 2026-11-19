@@ -14,7 +14,7 @@ use kshana_eloran::scene::{truth_csv, NullSink, SampleSink};
 use kshana_eloran::Scenario;
 
 use super::scorecard_cmd::entitlement;
-use super::{flag, now_unix};
+use super::{flag, now_unix, utc_iso8601_now};
 
 /// Licence feature of the simulator.
 pub const FEATURE: &str = "pro-eloran";
@@ -83,6 +83,13 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
     bench probe (--inventory <bench.toml> | --host <ip[:port]> ...) [--out <file>] [--license <token>] [--dev]\n\
         Find and identify connected instruments, read-only (*IDN?, serial ports, UHD/SoapySDR\n\
         discovery) (Enterprise, hardware)\n\
+    bench firstplug --inventory <bench.toml> --out <dir> [--rehearse] [--levels -1,-20,-40] [--signer <name> --key-file <file>] [--license <token>] [--dev]\n\
+        First plug-in check: the source plays the calibration train into its own loopback; each level is\n\
+        compared with the spec twin and every deviation is diagnosed; captures, hashes and measurements\n\
+        are bound into evidence (signed with the dossier key when given) (Enterprise, hardware unless --rehearse)\n\
+    bench verify-evidence <dir>\n\
+        Re-check first plug-in evidence: capture hashes, the binding hash, every number recomputed, and\n\
+        the signature when present (Enterprise)\n\
     bench accept --inventory <bench.toml> --profiles <dir> --out <report.json> [--select <ids>] [--stimulus-s <s>] [--evidence <dir>] [--license <token>] [--dev]\n\
         Acceptance suite on the real bench: the eLoran source by its driver, instruments by their\n\
         profiles (Enterprise, hardware)\n\
@@ -1217,6 +1224,25 @@ fn licensed_hw(args: &[String]) -> Result<(), ExitCode> {
     Ok(())
 }
 
+/// Sign `dir` with `--signer <name> --key-file <file>` when both are given (the dossier key
+/// from `kshana-pro dossier keygen`); returns a note for the summary line.
+fn sign_if_requested(args: &[String], dir: &Path) -> Result<String, String> {
+    let (Some(signer), Some(kf)) = (flag(args, "--signer"), flag(args, "--key-file")) else {
+        return Ok(" (unsigned: add --signer <name> --key-file <file> to sign)".into());
+    };
+    let text = std::fs::read_to_string(&kf).map_err(|e| format!("{kf}: {e}"))?;
+    let t = text.trim();
+    let seed = crate::license::parse_key_hex(t.strip_prefix("private_key=").unwrap_or(t))
+        .map_err(|e| format!("{kf}: {e}"))?;
+    let utc = flag(args, "--utc").unwrap_or_else(utc_iso8601_now);
+    let p = crate::signed_dossier::sign(dir, &seed, &signer, &utc).map_err(|e| e.to_string())?;
+    Ok(format!(
+        ", signed by {signer} (key {}) -> {}",
+        crate::license::key_id(&crate::license::public_key_for(&seed)),
+        p.display()
+    ))
+}
+
 fn bench_catalog(args: &[String]) -> Result<kshana_eloran::bench::catalog::Catalog, String> {
     let mut c = kshana_eloran::bench::catalog::Catalog::builtin();
     if let Some(p) = flag(args, "--catalog") {
@@ -1295,7 +1321,8 @@ fn bench_cmd(args: &[String]) -> ExitCode {
         _ => {}
     }
     // Everything that touches hardware needs pro-eloran-hw; the rest pro-eloran.
-    let hw = matches!(sub, Some("probe") | Some("accept"));
+    let hw = matches!(sub, Some("probe") | Some("accept"))
+        || (sub == Some("firstplug") && !args.iter().any(|a| a == "--rehearse"));
     if hw {
         if let Err(c) = licensed_hw(args) {
             return c;
@@ -1428,6 +1455,81 @@ fn bench_cmd(args: &[String]) -> ExitCode {
                 msg += &format!("\n  skipped {l}: {e}");
             }
             Ok(msg)
+        })()),
+        Some("firstplug") => done((|| {
+            use kshana_eloran::bench::firstplug;
+            let (inv, _, cat) = inventory()?;
+            let out = flag(args, "--out").ok_or("--out <dir> is required")?;
+            let rehearse = args.iter().any(|a| a == "--rehearse");
+            let src = inv
+                .in_role(check::BenchRole::EloranSource)
+                .into_iter()
+                .next()
+                .ok_or("the inventory has no eloran_source")?;
+            let spec = cat
+                .get(&src.catalog)
+                .ok_or_else(|| format!("{}: not in the catalogue", src.catalog))?;
+            let levels: Vec<f64> = match flag(args, "--levels") {
+                Some(l) => l
+                    .split(',')
+                    .map(|x| {
+                        x.trim()
+                            .parse::<f64>()
+                            .map_err(|_| format!("--levels: bad number {x:?}"))
+                    })
+                    .collect::<Result<_, _>>()?,
+                None => vec![-1.0, -20.0, -40.0],
+            };
+            let (addr, mut dev) = kshana_eloran::bench::open::open_item(src, &cat, fs, rehearse)?;
+            let (rep, files) = firstplug::run(
+                dev.as_mut(),
+                spec,
+                Some(addr.clone()),
+                fs,
+                &levels,
+                num_flag(args, "--pulses")?.unwrap_or(20),
+                &firstplug::Tolerances::default(),
+            )?;
+            let dir = Path::new(&out);
+            firstplug::write_evidence(dir, &rep, &files)?;
+            let signed = sign_if_requested(args, dir)?;
+            let mut msg = format!(
+                "first plug-in {}{}: {:?} on {addr} -> {out}{signed}",
+                if rehearse { "rehearsal" } else { "check" },
+                "",
+                rep.verdict
+            );
+            for d in &rep.diagnoses {
+                msg += &format!("\n  - {d}");
+            }
+            Ok(msg)
+        })()),
+        Some("verify-evidence") => done((|| {
+            let dir = args.get(2).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+            let bad = kshana_eloran::bench::firstplug::verify_evidence(Path::new(dir))?;
+            let sig = Path::new(dir).join("signature.json");
+            let sig_note = if sig.exists() {
+                match crate::signed_dossier::verify(Path::new(dir), &[]) {
+                    Ok(v) if v.signature_ok && v.problems.is_empty() => format!(
+                        "; signature valid: {} files signed by {} (key {}) at {}; pin the key with `dossier verify --trust` to trust it",
+                        v.files, v.signer, v.key_id, v.utc
+                    ),
+                    Ok(v) => {
+                        return Err(format!(
+                            "signature does not hold: {}",
+                            if v.problems.is_empty() { "bad signature".to_string() } else { v.problems.join("; ") }
+                        ))
+                    }
+                    Err(e) => return Err(format!("signature: {e}")),
+                }
+            } else {
+                "; not signed".to_string()
+            };
+            if bad.is_empty() {
+                Ok(format!("evidence intact: hashes, binding and every measurement recomputed from the captures{sig_note}"))
+            } else {
+                Err(format!("evidence NOT intact:\n  {}", bad.join("\n  ")))
+            }
         })()),
         Some("probe") => done((|| {
             let cat = bench_catalog(args)?;

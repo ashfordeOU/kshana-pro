@@ -34,8 +34,8 @@ Status: [ ] todo, [~] in progress, [x] done (commit sha).
 
 ## B. Hardware (plug in and test)
 - [ ] B1 Vendor command profiles from programming manuals (AWGs, counters, GNSS simulators), cited
-- [ ] B2 First-plug conformance against spec-twin prediction intervals (C2)
-- [ ] B3 Hardware-anchored evidence of the emitted waveform: loopback digest + fidelity bound in the signed record (B2)
+- [x] B2 First-plug conformance against spec-twin prediction intervals (C2)
+- [x] B3 Hardware-anchored evidence of the emitted waveform: loopback digest + fidelity bound in the signed record (B2)
 
 ## C. Maritime, aviation, timing
 - [ ] C1 PICS: PNT Interference Conformance Suite, clause-mapped (MSC.401/Circ.1575, IEC 61108, ED-259A, IEEE P1952, DHS RPCF, G.8272.1, C37.238), signed scorecards (02-1/7/8/14, P1)

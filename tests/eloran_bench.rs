@@ -194,3 +194,60 @@ fn probe_needs_the_hardware_licence_feature_and_reports_unreachable_hosts() {
     assert!(o.status.success(), "{}", text(&o));
     assert!(text(&o).contains("unreachable"));
 }
+
+#[test]
+fn first_plug_rehearsal_writes_verifiable_evidence_and_detects_tampering() {
+    let d = tmp("firstplug");
+    let ev = d.join("ev");
+    let o = run(&[
+        "eloran",
+        "bench",
+        "firstplug",
+        "--inventory",
+        &bench_file("redpitaya-lf-bench"),
+        "--out",
+        ev.to_str().unwrap(),
+        "--rehearse",
+        "--pulses",
+        "6",
+        "--dev",
+    ]);
+    assert!(o.status.success(), "{}", text(&o));
+    assert!(text(&o).contains("Pass"), "{}", text(&o));
+    let r: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(ev.join("firstplug.json")).unwrap()).unwrap();
+    assert_eq!(r["evidence"]["captures"].as_array().unwrap().len(), 3);
+    let o = run(&[
+        "eloran",
+        "bench",
+        "verify-evidence",
+        ev.to_str().unwrap(),
+        "--dev",
+    ]);
+    assert!(o.status.success(), "{}", text(&o));
+    let cap = ev.join(r["evidence"]["captures"][0]["file"].as_str().unwrap());
+    let mut b = std::fs::read(&cap).unwrap();
+    b[1000] ^= 0x10;
+    std::fs::write(&cap, b).unwrap();
+    let o = run(&[
+        "eloran",
+        "bench",
+        "verify-evidence",
+        ev.to_str().unwrap(),
+        "--dev",
+    ]);
+    assert!(!o.status.success());
+    assert!(text(&o).contains("SHA-256"), "{}", text(&o));
+    // Hardware mode needs the hardware licence feature: without --dev or a licence it is refused.
+    let o = run(&[
+        "eloran",
+        "bench",
+        "firstplug",
+        "--inventory",
+        &bench_file("redpitaya-lf-bench"),
+        "--out",
+        ev.to_str().unwrap(),
+    ]);
+    assert!(!o.status.success());
+    let _ = std::fs::remove_dir_all(&d);
+}
