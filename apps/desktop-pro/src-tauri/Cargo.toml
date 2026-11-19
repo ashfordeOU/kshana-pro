@@ -23,7 +23,9 @@ path = "src/main.rs"
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-# Default features only: Desktop Pro never carries the Arksa-exclusive kinds (feature `arksa`
+# Default features only: Desktop Pro never carries the Arksa-exclusive kinds (feature `arksa`)
+# nor the patent-candidate methods (feature `unfiled-methods`, shipped only after filing). The
+# original note continues: feature `arksa`
 # stays off; docs/PROTECTION.md). scripts/protect/symbol-check.sh checks the built app.
 kshana-pro = { path = "../../.." }
 kshana = "=0.41.0"

@@ -4,6 +4,8 @@
 //! meaconing and local-clock faults, on broadcast-ephemeris GNSS geometry (real GPS
 //! ephemerides of 2024-09-10) and six synthetic eLoran stations. MODELLED.
 
+#![cfg(feature = "unfiled-methods")]
+
 use kshana::rinex::parse_nav;
 use kshana_eloran::chain::{Station, StationStatus};
 use kshana_eloran::geo::{direct, Geo};

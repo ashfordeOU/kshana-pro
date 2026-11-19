@@ -40,6 +40,7 @@ pub mod cli;
 pub mod connectors;
 pub mod criterion;
 pub mod desktop;
+#[cfg(feature = "unfiled-methods")]
 pub mod eloran_attrib;
 pub mod eloran_fusion;
 pub mod eloran_gnss;

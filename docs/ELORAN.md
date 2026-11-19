@@ -7,6 +7,20 @@ and resilient PNT systems. The signal, propagation, timing and data channel are 
 software. The output goes to files (SigMF), to LF hardware (cables or antenna simulators,
 never over the air) and to the built-in receiver analysis tools.
 
+
+## Patent-candidate methods and the `unfiled-methods` build feature
+
+Some methods are patent candidates whose applications are not yet filed. Publishing or shipping
+them before filing can destroy novelty, so they are behind the Cargo feature `unfiled-methods`,
+which is **off by default**. A release build (Desktop Pro, the `kshana-pro` binary, every
+package) uses the default feature set and therefore does not contain them; the matching CLI
+subcommands report that the method is not in the build. Development and CI build with
+`--features unfiled-methods` for full coverage. A method is re-enabled in shipped builds only
+after its patent application is filed. Gated: `eloran guard` (attribution E1, meacon E4),
+`eloran selfcal` (F1), `eloran survey-plan` (F2), `eloran bench firstplug` / `verify-evidence`
+(C2, B2), and the library modules `guard`, `valid::selfcal`, `plan::survey`, `ldc::delay_auth`
+(E7), `bench::firstplug` and the Pro `eloran_attrib`.
+
 ## Editions and licence
 
 | Feature id | What | Tier |

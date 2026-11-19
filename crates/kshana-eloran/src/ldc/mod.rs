@@ -43,6 +43,7 @@
 
 pub mod bits;
 pub mod crc;
+#[cfg(feature = "unfiled-methods")]
 pub mod delay_auth;
 pub mod gf;
 pub mod hmac;

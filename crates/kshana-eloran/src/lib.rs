@@ -57,6 +57,7 @@ pub mod elof;
 pub mod field;
 pub mod geo;
 pub mod gridb;
+#[cfg(feature = "unfiled-methods")]
 pub mod guard;
 pub mod hw;
 pub mod instr;

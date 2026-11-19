@@ -23,6 +23,7 @@
 //! Ranging-σ model: `σ = σ₀ · 10^(−(SNR − SNR₀)/20)`, floored at `σ_min` (white-noise ToA
 //! error scales with 1/amplitude). All results are MODELLED.
 
+#[cfg(feature = "unfiled-methods")]
 pub mod survey;
 
 use crate::chain::{Chain, Station};

@@ -364,7 +364,7 @@ pub fn measure_level(
 /// Measure a looped-back capture of the calibration pulse train (PPS instants `pps_s`,
 /// commanded amplitude `amp`): delay and spread, ECD, least-squares gain and waveform SNR
 /// after removing them. Deterministic: the same capture gives the same numbers, which is
-/// what lets [`super::firstplug::verify_evidence`] recompute a recorded result.
+/// what lets first-plug evidence (`firstplug`, feature `unfiled-methods`) recompute a recorded result.
 pub fn analyse_capture(
     cap: Vec<f64>,
     fs_hz: f64,
