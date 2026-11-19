@@ -44,6 +44,7 @@
 pub mod bundle;
 pub mod detect;
 pub mod inputs;
+pub mod maritime;
 pub mod render;
 
 use std::path::{Path, PathBuf};

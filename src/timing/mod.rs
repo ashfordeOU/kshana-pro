@@ -21,6 +21,7 @@
 //! [`V5_PASSED`] and [`V5B_PASSED`] record the published outcomes and every result carries
 //! them in its label. Docs: `docs/TIMING-ASSURANCE.md`.
 
+pub mod attack;
 pub mod audit;
 pub mod compliance;
 pub mod console;

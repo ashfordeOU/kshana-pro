@@ -18,6 +18,7 @@ mod packs_cmd;
 mod payments_cmd;
 mod pics_cmd;
 mod pntdp_cmd;
+mod pnt_cmd;
 mod scorecard_cmd;
 mod threats_cmd;
 mod timing_cmd;

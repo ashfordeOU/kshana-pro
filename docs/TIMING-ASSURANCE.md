@@ -208,3 +208,28 @@ duties and the India draft ask is marked as such, to be reviewed by the operator
   The V5c predictor passed its pre-registered bars (`V5c_RESULTS.md`) but is not yet the one the
   fleet assessment runs; until it is, do not present the time to breach as a validated figure.
 * A PDF rendering of the audit report; the HTML is the deliverable.
+
+## Holdover under attack: PRTC/ePRTC and substation PTP (W1119 C8)
+
+`kshana-pro timing attack <scenario.toml | prtc | eprtc | substation> --out <dir> --signer <name> --key-file <file>`
+(licence: `pro-timing-scorecard`) runs a GNSS-disciplined clock through a spoof that drags GNSS
+time slowly and then steps it, and reports the time error against masks. The oscillator is the
+eLoran crate's `sync::edo` model (presets `ocxo`, `rubidium`, `cesium`, or explicit ADEV terms)
+and the discipline is the same type-2 loop. Detectors: `none`; `rate_guard` (the loop's phase
+error over a window: catches steps, not the drags a type-2 loop tracks); `cross_check` (GNSS
+against eLoran after a calibration window: catches a drag once it passes the threshold). On
+alarm the clock goes to `holdover` (steering rolled back `rollback_s` before the alarm, so the
+drag's frequency stays out of holdover) or to `eloran` (its uncalibrated bias carried into the
+output). The report gives the alarm time and latency, TE at alarm, max |TE| before and after
+the attack, a result per mask, MTIE, and a 10 s TE trace.
+
+Default masks are single max |TE| bars citing ITU-T G.8272 (PRTC-A 100 ns, PRTC-B 40 ns),
+G.8272.1 (ePRTC 30 ns locked; 100 ns holdover in the `eprtc` preset), a G.8271-class
+end-application budget (1.5 µs) and, for `substation`, the IEEE C37.238 example ±1 µs budget less
+a 200 ns network allowance. All are illustrative defaults, configurable, to be confirmed against
+the Recommendations and the standard; the full MTIE/TDEV masks are not applied. The substation
+case also checks the C37.238 time-inaccuracy view: the inaccuracy the grandmaster would advertise
+(locked value, plus a holdover growth model) against its actual TE; an advertised value below the
+actual TE is reported as misleading. `kshana-pro timing attack-template <preset>` prints a preset.
+
+Evidence: **MODELLED** (closed-form checks in `tests/holdover_attack.rs`); not run on a real clock.

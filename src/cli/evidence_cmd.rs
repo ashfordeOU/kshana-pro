@@ -47,7 +47,11 @@ pub const EXPOSURE_USAGE: &str = "usage: kshana-pro exposure <command>\n\
     run <request.toml> --out <dir> --signer <name> --key-file <file> [--trust <hex>[,...]] [--utc <iso>] [--license <token>] [--dev]\n\
         Periodic signed exposure summary of a fleet or route from signed forensics and integrity evidence (Pro)\n\
     verify <dir> --trust <signer public key hex>[,...]\n\
-        Check a summary's signature, offline (no licence needed)";
+        Check a summary's signature, offline (no licence needed)\n\
+    equipment <equipment.toml> --out <dir> --signer <name> --key-file <file> [--trust <hex>[,...]] [--dev]\n\
+        Equipment-resilience rating from scorecards or declared capabilities (Pro)\n\
+    voyage <voyage.toml> --out <dir> --signer <name> --key-file <file> [--trust <hex>[,...]] [--dev]\n\
+        Voyage risk score from route exposure to historic events and the equipment rating (Pro)";
 
 fn fail(msg: impl std::fmt::Display) -> ExitCode {
     eprintln!("error: {msg}");
@@ -55,7 +59,10 @@ fn fail(msg: impl std::fmt::Display) -> ExitCode {
 }
 
 /// The licence check, the output directory, the signing seed and signer of a producing command.
-fn producing(args: &[String], gate: &str) -> Result<(String, [u8; 32], String, String), String> {
+pub(super) fn producing(
+    args: &[String],
+    gate: &str,
+) -> Result<(String, [u8; 32], String, String), String> {
     let now = now_unix();
     let ent = entitlement(args, now)?;
     license::check(&ent, gate, now).map_err(|e| e.to_string())?;
@@ -71,7 +78,7 @@ fn producing(args: &[String], gate: &str) -> Result<(String, [u8; 32], String, S
     Ok((out, seed, signer, utc))
 }
 
-fn sign(out: &str, seed: &[u8; 32], signer: &str, utc: &str) -> Result<(), String> {
+pub(super) fn sign(out: &str, seed: &[u8; 32], signer: &str, utc: &str) -> Result<(), String> {
     crate::signed_dossier::sign(Path::new(out), seed, signer, utc)
         .map(|_| ())
         .map_err(|e| e.to_string())
@@ -235,6 +242,8 @@ pub fn exposure(args: &[String]) -> ExitCode {
             }
         }
         Some("verify") => verify_dir(args),
+        Some("equipment") => super::pnt_cmd::equipment(args),
+        Some("voyage") => super::pnt_cmd::voyage(args),
         _ => fail(EXPOSURE_USAGE),
     }
 }
