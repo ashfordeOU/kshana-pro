@@ -430,6 +430,11 @@ const HORIZONS_MOON: &str =
 /// JPL Horizons at the vendored epochs (the ephemeris accuracy proxy of the first-principles
 /// rate when no kernels are supplied).
 pub fn analytic_vs_horizons_distance_rel() -> f64 {
+    static CACHE: std::sync::OnceLock<f64> = std::sync::OnceLock::new();
+    *CACHE.get_or_init(distance_rel_uncached)
+}
+
+fn distance_rel_uncached() -> f64 {
     let mut s = 0.0;
     let mut n = 0.0;
     for l in HORIZONS_MOON.lines() {
