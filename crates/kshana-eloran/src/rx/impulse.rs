@@ -171,7 +171,7 @@ pub fn experiment(c: &ExperimentConfig) -> Result<ExperimentReport, String> {
     let mut kurts = vec![];
     let modes = [Mode::Off, Mode::Clip, Mode::Blank];
     let mut err: Vec<Vec<f64>> = vec![vec![]; 6];
-    let mut changed = vec![0.0; 6];
+    let mut changed = [0.0; 6];
     for trial in 0..c.trials {
         let mut gauss: Vec<f64> = (0..n)
             .map(|_| {
@@ -244,7 +244,7 @@ mod tests {
     #[test]
     fn mitigation_clips_and_blanks_only_outliers() {
         let mut x = vec![0.1, -0.1, 0.12, -0.09, 5.0, 0.11, -0.1, -4.0];
-        x.extend(std::iter::repeat([0.1, -0.1]).take(100).flatten());
+        x.extend(std::iter::repeat_n([0.1, -0.1], 100).flatten());
         let mut y = x.clone();
         let f = mitigate(
             &mut y,
