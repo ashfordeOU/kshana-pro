@@ -100,6 +100,11 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         Score a receiver's ELOF observations (<dir>/<ID>.elof.jsonl or .elof.csv) against the\n\
         pre-registered bars: <out>/scorecard.json (sealed; Ed25519-signed with --key-file), optional\n\
         leaderboard update; refuses bars or scenarios changed after registration (Enterprise)\n\
+    tpl <scenario.toml> [--risk <p>] [--alert-ns <ns>] [--samples <n>] [--seed <n>] [--time-ref <id>] [--meas-ns <ns>] [--tx-ns <ns>] [--grid <lat1,lat2,lon1,lon2> --res <deg>] [--out <file.json>] [--license <token>] [--dev]\n\
+        ASF-aware timing protection level for UTC(k) time transfer at the scenario's receiver\n\
+        position (millington or smooth_earth ground model): ASF σ from conductivity class, terrain\n\
+        and seasonal variation, station-fault and ASF-model-error hypotheses; --grid writes an\n\
+        availability map (Enterprise)\n\
     validate <scenario.toml>\n\
         Check a scenario and print its SHA-256 (no licence needed)\n\
     example\n\
@@ -136,6 +141,7 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("bench") => bench_cmd(args),
         Some("elof") => elof_cmd(args),
         Some("bench-eloran") => bench_eloran_cmd(args),
+        Some("tpl") => tpl_cmd(args),
         Some("example") => {
             print!("{EXAMPLE}");
             ExitCode::SUCCESS
@@ -1290,6 +1296,153 @@ fn bench_eloran_cmd(args: &[String]) -> ExitCode {
         }
         _ => fail(USAGE),
     }
+}
+
+fn tpl_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::prop::conductivity::{ConductivityConfig, ConductivityMap};
+    use kshana_eloran::prop::ground::GroundConfig;
+    use kshana_eloran::tpl::{availability_map, compute, TplConfig, TplProblem};
+    let Some(path) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let sc = load(&path)?;
+        let mut cfg = TplConfig::default();
+        let (map_cfg, k_factor, sample_km, temporal) = match &sc.propagation.ground {
+            GroundConfig::Millington {
+                conductivity,
+                k_factor,
+                sample_km,
+                temporal,
+                ..
+            } => (
+                conductivity.clone(),
+                *k_factor,
+                *sample_km,
+                temporal.clone(),
+            ),
+            GroundConfig::SmoothEarth {
+                sigma_s_m,
+                eps_r,
+                k_factor,
+                temporal,
+            } => (
+                ConductivityConfig::Uniform {
+                    sigma_s_m: *sigma_s_m,
+                    eps_r: *eps_r,
+                },
+                *k_factor,
+                2.0,
+                temporal.clone(),
+            ),
+            _ => {
+                return Err(
+                    "tpl needs a millington or smooth_earth ground model (a conductivity map)"
+                        .into(),
+                )
+            }
+        };
+        if let Some(t) = temporal.filter(|t| t.sigma_seasonal_frac > 0.0) {
+            cfg.seasonal_sigma_frac = t.sigma_seasonal_frac;
+        }
+        if let Some(v) = num_flag(args, "--risk")? {
+            cfg.integrity_risk = v;
+        }
+        if let Some(v) = num_flag(args, "--alert-ns")? {
+            cfg.alert_limit_ns = v;
+        }
+        if let Some(v) = num_flag(args, "--samples")? {
+            cfg.samples = v;
+        }
+        if let Some(v) = num_flag(args, "--seed")? {
+            cfg.seed = v;
+        }
+        if let Some(v) = num_flag(args, "--meas-ns")? {
+            cfg.meas_sigma_ns = v;
+        }
+        if let Some(v) = num_flag(args, "--tx-ns")? {
+            cfg.tx_sigma_ns = v;
+        }
+        cfg.time_ref = flag(args, "--time-ref");
+        let map = ConductivityMap::build(&map_cfg)?;
+        let stations: Vec<kshana_eloran::chain::Station> = sc
+            .chains
+            .iter()
+            .flat_map(|c| c.chain.stations.iter().cloned())
+            .collect();
+        let out = flag(args, "--out");
+        if let Some(g) = flag(args, "--grid") {
+            let b: Vec<f64> = g
+                .split(',')
+                .map(|x| x.trim().parse::<f64>())
+                .collect::<Result<_, _>>()
+                .map_err(|_| "--grid: lat1,lat2,lon1,lon2")?;
+            if b.len() != 4 {
+                return Err("--grid: lat1,lat2,lon1,lon2".into());
+            }
+            let res: f64 = num_flag(args, "--res")?.ok_or("--grid needs --res <deg>")?;
+            let m = availability_map(
+                &stations,
+                [b[0], b[1], b[2], b[3]],
+                res,
+                &map,
+                k_factor,
+                sample_km,
+                &cfg,
+            )?;
+            if let Some(o) = &out {
+                write_json(o, &m)?;
+            }
+            return Ok(format!(
+                "tpl map: {} point(s), availability {:.1} % at alert limit {} ns, integrity risk {:e}{}",
+                m.points.len(),
+                100.0 * m.availability,
+                m.alert_limit_ns,
+                m.integrity_risk,
+                out.map(|o| format!(" -> {o}")).unwrap_or_default()
+            ));
+        }
+        let pos = sc.receiver.state(0.0).pos;
+        let (r, _) = compute(
+            &TplProblem {
+                stations,
+                points: vec![pos],
+                map: &map,
+                k_factor,
+                sample_km,
+            },
+            &cfg,
+        )?
+        .remove(0);
+        let mut s = format!(
+            "TPL {:.1} ns at integrity risk {:e} (alert limit {} ns: {}); fault-free σ {:.2} ns, bias {:.2} ns, overbound ×{:.2}\n",
+            r.tpl_ns,
+            r.integrity_risk,
+            r.alert_limit_ns,
+            if r.available { "AVAILABLE" } else { "NOT AVAILABLE" },
+            r.sigma_ns,
+            r.bias_ns,
+            r.overbound_inflation
+        );
+        for st in &r.stations {
+            s.push_str(&format!(
+                "  {:<6} {:<10} ASF {:>8.1} ns  σ {:>6.2} ns  weight {:.3}\n",
+                st.station, st.time_ref, st.nominal_asf_ns, st.asf_sigma_ns, st.weight
+            ));
+        }
+        for h in &r.hypotheses {
+            s.push_str(&format!("  {:<28} TPL {:>9.1} ns\n", h.name, h.tpl_ns));
+        }
+        s.push_str(&format!("evidence: {}", r.evidence_label));
+        if let Some(o) = &out {
+            write_json(o, &r)?;
+            s.push_str(&format!("\n-> {o}"));
+        }
+        Ok(s)
+    })())
 }
 
 fn conformance_cmd(args: &[String]) -> ExitCode {
