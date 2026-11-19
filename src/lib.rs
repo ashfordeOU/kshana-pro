@@ -55,6 +55,7 @@ pub mod ievents;
 pub mod integrity;
 pub mod lab_campaign;
 pub mod license;
+pub mod lunar_pro;
 pub mod multi_source;
 pub mod pack_c;
 pub mod packs;
