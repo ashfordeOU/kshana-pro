@@ -309,3 +309,6 @@ mod d3_holdover;
 
 #[path = "lunar_pro/d2_circular.rs"]
 mod d2_circular;
+
+#[path = "lunar_pro/d4_offset_codec.rs"]
+mod d4_offset_codec;
