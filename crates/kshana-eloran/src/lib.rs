@@ -20,7 +20,8 @@
 //! * [`accept`]: calibration wizards and the hardware acceptance suite with RVM output;
 //! * [`calreg`]: the hash-chained calibration register;
 //! * [`field`]: unattended LF recording stations and receiver log importers;
-//! * [`campaign`]: conformance test library and validation campaign runner.
+//! * [`campaign`]: conformance test library and validation campaign runner;
+//! * [`capset`]: coherent LF + L-band capture sets (record and replay on one timeline).
 //!
 //! Evidence labels follow the Kshana convention: a model is VALIDATED only where an
 //! independent external reference backs it (see `docs/VALIDATION.md` of this crate).
@@ -46,6 +47,7 @@ pub mod antenna;
 pub mod bench;
 pub mod calreg;
 pub mod campaign;
+pub mod capset;
 pub mod chain;
 pub mod dloran;
 pub mod field;

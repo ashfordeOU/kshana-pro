@@ -177,6 +177,31 @@ impl AbsTime {
     }
 }
 
+impl AbsTime {
+    /// UTC ISO 8601 with twelve decimals (whole picoseconds), e.g.
+    /// `2026-11-18T12:00:00.000000123456Z`; [`AbsTime::from_utc_iso`] reads it back exactly.
+    /// An instant inside a leap second reads as the following second.
+    pub fn to_utc_iso(self) -> String {
+        let ps = PS_PER_S as i128;
+        let tai_s = self.0.div_euclid(ps);
+        let frac = self.0.rem_euclid(ps);
+        let epoch = days_from_civil(1958, 1, 1) as i128;
+        let leap_of = |s: i128| {
+            let (y, m, d) = civil_from_days((s.div_euclid(86_400) + epoch) as i64);
+            tai_minus_utc_s(y, m, d) as i128
+        };
+        let utc_s = tai_s - leap_of(tai_s - leap_of(tai_s));
+        let (y, m, d) = civil_from_days((utc_s.div_euclid(86_400) + epoch) as i64);
+        let sod = utc_s.rem_euclid(86_400);
+        format!(
+            "{y:04}-{m:02}-{d:02}T{:02}:{:02}:{:02}.{frac:012}Z",
+            sod / 3600,
+            (sod / 60) % 60,
+            sod % 60
+        )
+    }
+}
+
 /// Proleptic Gregorian date `(y, m, d)` of a day number from 1970-01-01 (inverse of
 /// [`days_from_civil`], H. Hinnant's algorithm).
 pub fn civil_from_days(z: i64) -> (i64, i64, i64) {
@@ -294,5 +319,23 @@ mod tests {
             let (y, m, d) = civil_from_days(z);
             assert_eq!(days_from_civil(y, m, d), z);
         }
+    }
+
+    #[test]
+    fn utc_iso_round_trip_is_exact_to_the_picosecond() {
+        for (iso, add) in [
+            ("2026-11-18T12:00:00Z", 123_456_789_012i64),
+            ("2016-12-31T23:59:59Z", 999_999_999_999),
+            ("2024-02-29T00:00:00Z", 1),
+            ("1999-01-01T00:00:00Z", 0),
+        ] {
+            let t = AbsTime::from_utc_iso(iso).unwrap().add_ps(Ps(add));
+            let s = t.to_utc_iso();
+            assert_eq!(AbsTime::from_utc_iso(&s).unwrap(), t, "{s}");
+        }
+        let t = AbsTime::from_utc_iso("2026-11-18T12:00:00Z")
+            .unwrap()
+            .add_ps(Ps(5));
+        assert_eq!(t.to_utc_iso(), "2026-11-18T12:00:00.000000000005Z");
     }
 }

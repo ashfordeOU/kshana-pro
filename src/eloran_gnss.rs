@@ -30,11 +30,12 @@ use kshana::gps_lnav::LnavConventions;
 use kshana::iq::io::format::SampleFormat;
 use kshana::iq::io::IqWriter;
 use kshana::iq::scene::{
-    CsvTruthWriter, NavData, ReceiverClock, SatGeometry, Scene, SceneConfig, SceneSatellite,
-    Trajectory as GTraj,
+    CsvTruthWriter, NavData, NullTruth, ReceiverClock, SatGeometry, Scene, SceneConfig,
+    SceneSatellite, Trajectory as GTraj,
 };
-use kshana::iq::SampleSpec;
+use kshana::iq::{SampleSpec, VecSink};
 use kshana::rinex::{parse_nav, RinexEphemeris};
+use kshana_eloran::capset::BasebandGenerator;
 use kshana_eloran::time::{days_from_civil, AbsTime, PS_PER_S};
 use kshana_eloran::timebase::GnssTime;
 use kshana_eloran::traj::Trajectory;
@@ -162,17 +163,16 @@ pub fn select_ephemerides(
     best.into_values().map(|(_, e)| e).collect()
 }
 
-/// Generate the GNSS recording of `sc` from the navigation file `nav_text` into `<base>.gnss.*`.
-pub fn generate(
+/// The open-engine GNSS scene of `sc` starting at `start` for `duration` s (GPS L1 C/A and
+/// Galileo E1-B per `opts`), with the satellite names, GPS week and time of week.
+fn build_scene(
     sc: &Scenario,
-    nav_text: &str,
+    ephs: &[RinexEphemeris],
     opts: &GnssOptions,
-    base: &Path,
-) -> Result<GnssRun, String> {
-    let start = AbsTime::from_utc_iso(&sc.scene.start_utc)?;
+    start: AbsTime,
+    duration: f64,
+) -> Result<(Scene, Vec<String>, i64, f64), String> {
     let (week, tow) = gps_week_tow(start);
-    let duration = opts.duration_s.unwrap_or(sc.scene.params.duration_s);
-    let ephs = parse_nav(nav_text)?;
     let residual_s = sc
         .gnss_time_residual_ns
         .get(&GnssTime::Gpst)
@@ -198,7 +198,7 @@ pub fn generate(
     let mut scene = Scene::new(cfg).map_err(|e| e.to_string())?;
     let mut names = Vec::new();
     if opts.gps {
-        for e in select_ephemerides(&ephs, 'G', week, tow) {
+        for e in select_ephemerides(ephs, 'G', week, tow) {
             let s =
                 SceneSatellite::gps_l1ca_broadcast(&e, opts.cn0_dbhz, LnavConventions::default())
                     .map_err(|x| x.to_string())?;
@@ -207,7 +207,7 @@ pub fn generate(
         }
     }
     if opts.galileo {
-        for e in select_ephemerides(&ephs, 'E', week, tow) {
+        for e in select_ephemerides(ephs, 'E', week, tow) {
             let code =
                 kshana::iq::signals::galileo::e1b(e.prn as u16).map_err(|x| x.to_string())?;
             names.push(format!("E{:02} E1-B", e.prn));
@@ -227,6 +227,90 @@ pub fn generate(
             "no usable ephemeris for GPS week {week} TOW {tow:.0} s (±2 h) in the navigation file"
         ));
     }
+    Ok((scene, names, week, tow))
+}
+
+/// The GNSS half as a [`BasebandGenerator`] for coherent LF + L-band capture sets
+/// ([`kshana_eloran::capset`]): normalised complex baseband (noise power 1 per sample) at
+/// 1575.42 MHz, generated in memory for the interval the recorder asks for.
+pub struct GnssBaseband {
+    ephemerides: Vec<RinexEphemeris>,
+    pub opts: GnssOptions,
+    /// Satellites of the last generated interval.
+    pub satellites: Vec<String>,
+}
+
+impl GnssBaseband {
+    /// From a RINEX 3 navigation file's text.
+    pub fn new(nav_text: &str, opts: GnssOptions) -> Result<GnssBaseband, String> {
+        Ok(GnssBaseband {
+            ephemerides: parse_nav(nav_text)?,
+            opts,
+            satellites: Vec::new(),
+        })
+    }
+}
+
+impl BasebandGenerator for GnssBaseband {
+    fn label(&self) -> String {
+        format!(
+            "kshana-pro software GNSS generator ({}{}), {} Hz",
+            if self.opts.gps { "GPS L1 C/A " } else { "" },
+            if self.opts.galileo {
+                "Galileo E1-B"
+            } else {
+                ""
+            },
+            self.opts.fs_hz
+        )
+    }
+    fn fs_hz(&self) -> f64 {
+        self.opts.fs_hz
+    }
+    fn center_hz(&self) -> f64 {
+        L1_HZ
+    }
+    fn generate(
+        &mut self,
+        sc: &Scenario,
+        start: AbsTime,
+        n: usize,
+    ) -> Result<Vec<[f64; 2]>, String> {
+        // one sample more than asked so rounding of the duration never comes up short
+        let duration = (n + 1) as f64 / self.opts.fs_hz;
+        let (scene, names, _, _) = build_scene(sc, &self.ephemerides, &self.opts, start, duration)?;
+        self.satellites = names;
+        let mut sink = VecSink::default();
+        scene
+            .generate(&mut sink, &mut NullTruth)
+            .map_err(|e| e.to_string())?;
+        if sink.samples.len() < n {
+            return Err(format!(
+                "GNSS generator: {} samples for {n} requested",
+                sink.samples.len()
+            ));
+        }
+        Ok(sink.samples[..n].iter().map(|c| [c.re, c.im]).collect())
+    }
+}
+
+/// Generate the GNSS recording of `sc` from the navigation file `nav_text` into `<base>.gnss.*`.
+pub fn generate(
+    sc: &Scenario,
+    nav_text: &str,
+    opts: &GnssOptions,
+    base: &Path,
+) -> Result<GnssRun, String> {
+    let start = AbsTime::from_utc_iso(&sc.scene.start_utc)?;
+    let duration = opts.duration_s.unwrap_or(sc.scene.params.duration_s);
+    let ephs = parse_nav(nav_text)?;
+    let residual_s = sc
+        .gnss_time_residual_ns
+        .get(&GnssTime::Gpst)
+        .copied()
+        .unwrap_or(0.0)
+        * 1e-9;
+    let (scene, names, week, tow) = build_scene(sc, &ephs, opts, start, duration)?;
     let data = with_suffix(base, "gnss.sigmf-data");
     let truth = with_suffix(base, "gnss.truth.csv");
     let f = std::fs::File::create(&data).map_err(|e| format!("{}: {e}", data.display()))?;

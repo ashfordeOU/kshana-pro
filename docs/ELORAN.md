@@ -202,6 +202,28 @@ receiver clocks must be known; several sites with different path fractions are n
 separate a section's σ from the station biases. Evidence: MODELLED (recovers a synthetic truth
 world within its uncertainty; not yet run on a live recording).
 
+## Coherent LF + L-band capture sets (capset, W1119 A15)
+
+`kshana-pro eloran capset record <scenario.toml> --nav <rinex-3 nav> --out <dir> --id <set-id>`
+(Enterprise) records one scenario as two SigMF streams on one timeline: `<id>_lf` (the eLoran
+channels, real `rf32_le`) and `<id>_gnss` (GPS L1 C/A + Galileo E1-B complex baseband,
+`ci16_le` at 1575.42 MHz, from the kshana-pro software GNSS generator through the engine's
+`capset::BasebandGenerator` seam). `<id>.capset.json` carries, per stream, the start instant
+as integer TAI picoseconds, the sample rate (and the exact rate ratio), the clock source and
+the cable delay to the common reference plane; each SigMF file repeats it under
+`global."kshana:capset"` and lists the markers as annotations. A PPS marker of known shape is
+injected into both streams at the same reference-plane instants (a 10 µs Gaussian on the LF
+stream, a Gaussian-enveloped chirp on the baseband).
+
+`kshana-pro eloran capset check <dir>/<id>.capset.json` (free) checks every data file's
+SHA-256 and finds each marker in each stream (correlation with the analytic marker, then a
+fractional-delay refinement). After the declared start times and delays, the two streams must
+agree within the stated tolerance (default 5 ns); a mis-stamped start, wrong cable delay or
+wrong sample rate fails the check. The report gives a Cramér–Rao σ of each marker time from
+the local noise (about 1 ns for the baseband marker at 2 MHz). Evidence: MODELLED (simulated
+streams); with hardware the marker is an injected PPS-locked pulse whose own injection delay
+must be calibrated.
+
 ## Bench readiness: hardware ready before it arrives
 
 The aim: when the hardware arrives, it only needs plugging in and testing. Everything that can
