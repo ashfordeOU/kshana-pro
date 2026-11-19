@@ -182,6 +182,13 @@ fn method_not_in_build(name: &str) -> ExitCode {
     ))
 }
 
+/// The explicit licence grant an on-premises contract adds. Enterprise tier and a machine-bound
+/// licence are not enough on their own: the patent-candidate methods run on a customer's
+/// machine only under a signed on-premises contract (owner decision, 19 November 2026);
+/// everyone else uses the hosted service.
+#[cfg(feature = "unfiled-methods")]
+const ONPREM_GRANT: &str = "onprem-contract";
+
 /// Node-locked gate for a patent-candidate method (roadmap 0.42, owner decision 19
 /// November 2026). A method compiled only with `unfiled-methods`, and shipped only in a
 /// hardened on-prem build (`scripts/protect/build-onprem.sh`), runs only under a
@@ -211,6 +218,11 @@ fn require_bound(args: &[String]) -> Result<String, ExitCode> {
         return Err(fail(
             "licence: this method ships only under a machine-bound licence; the token must name this machine (`kshana-pro license machine-id`)",
         ));
+    }
+    if !lic.claims.features.iter().any(|f| f == ONPREM_GRANT) {
+        return Err(fail(format!(
+            "licence: running this method on your own machine needs an on-premises contract (licence grant '{ONPREM_GRANT}'); without one, use the hosted service: `kshana-pro verdict selfcal|survey`"
+        )));
     }
     Ok(lic.entitlement.licensee)
 }

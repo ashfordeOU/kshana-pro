@@ -50,9 +50,30 @@ fn canonical(v: &SignedVerdict) -> Vec<u8> {
     serde_json::to_vec(&body).unwrap_or_default()
 }
 
-/// Verify a verdict against the service's public key (64 hex). Returns the problems; empty
-/// means the verdict is intact and was signed by that key.
-pub fn verify(v: &SignedVerdict, public_key_hex: &str) -> Vec<String> {
+/// Verify a verdict against the service's public key (64 hex), or any of several keys
+/// separated by commas (during a key rotation the old and new keys are both trusted).
+/// Returns the problems; empty means the verdict is intact and was signed by a trusted key.
+pub fn verify(v: &SignedVerdict, public_keys_hex: &str) -> Vec<String> {
+    let keys: Vec<&str> = public_keys_hex
+        .split(',')
+        .map(str::trim)
+        .filter(|k| !k.is_empty())
+        .collect();
+    if keys.is_empty() {
+        return vec!["no trusted key given".into()];
+    }
+    let mut first = None;
+    for k in keys {
+        let p = verify_one(v, k);
+        if p.is_empty() {
+            return p;
+        }
+        first.get_or_insert(p);
+    }
+    first.unwrap_or_default()
+}
+
+fn verify_one(v: &SignedVerdict, public_key_hex: &str) -> Vec<String> {
     let mut problems = vec![];
     let body = canonical(v);
     if hex::encode(Sha256::digest(&body)) != v.verdict_sha256 {
@@ -78,6 +99,11 @@ pub fn verify(v: &SignedVerdict, public_key_hex: &str) -> Vec<String> {
         problems.push("signature does not verify against the trusted key".into());
     }
     problems
+}
+
+/// The service key(s) built into this release (`KSHANA_VERDICT_KEY` at build time), if any.
+pub fn builtin_trusted_keys() -> Option<&'static str> {
+    option_env!("KSHANA_VERDICT_KEY").filter(|k| !k.trim().is_empty())
 }
 
 /// Sends a request to the verdict service. `Err` is no usable answer.
@@ -271,6 +297,11 @@ mod tests {
         );
         assert!(!verify(&v, &other).is_empty(), "wrong key must fail");
         assert!(!verify(&v, "zz").is_empty(), "bad key must fail");
+        assert!(!verify(&v, "").is_empty(), "no key must fail");
+        // During a rotation either trusted key is accepted.
+        assert!(verify(&v, &format!("{other},{}", pk())).is_empty());
+        assert!(verify(&v, &format!("{}, {other}", pk())).is_empty());
+        assert!(!verify(&t, &format!("{other},{}", pk())).is_empty());
     }
 
     #[test]

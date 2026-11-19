@@ -8,20 +8,23 @@ use std::process::ExitCode;
 
 use super::{flag, has_flag};
 use crate::license::activation::Store;
-use crate::remote_verdict::{request, verify, CurlVerdictTransport, SignedVerdict, METHODS};
+use crate::remote_verdict::{
+    builtin_trusted_keys, request, verify, CurlVerdictTransport, SignedVerdict, METHODS,
+};
 
 const USAGE: &str = "kshana-pro verdict — hosted methods, answered as signed verdicts\n\
 \n\
 USAGE:\n\
-    kshana-pro verdict <selfcal|survey> <request.json> [--url <base>] [--license <token>] --trust <key> [--out <verdict.json>]\n\
+    kshana-pro verdict <selfcal|survey> <request.json> [--url <base>] [--license <token>] [--trust <key>] [--out <verdict.json>]\n\
         Send the request to the verdict service, authorised by your licence, and verify the\n\
         signed verdict against the service's public key before printing or saving it.\n\
-    kshana-pro verdict verify <verdict.json> --trust <key>\n\
+    kshana-pro verdict verify <verdict.json> [--trust <key>]\n\
         Check a saved verdict: intact, and signed by the trusted key.\n\
 \n\
     --url     the service base URL (https://...), else KSHANA_VERDICT_URL\n\
     --license a licence token, else the token activated on this machine\n\
-    --trust   the service's Ed25519 public key (64 hex), else KSHANA_VERDICT_KEY\n\
+    --trust   the service's Ed25519 public key (64 hex; several comma-separated during a key\n\
+              rotation), else KSHANA_VERDICT_KEY, else the key built into this release\n\
 \n\
 The method runs on the service; only its outcome and signature come back.\n";
 
@@ -37,6 +40,7 @@ fn env(k: &str) -> Option<String> {
 fn trusted_key(args: &[String]) -> Result<String, String> {
     flag(args, "--trust")
         .or_else(|| env("KSHANA_VERDICT_KEY"))
+        .or_else(|| builtin_trusted_keys().map(str::to_string))
         .ok_or_else(|| "the service's public key is required (--trust <64 hex> or KSHANA_VERDICT_KEY): a verdict is only worth its signature".into())
 }
 
