@@ -179,6 +179,12 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-audit-export" => Tier::Enterprise,
         "pro-retention" => Tier::Enterprise,
         "pro-watch-wall" => Tier::Enterprise,
+        // Interference reports (research 05 G1/G12/G13, 07 G5): normalising, validating and
+        // episodes; verification with a signed record and the post-spoofing reset check; the
+        // fleet exposure ledger is Enterprise.
+        "pro-interference-reports" => Tier::Pro,
+        "pro-report-verification" => Tier::Pro,
+        "pro-exposure-ledger" => Tier::Enterprise,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -213,6 +219,9 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-watch-wall",
     "pro-eloran",
     "pro-eloran-hw",
+    "pro-interference-reports",
+    "pro-report-verification",
+    "pro-exposure-ledger",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

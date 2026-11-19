@@ -5,6 +5,18 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Interference reports (research 05 G1/G12/G13, 07 G5; docs/INTERFERENCE-REPORTS.md).**
+  `kshana-pro reports` (also `forensics reports`): a normaliser for DGCA-style and EASA
+  ECR-like forms, ASRS-like records, NOTAM text, ship logs and CSV exports into one versioned
+  schema (`kshana-pro-interference-report/1`); validation per regime (DGCA 10-minute rule, EU
+  376/2014 72-hour rule, ASRS, maritime, generic); episodes with written, configurable start and
+  end rules from reports and ADS-B NIC/NACp drops (signed, with unified events); verification
+  against receiver logs, ADS-B and AIS labelled CORROBORATED / UNCORROBORATED / CONTRADICTED
+  (signed record); a per-aircraft or per-vessel exposure ledger; a post-spoofing reset check
+  (MODELLED, recommendation only). Features `pro-interference-reports` and
+  `pro-report-verification` (Pro), `pro-exposure-ledger` (Enterprise); tier manifest
+  regenerated. All evidence MODELLED (synthetic data, `tests/interference_reports.rs`).
+
 - **0.42 bars, phase 2 (owner approval 16 Nov 2026; docs/evidence/BARS-TO-GREEN-0.42.md).**
   E3b **met**: receiver scorecard v2 (`kshana-pro/receiver-scorecard/v2`: WGS-84 geodesic error,
   truth at each epoch's arrival time, per-case `analogue_seed`) on the held-out synthetic campaign

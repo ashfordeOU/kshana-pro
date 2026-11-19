@@ -1,0 +1,5 @@
+# Synthetic sample for tests: deck log entries. Not a real vessel or voyage.
+MV NORDIC TERN  IMO 9387421  MMSI 230123000  Voyage 26/114 Muuga - Kotka
+2026-06-14 0412Z 59°20.0'N 024°04.5'E GPS position jumped 25 nm to Tallinn airport on both GNSS receivers; ECDIS off-track alarm; AIS showed own ship ashore.
+   Steered by radar ranges and visual bearings. GPS normal 04:41Z.
+2026-06-14 0525Z 59°20.0'N 024°33.1'E AIS spoofing suspected: VTS reported our AIS position 20 nm south of track. GPS position normal and matching radar. Normal 05:33Z.
