@@ -22,6 +22,7 @@
 //! them in its label. Docs: `docs/TIMING-ASSURANCE.md`.
 
 pub mod audit;
+pub mod compliance;
 pub mod console;
 pub mod evidence;
 pub mod fleet;
