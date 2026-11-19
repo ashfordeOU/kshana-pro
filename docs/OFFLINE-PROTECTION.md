@@ -39,6 +39,10 @@ are `eloran selfcal`, `eloran survey-plan`, `eloran guard` and `eloran bench fir
    `src/license/mod.rs`). A floating token, or the binary copied to another machine, cannot
    run the method. `--dev` bypasses only in a debug build; the on-prem profile is a release
    build.
+   Since 19 November 2026 it also requires the explicit licence grant `onprem-contract`:
+   Enterprise tier and machine binding alone are not enough. The grant is added only for a
+   customer with a signed on-premises contract (no-reverse-engineering and audit terms);
+   everyone else is pointed at the hosted service (`kshana-pro verdict`).
 
 4. **Encrypted, machine-bound data delivery.** Tunable or valuable data a method needs
    (reference grids, coefficients, conformance vectors, signing material) ships as a Pro
@@ -65,6 +69,7 @@ placement note.
 ## Checklist before an on-prem release
 
 - [ ] Customer is vetted and under contract (NDA + licence terms).
+- [ ] Signed on-premises contract on file; licence carries the `onprem-contract` grant
 - [ ] Licence issued **machine-bound** to the customer's device hash, `pro-eloran`
       (or `-hw`) tier.
 - [ ] `scripts/protect/build-onprem.sh --out <dir>` is green (build + symbol-check).
