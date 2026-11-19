@@ -21,7 +21,8 @@
 //! * [`calreg`]: the hash-chained calibration register;
 //! * [`field`]: unattended LF recording stations and receiver log importers;
 //! * [`campaign`]: conformance test library and validation campaign runner;
-//! * [`elof`]: ELOF, the eLoran Observation & Scenario Format (reader, writer, validator).
+//! * [`elof`]: ELOF, the eLoran Observation & Scenario Format (reader, writer, validator);
+//! * [`refbench`]: eLoran-Bench, the reference benchmark (pre-registered bars, scorer, leaderboard).
 //!
 //! Evidence labels follow the Kshana convention: a model is VALIDATED only where an
 //! independent external reference backs it (see `docs/VALIDATION.md` of this crate).
@@ -61,6 +62,7 @@ pub mod ldc;
 pub mod monitor;
 pub mod plan;
 pub mod prop;
+pub mod refbench;
 pub mod replay;
 pub mod rt;
 pub mod rx;

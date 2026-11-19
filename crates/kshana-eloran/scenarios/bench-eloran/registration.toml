@@ -1,0 +1,47 @@
+# eLoran-Bench pre-registration: SHA-256 of the bars and scenarios, written before
+# any receiver is scored. Do not edit by hand.
+benchmark = "eLoran-Bench"
+version = "0.1"
+registered_utc = "2026-11-19T00:00:00Z"
+bars_file = "bars.toml"
+bars_sha256 = "f9205f486babf99cd1e536a711a6e66e5092262ebedd5b2f51226c9a606bda46"
+
+[[scenarios]]
+id = "ELB-STATIC"
+file = "static.toml"
+sha256 = "46742f79124e439eb3514b958e42cf0b8fe514dd49af6aee88f4132172fe1fe7"
+
+[[scenarios]]
+id = "ELB-SHIP"
+file = "ship.toml"
+sha256 = "260943b8799692877045bd0aeec2cb82a02639ef630421cb8fc0cce899faa328"
+
+[[scenarios]]
+id = "ELB-DRONE"
+file = "drone.toml"
+sha256 = "c5a7bd097d985bcd5c3b8d08b3de25b91e8d6ccecfe9d10935352f7467783c13"
+
+[[scenarios]]
+id = "ELB-SKY-NIGHT"
+file = "skywave-night.toml"
+sha256 = "2b21358aff7c0b60223924e577c7f01e5a8d7069167089673852834cea38d026"
+
+[[scenarios]]
+id = "ELB-CRI"
+file = "cri.toml"
+sha256 = "c0e747d07a1ae39cf17b01a136bd9851e936472c221ab96d05029fdc891e869a"
+
+[[scenarios]]
+id = "ELB-IMPULSIVE"
+file = "impulsive.toml"
+sha256 = "787b910673ef875fd795acc3ac442fdf49788560b37efc731655f949a9bd3cd5"
+
+[[scenarios]]
+id = "ELB-LDC"
+file = "ldc.toml"
+sha256 = "0c4aaf9bb368fc54dd822a67bfb9dee7795cb1d247e9fdbeb036ae23fcba63d2"
+
+[[scenarios]]
+id = "ELB-MULTI-UTCK"
+file = "multi-utck.toml"
+sha256 = "f91eab37f2fce96e9a584c424c6b21445ff7b611ae42b8139aa968efd1b4ec32"

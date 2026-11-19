@@ -1,0 +1,80 @@
+# eLoran-Bench v0.1 reference scenario ELB-IMPULSIVE: impulsive noise (motor and switch-mode supply)
+#
+# Synthetic geometry (not real stations). Exact truth comes from the simulator. Not modelled on a
+# standard test procedure; the pass bars are in bars.toml, pre-registered by SHA-256 in
+# registration.toml. Evidence label: MODELLED.
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 1.2
+fs_hz = 400000
+seed = 106
+output_scale_uv_m = 1000000.0
+
+[receiver]
+type = "static"
+lat_deg = 55.0
+lon_deg = 3.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+offset_ns = 0.0
+
+[propagation.ground]
+model = "simple"
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 260.0
+seed = 106
+
+[[interference]]
+type = "impulsive"
+preset = "motor"
+seed = 61
+
+[[interference]]
+type = "impulsive"
+preset = "smps"
+seed = 62
+
+[[chains]]
+name = "elb-A"
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 56.5, lon_deg = 1.0 }
+power_kw = 400.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 53.5, lon_deg = 1.5 }
+power_kw = 400.0
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Y"
+role = "secondary"
+position = { lat_deg = 55.5, lon_deg = 6.5 }
+power_kw = 400.0
+emission_delay_us = 29000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Z"
+role = "secondary"
+position = { lat_deg = 53.8, lon_deg = 5.5 }
+power_kw = 400.0
+emission_delay_us = 46000.0
+time_ref = "UTC(A)"
+
+[conformance]
+id = "ELB-IMPULSIVE"
+title = "Impulsive noise"
+category = "impulsive_noise"
+intent = """ToA and cycle identification under impulsive (non-Gaussian) noise."""
+modelled_on = ["eLoran-Bench v0.1 reference scenario (not modelled on a standard test procedure)"]
+to_confirm = ["bars are illustrative: set by Kshana, not taken from a standard", "synthetic geometry and noise levels"]

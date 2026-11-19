@@ -222,6 +222,9 @@ this section has been measured on hardware.
 |---|---|---|
 | `eloran elof validate <file>` | Validate an **ELOF v0.1** file (eLoran Observation & Scenario Format: JSON lines with a header record, or the compact CSV profile): version, units, required fields, declared stations, ranges, phase code against group parity, monotonic time | free |
 | `eloran elof convert <input> --out <file> [--from elof\|truth-csv\|obs-json] [--to jsonl\|csv] [--scenario <toml>]` | Convert a simulator truth table, imported receiver records or another ELOF profile to ELOF | Enterprise |
+| `eloran bench-eloran list` | **eLoran-Bench** v0.1: eight reference scenarios (static, ship, drone, night skywave, cross-rate, impulsive noise, LDC, two UTC(k)) with their pre-registered bars and the registration hash | free |
+| `eloran bench-eloran reference --out <dir>` | The in-house software receiver's ELOF observations on every scenario | Enterprise |
+| `eloran bench-eloran score --obs <dir> --receiver <name> --out <dir> [--leaderboard <file>] [--key-file <f> --signer <name>]` | Score a receiver's ELOF observations against exact truth: sealed scorecard (Ed25519-signed with a dossier key), leaderboard update; refuses bars or scenarios changed after registration | Enterprise |
 
 ELOF carries per-station ToA (as a pseudo-delay against the nominal Loran schedule), ECD, SNR,
 field strength, phase code, cycle flags, decided LDC symbols, the receiver's UTC(k) time
@@ -229,6 +232,13 @@ solution, ASF metadata, receiver and antenna metadata, simulator truth when the 
 simulated, and the scenarios it relates to by SHA-256. Specification:
 `crates/kshana-eloran/docs/ELOF.md`. Evidence: **MODELLED** (internal round-trip and rejection
 tests; no external receiver writes ELOF yet).
+
+eLoran-Bench (`crates/kshana-eloran/scenarios/bench-eloran/`): `registration.toml` holds the
+SHA-256 of `bars.toml` and of every scenario, written before any scoring; the scorer re-simulates
+each scenario from its registered file (truth never comes from the submission) and refuses to
+run if a hash differs. Bars are **illustrative** (set by Kshana, not from a standard) and were
+set after observing the in-house receiver on the fixed seeds, so they are blind only for other
+receivers. Evidence: **MODELLED** (simulated stimuli; no live captures in v0.1).
 
 ## Live monitor (GUI)
 

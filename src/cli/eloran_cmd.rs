@@ -92,6 +92,14 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
     elof convert <input> --out <file> [--from elof|truth-csv|obs-json] [--to jsonl|csv] [--scenario <scenario.toml>] [--license <token>] [--dev]\n\
         Convert to ELOF: a simulator truth table (<base>.truth.csv), imported receiver records\n\
         (`eloran import` JSON) or another ELOF profile; truth-csv and obs-json need --scenario (Enterprise)\n\
+    bench-eloran list [--bench <dir>]\n\
+        eLoran-Bench: the reference scenarios, their pre-registered bars and the registration hash (free)\n\
+    bench-eloran reference --out <dir> [--bench <dir>] [--license <token>] [--dev]\n\
+        The in-house software receiver's ELOF observations on every scenario (<ID>.elof.jsonl) (Enterprise)\n\
+    bench-eloran score --obs <dir> --receiver <name> --out <dir> [--leaderboard <file.json>] [--key-file <file> --signer <name>] [--bench <dir>] [--license <token>] [--dev]\n\
+        Score a receiver's ELOF observations (<dir>/<ID>.elof.jsonl or .elof.csv) against the\n\
+        pre-registered bars: <out>/scorecard.json (sealed; Ed25519-signed with --key-file), optional\n\
+        leaderboard update; refuses bars or scenarios changed after registration (Enterprise)\n\
     validate <scenario.toml>\n\
         Check a scenario and print its SHA-256 (no licence needed)\n\
     example\n\
@@ -127,6 +135,7 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("calibrate") => calibrate_cmd(args),
         Some("bench") => bench_cmd(args),
         Some("elof") => elof_cmd(args),
+        Some("bench-eloran") => bench_eloran_cmd(args),
         Some("example") => {
             print!("{EXAMPLE}");
             ExitCode::SUCCESS
@@ -1129,6 +1138,154 @@ fn elof_cmd(args: &[String]) -> ExitCode {
                 };
                 std::fs::write(&out, body).map_err(|e| format!("{out}: {e}"))?;
                 Ok(format!("elof: {} -> {out}{note}", rep.summary()))
+            })())
+        }
+        _ => fail(USAGE),
+    }
+}
+
+fn bench_eloran_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::refbench::{
+        bench_dir, score_receiver, software_receiver_observations, Benchmark, Leaderboard,
+    };
+    let dir = flag(args, "--bench")
+        .map(PathBuf::from)
+        .unwrap_or_else(bench_dir);
+    match args.get(1).map(String::as_str) {
+        Some("list") => done((|| {
+            let b = Benchmark::load(&dir)?;
+            let mut s = format!(
+                "{} {} (registered {}; registration SHA-256 {}; bars SHA-256 {})\n",
+                b.registration.benchmark,
+                b.registration.version,
+                b.registration.registered_utc,
+                b.registration_sha256,
+                b.registration.bars_sha256
+            );
+            for sc in &b.scenarios {
+                let bars: Vec<String> = b
+                    .bars_of(&sc.id)
+                    .iter()
+                    .map(|c| format!("{} {} {}", c.key(), c.op.symbol(), c.limit))
+                    .collect();
+                s.push_str(&format!(
+                    "{:<16} {:<16} {}\n    bars: {}\n",
+                    sc.id,
+                    sc.file.case.category,
+                    sc.file.case.title,
+                    bars.join("; ")
+                ));
+            }
+            s.push_str(
+                "bars are illustrative (set by Kshana, not from a standard); evidence MODELLED",
+            );
+            Ok(s)
+        })()),
+        Some("reference") => {
+            let Some(out) = flag(args, "--out") else {
+                return fail(USAGE);
+            };
+            if let Err(c) = licensed(args) {
+                return c;
+            }
+            done((|| {
+                let b = Benchmark::load(&dir)?;
+                std::fs::create_dir_all(&out).map_err(|e| format!("{out}: {e}"))?;
+                for sc in &b.scenarios {
+                    let run = sc.simulate()?;
+                    let f = software_receiver_observations(sc, &run)?;
+                    let p = Path::new(&out).join(format!("{}.elof.jsonl", sc.id));
+                    std::fs::write(&p, f.to_jsonl()?)
+                        .map_err(|e| format!("{}: {e}", p.display()))?;
+                }
+                Ok(format!(
+                    "bench-eloran: {} reference observation file(s) -> {out}",
+                    b.scenarios.len()
+                ))
+            })())
+        }
+        Some("score") => {
+            let (Some(obs_dir), Some(receiver), Some(out)) = (
+                flag(args, "--obs"),
+                flag(args, "--receiver"),
+                flag(args, "--out"),
+            ) else {
+                return fail(USAGE);
+            };
+            let now = now_unix();
+            let ent = match entitlement(args, now) {
+                Ok(e) => e,
+                Err(e) => return fail(e),
+            };
+            if let Err(e) = crate::license::check(&ent, FEATURE, now) {
+                return fail(e);
+            }
+            let key = flag(args, "--key-file");
+            if key.is_some() && !ent.allows("pro-signed-dossier", now) {
+                return fail("signing a scorecard requires the pro-signed-dossier feature");
+            }
+            done((|| {
+                let b = Benchmark::load(&dir)?;
+                let mut obs = std::collections::BTreeMap::new();
+                for sc in &b.scenarios {
+                    for ext in ["elof.jsonl", "elof.csv"] {
+                        let p = Path::new(&obs_dir).join(format!("{}.{ext}", sc.id));
+                        if p.exists() {
+                            let text = read(&p.to_string_lossy())?;
+                            let (f, rep) = kshana_eloran::elof::validate_text(&text);
+                            match f {
+                                Some(f) => {
+                                    if !rep.ok() {
+                                        eprintln!("warning: {}: {}", p.display(), rep.summary());
+                                    }
+                                    obs.insert(sc.id.clone(), f);
+                                }
+                                None => return Err(format!("{}: {}", p.display(), rep.summary())),
+                            }
+                            break;
+                        }
+                    }
+                }
+                let card = score_receiver(&b, &receiver, &obs)?;
+                std::fs::create_dir_all(&out).map_err(|e| format!("{out}: {e}"))?;
+                write_json(&format!("{out}/scorecard.json"), &card)?;
+                let mut msg = format!(
+                    "bench-eloran: {receiver}: {} pass, {} fail, {} not evaluated ({}/{} scenarios pass); seal {} -> {out}/scorecard.json",
+                    card.pass,
+                    card.fail,
+                    card.not_evaluated,
+                    card.scenarios_passed,
+                    card.results.len(),
+                    &card.seal_sha256[..16]
+                );
+                if let Some(kf) = &key {
+                    let signer =
+                        flag(args, "--signer").ok_or("--key-file needs --signer <name>")?;
+                    let seed = std::fs::read_to_string(kf)
+                        .map_err(|e| format!("{kf}: {e}"))
+                        .and_then(|s| {
+                            let s = s.trim();
+                            let s = s.strip_prefix("private_key=").unwrap_or(s);
+                            crate::license::parse_key_hex(s).map_err(|e| format!("{kf}: {e}"))
+                        })?;
+                    let utc = super::utc_iso8601_now();
+                    crate::signed_dossier::sign(Path::new(&out), &seed, &signer, &utc)
+                        .map_err(|e| e.to_string())?;
+                    msg.push_str(&format!(
+                        "; signed by {signer} (verify: kshana-pro dossier verify {out})"
+                    ));
+                }
+                if let Some(lp) = flag(args, "--leaderboard") {
+                    let mut lb = if Path::new(&lp).exists() {
+                        Leaderboard::from_json(&read(&lp)?)?
+                    } else {
+                        Leaderboard::new(&b)
+                    };
+                    let rank = lb.add(&card, &super::utc_iso8601_now())?;
+                    write_json(&lp, &lb)?;
+                    msg.push_str(&format!("; leaderboard rank {rank} -> {lp}"));
+                }
+                Ok(msg)
             })())
         }
         _ => fail(USAGE),
