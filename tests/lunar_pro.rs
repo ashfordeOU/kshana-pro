@@ -312,3 +312,6 @@ mod d2_circular;
 
 #[path = "lunar_pro/d4_offset_codec.rs"]
 mod d4_offset_codec;
+
+#[path = "lunar_pro/d5_lunex.rs"]
+mod d5_lunex;
