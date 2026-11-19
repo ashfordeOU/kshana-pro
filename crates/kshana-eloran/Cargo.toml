@@ -26,6 +26,12 @@ libc = { version = "0.2", optional = true }
 
 [features]
 default = []
+# Patent-candidate methods not yet filed (W1119): the attribution/meacon/ASF-learn guard,
+# delay-bounded LDC authentication, the self-calibrating simulator loop, the integrity-driven
+# ASF survey planner, and first-plug conformance + waveform evidence. OFF by default, so a
+# release build (default features) never contains them. Development and CI build with it; a
+# shipped build re-enables a method only after its patent application is filed.
+unfiled-methods = []
 # SoapySDR 0.8 hardware output/capture, opened at run time with dlopen (no link dependency).
 soapy = ["dep:libc"]
 # Ettus UHD 4.x (C API) output/capture, opened at run time with dlopen (Unix).

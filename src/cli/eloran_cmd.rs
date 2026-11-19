@@ -173,6 +173,15 @@ fn fail(msg: impl std::fmt::Display) -> ExitCode {
     ExitCode::FAILURE
 }
 
+/// A patent-candidate subcommand that is compiled out of release builds (feature
+/// `unfiled-methods`): shipped only after the method's patent application is filed.
+#[cfg(not(feature = "unfiled-methods"))]
+fn method_not_in_build(name: &str) -> ExitCode {
+    fail(format!(
+        "`eloran {name}` is a patent-pending method not included in this build; it is shipped only after its patent application is filed"
+    ))
+}
+
 pub fn run(args: &[String]) -> ExitCode {
     match args.first().map(String::as_str) {
         Some("run") => run_cmd(args),
@@ -186,7 +195,10 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("timeref") => timeref_cmd(args),
         Some("asfgrid") => asfgrid_cmd(args),
         Some("fidelity") => fidelity_cmd(args),
+        #[cfg(feature = "unfiled-methods")]
         Some("selfcal") => selfcal_cmd(args),
+        #[cfg(not(feature = "unfiled-methods"))]
+        Some("selfcal") => method_not_in_build("selfcal"),
         Some("capset") => capset_cmd(args),
         Some("tactical") => tactical_cmd(args),
         Some("import") => import_cmd(args),
@@ -216,6 +228,9 @@ pub fn run(args: &[String]) -> ExitCode {
                 None => format!("VDES R-Mode: only {} stations within the radio horizon: no fix -> {out}", r.used),
             })
         })()),
+        #[cfg(not(feature = "unfiled-methods"))]
+        Some("survey-plan") => method_not_in_build("survey-plan"),
+        #[cfg(feature = "unfiled-methods")]
         Some("survey-plan") => done((|| {
             use kshana_eloran::plan::survey::{plan, SurveyConfig};
             if licensed(args).is_err() {
@@ -293,7 +308,10 @@ pub fn run(args: &[String]) -> ExitCode {
             }
             Ok(t + &format!("-> {out}"))
         })()),
+        #[cfg(feature = "unfiled-methods")]
         Some("guard") => guard_cmd(args),
+        #[cfg(not(feature = "unfiled-methods"))]
+        Some("guard") => method_not_in_build("guard"),
         Some("elof") => elof_cmd(args),
         Some("bench-eloran") => bench_eloran_cmd(args),
         Some("tpl") => tpl_cmd(args),
@@ -1563,12 +1581,14 @@ fn tactical_cmd(args: &[String]) -> ExitCode {
 }
 
 /// `selfcal` job file: the loop configuration and the reference sites.
+#[cfg(feature = "unfiled-methods")]
 #[derive(serde::Deserialize)]
 struct SelfCalJob {
     config: kshana_eloran::valid::selfcal::SelfCalConfig,
     sites: Vec<kshana_eloran::valid::selfcal::RefSite>,
 }
 
+#[cfg(feature = "unfiled-methods")]
 fn selfcal_cmd(args: &[String]) -> ExitCode {
     use kshana_eloran::calreg::Register;
     use kshana_eloran::valid::selfcal::{run_selfcal, verify_lineage, SelfCalResult};
@@ -2552,6 +2572,9 @@ fn bench_cmd(args: &[String]) -> ExitCode {
             }
             Ok(msg)
         })()),
+        #[cfg(not(feature = "unfiled-methods"))]
+        Some("firstplug") => method_not_in_build("bench firstplug"),
+        #[cfg(feature = "unfiled-methods")]
         Some("firstplug") => done((|| {
             use kshana_eloran::bench::firstplug;
             let (inv, _, cat) = inventory()?;
@@ -2600,6 +2623,9 @@ fn bench_cmd(args: &[String]) -> ExitCode {
             }
             Ok(msg)
         })()),
+        #[cfg(not(feature = "unfiled-methods"))]
+        Some("verify-evidence") => method_not_in_build("bench verify-evidence"),
+        #[cfg(feature = "unfiled-methods")]
         Some("verify-evidence") => done((|| {
             let dir = args.get(2).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
             let bad = kshana_eloran::bench::firstplug::verify_evidence(Path::new(dir))?;
@@ -2666,6 +2692,7 @@ fn bench_cmd(args: &[String]) -> ExitCode {
 }
 
 /// Input of `eloran guard attribute`.
+#[cfg(feature = "unfiled-methods")]
 #[derive(serde::Deserialize)]
 struct AttributeInput {
     gnss: Vec<crate::eloran_fusion::GnssRange>,
@@ -2679,6 +2706,7 @@ struct AttributeInput {
 }
 
 /// Input of `eloran guard meacon`.
+#[cfg(feature = "unfiled-methods")]
 #[derive(serde::Deserialize)]
 struct MeaconInput {
     observed: Vec<kshana_eloran::guard::meacon::Observed>,
@@ -2689,6 +2717,7 @@ struct MeaconInput {
     config: Option<kshana_eloran::guard::meacon::MeaconConfig>,
 }
 
+#[cfg(feature = "unfiled-methods")]
 fn guard_cmd(args: &[String]) -> ExitCode {
     let sub = args.get(1).map(String::as_str);
     let (Some(input), Some(out)) = (

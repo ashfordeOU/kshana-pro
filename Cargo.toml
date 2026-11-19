@@ -27,6 +27,10 @@ eloran-soapy = ["kshana-eloran/soapy"]
 eloran-uhd = ["kshana-eloran/uhd"]
 eloran-redpitaya = ["kshana-eloran/redpitaya"]
 eloran-digilent = ["kshana-eloran/digilent"]
+# Patent-candidate methods not yet filed (W1119): attribution, meacon detection, delay-bounded
+# LDC authentication, self-calibrating simulator, ASF survey planner, first-plug conformance and
+# waveform evidence. OFF by default, so a release build never contains them; dev and CI enable it.
+unfiled-methods = ["kshana-eloran/unfiled-methods"]
 # Licence and pack signing through AWS KMS (key custody S7-a, src/license/kms.rs). Adds no
 # crate: SigV4 uses ring and sha2, the transport rustls, all already dependencies.
 kms = []

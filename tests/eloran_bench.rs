@@ -196,6 +196,7 @@ fn probe_needs_the_hardware_licence_feature_and_reports_unreachable_hosts() {
 }
 
 #[test]
+#[cfg(feature = "unfiled-methods")]
 fn first_plug_rehearsal_writes_verifiable_evidence_and_detects_tampering() {
     let d = tmp("firstplug");
     let ev = d.join("ev");

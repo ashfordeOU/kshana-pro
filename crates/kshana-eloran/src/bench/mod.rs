@@ -17,6 +17,7 @@
 
 pub mod catalog;
 pub mod check;
+#[cfg(feature = "unfiled-methods")]
 pub mod firstplug;
 pub mod kit;
 pub mod open;
