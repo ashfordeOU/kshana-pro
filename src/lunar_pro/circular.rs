@@ -267,7 +267,7 @@ pub fn compute(
     comparisons: &[Comparison],
     earth: &EarthSeries,
 ) -> Result<Circular, String> {
-    if !(cfg.window_days > 0.0) {
+    if cfg.window_days.is_nan() || cfg.window_days <= 0.0 {
         return Err("window_days must be positive".into());
     }
     let mjds = circular_dates(cfg.year, cfg.month)?;
@@ -402,7 +402,7 @@ fn wls_intercept(pts: &[(f64, f64, f64)]) -> Option<(f64, f64)> {
         sty += w * t * y;
     }
     let det = s * stt - st * st;
-    if !(det > 0.0) || !det.is_finite() {
+    if det.is_nan() || det <= 0.0 || !det.is_finite() {
         return None;
     }
     let a = (stt * sy - st * sty) / det;

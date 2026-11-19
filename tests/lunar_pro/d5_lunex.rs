@@ -17,7 +17,7 @@ fn csv() -> String {
             let l1 = pr / 0.190293672798365;
             let dop = -650.25 + 3.5 * k as f64;
             let cn0 = 24.0 + i as f64;
-            let sig = if sv.starts_with('E') { "1C" } else { "1C" };
+            let sig = "1C";
             let carrier = if *sv == "G13" && k == 3 {
                 String::new()
             } else {
@@ -156,7 +156,7 @@ fn d5_validator_accepts_a_clean_file_with_lunar_tags_and_afs_observables() {
         platform: "ORBIT".into(),
         frame: "MCI_ICRF".into(),
         time_tag: "TL".into(),
-        lunar_scale: Some(("TL".into(), Some(2_821_020.1234), "LTL1".into())),
+        lunar_scale: Some(("TL".into(), Some(2_821_020.123_4), "LTL1".into())),
         interval_s: Some(10.0),
         ..Default::default()
     };
@@ -168,7 +168,7 @@ fn d5_validator_accepts_a_clean_file_with_lunar_tags_and_afs_observables() {
     assert_eq!(back.header.time_tag, "TL");
     assert_eq!(
         back.header.lunar_scale,
-        Some(("TL".into(), Some(2_821_020.1234), "LTL1".into()))
+        Some(("TL".into(), Some(2_821_020.123_4), "LTL1".into()))
     );
     assert_eq!(
         back.header.obs_types,

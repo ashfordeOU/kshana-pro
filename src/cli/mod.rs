@@ -13,6 +13,7 @@ mod eloran_cmd;
 mod evidence_cmd;
 mod forensics_cmd;
 mod license_cmd;
+mod lunar_cmd;
 mod packs_cmd;
 mod payments_cmd;
 mod scorecard_cmd;
@@ -59,6 +60,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro timing <assess|console|metrics|history|audit> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit report (Pro; `kshana-pro timing` for details)\n\
        kshana-pro trust <run|verify> ...   Multi-source trust (F3): choose epoch by epoch among GNSS, OSNMA, LEO, eLoran, PTP and holdover, with hash-chained evidence (Pro; verify free)\n\
        kshana-pro eloran <run|validate|example> ...   eLoran/GNSS signal simulator: multi-chain, multi-time-reference eLoran signals with propagation, interference and truth, to SigMF files or LF hardware (Enterprise; validate and example free)
+       kshana-pro lunar <time|rates|w0|circular|holdover|offset|lunex> ...   Lunar time with GUM uncertainty (TCL or TL), W0_L sensitivity, Circular T for the Moon, Earth-Moon TWTT holdover, KLTO-1 offset codec proposal, LUNEX prototype (Pro; decode, vectors, example and validate free; `kshana-pro lunar` for details)\n\
        kshana-pro area picture <console.toml> ...   Area console (F1): fuse Stations, receivers and customer feeds into an area trust picture with event timelines; never emitter positions (Pro)\n\
        kshana-pro alerts <route|raw> ...   Alert policy engine (F5): routes, quiet hours, escalation, de-duplication to I5 outputs (Pro); raw alerts free\n\
        kshana-pro integrity <score|verify> ...   AIS and position integrity scoring at fleet and area scale (E5, Pro); verify free\n\
@@ -121,6 +123,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "attack-iq",
     "trust",
     "eloran",
+    "lunar",
     "area",
     "alerts",
     "integrity",
@@ -252,6 +255,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("attack-iq") => attack_iq_cmd::run(&args[1..]),
         Some("trust") => trust_cmd::run(&args[1..]),
         Some("eloran") => eloran_cmd::run(&args[1..]),
+        Some("lunar") => lunar_cmd::run(&args[1..]),
         Some("area") => area_cmd::run(&args[1..]),
         Some("alerts") => alerts_cmd::run(&args[1..]),
         Some("integrity") => evidence_cmd::integrity(&args[1..]),

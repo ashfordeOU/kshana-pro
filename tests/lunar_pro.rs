@@ -315,3 +315,6 @@ mod d4_offset_codec;
 
 #[path = "lunar_pro/d5_lunex.rs"]
 mod d5_lunex;
+
+#[path = "lunar_pro/cli.rs"]
+mod cli;

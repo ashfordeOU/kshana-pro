@@ -574,6 +574,9 @@ fn parse_time(s: &str) -> Result<EpochUtc, String> {
     })
 }
 
+/// One CSV observation: satellite, signal, (pseudorange, carrier, Doppler, C/N0).
+type CsvRec = (String, String, [Option<f64>; 4]);
+
 /// Convert a LuGRE-style CSV (`time,sv,signal,pseudorange_m,carrier_cycles,doppler_hz,cn0_dbhz`;
 /// `#` comments and a header line allowed; an empty field is a missing observation) to LUNEX.
 /// For each system the observation codes are `C<sig> L<sig> D<sig> S<sig>` for each signal in
@@ -658,8 +661,7 @@ pub fn from_csv(text: &str, opt: &CsvOptions) -> Result<Lunex, String> {
     }
     // Epochs in time order; satellites in first-seen order.
     let mut order: Vec<(f64, String)> = Vec::new();
-    let mut by_epoch: BTreeMap<String, (EpochUtc, Vec<(String, String, [Option<f64>; 4])>)> =
-        BTreeMap::new();
+    let mut by_epoch: BTreeMap<String, (EpochUtc, Vec<CsvRec>)> = BTreeMap::new();
     for r in rows {
         let e = by_epoch.entry(r.key.clone()).or_insert_with(|| {
             order.push((secs(&r.t), r.key.clone()));

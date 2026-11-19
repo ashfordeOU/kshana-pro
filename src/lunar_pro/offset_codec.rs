@@ -334,7 +334,7 @@ struct BitWriter {
 impl BitWriter {
     fn put(&mut self, v: u64, bits: usize) {
         for i in (0..bits).rev() {
-            if self.n % 8 == 0 {
+            if self.n.is_multiple_of(8) {
                 self.acc.push(0);
             }
             if (v >> i) & 1 == 1 {
@@ -506,8 +506,9 @@ fn solve3(mut a: [[f64; 3]; 3], mut b: [f64; 3]) -> [f64; 3] {
         b.swap(k, p);
         for i in k + 1..3 {
             let f = a[i][k] / a[k][k];
-            for j in k..3 {
-                a[i][j] -= f * a[k][j];
+            let pivot = a[k];
+            for (aij, akj) in a[i].iter_mut().zip(pivot).skip(k) {
+                *aij -= f * akj;
             }
             b[i] -= f * b[k];
         }
