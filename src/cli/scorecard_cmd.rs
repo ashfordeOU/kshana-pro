@@ -1,6 +1,6 @@
 // PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
-//! `kshana-pro scorecard <run|verify>` (roadmap 0.42, E3). `run` needs a licence tier that
+//! `kshana-pro scorecard <run|verify|osnma>` (roadmap 0.42, E3; W1119 C6). `run` needs a licence tier that
 //! unlocks `pro-receiver-scorecard`; `verify` needs none.
 
 use std::path::Path;
@@ -16,7 +16,9 @@ pub const USAGE: &str = "usage: kshana-pro scorecard <command>\n\
     run <campaign.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]\n\
         Score a receiver test campaign; write the signed scorecard and test report (Pro)\n\
     verify <dir> --trust <signer public key hex>[,...]\n\
-        Check a report's signature and every file, offline (no licence needed)";
+        Check a report's signature and every file, offline (no licence needed)\n\
+    osnma <receiver-log.json> --out <dir> --signer <name> --key-file <file> [--bars <bars.toml>] [--dev]\n\
+        OSNMA receiver conformance scorecard against pre-registered bars (`kshana-pro scorecard osnma` for details)";
 
 fn fail(msg: impl std::fmt::Display) -> ExitCode {
     eprintln!("error: {msg}");
@@ -129,6 +131,8 @@ pub fn run(args: &[String]) -> ExitCode {
             ExitCode::SUCCESS
         }
         Some("verify") => verify_dir(args),
+        Some("osnma") => super::pnt_cmd::osnma(args),
+        Some("osnma-synth") => super::pnt_cmd::osnma_synth(args),
         _ => fail(USAGE),
     }
 }

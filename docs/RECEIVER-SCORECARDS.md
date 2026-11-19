@@ -86,3 +86,29 @@ engine's synthetic NMEA receiver model as the unit under test. Pre-registered in
   count, which still see it.
 * No campaign on a real receiver has been run yet; the sample is a modelled receiver.
 * P1952 is a draft: topics are mapped by subject, without clause numbers.
+
+## OSNMA receiver conformance scorecard (W1119 C6)
+
+`kshana-pro scorecard osnma <receiver-log.json> --out <dir> --signer <name> --key-file <file> [--bars <bars.toml>]`
+(licence: `pro-receiver-scorecard`) scores an OSNMA-capable receiver from a log in the format
+`kshana-osnma-receiver-log/1` (JSON: receiver identity, and per test the kind, the event time,
+the forged satellites, and per epoch the overall authentication status A/F/N, the fix, and per
+satellite its status and whether it was used). Test kinds and their pre-registered bars
+(illustrative defaults, all configurable, hashed into the scorecard):
+
+| Kind | Bar (default) |
+|---|---|
+| `ttfaf` | first authenticated fix within 300 s cold, 120 s warm, 60 s hot |
+| `forged_nav` | forged satellites rejected (F/N, not used) within 60 s and never used authenticated afterwards; ≥ 90 % of genuine-satellite epochs stay authenticated |
+| `replay` | no authenticated fix from replayed signals later than 60 s after the event |
+| `chain_renewal`, `pk_renewal`, `merkle_renewal` | authentication resumes with an outage ≤ 60 s and no failure on genuine signals |
+| `pk_revocation` | no authenticated status later than 60 s after the revocation |
+
+Each scorecard carries a stimulus self-check made with the open engine's OSNMA verifier
+(`kshana::osnma::tesla` and `merkle`): a genuine TESLA key and public key verify, the forged
+and replayed ones fail. References: Galileo OSNMA SIS ICD Issue 1.1 and Receiver Guidelines
+Issue 1.3; the bars are not taken from them (illustrative until confirmed). A scorecard is test
+evidence, never a statement of conformance. `kshana-pro scorecard osnma-synth <good|faulty> <file>`
+writes a synthetic log.
+
+Evidence: **MODELLED** (synthetic receiver logs, `tests/osnma_conformance.rs`).

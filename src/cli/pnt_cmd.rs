@@ -6,6 +6,8 @@
 //! * `kshana-pro forensics maritime <request.toml> ...` and `forensics maritime-synth`
 //!   (C3, gate `pro-incident-forensics`);
 //! * `kshana-pro forensics fdm <flight.csv> ...` and `forensics fdm-synth` (C5, same gate);
+//! * `kshana-pro scorecard osnma <log.json> ...` and `scorecard osnma-synth` (C6, gate
+//!   `pro-receiver-scorecard`);
 //!
 //! Producing a signed result needs the licence feature of its gate; verifying a signed
 //! directory needs none (`kshana-pro dossier verify`).
@@ -137,6 +139,62 @@ pub fn fdm_synth(args: &[String]) -> ExitCode {
         _ => return fail(FDM_USAGE),
     };
     match std::fs::write(file, make(f)) {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(e) => fail(format!("{file}: {e}")),
+    }
+}
+
+pub const OSNMA_USAGE: &str = "usage: kshana-pro scorecard osnma <receiver-log.json> --out <dir> --signer <name> --key-file <file> [--bars <bars.toml>] [--utc <iso>] [--license <token>] [--dev]\n\
+        Score an OSNMA receiver's log against pre-registered bars (TTFAF, forged navigation data, replay, key/tree renewal, revocation); signed scorecard (Pro)\n\
+    kshana-pro scorecard osnma-synth <good|faulty> <file.json>\n\
+        Write a synthetic receiver log to try it (free)";
+
+/// `scorecard osnma`.
+pub fn osnma(args: &[String]) -> ExitCode {
+    use crate::osnma_conformance as o;
+    let Some(file) = file_arg(args) else {
+        return fail(OSNMA_USAGE);
+    };
+    let r = producing(args, crate::scorecards::KIND).and_then(|(out, seed, signer, utc)| {
+        let bytes = std::fs::read(file).map_err(|e| format!("{file}: {e}"))?;
+        let log: o::ReceiverLog =
+            serde_json::from_slice(&bytes).map_err(|e| format!("{file}: {e}"))?;
+        let bars = match super::flag(args, "--bars") {
+            Some(b) => {
+                let t = std::fs::read_to_string(&b).map_err(|e| format!("{b}: {e}"))?;
+                toml::from_str::<o::Bars>(&t).map_err(|e| format!("{b}: {e}"))?
+            }
+            None => o::Bars::default(),
+        };
+        let c = o::score(&log, &bytes, &bars)?;
+        o::write_dir(Path::new(&out), &c, &bytes)?;
+        sign(&out, &seed, &signer, &utc)?;
+        Ok((c, out))
+    });
+    match r {
+        Ok((c, out)) => {
+            eprintln!(
+                "[osnma] {} met, {} not met, {} not assessed; signed scorecard in {out}",
+                c.met, c.not_met, c.not_assessed
+            );
+            ExitCode::SUCCESS
+        }
+        Err(e) => fail(e),
+    }
+}
+
+/// `scorecard osnma-synth`.
+pub fn osnma_synth(args: &[String]) -> ExitCode {
+    let (Some(c), Some(file)) = (args.get(1), args.get(2)) else {
+        return fail(OSNMA_USAGE);
+    };
+    let good = match c.as_str() {
+        "good" => true,
+        "faulty" => false,
+        _ => return fail(OSNMA_USAGE),
+    };
+    let log = crate::osnma_conformance::synth::log(good);
+    match std::fs::write(file, serde_json::to_string_pretty(&log).unwrap_or_default()) {
         Ok(()) => ExitCode::SUCCESS,
         Err(e) => fail(format!("{file}: {e}")),
     }
