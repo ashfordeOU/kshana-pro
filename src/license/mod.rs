@@ -193,8 +193,10 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-report-verification" => Tier::Pro,
         "pro-exposure-ledger" => Tier::Enterprise,
         // Test-as-code kit (research 2026-11-20 gaps 07/08/11/12): neutral scenarios compiled
-        // for lab simulators (Pro).
+        // for lab simulators, the CI runner with signed verdicts, incident-to-regression and
+        // replay fidelity (Pro); the build-to-build regression diff (Enterprise).
         "pro-test-kit" => Tier::Pro,
+        "pro-test-kit-regression" => Tier::Enterprise,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -237,6 +239,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-report-verification",
     "pro-exposure-ledger",
     "pro-test-kit",
+    "pro-test-kit-regression",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered
