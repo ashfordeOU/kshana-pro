@@ -7,7 +7,7 @@ PRIVATE — Ashforde internal. kshana-pro repo only. Contact: contact@ashforde.o
 **Recommendation: NO-GO as prime for the 1 Dec 2026 deadline.** Only exception: an eligible sensor
 operator or prime that is already bidding asks Ashforde in for a small, defined software task by
 **Tue 24 Nov**. Otherwise, download the documents for learning, and prepare the ground-tracking
-OD gap in Arksa for a re-issue or follow-on.
+OD gap in the Arksa codebase for a re-issue or follow-on.
 
 ## Facts (esa-star snapshot 15 Nov 2026, tender 195614)
 
@@ -31,7 +31,7 @@ OD gap in Arksa for a re-issue or follow-on.
 | Need | What exists | Status |
 |---|---|---|
 | Orbit determination from **radar/optical tracks** (range, range-rate, angles; CCSDS TDM) | Arksa engine EKF/UKF with smoothers (checked against GMAT, engine-only and not wired to UI/API); GNSS OD 10.5 cm vs IGS (scratch runs, not in the validation suite). **No ground-tracking measurement models and no TDM reader** (Arksa gap audit, 15 Oct 2026, main 2e8a817a; re-check on current main) | **To build**: the core of the tender |
-| Track correlation / association (tracklet-to-object, small debris) | Not found in Arksa or arksa-kpro | **To build** |
+| Track correlation / association (tracklet-to-object, small debris) | Not found in the Arksa or arksa-kpro code | **To build** |
 | Sensor scheduling / tasking | Arksa Flows has time and event triggers (operations automation), not sensor tasking. No observation planner found | **To build** |
 | Catalogue / CDM ingest, conjunction screening | CDM ingest, catalogue ingest, conjunction board; SOCRATES conjunctions matched to the ms (Iridium 33 × Cosmos 2251 replay) | Adjacent (supports, but not asked) |
 | Validation culture, evidence records | 2,951 validation cases: 2,911 pass, 40 recorded misses, 0 failures (Arksa main, results feed 12 Nov 2026) | A differentiator in the write-up, not a substitute for OD heritage |
@@ -54,7 +54,7 @@ OD gap in Arksa for a re-issue or follow-on.
 
 - **Low** (inference: well under 10% as prime). The reasons:
   - 12 days left;
-  - the three core functions (track OD, correlation, scheduling) are not built in Arksa;
+  - the three core functions (track OD, correlation, scheduling) are not built in the Arksa codebase;
   - no partner identified;
   - heavy weight on background;
   - ESOC Space Safety incumbents are likely to bid.
