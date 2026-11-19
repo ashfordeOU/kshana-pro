@@ -143,6 +143,13 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-receiver-scorecard" => Tier::Pro,
         // Timing scorecards under spoofing scenarios (roadmap 0.42 T4).
         "pro-timing-scorecard" => Tier::Pro,
+        // Timing assurance v2 (W1120 TA1-TA3): the time-bomb auditor (vectors, analyser,
+        // fleet check), the node clock self-check, the holdover evidence report; correlating
+        // many sites and operators is Enterprise.
+        "pro-timing-timebomb" => Tier::Pro,
+        "pro-timing-selfcheck" => Tier::Pro,
+        "pro-timing-holdover-evidence" => Tier::Pro,
+        "pro-timing-correlation" => Tier::Enterprise,
         // Synthetic attack IQ files (roadmap 0.42 F7, owner gate K6): Pro edition, but never
         // by tier below Enterprise: the vendor names the feature on a vetted buyer's licence
         // (with `vetted_buyer`), and crate::attack_iq checks both.
@@ -199,6 +206,10 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-desktop",
     "pro-timing-fleet",
     "pro-timing-audit",
+    "pro-timing-timebomb",
+    "pro-timing-selfcheck",
+    "pro-timing-holdover-evidence",
+    "pro-timing-correlation",
     "pro-threat-library",
     "pro-attack-iq",
     "pro-area-console",

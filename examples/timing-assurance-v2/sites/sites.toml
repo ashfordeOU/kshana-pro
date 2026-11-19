@@ -1,0 +1,54 @@
+# Cross-site and cross-operator correlation (SYNTHETIC series: see ../generate.py). Each
+# series is the site's time minus a common monitor that does not depend on GNSS.
+title = "Six sites, three operators (SYNTHETIC)"
+bin_s = 60
+k = 4
+floor_s = 100e-9
+
+[[sites]]
+id = "a-1"
+operator = "OpA"
+region = "north"
+format = "csv"
+path = "a-1.csv"
+u_s = 60e-9
+
+[[sites]]
+id = "a-2"
+operator = "OpA"
+region = "south"
+format = "csv"
+path = "a-2.csv"
+u_s = 60e-9
+
+[[sites]]
+id = "b-1"
+operator = "OpB"
+region = "north"
+format = "csv"
+path = "b-1.csv"
+u_s = 60e-9
+
+[[sites]]
+id = "b-2"
+operator = "OpB"
+region = "south"
+format = "csv"
+path = "b-2.csv"
+u_s = 60e-9
+
+[[sites]]
+id = "c-1"
+operator = "OpC"
+region = "north"
+format = "csv"
+path = "c-1.csv"
+u_s = 60e-9
+
+[[sites]]
+id = "c-2"
+operator = "OpC"
+region = "south"
+format = "csv"
+path = "c-2.csv"
+u_s = 60e-9

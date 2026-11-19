@@ -60,7 +60,7 @@ about that evidence. The pack prepares an audit; whether the requirement is met 
 operator, its auditor and its authority to judge.";
 
 /// The frameworks: id, title, source citation.
-pub const FRAMEWORKS: [(&str, &str, &str); 4] = [
+pub const FRAMEWORKS: [(&str, &str, &str); 5] = [
     (
         "mifid2-rts25",
         "MiFID II RTS 25: business clock synchronisation",
@@ -80,6 +80,11 @@ pub const FRAMEWORKS: [(&str, &str, &str); 4] = [
         "india-ist-draft",
         "India draft Legal Metrology (Indian Standard Time) Rules, 2025",
         "Draft Legal Metrology (Indian Standard Time) Rules, 2025, Department of Consumer Affairs (research 02 source N14); a draft as found, every provision to confirm with the final text",
+    ),
+    (
+        "itu-g8271-1",
+        "Telecom time synchronisation: ITU-T G.8271.1 network limits",
+        "ITU-T G.8271.1 (network limits for time synchronisation in packet networks with full timing support), with G.8272 (PRTC) and G.8271 (end-application budget); limits as transcribed here, to confirm with the Recommendations",
     ),
 ];
 
@@ -103,6 +108,39 @@ pub struct CircularTIn {
 #[serde(deny_unknown_fields)]
 pub struct FileIn {
     pub path: String,
+}
+
+/// The antenna cable of a GNSS-fed grandmaster or PRTC: the delay it should carry against the
+/// one configured (the RTS 25 audit finding of research 07b: a cable delay "not set at all").
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct CableDelayIn {
+    pub length_m: f64,
+    /// Standard uncertainty of the length (default 0.5 m).
+    pub u_length_m: Option<f64>,
+    /// Velocity factor of the cable (datasheet, e.g. 0.66 for solid PE, 0.85 for foam).
+    pub velocity_factor: f64,
+    /// Standard uncertainty of the velocity factor (default 0.01).
+    pub u_velocity_factor: Option<f64>,
+    /// Other fixed delays in the antenna path (amplifier, splitter, lightning arrestor), s.
+    #[serde(default)]
+    pub other_delays_s: f64,
+    /// The delay compensation configured in the receiver; absent means not set.
+    pub configured_s: Option<f64>,
+    /// Allowed discrepancy beyond the expanded uncertainty (default 10 ns).
+    pub tolerance_s: Option<f64>,
+}
+
+/// ITU-T G.8271.1 options.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct NetworkIn {
+    /// The max|TE| network limit at reference point C (default 1100 ns, as transcribed).
+    pub max_te_s: Option<f64>,
+    /// Expanded measurement uncertainty of the time-error record (added to the bound).
+    pub u_measurement_s: Option<f64>,
+    /// The dTE MTIE mask to apply, `[[tau_s, limit_s], ...]` (the operator's transcription).
+    pub mtie_mask: Option<Vec<[f64; 2]>>,
 }
 
 /// What the operator states. Every field optional; a missing statement is shown as to be
@@ -132,6 +170,12 @@ pub struct Operator {
     pub foreign_reference_approval: Option<String>,
     pub navic_receiver: Option<String>,
     pub npl_traceability: Option<String>,
+    /// Where the holdover procedure (what happens on GNSS loss, for how long) is documented.
+    pub holdover_procedure: Option<String>,
+    /// The holdover period the operator must cover, h (e.g. 336 for two weeks).
+    pub required_holdover_h: Option<f64>,
+    /// The PRTC class at reference point A: `prtc-a` (default) or `prtc-b`.
+    pub prtc_class: Option<String>,
 }
 
 /// The pack's inputs (paths relative to the inputs file).
@@ -149,6 +193,16 @@ pub struct Inputs {
     pub spoof: Option<FileIn>,
     /// A timing fleet assessment JSON (`kshana-pro-timing-fleet/1`).
     pub fleet: Option<FileIn>,
+    /// The antenna cable delay check.
+    pub cable_delay: Option<CableDelayIn>,
+    /// A holdover evidence report (`kshana-pro-holdover-evidence/1`).
+    pub holdover_evidence: Option<FileIn>,
+    /// A clock self-check report (`kshana-pro-timing-selfcheck/1`).
+    pub selfcheck: Option<FileIn>,
+    /// The PRTC's time-error record at reference point A (G.8271.1).
+    pub prtc: Option<ClockIn>,
+    /// G.8271.1 options.
+    pub network: Option<NetworkIn>,
     #[serde(default)]
     pub operator: Operator,
 }
@@ -233,6 +287,67 @@ pub struct Fleet {
     pub act: usize,
 }
 
+/// The cable delay check.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct CableCheck {
+    pub expected_s: f64,
+    /// Standard uncertainty of the expected delay (GUM, length and velocity factor).
+    pub u_expected_s: f64,
+    pub configured_s: Option<f64>,
+    /// configured − expected (the uncompensated time error), s.
+    pub discrepancy_s: f64,
+    pub allowed_s: f64,
+}
+
+impl CableDelayIn {
+    pub fn check(&self) -> Result<CableCheck, String> {
+        let v = self.velocity_factor;
+        if self.length_m.is_nan() || self.length_m < 0.0 || v.is_nan() || v <= 0.0 || v > 1.0 {
+            return Err(
+                "cable delay: length_m >= 0 and 0 < velocity_factor <= 1 are needed".into(),
+            );
+        }
+        let c = 299_792_458.0;
+        let ul = self.u_length_m.unwrap_or(0.5);
+        let uv = self.u_velocity_factor.unwrap_or(0.01);
+        let cable = self.length_m / (self.velocity_factor * c);
+        // GUM: d/dL = 1/(v c), d/dv = -L/(v^2 c).
+        let u = ((ul / (self.velocity_factor * c)).powi(2)
+            + (cable / self.velocity_factor * uv).powi(2))
+        .sqrt();
+        let expected = cable + self.other_delays_s;
+        let conf = self.configured_s;
+        Ok(CableCheck {
+            expected_s: expected,
+            u_expected_s: u,
+            configured_s: conf,
+            discrepancy_s: conf.unwrap_or(0.0) - expected,
+            allowed_s: 2.0 * u + self.tolerance_s.unwrap_or(10e-9),
+        })
+    }
+}
+
+/// What a holdover evidence report says.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct HoldoverEvidence {
+    pub site: String,
+    pub period_s: f64,
+    pub limit_s: f64,
+    pub supported: bool,
+    pub max_supported_holdover_s: Option<f64>,
+    pub verdict: String,
+}
+
+/// What a clock self-check report says.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct SelfCheck {
+    pub node: String,
+    pub bins: usize,
+    pub single_source_bins: usize,
+    pub gnss_outlier_events: usize,
+    pub verdict: String,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct InputFile {
     pub role: String,
@@ -248,6 +363,11 @@ pub struct Evidence {
     pub holdover: Option<Holdover>,
     pub spoof: Option<Spoof>,
     pub fleet: Option<Fleet>,
+    pub cable: Option<CableCheck>,
+    pub holdover_evidence: Option<HoldoverEvidence>,
+    pub selfcheck: Option<SelfCheck>,
+    /// The PRTC record at reference point A.
+    pub prtc: Option<Divergence>,
     pub files: Vec<InputFile>,
     /// Input problems (a file that could not be read, a laboratory not in Circular T).
     pub problems: Vec<String>,
@@ -362,10 +482,10 @@ pub fn gather(inp: &Inputs, base: &Path) -> Evidence {
             }
         }
     };
-    if let Some(c) = &inp.clock {
+    let record = |role: &str, c: &ClockIn, ev: &mut Evidence| -> Option<Divergence> {
         let mut src = c.source.clone();
         if let Some(p) = &src.path {
-            if let Some(b) = file("clock record", p, &mut ev) {
+            if let Some(b) = file(role, p, ev) {
                 src.path = None;
                 src.text = Some(String::from_utf8_lossy(&b).to_string());
             }
@@ -377,7 +497,7 @@ pub fn gather(inp: &Inputs, base: &Path) -> Evidence {
             match kshana::clock_log::read_input(&src) {
                 Ok(r) => {
                     let max = r.phase_s.iter().fold(0.0f64, |a, x| a.max(x.abs()));
-                    ev.divergence = Some(Divergence {
+                    return Some(Divergence {
                         reference: c.reference.clone(),
                         format: c.source.format.clone(),
                         samples: r.phase_s.len(),
@@ -388,7 +508,84 @@ pub fn gather(inp: &Inputs, base: &Path) -> Evidence {
                         offset_s: r.phase_s.clone(),
                     });
                 }
-                Err(e) => ev.problems.push(format!("clock record: {e}")),
+                Err(e) => ev.problems.push(format!("{role}: {e}")),
+            }
+        }
+        None
+    };
+    if let Some(c) = &inp.clock {
+        ev.divergence = record("clock record", c, &mut ev);
+    }
+    if let Some(c) = &inp.prtc {
+        ev.prtc = record("PRTC record", c, &mut ev);
+    }
+    if let Some(c) = &inp.cable_delay {
+        match c.check() {
+            Ok(x) => ev.cable = Some(x),
+            Err(e) => ev.problems.push(e),
+        }
+    }
+    if let Some(h) = &inp.holdover_evidence {
+        if let Some(b) = file("holdover evidence", &h.path, &mut ev) {
+            match serde_json::from_slice::<serde_json::Value>(&b) {
+                Ok(v)
+                    if json_s(&v, "/format").as_deref()
+                        == Some(super::holdover_evidence::FORMAT) =>
+                {
+                    ev.holdover_evidence = Some(HoldoverEvidence {
+                        site: json_s(&v, "/site").unwrap_or_default(),
+                        period_s: json_f(&v, "/period_s").unwrap_or(0.0),
+                        limit_s: json_f(&v, "/limit_s").unwrap_or(0.0),
+                        supported: v
+                            .get("supported")
+                            .and_then(|x| x.as_bool())
+                            .unwrap_or(false),
+                        max_supported_holdover_s: json_f(&v, "/max_supported_holdover_s"),
+                        verdict: json_s(&v, "/verdict").unwrap_or_default(),
+                    })
+                }
+                Ok(_) => ev
+                    .problems
+                    .push("holdover evidence: not a holdover evidence report".into()),
+                Err(e) => ev.problems.push(format!("holdover evidence: {e}")),
+            }
+        }
+    }
+    if let Some(h) = &inp.selfcheck {
+        if let Some(b) = file("clock self-check", &h.path, &mut ev) {
+            match serde_json::from_slice::<serde_json::Value>(&b) {
+                Ok(v)
+                    if json_s(&v, "/format").as_deref() == Some(super::selfcheck::NODE_FORMAT) =>
+                {
+                    let counts = v.get("counts").and_then(|x| x.as_object());
+                    let bins = counts
+                        .map(|c| c.values().filter_map(|x| x.as_u64()).sum::<u64>())
+                        .unwrap_or(0) as usize;
+                    let single = counts
+                        .and_then(|c| c.get("single-source"))
+                        .and_then(|x| x.as_u64())
+                        .unwrap_or(0) as usize;
+                    let gnss = v
+                        .get("events")
+                        .and_then(|x| x.as_array())
+                        .map(|a| {
+                            a.iter()
+                                .filter(|e| json_s(e, "/status").as_deref() == Some("gnss-outlier"))
+                                .count()
+                        })
+                        .unwrap_or(0);
+                    ev.selfcheck = Some(SelfCheck {
+                        node: json_s(&v, "/node").unwrap_or_default(),
+                        bins,
+                        single_source_bins: single,
+                        gnss_outlier_events: gnss,
+                        verdict: json_s(&v, "/verdict").unwrap_or_default(),
+                    });
+                }
+                Ok(_) => ev
+                    .problems
+                    .push("clock self-check: not a self-check report".into()),
+                Err(e) => ev.problems.push(format!("clock self-check: {e}")),
             }
         }
     }
@@ -876,7 +1073,358 @@ impl Ctx<'_> {
             "Traceability to UTC maintained through a loss or spoofing of GNSS; the research summaries say GPS alone is not sufficient evidence of traceability.",
             &format!("not a stated limit of the Regulation; {TO_CONFIRM} (research 02 sources T5, T6)"),
         ));
+        out.push(self.cable(
+            "RTS25-6",
+            "Supporting evidence for Articles 1 to 3 (the offset of the satellite path accounted for)",
+            "The antenna cable delay of each GNSS-fed grandmaster is configured, so the satellite path's offset is accounted for.",
+            "not a stated limit of the Regulation; an RTS 25 audit found a grandmaster cable delay \"not set at all\", about 500 ns (research 07b [T67])",
+        ));
+        out.push(self.holdover_documented(
+            "RTS25-7",
+            "Supporting evidence for Article 4 (the traceability system's behaviour on loss of the UTC source documented)",
+            "What the business clocks do when GNSS is lost, and for how long they stay within the limit, is documented.",
+            Some(limit),
+        ));
         Ok(out)
+    }
+
+    fn cable(&self, id: &str, source: &str, requirement: &str, basis: &str) -> Requirement {
+        let mut evidence = Vec::new();
+        let (v, r) = match &self.ev.cable {
+            None => (
+                Verdict::ToComplete,
+                "no antenna cable description (length, velocity factor, configured delay) supplied"
+                    .to_string(),
+            ),
+            Some(c) => {
+                evidence.push(format!(
+                    "expected antenna path delay {} (u = {}, from length and velocity factor by the GUM); configured {}",
+                    t(c.expected_s),
+                    t(c.u_expected_s),
+                    c.configured_s.map(t).unwrap_or_else(|| "not set".into())
+                ));
+                match c.configured_s {
+                    None | Some(0.0) if c.expected_s > c.allowed_s => (
+                        Verdict::NotSupported,
+                        format!(
+                            "no cable delay configured: about {} of uncompensated time error",
+                            t(c.expected_s)
+                        ),
+                    ),
+                    _ if c.discrepancy_s.abs() > c.allowed_s => (
+                        Verdict::NotSupported,
+                        format!(
+                            "configured minus expected = {} beyond the allowed {}",
+                            t(c.discrepancy_s),
+                            t(c.allowed_s)
+                        ),
+                    ),
+                    _ => (
+                        Verdict::Supported,
+                        format!(
+                            "configured minus expected = {} within the allowed {} (2u + tolerance)",
+                            t(c.discrepancy_s),
+                            t(c.allowed_s)
+                        ),
+                    ),
+                }
+            }
+        };
+        req(
+            id,
+            source,
+            requirement,
+            self.ev
+                .cable
+                .as_ref()
+                .map(|c| format!("±{} (2u + tolerance)", t(c.allowed_s))),
+            basis,
+            evidence,
+            v,
+            r,
+        )
+    }
+
+    fn holdover_documented(
+        &self,
+        id: &str,
+        source: &str,
+        requirement: &str,
+        limit_s: Option<f64>,
+    ) -> Requirement {
+        let op = self.op();
+        let mut evidence = Vec::new();
+        if let Some(p) = &op.holdover_procedure {
+            evidence.push(format!("operator: holdover procedure: {p}"));
+        }
+        let need = op.required_holdover_h.map(|h| h * 3600.0);
+        if let Some(n) = need {
+            evidence.push(format!(
+                "operator: required holdover {}",
+                super::fleet::human_duration(Some(n))
+            ));
+        }
+        if let Some(h) = &self.ev.holdover_evidence {
+            evidence.push(format!(
+                "holdover evidence ({}): period {}, limit {}: {}",
+                h.site,
+                super::fleet::human_duration(Some(h.period_s)),
+                t(h.limit_s),
+                h.verdict
+            ));
+        }
+        evidence.extend(self.hold_line());
+        let he = self.ev.holdover_evidence.as_ref();
+        let (v, r) = match he {
+            None => match &self.ev.holdover {
+                Some(h) if op.holdover_procedure.is_some() && h.held() => (
+                    Verdict::Insufficient,
+                    "a procedure and a holdover test that held its budgets, but no holdover evidence over the required period".to_string(),
+                ),
+                Some(_) | None if op.holdover_procedure.is_none() => (
+                    Verdict::ToComplete,
+                    "no documented holdover procedure and no holdover evidence report".to_string(),
+                ),
+                _ => (Verdict::Insufficient, "a procedure but no holdover evidence report".to_string()),
+            },
+            Some(h) => {
+                let period = need.unwrap_or(h.period_s);
+                let covers = h.supported && h.period_s >= period - 1.0 || h.max_supported_holdover_s.is_some_and(|m| m >= period);
+                let limit_ok = limit_s.is_none_or(|l| h.limit_s <= l * (1.0 + 1e-9));
+                if !limit_ok {
+                    (
+                        Verdict::Insufficient,
+                        format!("the holdover evidence uses a limit of {}, looser than {}", t(h.limit_s), t(limit_s.unwrap_or(0.0))),
+                    )
+                } else if !covers {
+                    (
+                        Verdict::NotSupported,
+                        format!(
+                            "the modelled holdover stays within {} for {} only, short of {}",
+                            t(h.limit_s),
+                            h.max_supported_holdover_s.map(|m| super::fleet::human_duration(Some(m))).unwrap_or_else(|| "no time".into()),
+                            super::fleet::human_duration(Some(period))
+                        ),
+                    )
+                } else if op.holdover_procedure.is_none() {
+                    (Verdict::Insufficient, "the modelled holdover covers the period, but no procedure is documented".to_string())
+                } else {
+                    (
+                        Verdict::Supported,
+                        format!("a documented procedure and modelled holdover within {} for {}", t(h.limit_s), super::fleet::human_duration(Some(period))),
+                    )
+                }
+            }
+        };
+        req(
+            id,
+            source,
+            requirement,
+            need.map(|n| format!("{} holdover (the operator's requirement)", super::fleet::human_duration(Some(n)))),
+            "the operator's required period; for a Finnish mobile network, Traficom Regulation 54 asks for at least two weeks without GNSS (research 07b [T12]); the holdover evidence is MODELLED",
+            evidence,
+            v,
+            r,
+        )
+    }
+
+    fn g8271(&self) -> Vec<Requirement> {
+        let op = self.op();
+        let net = self.inp.network.clone().unwrap_or_default();
+        let basis = "as transcribed in Kshana; to confirm with the Recommendation";
+        let mut out = Vec::new();
+        // PRTC at reference point A.
+        let class = op.prtc_class.as_deref().unwrap_or("prtc-a");
+        let prtc_lim = match class {
+            "prtc-b" => 40e-9,
+            _ => 100e-9,
+        };
+        let mut evidence = Vec::new();
+        let (v, r) = match &self.ev.prtc {
+            None => (
+                Verdict::Insufficient,
+                "no PRTC time-error record at reference point A".to_string(),
+            ),
+            Some(d) => {
+                evidence.push(format!(
+                    "PRTC record ({}, {} samples over {}): max |TE| against {} = {}",
+                    d.format,
+                    d.samples,
+                    super::fleet::human_duration(Some(d.span_s)),
+                    d.reference,
+                    t(d.max_abs_offset_s)
+                ));
+                if d.max_abs_offset_s <= prtc_lim {
+                    (
+                        Verdict::Supported,
+                        format!("max |TE| {} within {}", t(d.max_abs_offset_s), t(prtc_lim)),
+                    )
+                } else {
+                    (
+                        Verdict::NotSupported,
+                        format!("max |TE| {} beyond {}", t(d.max_abs_offset_s), t(prtc_lim)),
+                    )
+                }
+            }
+        };
+        out.push(req(
+            "G8271-1",
+            "ITU-T G.8272 (PRTC), reference point A of G.8271.1",
+            "The primary reference time clock's output stays within its class's max|TE|.",
+            Some(format!("{} ({class})", t(prtc_lim))),
+            &format!("G.8272 {class} max|TE| {basis}"),
+            evidence,
+            v,
+            r,
+        ));
+        // Network limit at reference point C.
+        let lim = net.max_te_s.unwrap_or(1.1e-6);
+        let um = net.u_measurement_s.unwrap_or(0.0);
+        let mut evidence: Vec<String> = Vec::new();
+        evidence.extend(self.div_line());
+        if net.u_measurement_s.is_none() {
+            evidence
+                .push("no measurement uncertainty stated: the bound is the record alone".into());
+        }
+        let (v, r) = match &self.ev.divergence {
+            None => (
+                Verdict::Insufficient,
+                "no time-error record at reference point C".to_string(),
+            ),
+            Some(d) => {
+                let b = d.max_abs_offset_s + um;
+                evidence.push(format!("bound = max |TE| + U(measurement) = {}", t(b)));
+                if b <= lim {
+                    (
+                        Verdict::Supported,
+                        format!("bound {} within the {} network limit", t(b), t(lim)),
+                    )
+                } else {
+                    (
+                        Verdict::NotSupported,
+                        format!("bound {} beyond the {} network limit", t(b), t(lim)),
+                    )
+                }
+            }
+        };
+        out.push(req(
+            "G8271-2",
+            "ITU-T G.8271.1, network limit max|TE| at reference point C",
+            "The time error delivered to the end application's input stays within the network limit (from the ±1.5 µs end-to-end budget of G.8271).",
+            Some(t(lim)),
+            if net.max_te_s.is_some() { "the operator's transcription of the network limit" } else { "1100 ns at reference point C, as transcribed in Kshana; to confirm with the Recommendation" },
+            evidence,
+            v,
+            r,
+        ));
+        // dTE MTIE.
+        let mut evidence: Vec<String> = Vec::new();
+        let (v, r) = match (&net.mtie_mask, &self.ev.divergence) {
+            (None, _) => (Verdict::ToComplete, "no dTE MTIE mask stated; enter the Recommendation's mask as [[tau_s, limit_s], ...]".to_string()),
+            (_, None) => (Verdict::Insufficient, "no time-error record at reference point C".to_string()),
+            (Some(mask), Some(d)) => {
+                let tau0 = if d.samples > 1 { d.span_s / (d.samples - 1) as f64 } else { 1.0 };
+                let mut worst: Option<(f64, f64, f64)> = None;
+                let mut assessed = 0;
+                for m in mask {
+                    let w = (m[0] / tau0).round() as usize;
+                    if w < 1 || w >= d.samples {
+                        continue;
+                    }
+                    assessed += 1;
+                    let x = mtie(&d.offset_s, w);
+                    evidence.push(format!("MTIE({} s) = {} (mask {})", m[0], t(x), t(m[1])));
+                    if x > m[1] && worst.is_none_or(|w| x / m[1] > w.1 / w.2) {
+                        worst = Some((m[0], x, m[1]));
+                    }
+                }
+                match (assessed, worst) {
+                    (0, _) => (Verdict::Insufficient, "the record is too short for every mask point".to_string()),
+                    (_, Some((tau, x, l))) => (Verdict::NotSupported, format!("MTIE({tau} s) = {} beyond {}", t(x), t(l))),
+                    _ => (Verdict::Supported, format!("MTIE within the mask at {assessed} observation intervals")),
+                }
+            }
+        };
+        out.push(req(
+            "G8271-3",
+            "ITU-T G.8271.1, dynamic time error (dTE) network limit",
+            "The dynamic time error at reference point C stays within the MTIE mask.",
+            net.mtie_mask
+                .as_ref()
+                .map(|m| format!("{} mask points (the operator's transcription)", m.len())),
+            &format!("the mask as entered by the operator; {basis}"),
+            evidence,
+            v,
+            r,
+        ));
+        out.push(self.cable(
+            "G8271-4",
+            "ITU-T G.8271.1 budget allocation (fixed delays compensated); Kshana's reading",
+            "The antenna cable delay of each PRTC/T-GM is compensated, so it does not consume the time-error budget.",
+            "the budget assumes fixed delays are compensated; an uncompensated 100 m cable is about 500 ns (research 07b [T67])",
+        ));
+        out.push(self.holdover_documented(
+            "G8271-5",
+            "ITU-T G.8271.1 holdover; national resilience rules where they apply",
+            "On loss of GNSS, the time error at the end application stays within budget for the required holdover period.",
+            Some(1.5e-6),
+        ));
+        // Independent validation.
+        let mut evidence = Vec::new();
+        let (v, r) = match &self.ev.selfcheck {
+            None => (
+                Verdict::Insufficient,
+                "no clock self-check report".to_string(),
+            ),
+            Some(s) => {
+                evidence.push(format!("clock self-check of {}: {}", s.node, s.verdict));
+                if s.gnss_outlier_events > 0 {
+                    (
+                        Verdict::NotSupported,
+                        format!(
+                            "{} event(s) where the node was off while its GNSS looked healthy",
+                            s.gnss_outlier_events
+                        ),
+                    )
+                } else if s.bins > 0 && s.single_source_bins == s.bins {
+                    (
+                        Verdict::NotSupported,
+                        "one time source only: the node's time cannot be validated".to_string(),
+                    )
+                } else if s.single_source_bins * 2 > s.bins {
+                    (
+                        Verdict::Insufficient,
+                        format!(
+                            "independent sources in {} of {} bins only",
+                            s.bins - s.single_source_bins,
+                            s.bins
+                        ),
+                    )
+                } else {
+                    (
+                        Verdict::Supported,
+                        "independent sources agreed with the node's time".to_string(),
+                    )
+                }
+            }
+        };
+        out.push(req(
+            "G8271-6",
+            "Supporting evidence (not a provision of G.8271.1): independent validation of the node's time",
+            "The node's time is checked against sources independent of its GNSS, so a wrong time with a healthy-looking GNSS is caught.",
+            None,
+            "research 05 gap G8: a cell ran 6,250 µs off with no reference to validate its timing; not a limit of the Recommendation",
+            evidence,
+            v,
+            r,
+        ));
+        out.push(self.resilience(
+            "G8271-7",
+            "Supporting evidence (not a provision of G.8271.1): GNSS loss and spoofing",
+            "The PRTC keeps time when GNSS is lost and rejects a spoofed GNSS time.",
+            &format!("Kshana's reading; 3GPP has no standard way to report a grandmaster spoofing attack (research 08b finding 7); {TO_CONFIRM}"),
+        ));
+        out
     }
 
     fn dora(&self) -> Vec<Requirement> {
@@ -1165,6 +1713,38 @@ impl Ctx<'_> {
     }
 }
 
+/// MTIE over windows of `w` samples (monotonic deques, O(n)).
+pub fn mtie(x: &[f64], w: usize) -> f64 {
+    use std::collections::VecDeque;
+    if w == 0 || x.len() <= w {
+        return 0.0;
+    }
+    let (mut mx, mut mn): (VecDeque<usize>, VecDeque<usize>) = (VecDeque::new(), VecDeque::new());
+    let mut best = 0.0f64;
+    for i in 0..x.len() {
+        while mx.back().is_some_and(|&j| x[j] <= x[i]) {
+            mx.pop_back();
+        }
+        mx.push_back(i);
+        while mn.back().is_some_and(|&j| x[j] >= x[i]) {
+            mn.pop_back();
+        }
+        mn.push_back(i);
+        let lo = i.saturating_sub(w);
+        while mx.front().is_some_and(|&j| j < lo) {
+            mx.pop_front();
+        }
+        while mn.front().is_some_and(|&j| j < lo) {
+            mn.pop_front();
+        }
+        if i >= w {
+            best =
+                best.max(x[*mx.front().expect("non-empty")] - x[*mn.front().expect("non-empty")]);
+        }
+    }
+    best
+}
+
 /// Days from `date` (`YYYY-MM-DD`) to the date of `utc` (ISO 8601).
 pub fn days_between(date: &str, utc: &str) -> Option<i64> {
     let p = |s: &str| -> Option<i64> {
@@ -1195,6 +1775,7 @@ pub fn build(framework: &str, inp: &Inputs, base: &Path, utc: &str) -> Result<Pa
         "mifid2-rts25" => ctx.mifid().map_err(KshanaError::InvalidInput)?,
         "dora-rts-2024-1774" => ctx.dora(),
         "eu-cer" => ctx.cer(),
+        "itu-g8271-1" => ctx.g8271(),
         _ => ctx.india(),
     };
     let c = |v: Verdict| requirements.iter().filter(|r| r.verdict == v).count();
@@ -1323,6 +1904,11 @@ pub fn write_dir(
     paths.extend(inp.holdover.as_ref().map(|c| c.path.as_str()));
     paths.extend(inp.spoof.as_ref().map(|c| c.path.as_str()));
     paths.extend(inp.fleet.as_ref().map(|c| c.path.as_str()));
+    paths.extend(inp.holdover_evidence.as_ref().map(|c| c.path.as_str()));
+    paths.extend(inp.selfcheck.as_ref().map(|c| c.path.as_str()));
+    if let Some(c) = &inp.prtc {
+        paths.extend(c.source.path.as_deref());
+    }
     for p in paths {
         if let Ok((path, b)) = read_rel(base, p) {
             let name = path

@@ -108,7 +108,27 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-timing-correlation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-timing-fleet",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-timing-holdover-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-timing-selfcheck",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-timing-timebomb",
       "type": "feature",
       "tier": "pro"
     },

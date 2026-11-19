@@ -1,6 +1,7 @@
 // PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
-//! `kshana-pro timing <assess|console|metrics|history|scorecard|compliance|audit|attack>` (roadmap 0.42 T1-T3; W1119 C4, C8).
+//! `kshana-pro timing <assess|console|metrics|history|scorecard|compliance|audit|attack|timebomb|selfcheck|holdover-evidence>`
+//! (roadmap 0.42 T1-T3; W1119 C4, C8; W1120 TA1-TA4).
 //! `assess` needs `pro-timing-holdover`; `console`, `metrics` and `history` need
 //! `pro-timing-fleet`; `audit` needs `pro-timing-audit`. Verifying an audit report needs no
 //! licence: `kshana-pro dossier verify <dir> --trust <key>`.
@@ -19,9 +20,16 @@ pub const USAGE: &str = "usage: kshana-pro timing <command>\n\
     metrics <fleet.toml> [--out <file.prom>] [--license <token>] [--dev]   The fleet in the Prometheus text format, for the Grafana dashboard (Pro)\n\
     history verify <dir>                                                     Check every clock's evidence chain (no licence needed)\n\
     scorecard <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Timing scorecard under threat library spoofing scenarios, signed (Pro, T4); verify with `kshana-pro dossier verify` (free)\n\
-    compliance list | compliance <mifid2-rts25|dora-rts-2024-1774|eu-cer|india-ist-draft> <inputs.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Signed annual timing evidence pack, requirement -> evidence -> verdict (Pro); verify with `kshana-pro dossier verify` (free)\n\
+    compliance list | compliance <mifid2-rts25|dora-rts-2024-1774|eu-cer|india-ist-draft|itu-g8271-1> <inputs.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Signed annual timing evidence pack, requirement -> evidence -> verdict (Pro); verify with `kshana-pro dossier verify` (free)\n\
     audit <fleet.toml> --profile <rts25-traceability|nist-ir-8323-profile> --out <dir> --signer <name> --key-file <file> [--evidence <dir>] [--operator <operator.toml>] [--utc <iso>] [--license <token>] [--dev]   Signed audit report mapped to the profile (Pro); verify with `kshana-pro dossier verify` (free)\n\
-    attack <scenario.toml|prtc|eprtc|substation> --out <dir> --signer <name> --key-file <file> [--dev]   Holdover under a GNSS drag-and-step spoof: detector, fallback, time error against masks, signed (Pro; `kshana-pro timing attack` for details)";
+    attack <scenario.toml|prtc|eprtc|substation> --out <dir> --signer <name> --key-file <file> [--dev]   Holdover under a GNSS drag-and-step spoof: detector, fallback, time error against masks, signed (Pro; `kshana-pro timing attack` for details)\n\
+    timebomb vectors --out <dir> [--only <id,id>] [--leap-date <YYYY-MM-DD>] [--pivot <YYYY-MM-DD>]... [--at <iso>]... [--pre <s>] [--post <s>] [--lat <deg> --lon <deg> --h <m>] [--utc <iso>] [--license <token>] [--dev]   Future-epoch replay vectors (NMEA, UBX, simulator sheet, expected output) for receivers and grandmasters (Pro)\n\
+    timebomb analyse <vector-dir> <capture> --format <nmea|ubx|csv> [--start-index <k>] [--replay-start <lab unix>] [--json <out>] [--strict] [--license <token>] [--dev]   Faults in a device's output during a replay: time jumps, week rollover, century, 32-bit wrap, leap-second handling, stuck time (Pro)\n\
+    timebomb fleet <inventory.toml> [--advisories <table.toml>]... [--no-seed] [--utc <iso>] [--json <out>] [--csv <out>] [--license <token>] [--dev]   Every device against the epoch hazards and the vendor-advisory table (Pro)\n\
+    timebomb advisories                                                       Print the seed advisory table (no licence needed)\n\
+    selfcheck node <node.toml> [--json <out>] [--csv <bins.csv>] [--license <token>] [--dev]   Vote a node's time against its independent sources: wrong time while GNSS looks healthy (Pro)\n\
+    selfcheck sites <sites.toml> [--json <out>] [--license <token>] [--dev]   One site or operator diverging from the others; common-mode shifts (Enterprise)\n\
+    holdover-evidence <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Holdover time-error growth with a GUM budget against a limit for a period (e.g. Finland's two weeks), signed (Pro) | holdover-evidence presets";
 
 fn fail(msg: impl std::fmt::Display) -> ExitCode {
     eprintln!("error: {msg}");
@@ -130,6 +138,9 @@ pub fn run(args: &[String]) -> ExitCode {
         }
         (Some("scorecard"), Some(path)) => scorecard_cmd(args, &path),
         (Some("compliance"), Some(fw)) => compliance_cmd(args, &fw),
+        (Some("timebomb"), Some(x)) => timebomb_cmd(args, &x),
+        (Some("selfcheck"), Some(x)) => selfcheck_cmd(args, &x),
+        (Some("holdover-evidence"), Some(x)) => holdover_evidence_cmd(args, &x),
         (Some(cmd @ ("assess" | "console" | "metrics" | "audit")), Some(path)) => {
             let feature = match cmd {
                 "assess" => timing::KIND,
@@ -385,4 +396,308 @@ fn compliance_cmd(args: &[String], fw: &str) -> ExitCode {
         eprintln!("  input problem: {p}");
     }
     ExitCode::SUCCESS
+}
+
+/// Every value of a repeated `--flag value`.
+fn flags_all(args: &[String], name: &str) -> Vec<String> {
+    args.windows(2)
+        .filter(|w| w[0] == name)
+        .map(|w| w[1].clone())
+        .collect()
+}
+
+fn write_or_print(out: Option<String>, text: &str) -> Result<(), String> {
+    match out {
+        Some(o) => std::fs::write(&o, text).map_err(|e| format!("{o}: {e}")),
+        None => {
+            println!("{text}");
+            Ok(())
+        }
+    }
+}
+
+fn utc_unix(args: &[String]) -> Result<(i64, String), String> {
+    use crate::timing::timebomb::Label;
+    match flag(args, "--utc") {
+        Some(u) => Ok((Label::parse_iso(&u)?.seconds(), u)),
+        None => Ok((now_unix(), utc_iso8601_now())),
+    }
+}
+
+/// `timing timebomb <vectors|analyse|fleet|advisories>` (W1120 TA1).
+fn timebomb_cmd(args: &[String], sub: &str) -> ExitCode {
+    use crate::timing::timebomb::{self as tb, Label};
+    if sub == "advisories" {
+        print!("{}", tb::SEED_ADVISORIES);
+        return ExitCode::SUCCESS;
+    }
+    if let Err(e) = gate(args, tb::FEATURE) {
+        return fail(e);
+    }
+    let res: Result<(), String> = (|| match sub {
+        "vectors" => {
+            let out = flag(args, "--out").ok_or("vectors needs --out <dir>")?;
+            let (now, _) = utc_unix(args)?;
+            let num = |n: &str, d: f64| -> Result<f64, String> {
+                flag(args, n)
+                    .map(|v| v.parse::<f64>().map_err(|e| format!("{n}: {e}")))
+                    .unwrap_or(Ok(d))
+            };
+            let mut o = tb::CatalogueOptions {
+                now_unix: now,
+                pre_s: num("--pre", 120.0)? as i64,
+                post_s: num("--post", 180.0)? as i64,
+                ..Default::default()
+            };
+            if o.pre_s < 1 || o.post_s < 1 || o.pre_s + o.post_s > 86_400 {
+                return Err("--pre and --post must be >= 1 s and together at most one day".into());
+            }
+            if let Some(d) = flag(args, "--leap-date") {
+                let l = Label::parse_iso(&d)?;
+                let (y, m, _) = l.ymd();
+                let last = kshana_eloran::time::days_from_civil(
+                    if m == 12 { y + 1 } else { y },
+                    if m == 12 { 1 } else { m + 1 },
+                    1,
+                ) - 1;
+                if l.days != last {
+                    eprintln!("note: {d} is not the last day of a month (where IERS puts leap seconds); used as given");
+                }
+                o.leap_day = l;
+            }
+            for p in flags_all(args, "--pivot") {
+                o.pivots.push(Label::parse_iso(&p)?);
+            }
+            for c in flags_all(args, "--at") {
+                o.custom.push(Label::parse_iso(&c)?);
+            }
+            let pos = tb::Position {
+                lat_deg: num("--lat", tb::Position::default().lat_deg)?,
+                lon_deg: num("--lon", tb::Position::default().lon_deg)?,
+                h_m: num("--h", tb::Position::default().h_m)?,
+            };
+            let mut specs = tb::catalogue(&o);
+            if let Some(only) = flag(args, "--only") {
+                let want: Vec<&str> = only.split(',').map(str::trim).collect();
+                specs.retain(|s| {
+                    want.iter()
+                        .any(|w| s.id == *w || s.id.starts_with(&format!("{w}-")))
+                });
+                if specs.is_empty() {
+                    return Err(format!(
+                        "--only {only}: no vector (built-in ids: {})",
+                        tb::BUILTIN_IDS.join(", ")
+                    ));
+                }
+            }
+            tb::generate(Path::new(&out), &specs, &pos)?;
+            for s in &specs {
+                eprintln!(
+                    "{:<28} boundary {}{}",
+                    s.id,
+                    s.boundary.iso(),
+                    if s.synthetic {
+                        "  (synthetic date)"
+                    } else {
+                        ""
+                    }
+                );
+            }
+            eprintln!("[wrote {} vectors and manifest.json to {out}]", specs.len());
+            Ok(())
+        }
+        "analyse" | "analyze" => {
+            let (Some(dir), Some(cap)) = (
+                args.get(2).filter(|a| !a.starts_with("--")),
+                args.get(3).filter(|a| !a.starts_with("--")),
+            ) else {
+                return Err("analyse needs <vector-dir> <capture>".into());
+            };
+            let fmt = flag(args, "--format").ok_or("analyse needs --format <nmea|ubx|csv>")?;
+            let spec = tb::read_vector(Path::new(dir))?;
+            let bytes = std::fs::read(cap).map_err(|e| format!("{cap}: {e}"))?;
+            let (recs, bad) = tb::read_capture(&fmt, &bytes)?;
+            let pairing = tb::Pairing {
+                start_k: flag(args, "--start-index")
+                    .map(|v| {
+                        v.parse::<usize>()
+                            .map_err(|e| format!("--start-index: {e}"))
+                    })
+                    .transpose()?
+                    .unwrap_or(0),
+                replay_start_lab: flag(args, "--replay-start")
+                    .map(|v| v.parse::<f64>().map_err(|e| format!("--replay-start: {e}")))
+                    .transpose()?,
+            };
+            let a = tb::analyse_with(&spec, &recs, &fmt, bad, pairing);
+            write_or_print(
+                flag(args, "--json"),
+                &serde_json::to_string_pretty(&a).expect("serialises"),
+            )?;
+            eprintln!(
+                "[{}] {} records, {} paired: {}",
+                a.vector, a.device_records, a.paired, a.verdict
+            );
+            for f in &a.faults {
+                eprintln!(
+                    "  {:<18} at {} device {}: {}",
+                    f.kind, f.expected_utc, f.device_utc, f.detail
+                );
+            }
+            for n in &a.notes {
+                eprintln!("  note: {n}");
+            }
+            if has_flag(args, "--strict") && !a.faults.is_empty() {
+                return Err("faults found (--strict)".into());
+            }
+            Ok(())
+        }
+        "fleet" => {
+            let path = args
+                .get(2)
+                .filter(|a| !a.starts_with("--"))
+                .ok_or("fleet needs <inventory.toml>")?;
+            let text = std::fs::read_to_string(path).map_err(|e| format!("{path}: {e}"))?;
+            let inv: tb::Inventory = toml::from_str(&text).map_err(|e| format!("{path}: {e}"))?;
+            let mut table = if has_flag(args, "--no-seed") {
+                tb::AdvisoryTable::default()
+            } else {
+                tb::AdvisoryTable::seed()
+            };
+            for extra in flags_all(args, "--advisories") {
+                let t = std::fs::read_to_string(&extra).map_err(|e| format!("{extra}: {e}"))?;
+                table.advisory.extend(
+                    tb::AdvisoryTable::parse(&t)
+                        .map_err(|e| format!("{extra}: {e}"))?
+                        .advisory,
+                );
+            }
+            let (now, utc) = utc_unix(args)?;
+            let r = tb::fleet_check(&inv, &table, now, &utc)?;
+            write_or_print(
+                flag(args, "--json"),
+                &serde_json::to_string_pretty(&r).expect("serialises"),
+            )?;
+            if let Some(c) = flag(args, "--csv") {
+                std::fs::write(&c, tb::fleet_csv(&r)).map_err(|e| format!("{c}: {e}"))?;
+            }
+            for d in &r.devices {
+                let top = d.findings.first();
+                eprintln!(
+                    "{:<16} {:<6} {}",
+                    d.id,
+                    d.worst,
+                    top.map(|f| format!(
+                        "{} {} {}",
+                        f.id,
+                        f.status,
+                        f.date.as_deref().unwrap_or("")
+                    ))
+                    .unwrap_or_default()
+                );
+            }
+            Ok(())
+        }
+        _ => Err(USAGE.into()),
+    })();
+    match res {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(e) => fail(e),
+    }
+}
+
+/// `timing selfcheck <node|sites>` (W1120 TA2).
+fn selfcheck_cmd(args: &[String], sub: &str) -> ExitCode {
+    use crate::timing::selfcheck as sc;
+    let feature = match sub {
+        "node" => sc::FEATURE,
+        "sites" => sc::CORRELATION_FEATURE,
+        _ => return fail(USAGE),
+    };
+    if let Err(e) = gate(args, feature) {
+        return fail(e);
+    }
+    let Some(path) = args.get(2).filter(|a| !a.starts_with("--")) else {
+        return fail(USAGE);
+    };
+    let res: Result<(), String> = (|| {
+        let text = std::fs::read_to_string(path).map_err(|e| format!("{path}: {e}"))?;
+        let base = Path::new(path)
+            .parent()
+            .map(Path::to_path_buf)
+            .unwrap_or_else(|| PathBuf::from("."));
+        if sub == "node" {
+            let spec: sc::NodeSpec = toml::from_str(&text).map_err(|e| format!("{path}: {e}"))?;
+            let r = sc::check_node(&spec, &base)?;
+            write_or_print(
+                flag(args, "--json"),
+                &serde_json::to_string_pretty(&r).expect("serialises"),
+            )?;
+            if let Some(c) = flag(args, "--csv") {
+                std::fs::write(&c, sc::node_bins_csv(&r)).map_err(|e| format!("{c}: {e}"))?;
+            }
+            eprintln!("[{}] {}", r.node, r.verdict);
+            for e in &r.events {
+                eprintln!("  {:<20} {} bins: {}", e.status, e.bins, e.detail);
+            }
+        } else {
+            let spec: sc::SitesSpec = toml::from_str(&text).map_err(|e| format!("{path}: {e}"))?;
+            let r = sc::check_sites(&spec, &base)?;
+            write_or_print(
+                flag(args, "--json"),
+                &serde_json::to_string_pretty(&r).expect("serialises"),
+            )?;
+            eprintln!("[sites] {}", r.verdict);
+            for e in &r.events {
+                eprintln!("  {:<16} {:<15} {}", e.kind, e.scope, e.detail);
+            }
+        }
+        Ok(())
+    })();
+    match res {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(e) => fail(e),
+    }
+}
+
+/// `timing holdover-evidence <request.toml> ...` (W1120 TA3).
+fn holdover_evidence_cmd(args: &[String], path: &str) -> ExitCode {
+    use crate::timing::holdover_evidence as he;
+    if path == "presets" {
+        for (n, p, l, b) in he::PRESETS {
+            println!("{n:<14} {p} h, limit {l:e} s\n{:<14} {b}", "");
+        }
+        for (n, v, b) in he::EQUIPMENT_CLASSES {
+            println!("equipment_class {n:<13} {v:e} s  {b}");
+        }
+        return ExitCode::SUCCESS;
+    }
+    if let Err(e) = gate(args, he::FEATURE) {
+        return fail(e);
+    }
+    let (Some(out), Some(signer), Some(kf)) = (
+        flag(args, "--out"),
+        flag(args, "--signer"),
+        flag(args, "--key-file"),
+    ) else {
+        return fail("holdover-evidence needs --out, --signer and --key-file");
+    };
+    let res: Result<String, String> = (|| {
+        let seed = super::forensics_cmd::read_seed(&kf)?;
+        let src = std::fs::read_to_string(path).map_err(|e| format!("{path}: {e}"))?;
+        let spec = he::HoldoverSpec::parse(&src)?;
+        let utc = flag(args, "--utc").unwrap_or_else(utc_iso8601_now);
+        let r = he::assess(&spec, &utc)?;
+        let dir = Path::new(&out);
+        he::write_dir(dir, &r, &src)?;
+        crate::signed_dossier::sign(dir, &seed, &signer, &utc).map_err(|e| e.to_string())?;
+        Ok(r.verdict)
+    })();
+    match res {
+        Ok(v) => {
+            eprintln!("[holdover evidence] {v}; signed in {out}");
+            ExitCode::SUCCESS
+        }
+        Err(e) => fail(e),
+    }
 }

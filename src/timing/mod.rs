@@ -15,6 +15,17 @@
 //! * **T4** ([`scorecard`]): timing scorecards for grandmasters and the PTP network behind them
 //!   under threat library timing scenarios, mapped to the resilience levels with the E3 scoring.
 //!   Kind `pro-timing-scorecard`.
+//! * **TA1** ([`timebomb`]): future-epoch replay vectors (NMEA, UBX, simulator sheets), the
+//!   analyser of a device's output during a replay, and the fleet check against epoch hazards
+//!   and a vendor-advisory table. Feature `pro-timing-timebomb`.
+//! * **TA2** ([`selfcheck`]): a node's time voted against its independent sources (the time is
+//!   wrong although GNSS looks healthy), feature `pro-timing-selfcheck`; one site diverging
+//!   from its neighbours or operators, feature `pro-timing-correlation` (Enterprise).
+//! * **TA3** ([`holdover_evidence`]): holdover time-error growth from the oscillator's
+//!   characterisation with a GUM budget, against a limit for a stated period (Finland's
+//!   two-week rule), signed. Feature `pro-timing-holdover-evidence`.
+//! * **TA4** ([`compliance`]): the RTS 25 pack's cable-delay and holdover items and the ITU-T
+//!   G.8271.1 network-limit pack, under the audit feature.
 //!
 //! The prediction method is pre-registered and scored as evidence row V5, and its successor
 //! (used by the fleet assessment) as V5b (`docs/evidence/v5-holdover-time-to-breach/`);
@@ -27,9 +38,12 @@ pub mod compliance;
 pub mod console;
 pub mod evidence;
 pub mod fleet;
+pub mod holdover_evidence;
 pub mod metrics;
 pub mod model;
 pub mod scorecard;
+pub mod selfcheck;
+pub mod timebomb;
 
 /// The scenario kind of a fleet assessment.
 pub const KIND: &str = "pro-timing-holdover";
