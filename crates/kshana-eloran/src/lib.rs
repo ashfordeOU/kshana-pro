@@ -60,6 +60,7 @@ pub mod monitor;
 pub mod plan;
 pub mod prop;
 pub mod replay;
+pub mod rmode;
 pub mod rt;
 pub mod rx;
 pub mod scenario;

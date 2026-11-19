@@ -51,6 +51,9 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         Equal-power Gaussian vs Middleton Class A noise: timing error of the matched filter with no,\n\
         clip and blank impulse mitigation (Enterprise). `rx --impulse clip|blank [--impulse-k <k>]`\n\
         applies the mitigation to a recording before the receiver\n\
+    rmode <rmode.toml> --out <report.json> [--license <token>] [--dev]\n\
+        MF R-Mode (DGNSS beacons, CW tones at fc ± 225 Hz): synthesis with night skywave, tone-phase\n\
+        ranging with ambiguity resolution, least-squares fix (Enterprise)\n\
     events <validate|merge|publish> <events.json|.jsonl>... [--out <file>] [--tol-s <s>] [--cell-deg <deg>] [--format json|geojson|csv] [--license <token>] [--dev]\n\
         PNT interference events in one schema across GNSS, eLoran, R-Mode and LEO: validate, merge\n\
         independent reports into corroborated events, publish coarsened (grid cell, hashed observers) (Enterprise)\n\
@@ -147,6 +150,23 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("bench") => bench_cmd(args),
         Some("edo") => edo_cmd(args),
         Some("events") => events_cmd(args),
+        Some("rmode") => done((|| {
+            use kshana_eloran::rmode::{run, RModeConfig};
+            if licensed(args).is_err() {
+                return Err("licence: pro-eloran is required".into());
+            }
+            let path = args.get(1).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+            let out = flag(args, "--out").ok_or("--out <report.json> is required")?;
+            let cfg: RModeConfig =
+                toml::from_str(&read(path)?).map_err(|e| format!("{path}: {e}"))?;
+            let r = run(&cfg)?;
+            write_json(&out, &r)?;
+            Ok(format!(
+                "R-Mode fix {:.6}, {:.6}: horizontal error {:.1} m, residual RMS {:.1} m, {} of {} tone ambiguities resolved -> {out}",
+                r.fix_lat_deg, r.fix_lon_deg, r.horizontal_error_m, r.residual_rms_m,
+                r.beacons.iter().filter(|b| b.ambiguity_ok).count(), r.beacons.len()
+            ))
+        })()),
         Some("noise-experiment") => done((|| {
             use kshana_eloran::rx::impulse::{experiment, ExperimentConfig};
             if let Err(c) = licensed(args) {
