@@ -49,6 +49,7 @@ pub mod eloran_timexfer;
 pub mod eloran_trust;
 pub mod exposure;
 pub mod extension;
+pub mod fdm;
 pub mod forensics;
 pub mod frameworks;
 pub mod ievents;

@@ -171,3 +171,20 @@ scenario of each class to try it. It is an evidence pack, not a legal opinion.
 
 Evidence: **MODELLED** (synthetic scenarios with known truth, `tests/maritime_evidence.rs`);
 not validated on a labelled set of real incidents.
+
+## FDM GNSS jamming and spoofing event detector (W1119 C5)
+
+`kshana-pro forensics fdm <flight.csv> --flight <id> --out <dir> --signer <name> --key-file <file>`
+(licence: `pro-incident-forensics`) reads a flight-data CSV export (`time`, `lat`, `lon`,
+`gnss_alt_ft`, `baro_alt_ft`, `gs_kt`, `track_deg`, and where present `ins_gs_kt`, `nic`, `nacp`,
+`hfom_m`, `gnss_status`, `gnss_utc`; aliases in `src/fdm.rs`) and finds GNSS **jamming**
+(integrity loss: NIC/NACp low, HFOM high, status lost, position missing) and **spoofing**
+(position jump, GNSS time jump, GNSS-vs-baro altitude against the flight's own offset,
+GNSS-vs-inertial ground speed, and the circle pattern: GNSS course through 360° while the
+inertial/FMS track is straight). Output: `fdm-report.json`, unified events (`events.json`) and
+`sib-summary.txt`, a summary oriented to EASA SIB 2022-02R4 (the SIB is cited; its themes are
+as summarised in Kshana research and are illustrative until confirmed against the SIB text).
+`kshana-pro forensics fdm-synth <case> <file>` writes a synthetic flight.
+
+Evidence: **MODELLED** (synthetic flights, `tests/fdm_detector.rs`); not validated on labelled
+operator FDM data.

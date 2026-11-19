@@ -5,6 +5,7 @@
 //!
 //! * `kshana-pro forensics maritime <request.toml> ...` and `forensics maritime-synth`
 //!   (C3, gate `pro-incident-forensics`);
+//! * `kshana-pro forensics fdm <flight.csv> ...` and `forensics fdm-synth` (C5, same gate);
 //!
 //! Producing a signed result needs the licence feature of its gate; verifying a signed
 //! directory needs none (`kshana-pro dossier verify`).
@@ -88,5 +89,55 @@ pub fn maritime_synth(args: &[String]) -> ExitCode {
             ExitCode::SUCCESS
         }
         Err(e) => fail(format!("{dir}: {e}")),
+    }
+}
+
+pub const FDM_USAGE: &str = "usage: kshana-pro forensics fdm <flight.csv> --flight <id> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]\n\
+        GNSS jamming and spoofing events in a flight-data export, unified events and an EASA SIB 2022-02R4-oriented summary, signed (Pro)\n\
+    kshana-pro forensics fdm-synth <clean|jamming|spoofing|holding|circle-spoof> <file.csv>\n\
+        Write a synthetic flight to try it (free)";
+
+/// `forensics fdm`.
+pub fn fdm(args: &[String]) -> ExitCode {
+    let Some(file) = file_arg(args) else {
+        return fail(FDM_USAGE);
+    };
+    let flight = super::flag(args, "--flight").unwrap_or_else(|| "flight".into());
+    let r = producing(args, crate::forensics::KIND).and_then(|(out, seed, signer, utc)| {
+        let csv = std::fs::read_to_string(file).map_err(|e| format!("{file}: {e}"))?;
+        let r = crate::fdm::analyse(&flight, &csv, &crate::fdm::Params::default())?;
+        crate::fdm::write_dir(Path::new(&out), &r, &csv)?;
+        sign(&out, &seed, &signer, &utc)?;
+        Ok((r, out))
+    });
+    match r {
+        Ok((r, out)) => {
+            eprintln!(
+                "[fdm] {} jamming and {} spoofing event(s); signed in {out}",
+                r.sib.jamming_events, r.sib.spoofing_events
+            );
+            ExitCode::SUCCESS
+        }
+        Err(e) => fail(e),
+    }
+}
+
+/// `forensics fdm-synth`.
+pub fn fdm_synth(args: &[String]) -> ExitCode {
+    use crate::fdm::synth::{make, Flight};
+    let (Some(c), Some(file)) = (args.get(1), args.get(2)) else {
+        return fail(FDM_USAGE);
+    };
+    let f = match c.as_str() {
+        "clean" => Flight::Clean,
+        "jamming" => Flight::Jamming,
+        "spoofing" => Flight::Spoofing,
+        "holding" => Flight::Holding,
+        "circle-spoof" => Flight::CircleSpoof,
+        _ => return fail(FDM_USAGE),
+    };
+    match std::fs::write(file, make(f)) {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(e) => fail(format!("{file}: {e}")),
     }
 }
