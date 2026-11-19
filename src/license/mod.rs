@@ -179,6 +179,9 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-audit-export" => Tier::Enterprise,
         "pro-retention" => Tier::Enterprise,
         "pro-watch-wall" => Tier::Enterprise,
+        // Test-as-code kit (research 2026-11-20 gaps 07/08/11/12): neutral scenarios compiled
+        // for lab simulators (Pro).
+        "pro-test-kit" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -213,6 +216,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-watch-wall",
     "pro-eloran",
     "pro-eloran-hw",
+    "pro-test-kit",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

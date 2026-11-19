@@ -1,0 +1,65 @@
+format = "kshana-testkit-scenario/1"
+id = "dp-slow-drift"
+version = 1
+title = "DP vessel on station: slow GNSS drift below the DP alarm limits"
+description = "A drift of 2 cm/s for 20 minutes moves the GNSS position 24 m without a jump; slow enough to pass a DP system's rate checks."
+modelled_on = ["IMCA IN 1730 theme: slow drift of a GNSS position reference (modelled on; the note gives no test method)"]
+tags = ["maritime", "dp", "spoofing"]
+
+[scene]
+start_utc = "2026-03-02T11:00:00Z"
+duration_s = 1800
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[[signal]]
+constellation = "glonass"
+signals = ["L1OF"]
+
+[trajectory]
+platform = "vessel"
+lat_deg = 57.10
+lon_deg = 1.90
+
+[environment]
+sensors = ["gyro", "dp-reference-2"]
+
+[[threat]]
+id = "drift"
+type = "spoofing"
+technique = "position_drag"
+start_s = 300
+duration_s = 1200
+drag_rate_mps = 0.02
+drag_bearing_deg = 225
+power_advantage_db = 1
+
+[expected]
+behaviour = "The receiver (or the monitor fed by it) warns before the position is 5 m off; the slow drift must not pass as genuine motion."
+withdraw_counts_as_detection = false
+misleading_h_error_m = 5
+recover_h_error_m = 3
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 250
+level = 2
+note = "2 cm/s reaches 5 m after 250 s"
+
+[[criterion]]
+id = "no-misleading"
+metric = "misleading_epochs"
+op = "<="
+value = 0
+level = 2
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 120
+level = 1

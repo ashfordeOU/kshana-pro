@@ -1,0 +1,62 @@
+format = "kshana-testkit-scenario/1"
+id = "uas-meaconing"
+version = 1
+title = "Drone hovering: meaconing with a 2 µs delay"
+description = "The genuine signals re-broadcast from a nearby antenna with a 2 µs delay: the position lands at the re-broadcast antenna and time lags."
+modelled_on = ["Meaconing as described in the GNSS interference literature (modelled on, representative parameters)"]
+tags = ["uas", "spoofing", "meaconing"]
+
+[scene]
+start_utc = "2026-05-12T16:00:00Z"
+duration_s = 420
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[trajectory]
+platform = "uas"
+lat_deg = 58.38
+lon_deg = 26.72
+height_m = 60
+
+[environment]
+sensors = ["imu"]
+
+[[threat]]
+id = "meacon"
+type = "spoofing"
+technique = "meaconing"
+start_s = 120
+duration_s = 180
+delay_ns = 2000
+offset_east_m = 30
+offset_north_m = -20
+power_advantage_db = 3
+
+[expected]
+behaviour = "The receiver flags the meaconing within 10 s; the position at the re-broadcast antenna is never output unflagged."
+withdraw_counts_as_detection = false
+misleading_h_error_m = 15
+recover_h_error_m = 5
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 10
+level = 2
+
+[[criterion]]
+id = "no-misleading"
+metric = "misleading_epochs"
+op = "<="
+value = 0
+level = 2
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 30
+level = 1

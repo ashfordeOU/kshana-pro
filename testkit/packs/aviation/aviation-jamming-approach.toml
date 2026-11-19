@@ -1,0 +1,63 @@
+format = "kshana-testkit-scenario/1"
+id = "aviation-jamming-approach"
+version = 1
+title = "Aircraft on approach: GNSS jamming for four minutes"
+description = "Wideband L1 jamming during a descending approach; the receiver should withdraw its fix rather than coast on a degraded one."
+modelled_on = ["EASA SIB 2022-02 (and revisions) theme: GNSS jamming in flight (modelled on; not a test of the bulletin)"]
+tags = ["aviation", "jamming"]
+
+[scene]
+start_utc = "2026-04-07T10:00:00Z"
+duration_s = 600
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[trajectory]
+platform = "aircraft"
+lat_deg = 59.30
+lon_deg = 24.40
+height_m = 1500
+
+[[trajectory.waypoint]]
+lat_deg = 59.4133
+lon_deg = 24.8328
+height_m = 40
+speed_mps = 75
+
+[[threat]]
+id = "jam"
+type = "jamming"
+waveform = "wideband"
+start_s = 120
+duration_s = 240
+center_hz = 1575420000.0
+bandwidth_hz = 10000000.0
+js_db = 40
+
+[expected]
+behaviour = "Fix withdrawn or jamming flagged within 5 s; no degraded fix output as valid; back within 30 s of the end."
+misleading_h_error_m = 185
+recover_h_error_m = 20
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 5
+level = 2
+
+[[criterion]]
+id = "no-misleading"
+metric = "misleading_epochs"
+op = "<="
+value = 0
+level = 2
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 30
+level = 1

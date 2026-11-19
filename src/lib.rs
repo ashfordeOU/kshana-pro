@@ -86,6 +86,7 @@ pub mod serve;
 pub mod signed_dossier;
 pub mod study_dossier;
 pub mod study_ledger;
+pub mod testkit;
 pub mod threat_library;
 pub mod units;
 // Shared helpers; public so a server-side extension crate can reuse them (not a stable API).

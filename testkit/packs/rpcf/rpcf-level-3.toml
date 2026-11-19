@@ -1,0 +1,85 @@
+format = "kshana-testkit-scenario/1"
+id = "rpcf-level-3"
+version = 1
+title = "Resilience test procedure, level 3: bounded error"
+description = "Level 3: level 2, and every output during the threat stays within a bounded error (500 m), flagged or not, while it remains available. A jamming interval followed by a position drag-off spoof; criteria for levels 1 to 3, each tagged with its level."
+modelled_on = ["DHS Resilient PNT Conformance Framework, resilience level 3 (modelled on; not a conformance test and not endorsed by DHS)", "IEEE P1952 draft resilience-level topics (mapped by subject, no clause numbers)"]
+tags = ["rpcf", "resilience-level-3", "jamming", "spoofing"]
+
+[scene]
+start_utc = "2026-07-01T09:00:00Z"
+duration_s = 1500
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA", "L5"]
+
+[[signal]]
+constellation = "galileo"
+signals = ["E1", "E5a"]
+
+[trajectory]
+platform = "land"
+lat_deg = 52.37
+lon_deg = 4.89
+
+[[threat]]
+id = "jam"
+type = "jamming"
+waveform = "wideband"
+start_s = 300
+duration_s = 180
+center_hz = 1575420000.0
+bandwidth_hz = 2000000.0
+js_db = 40
+
+[[threat]]
+id = "drag"
+type = "spoofing"
+technique = "position_drag"
+start_s = 600
+duration_s = 300
+drag_accel_mps2 = 0.05
+drag_max_mps = 5
+drag_bearing_deg = 0
+power_advantage_db = 3
+
+[expected]
+behaviour = "Behaviour at resilience level 3 as described: see the criteria."
+misleading_h_error_m = 50
+recover_h_error_m = 20
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 120
+level = 1
+
+[[criterion]]
+id = "no-misleading"
+metric = "misleading_epochs"
+op = "<="
+value = 0
+level = 2
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 30
+level = 2
+
+[[criterion]]
+id = "bounded"
+metric = "max_h_error_m"
+op = "<="
+value = 500
+level = 3
+
+[[criterion]]
+id = "available"
+metric = "availability"
+op = ">="
+value = 0.5
+level = 3
