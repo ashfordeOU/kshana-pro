@@ -24,7 +24,7 @@ Status: [ ] todo, [~] in progress, [x] done (commit sha).
 - [ ] A7 Self-calibrating simulator loop with signed lineage (F1) (01-26)
 - [ ] A8 Integrity-driven ASF survey planner (F2) (02-31)
 - [x] A9 Sync-Verify: LF<->GNSS alignment certificate, any simulator vendor (D3) (01-29, move 4)
-- [ ] A10 eLoran-disciplined oscillator bench + GNSS->eLoran switchover transients (01-17/25)
+- [x] A10 eLoran-disciplined oscillator bench + GNSS->eLoran switchover transients (01-17/25)
 - [ ] A11 Transmitter acceptance automation: ECD, zero-crossing jitter, phase code, PCI (01-22)
 - [ ] A12 Impulsive atmospheric noise validated against receiver behaviour (01-10)
 - [ ] A13 R-Mode: MF (≈300 kHz) and VDES R-Mode signals + propagation + IALA G1187 conformance (01-11, 02-3)

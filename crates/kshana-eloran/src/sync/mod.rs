@@ -33,6 +33,7 @@
 pub mod bridge;
 pub mod certify;
 pub mod degrade;
+pub mod edo;
 pub mod export;
 pub mod gpssdrsim;
 pub mod labsat;

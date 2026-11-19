@@ -44,6 +44,9 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         Compile a periodic scenario into a repeating AWG segment (SigMF ri16 + report) (Enterprise)\n\
     accept software --out <report.json> [--license <token>] [--dev]\n\
         Run the software-only acceptance tests (resolution, SNR, skywave ranges) (Enterprise)\n\
+    edo [<edo.toml>] --out <report.json> [--license <token>] [--dev]\n\
+        eLoran-disciplined oscillator bench: oscillator noise and ageing, GNSS/eLoran references,\n\
+        PI discipline, GNSS-to-eLoran switchover transient, holdover; MTIE/TDEV (Enterprise)\n\
     sync certify --tic <readings.csv> --out <dir> --gnss-sim <name> --counter <model> [--counter-serial <s>] [--counter-cal-due <date>] [--target-ns <ns>] [--tolerance-ns <ns>] [--tdev-limit-ns <ns>] [--eloran-cable-ns <ns>] [--gnss-cable-ns <ns>] [--cable-u-ns <ns>] [--tic-u-ns <ns>] [--polarity eloran-start|gnss-start] [--signer <name> --key-file <file>] [--license <token>] [--dev]\n\
         Sync-Verify: eLoran-to-GNSS alignment certificate for any GNSS simulator: offset ± U (k = 2),\n\
         TDEV per decade, drift, guard-banded decision; readings stored and bound, optionally signed (Enterprise)\n\
@@ -132,6 +135,7 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("gri") => gri_cmd(args),
         Some("calibrate") => calibrate_cmd(args),
         Some("bench") => bench_cmd(args),
+        Some("edo") => edo_cmd(args),
         Some("example") => {
             print!("{EXAMPLE}");
             ExitCode::SUCCESS
@@ -953,6 +957,35 @@ fn sync_certify(args: &[String]) -> ExitCode {
         write(dir, &c, &series.readings_ns)?;
         let signed = sign_if_requested(args, dir)?;
         Ok(format!("{} -> {out}{signed}", c.statement))
+    })())
+}
+
+fn edo_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::sync::edo::{run, EdoConfig};
+    let Some(out) = flag(args, "--out") else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let cfg: EdoConfig = match args.get(1).filter(|a| !a.starts_with("--")) {
+            Some(p) => toml::from_str(&read(p)?).map_err(|e| format!("{p}: {e}"))?,
+            None => EdoConfig::default(),
+        };
+        let r = run(&cfg)?;
+        write_json(&out, &r)?;
+        Ok(format!(
+            "eDO: max |TE| {:.1} ns, RMS {:.2} ns after settling{}; {} the {:.0} ns limit -> {out}",
+            r.max_abs_te_ns,
+            r.rms_te_after_settle_ns,
+            match (r.switchover_peak_ns, r.switchover_settle_s, r.switchover_offset_ns) {
+                (Some(p), Some(s), Some(o)) => format!(", switchover peak {p:.1} ns, settled in {s:.0} s at {o:+.1} ns (uncalibrated eLoran offset)"),
+                _ => String::new(),
+            },
+            if r.within_limit { "within" } else { "OUTSIDE" },
+            cfg.time_error_limit_ns
+        ))
     })())
 }
 
