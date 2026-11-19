@@ -573,7 +573,7 @@ mod tests {
         assert_eq!((l.lat_deg, l.lon_deg), (59.25, 24.25));
         assert!(l.radius_m >= 39_000.0);
         assert!(c.observers[0].starts_with("obs-") && !c.observers[0].contains("tallinn"));
-        let g = to_geojson(&[c.clone()]);
+        let g = to_geojson(std::slice::from_ref(&c));
         assert_eq!(g["features"][0]["geometry"]["coordinates"][1], 59.25);
         assert!(to_csv(&[c]).lines().count() == 2);
     }
