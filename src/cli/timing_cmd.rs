@@ -1,6 +1,6 @@
 // PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
-//! `kshana-pro timing <assess|console|metrics|history|audit>` (roadmap 0.42 T1-T3).
+//! `kshana-pro timing <assess|console|metrics|history|scorecard|compliance|audit>` (roadmap 0.42 T1-T3).
 //! `assess` needs `pro-timing-holdover`; `console`, `metrics` and `history` need
 //! `pro-timing-fleet`; `audit` needs `pro-timing-audit`. Verifying an audit report needs no
 //! licence: `kshana-pro dossier verify <dir> --trust <key>`.
@@ -19,6 +19,7 @@ pub const USAGE: &str = "usage: kshana-pro timing <command>\n\
     metrics <fleet.toml> [--out <file.prom>] [--license <token>] [--dev]   The fleet in the Prometheus text format, for the Grafana dashboard (Pro)\n\
     history verify <dir>                                                     Check every clock's evidence chain (no licence needed)\n\
     scorecard <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Timing scorecard under threat library spoofing scenarios, signed (Pro, T4); verify with `kshana-pro dossier verify` (free)\n\
+    compliance list | compliance <mifid2-rts25|dora-rts-2024-1774|eu-cer|india-ist-draft> <inputs.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Signed annual timing evidence pack, requirement -> evidence -> verdict (Pro); verify with `kshana-pro dossier verify` (free)\n\
     audit <fleet.toml> --profile <rts25-traceability|nist-ir-8323-profile> --out <dir> --signer <name> --key-file <file> [--evidence <dir>] [--operator <operator.toml>] [--utc <iso>] [--license <token>] [--dev]   Signed audit report mapped to the profile (Pro); verify with `kshana-pro dossier verify` (free)";
 
 fn fail(msg: impl std::fmt::Display) -> ExitCode {
@@ -125,6 +126,7 @@ pub fn run(args: &[String]) -> ExitCode {
             }
         }
         (Some("scorecard"), Some(path)) => scorecard_cmd(args, &path),
+        (Some("compliance"), Some(fw)) => compliance_cmd(args, &fw),
         (Some(cmd @ ("assess" | "console" | "metrics" | "audit")), Some(path)) => {
             let feature = match cmd {
                 "assess" => timing::KIND,
@@ -311,5 +313,73 @@ fn scorecard_cmd(args: &[String], path: &str) -> ExitCode {
         s.levels.highest_supported,
         out.display()
     );
+    ExitCode::SUCCESS
+}
+
+/// `timing compliance list` and `timing compliance <framework> <inputs.toml> ...` (W1119 C4).
+fn compliance_cmd(args: &[String], fw: &str) -> ExitCode {
+    use crate::timing::compliance;
+    if fw == "list" {
+        for (id, title, source) in compliance::FRAMEWORKS {
+            println!("{id:<20} {title}\n{:<20} {source}", "");
+        }
+        return ExitCode::SUCCESS;
+    }
+    if let Err(e) = gate(args, compliance::FEATURE) {
+        return fail(e);
+    }
+    let Some(path) = args.get(2).filter(|a| !a.starts_with("--")) else {
+        return fail(USAGE);
+    };
+    let (Some(out), Some(signer), Some(kf)) = (
+        flag(args, "--out"),
+        flag(args, "--signer"),
+        flag(args, "--key-file"),
+    ) else {
+        return fail("compliance needs --out, --signer and --key-file");
+    };
+    let seed = match super::forensics_cmd::read_seed(&kf) {
+        Ok(s) => s,
+        Err(e) => return fail(e),
+    };
+    let src = match std::fs::read_to_string(path) {
+        Ok(s) => s,
+        Err(e) => return fail(format!("{path}: {e}")),
+    };
+    let inp = match compliance::Inputs::parse(&src) {
+        Ok(i) => i,
+        Err(e) => return fail(e),
+    };
+    let base = Path::new(path)
+        .parent()
+        .map(Path::to_path_buf)
+        .unwrap_or_else(|| PathBuf::from("."));
+    let utc = flag(args, "--utc").unwrap_or_else(utc_iso8601_now);
+    let pack = match compliance::build(fw, &inp, &base, &utc) {
+        Ok(p) => p,
+        Err(e) => return fail(e),
+    };
+    let out = Path::new(&out);
+    if let Err(e) = compliance::write_dir(out, &pack, &src, &inp, &base) {
+        return fail(e);
+    }
+    if let Err(e) = crate::signed_dossier::sign(out, &seed, &signer, &utc) {
+        return fail(e);
+    }
+    let c = &pack.counts;
+    eprintln!(
+        "[timing compliance] {}: {} requirements: {} supported, {} not supported, {} insufficient, {} operator statements, {} to complete; signed pack in {}",
+        pack.framework,
+        pack.requirements.len(),
+        c.supported,
+        c.not_supported,
+        c.insufficient,
+        c.operator_statement,
+        c.to_complete,
+        out.display()
+    );
+    for p in &pack.evidence.problems {
+        eprintln!("  input problem: {p}");
+    }
     ExitCode::SUCCESS
 }

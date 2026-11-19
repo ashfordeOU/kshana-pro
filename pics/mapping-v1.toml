@@ -1,0 +1,186 @@
+# PROPRIETARY — Kshana Pro. Not part of the open-source engine. See LICENSE.
+#
+# PICS v1 clause mapping. Each row ties scenarios of pics/suite-v1.toml to a provision of a
+# standard or framework. Rule (no invented standards text): a row cites a clause number only
+# where the research behind PICS, or a source the open engine has read and transcribed,
+# gives one, and names that source in `basis`; every other row says exactly
+# "mapping to be confirmed" in `clause`. Topics are Kshana's paraphrase, never a quotation.
+# A mapping says which scenario produces evidence relevant to the provision; it never says a
+# device meets the provision. Limits in the bars are illustrative until confirmed against the
+# standard.
+#
+# Research: vcprep records/ops/kshana/research-2026-11-19/02-maritime-aviation-timing.md
+# (sections 1.1, 2.1, 3.1 and gap rows 1, 7, 8, 14).
+
+[[standard]]
+id = "imo-msc-401-95"
+title = "IMO Resolution MSC.401(95): performance standards for multi-system shipborne radionavigation receivers (8 Jun 2015)"
+status = "Adopted; performance only, no threat or spoofing test cases (research 1.1, source M1)"
+
+[[standard]]
+id = "imo-msc1-circ-1575"
+title = "IMO MSC.1/Circ.1575: guidelines for shipborne PNT data processing (16 Jun 2017)"
+status = "Guidelines; read in full by the open engine's imo-circ-1575 standards pack (2026-10-18)"
+
+[[standard]]
+id = "iec-61108-1"
+title = "IEC 61108-1 Ed. 2.0 (2003): GPS shipborne receiver, performance and test methods"
+status = "Current per the listings found; no spoofing, multi-system or time-jump tests (research 1.1, source M5)"
+
+[[standard]]
+id = "eurocae-ed-259a"
+title = "EUROCAE ED-259A (Oct 2023): DFMC SBAS airborne equipment MOPS"
+status = "Published; Appendix W (informative) classifies spoofing signals (research 2.1, source A8)"
+
+[[standard]]
+id = "rtca-do-401a"
+title = "RTCA DO-401A / EUROCAE ED-259B (in work, SC-159 / WG-62)"
+status = "Draft: adds jamming and spoofing robustness, RFI detection and indicator; spoofing indicator still under development (research 2.1, sources A9, A11)"
+
+[[standard]]
+id = "ieee-p1952"
+title = "IEEE P1952: resilient PNT user equipment (draft)"
+status = "Draft standard, PAR approved 21 May 2021, still active (research 3.1, sources T3, T4); no clause numbers until published"
+
+[[standard]]
+id = "dhs-rpcf"
+title = "DHS / CISA Resilient PNT Conformance Framework, v2.0"
+status = "Framework of four resilience levels (research 3.1, source T2); no accredited lab programme found"
+
+[[standard]]
+id = "itu-t-g8272-1"
+title = "ITU-T G.8272.1 (2024) Amd. 1 (07/2025): enhanced primary reference time clock (ePRTC)"
+status = "In force; clause and table numbers as transcribed by the open engine's telecom_timing module (research 3.1, source T10)"
+
+[[standard]]
+id = "itu-t-g8273-2"
+title = "ITU-T G.8273.2/Y.1368.2 (2023) Amd. 2 (11/2025): telecom boundary and slave clocks"
+status = "In force; table numbers as transcribed by the open engine's telecom_timing module (research 3.1, source T10)"
+
+[[standard]]
+id = "ieee-c37-238"
+title = "IEEE C37.238-2017 (+a-2023): PTP power profile"
+status = "In force; adds time-inaccuracy TLV monitoring, example budget +/-1 us (research 3.1, source T12)"
+
+# ---------------------------------------------------------------------------------------
+# Rows
+# ---------------------------------------------------------------------------------------
+
+[[row]]
+standard = "imo-msc-401-95"
+clause = "mapping to be confirmed"
+topic = "Resilient position fixing using all available GNSS, augmentation and terrestrial signals; RAIM for integrity"
+scenarios = ["PICS-JAM-CW", "PICS-JAM-CHIRP", "PICS-JAM-BB", "PICS-SPF-SIMPLE", "PICS-SPF-INTER", "PICS-SPF-DRAG", "PICS-SPF-MEACON"]
+basis = "research 1.1 (source M1): what the resolution says; no clause numbers in the research"
+
+[[row]]
+standard = "imo-msc1-circ-1575"
+clause = "annex paragraphs 53 to 57"
+topic = "Incoming data checked for plausibility and consistency; invalid or intolerably inconsistent data marked and excluded"
+scenarios = ["PICS-SPF-SIMPLE", "PICS-SPF-INTER", "PICS-SPF-DRAG", "PICS-SPF-MEACON", "PICS-SPF-TPUSH"]
+basis = "open engine standards pack imo-circ-1575 (row IMO-1575-INPUT), circular read in full 2026-10-18"
+
+[[row]]
+standard = "imo-msc1-circ-1575"
+clause = "annex paragraphs 47 and 84 to 88; appendix C section 2.2"
+topic = "Integrity evaluation graded none, low, medium, high; consistency tests detect faulty input data"
+scenarios = ["PICS-SPF-SIMPLE", "PICS-SPF-INTER", "PICS-SPF-DRAG", "PICS-SPF-MEACON"]
+basis = "open engine standards pack imo-circ-1575 (row IMO-1575-INT)"
+
+[[row]]
+standard = "imo-msc1-circ-1575"
+clause = "annex paragraphs 92 and 93"
+topic = "Status data: usability reported, status raised when redundancy or accuracy is lost"
+scenarios = ["PICS-JAM-CW", "PICS-JAM-CHIRP", "PICS-JAM-BB"]
+basis = "open engine standards pack imo-circ-1575 (row IMO-1575-STATUS)"
+
+[[row]]
+standard = "iec-61108-1"
+clause = "mapping to be confirmed"
+topic = "Operation under typical interference conditions (CW interference mask)"
+scenarios = ["PICS-JAM-CW"]
+basis = "research 1.1 (source M5): the standard has a CW interference mask; clause number not in the research"
+
+[[row]]
+standard = "iec-61108-1"
+clause = "mapping to be confirmed"
+topic = "Gap: no spoofing or broadband/swept interference test exists in the 2003 edition; PICS scenarios offered as candidate test cases"
+scenarios = ["PICS-JAM-CHIRP", "PICS-JAM-BB", "PICS-SPF-SIMPLE", "PICS-SPF-INTER", "PICS-SPF-DRAG", "PICS-SPF-MEACON"]
+basis = "research 1.1 and gap row 1"
+
+[[row]]
+standard = "eurocae-ed-259a"
+clause = "Appendix W (informative)"
+topic = "Classification of spoofing signals; PICS class names (simplistic, intermediate, meaconing) to be confirmed against the appendix's own classes"
+scenarios = ["PICS-SPF-SIMPLE", "PICS-SPF-INTER", "PICS-SPF-MEACON", "PICS-SPF-DRAG", "PICS-SPF-TPUSH"]
+basis = "research 2.1 (source A8): ED-259A App. W classifies spoofing signals; sub-clauses not in the research"
+
+[[row]]
+standard = "rtca-do-401a"
+clause = "mapping to be confirmed"
+topic = "Jamming and spoofing robustness, RFI detection and RFI indicator (draft)"
+scenarios = ["PICS-JAM-CW", "PICS-JAM-CHIRP", "PICS-JAM-BB", "PICS-SPF-SIMPLE", "PICS-SPF-INTER", "PICS-SPF-MEACON"]
+basis = "research 2.1 (sources A9, A11): draft in work; gap rows 7 and 8"
+
+[[row]]
+standard = "ieee-p1952"
+clause = "mapping to be confirmed"
+topic = "Threat detection; output integrity under threat; continuity; recovery (topics as in the Pro P1952 draft template)"
+scenarios = ["PICS-JAM-CW", "PICS-JAM-CHIRP", "PICS-JAM-BB", "PICS-SPF-SIMPLE", "PICS-SPF-INTER", "PICS-SPF-TPUSH", "PICS-SPF-DRAG", "PICS-SPF-MEACON"]
+basis = "research 3.1 (sources T3, T4): draft, no clause numbers; report-templates/scorecards/ieee-p1952-draft.json"
+
+[[row]]
+standard = "dhs-rpcf"
+clause = "Level 1"
+topic = "Recovers after the threat is removed"
+scenarios = ["PICS-JAM-CW", "PICS-JAM-CHIRP", "PICS-JAM-BB", "PICS-SPF-SIMPLE", "PICS-SPF-INTER", "PICS-SPF-TPUSH", "PICS-SPF-DRAG", "PICS-SPF-MEACON"]
+basis = "research 3.1 (source T2): L1 recover; Pro summary report-templates/scorecards/dhs-rpcf-levels.json"
+
+[[row]]
+standard = "dhs-rpcf"
+clause = "Level 2"
+topic = "Level 1, and no misleading output without warning during the threat"
+scenarios = ["PICS-JAM-CW", "PICS-JAM-CHIRP", "PICS-JAM-BB", "PICS-SPF-SIMPLE", "PICS-SPF-INTER", "PICS-SPF-TPUSH", "PICS-SPF-DRAG", "PICS-SPF-MEACON"]
+basis = "research 3.1 (source T2): L2 isolate and correct"
+
+[[row]]
+standard = "dhs-rpcf"
+clause = "Level 3"
+topic = "Level 2, and output kept within a stated bound during the threat"
+scenarios = ["PICS-JAM-CW", "PICS-JAM-CHIRP", "PICS-JAM-BB", "PICS-SPF-SIMPLE", "PICS-SPF-INTER", "PICS-SPF-TPUSH", "PICS-SPF-DRAG", "PICS-SPF-MEACON"]
+basis = "research 3.1 (source T2): L3 no cross-source corruption"
+
+[[row]]
+standard = "dhs-rpcf"
+clause = "Level 4"
+topic = "Level 3, and full performance kept during the threat"
+scenarios = ["PICS-JAM-CW", "PICS-JAM-CHIRP", "PICS-JAM-BB", "PICS-SPF-SIMPLE", "PICS-SPF-INTER", "PICS-SPF-TPUSH", "PICS-SPF-DRAG", "PICS-SPF-MEACON"]
+basis = "research 3.1 (source T2): L4 diverse technologies"
+
+[[row]]
+standard = "itu-t-g8272-1"
+clause = "Tables 1 and 2 (locked mode)"
+topic = "Time error of a GNSS-locked ePRTC (30 ns to UTC when locked, research 3.1) before and after a threat"
+scenarios = ["PICS-SPF-TPUSH", "PICS-SPF-MEACON", "PICS-JAM-CW"]
+basis = "open engine telecom_timing masks (G.8272.1 (2024) Amd. 1 Tables 1 and 2); research 3.1 (source T10)"
+
+[[row]]
+standard = "itu-t-g8272-1"
+clause = "clause 8.3.1; clause 8.2.1 and Table 3"
+topic = "Holdover time error (default maximum 100 ns) and holdover period from the locked duration, while GNSS is denied or rejected"
+scenarios = ["PICS-JAM-CW", "PICS-JAM-CHIRP", "PICS-JAM-BB", "PICS-SPF-TPUSH"]
+basis = "open engine telecom_timing default_budgets and holdover envelope (G.8272.1 (2024) Amd. 1 clauses 8.3.1, 8.2.1, Table 3)"
+
+[[row]]
+standard = "itu-t-g8273-2"
+clause = "Table 7-2 (max|TE_L|)"
+topic = "Low-pass-filtered time error of a downstream boundary clock (Class C about 30 ns, research 3.1) when the grandmaster is pushed"
+scenarios = ["PICS-SPF-TPUSH"]
+basis = "open engine telecom_timing masks (G.8273.2 Amd. 2 Table 7-2)"
+
+[[row]]
+standard = "ieee-c37-238"
+clause = "mapping to be confirmed"
+topic = "Grandmaster time inaccuracy (TLV monitoring) against a +/-1 us example budget under a time push or meaconing"
+scenarios = ["PICS-SPF-TPUSH", "PICS-SPF-MEACON"]
+basis = "research 3.1 (source T12): TLV monitoring and example budget; clause number not in the research"

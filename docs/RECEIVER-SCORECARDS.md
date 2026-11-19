@@ -86,3 +86,41 @@ engine's synthetic NMEA receiver model as the unit under test. Pre-registered in
   count, which still see it.
 * No campaign on a real receiver has been run yet; the sample is a modelled receiver.
 * P1952 is a draft: topics are mapped by subject, without clause numbers.
+
+## PICS: PNT Interference Conformance Suite (W1119 C1)
+
+A fixed, versioned suite of eight interference scenarios (`pics/suite-v1.toml`, suite
+`kshana-pics` 1.0.0): jamming (CW, chirp, broadband) and spoofing (simplistic, intermediate,
+time push, position drag, meaconing). Each has its threat parameters, the expected device
+behaviour in words and pass bars. The bars are pre-registered: their SHA-256 hashes are in
+`pics/suite-v1.lock`, compiled in, and a suite whose bars differ is refused. A bar change is a
+new suite version.
+
+```
+kshana-pro pics list | show <id> | mapping
+kshana-pro pics sample <id> --behaviour good|bad --out log.json     # SYNTHETIC log, to try the runner
+kshana-pro pics score log.json [more logs] --out <dir> --signer <name> --key-file <key>   # Pro
+kshana-pro pics score cap.nmea --input nmea --scenario PICS-JAM-CW --t0 0 ...            # NMEA log
+kshana-pro pics score te.log --input timing --clock-format ticc --scenario PICS-SPF-TPUSH ...
+kshana-pro pics export <id> --profile skydel|spirent|labsat|rs-smbv
+kshana-pro pics verify <dir> --trust <public key>                   # free: signature, files, bars
+```
+
+Scoring (method `kshana-pro/pics/v1`): detection within the bar (spoofing needs an explicit
+flag, jamming also accepts a withdrawn fix), no valid unflagged output beyond the bars, and
+recovery within the bar held for 30 s. These three decide `pass`. The bounded-error and
+full-performance criteria grade the DHS RPCF level with the scorecard level logic above. Data
+a log lacks makes a criterion `not assessed`, never passed.
+
+The clause mapping (`pics/mapping-v1.toml`) covers MSC.401(95), MSC.1/Circ.1575, IEC 61108-1,
+ED-259A App. W, DO-401A (draft), IEEE P1952 (draft), DHS RPCF levels, ITU-T G.8272.1 and
+G.8273.2, and IEEE C37.238. Clause numbers are cited only for Circ.1575 (paragraphs, as read
+by the open engine's standards pack), G.8272.1 and G.8273.2 (as transcribed in the open
+engine's telecom-timing masks), ED-259A Appendix W and the RPCF levels. Every other row says
+"mapping to be confirmed".
+
+Evidence label: MODELLED. The scoring is checked on synthetic logs (`tests/pics.rs`). No device
+has been scored, and the threat parameters and bars are illustrative until they are confirmed
+against the standards. The simulator export carries jammers as commands; a spoofer is a
+schedule marker plus its per-second offsets, and the operator sets it up in the simulator's
+own spoofing scenario.

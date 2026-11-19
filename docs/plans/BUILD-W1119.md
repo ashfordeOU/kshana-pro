@@ -42,10 +42,10 @@ Status: [ ] todo, [~] in progress, [x] done (commit sha).
 - [x] B3 Hardware-anchored evidence of the emitted waveform: loopback digest + fidelity bound in the signed record (B2)
 
 ## C. Maritime, aviation, timing
-- [ ] C1 PICS: PNT Interference Conformance Suite, clause-mapped (MSC.401/Circ.1575, IEC 61108, ED-259A, IEEE P1952, DHS RPCF, G.8272.1, C37.238), signed scorecards (02-1/7/8/14, P1)
-- [ ] C2 PNT-DP (Circ.1575) reference implementation + test vectors (02-2)
+- [x] C1 PICS: PNT Interference Conformance Suite, clause-mapped (MSC.401/Circ.1575, IEC 61108, ED-259A, IEEE P1952, DHS RPCF, G.8272.1, C37.238), signed scorecards (02-1/7/8/14, P1)
+- [x] C2 PNT-DP (Circ.1575) reference implementation + test vectors (02-2)
 - [ ] C3 Maritime incident evidence pack: NMEA/AIS/VDR ingest, actor-vs-victim analysis (02-5/24/34)
-- [ ] C4 Timing compliance packs: MiFID RTS 25, DORA Art. 12, CER, India IST (02-15/16/22)
+- [x] C4 Timing compliance packs: MiFID RTS 25, DORA Art. 12, CER, India IST (02-15/16/22)
 - [ ] C5 FDM spoofing event detector for flight data (02-9)
 - [ ] C6 OSNMA receiver conformance scorecard (02-21)
 - [ ] C7 Insurer equipment-resilience scorecard and voyage risk score (02-25/26)
