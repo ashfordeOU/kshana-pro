@@ -22,6 +22,8 @@ const USAGE: &str = "usage: kshana-pro forensics <command>\n\
         Add a signed expert review to a claim-grade bundle; the issuer then re-signs it (`kshana-pro dossier sign`)\n\
     verify <bundle> [--trust <issuer public key hex>[,...]] [--reviewer-trust <hex>[,...]]\n\
         Check the signature, every input hash, the evidence packs and the review, offline (no licence needed)\n\
+    maritime <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--dev]\n\
+        Signed maritime incident evidence pack: actor vs victim from NMEA, AIS and Station events (`kshana-pro forensics maritime` for details)\n\
     pack-payload <dir>\n\
         Write the forensics pack's payload files into <dir> for `kshana-pro packs build --provides pro-incident-forensics`";
 
@@ -271,6 +273,8 @@ pub fn run(rest: &[String]) -> ExitCode {
         Some("run") => run_cmd(rest),
         Some("review") => review_cmd(rest),
         Some("verify") => verify_cmd(rest),
+        Some("maritime") => super::pnt_cmd::maritime(rest),
+        Some("maritime-synth") => super::pnt_cmd::maritime_synth(rest),
         Some("pack-payload") => {
             let Some(dir) = rest.get(1) else {
                 return fail(USAGE);

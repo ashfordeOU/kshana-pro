@@ -141,3 +141,33 @@ mismatch and missing kind refused, licence tier gate after loading.
   engine's existing download path, never committed.
 * AIS on-land detection (the open map's land mask) and emitter localisation are not used.
 * Claim-grade has no contracted reviewer.
+
+## Maritime incident evidence pack: actor vs victim (W1119 C3)
+
+`kshana-pro forensics maritime <request.toml> --out <dir> --signer <name> --key-file <file>`
+(licence: `pro-incident-forensics`) answers the insurer's question after a GNSS incident at
+sea: was the vessel's GNSS attacked, or was its AIS report manipulated?
+
+Inputs (`request.toml`): `title`, `vessel_id` (its id in the AIS CSV), `nmea` (the vessel's own
+NMEA 0183 log or VDR export: GGA, RMC, GSV, GSA, and HDT/VHW where present), optional `ais`
+(CSV `timestamp,vessel_id,lat,lon[,sog_kn]` of the vessel and its neighbours), optional
+`station_events` (a JSON array of unified interference events, `kshana-pnt-interference-event/1`)
+and optional `[params]` (every threshold of method `kshana-pro/maritime-actor-victim/v1`).
+
+The method finds episodes in the vessel's own NMEA: **jamming** (C/N0 drop against the
+calibration window, loss of fix), **spoofing** (position jump above the vessel speed limit, GNSS
+SOG/COG departing from the log and gyro, C/N0 raised and uniform across satellites, false
+positions clustering with the neighbours') or a **ship-side fault** (no fix while the signals
+are normal). It then compares the vessel's AIS broadcast with its own NMEA, and asks whether
+AIS neighbours or a Station saw the same anomaly. The conclusion is one of: no event, victim
+of external interference, localised to the vessel, AIS manipulation, ship-side fault, or
+inconclusive.
+
+The signed directory holds `evidence-pack.json` (findings labelled MEASURED / DERIVED /
+REPORTED, episodes with onset and end bounds, the verdict, uncertainty and limits),
+`events.json` and `events.geojson` (unified events), `timeline.csv`, `inputs/` and
+`signature.json`. `kshana-pro forensics maritime-synth <case> <dir>` writes a synthetic
+scenario of each class to try it. It is an evidence pack, not a legal opinion.
+
+Evidence: **MODELLED** (synthetic scenarios with known truth, `tests/maritime_evidence.rs`);
+not validated on a labelled set of real incidents.

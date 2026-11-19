@@ -55,7 +55,10 @@ fn fail(msg: impl std::fmt::Display) -> ExitCode {
 }
 
 /// The licence check, the output directory, the signing seed and signer of a producing command.
-fn producing(args: &[String], gate: &str) -> Result<(String, [u8; 32], String, String), String> {
+pub(super) fn producing(
+    args: &[String],
+    gate: &str,
+) -> Result<(String, [u8; 32], String, String), String> {
     let now = now_unix();
     let ent = entitlement(args, now)?;
     license::check(&ent, gate, now).map_err(|e| e.to_string())?;
@@ -71,7 +74,7 @@ fn producing(args: &[String], gate: &str) -> Result<(String, [u8; 32], String, S
     Ok((out, seed, signer, utc))
 }
 
-fn sign(out: &str, seed: &[u8; 32], signer: &str, utc: &str) -> Result<(), String> {
+pub(super) fn sign(out: &str, seed: &[u8; 32], signer: &str, utc: &str) -> Result<(), String> {
     crate::signed_dossier::sign(Path::new(out), seed, signer, utc)
         .map(|_| ())
         .map_err(|e| e.to_string())

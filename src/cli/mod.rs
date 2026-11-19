@@ -16,6 +16,7 @@ mod license_cmd;
 mod lunar_cmd;
 mod packs_cmd;
 mod payments_cmd;
+mod pnt_cmd;
 mod scorecard_cmd;
 mod threats_cmd;
 mod timing_cmd;
