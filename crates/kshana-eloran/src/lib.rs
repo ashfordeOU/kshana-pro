@@ -23,7 +23,8 @@
 //! * [`campaign`]: conformance test library and validation campaign runner;
 //! * [`elof`]: ELOF, the eLoran Observation & Scenario Format (reader, writer, validator);
 //! * [`refbench`]: eLoran-Bench, the reference benchmark (pre-registered bars, scorer, leaderboard);
-//! * [`tpl`]: ASF-aware timing protection level for UTC(k) time transfer.
+//! * [`tpl`]: ASF-aware timing protection level for UTC(k) time transfer;
+//! * [`capset`]: coherent LF + L-band capture sets (record and replay on one timeline).
 //!
 //! Evidence labels follow the Kshana convention: a model is VALIDATED only where an
 //! independent external reference backs it (see `docs/VALIDATION.md` of this crate).
@@ -49,6 +50,7 @@ pub mod antenna;
 pub mod bench;
 pub mod calreg;
 pub mod campaign;
+pub mod capset;
 pub mod chain;
 pub mod dloran;
 pub mod elof;
@@ -73,6 +75,7 @@ pub mod scenario;
 pub mod scene;
 pub mod signal;
 pub mod sync;
+pub mod tactical;
 pub mod threat;
 pub mod time;
 pub mod timebase;

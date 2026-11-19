@@ -76,6 +76,23 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         ASF grid per station with the scenario's ground model: <base>.asf.csv and .asf.geojson (Enterprise)\n\
     fidelity <recording-base> --meta <capture.json> --scenario <scenario.toml> --out <report.json> [--license <token>] [--dev]\n\
         Compare a recording with its simulation at signal, observable and solution level (Enterprise)\n\
+    capset record <scenario.toml> --nav <rinex-3 nav> --out <dir> --id <set-id> [--fs <hz>] [--lf-delay-ns <x>] [--gnss-delay-ns <x>] [--gnss-offset-ns <x>] [--clock <text>] [--license <token>] [--dev]\n\
+        Coherent LF + L-band capture set: the eLoran SigMF channel and the GNSS baseband on one\n\
+        picosecond timeline with start times, rate ratio, clock source, cable delays and a PPS\n\
+        marker in both streams (Enterprise)\n\
+    capset check <dir>/<set-id>.capset.json [--out <report.json>]\n\
+        Replay check: data hashes and cross-stream PPS alignment within the stated tolerance (free)\n\
+    tactical templates [--lat <deg> --lon <deg>]\n\
+        Illustrative deployable-transmitter classes with antenna efficiency and radiated power (free)\n\
+    tactical study [--scenario <fusion.json>] [--trials <n>] [--seed <n>] [--out <study.json>] [--license <token>] [--dev]\n\
+        Signals-of-opportunity fusion study: eLoran alone vs eLoran + AM/LW carriers (weighted HDOP,\n\
+        Monte Carlo RMS/95 %, ambiguity success); default: the weak-geometry template (Enterprise)\n\
+    selfcal <scenario.toml> --config <selfcal.json> --observations <obs.json> --register <register.jsonl> --key-file <key> [--key-id <id>] --out <result.json> [--license <token>] [--dev]\n\
+        Self-calibrating simulator loop: fit section conductivity, ASF bias and skywave height to\n\
+        reference-receiver observations, regenerate until the fidelity converges; every pass is a\n\
+        hash-chained register entry and the run is HMAC-signed (Enterprise)\n\
+    selfcal verify --register <register.jsonl> --result <result.json> --key-file <key>\n\
+        Verify a self-calibration lineage: register chain, record digests and signature (free)\n\
     import <log> --profile <csv-profile.toml> --out <observations.json> [--license <token>] [--dev]\n\
         Import a receiver log into common observation records (Enterprise)\n\
     conformance list\n\
@@ -166,6 +183,9 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("timeref") => timeref_cmd(args),
         Some("asfgrid") => asfgrid_cmd(args),
         Some("fidelity") => fidelity_cmd(args),
+        Some("selfcal") => selfcal_cmd(args),
+        Some("capset") => capset_cmd(args),
+        Some("tactical") => tactical_cmd(args),
         Some("import") => import_cmd(args),
         Some("conformance") => conformance_cmd(args),
         Some("campaign") => campaign_cmd(args),
@@ -1389,6 +1409,218 @@ fn fidelity_cmd(args: &[String]) -> ExitCode {
         )?;
         write_json(&out, &rep)?;
         Ok(format!("fidelity: report -> {out}"))
+    })())
+}
+
+fn capset_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::capset::{record_capture_set, replay_check, RecordPlan, StreamSetup};
+    match args.get(1).map(String::as_str) {
+        Some("check") => {
+            let Some(path) = args.get(2).filter(|a| !a.starts_with("--")).cloned() else {
+                return fail(USAGE);
+            };
+            match replay_check(Path::new(&path)) {
+                Ok(rep) => {
+                    if let Some(out) = flag(args, "--out") {
+                        if let Err(e) = write_json(&out, &rep) {
+                            return fail(e);
+                        }
+                    }
+                    if rep.pass {
+                        println!(
+                            "capset {}: aligned, max cross-stream difference {:.3} ns (tolerance {:.1} ns)",
+                            rep.set_id,
+                            rep.max_abs_cross_ps / 1000.0,
+                            rep.tolerance_ps as f64 / 1000.0
+                        );
+                        ExitCode::SUCCESS
+                    } else {
+                        fail(format!(
+                            "capset {}: {}",
+                            rep.set_id,
+                            rep.problems.join("; ")
+                        ))
+                    }
+                }
+                Err(e) => fail(e),
+            }
+        }
+        Some("record") => {
+            let Some(scen) = args.get(2).filter(|a| !a.starts_with("--")).cloned() else {
+                return fail(USAGE);
+            };
+            let (Some(nav), Some(out), Some(id)) =
+                (flag(args, "--nav"), flag(args, "--out"), flag(args, "--id"))
+            else {
+                return fail(USAGE);
+            };
+            if let Err(c) = licensed(args) {
+                return c;
+            }
+            done((|| {
+                let sc = load(&scen)?;
+                let ns = |name: &str| -> Result<i64, String> {
+                    Ok((num_flag::<f64>(args, name)?.unwrap_or(0.0) * 1000.0).round() as i64)
+                };
+                let clock = flag(args, "--clock").unwrap_or_else(|| "unspecified".into());
+                let lf = StreamSetup::new(&clock, "clock-1", ns("--lf-delay-ns")?);
+                let mut g = StreamSetup::new(&clock, "clock-1", ns("--gnss-delay-ns")?);
+                g.start_offset_ps = ns("--gnss-offset-ns")?;
+                let opts = crate::eloran_gnss::GnssOptions {
+                    fs_hz: num_flag(args, "--fs")?.unwrap_or(4_000_000.0),
+                    ..Default::default()
+                };
+                let mut gen = crate::eloran_gnss::GnssBaseband::new(&read(&nav)?, opts)?;
+                let set = record_capture_set(
+                    &sc,
+                    &mut gen,
+                    &RecordPlan::new(&id, lf, g),
+                    Path::new(&out),
+                )?;
+                Ok(format!(
+                    "capset {}: {} streams, {} marker(s), {} satellites -> {out}/{id}.capset.json",
+                    set.set_id,
+                    set.streams.len(),
+                    set.markers.len(),
+                    gen.satellites.len()
+                ))
+            })())
+        }
+        _ => fail(USAGE),
+    }
+}
+
+fn tactical_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::geo::Geo;
+    use kshana_eloran::tactical::{
+        fusion_study, templates, weak_geometry_template, FusionScenario,
+    };
+    match args.get(1).map(String::as_str) {
+        Some("templates") => done((|| {
+            let lat = num_flag(args, "--lat")?.unwrap_or(50.0);
+            let lon = num_flag(args, "--lon")?.unwrap_or(10.0);
+            let rows: Vec<serde_json::Value> = templates(Geo::new(lat, lon))
+                .iter()
+                .map(|t| {
+                    serde_json::json!({
+                        "transmitter": t,
+                        "radiation_resistance_ohm": t.radiation_resistance_ohm(),
+                        "efficiency": t.efficiency(),
+                        "radiated_kw": t.radiated_kw(),
+                    })
+                })
+                .collect();
+            serde_json::to_string_pretty(&rows).map_err(|e| e.to_string())
+        })()),
+        Some("study") => {
+            if let Err(c) = licensed(args) {
+                return c;
+            }
+            done((|| {
+                let sc: FusionScenario = match flag(args, "--scenario") {
+                    Some(p) => serde_json::from_str(&read(&p)?).map_err(|e| format!("{p}: {e}"))?,
+                    None => weak_geometry_template(),
+                };
+                let trials = num_flag(args, "--trials")?.unwrap_or(1000);
+                let seed = num_flag(args, "--seed")?.unwrap_or(1);
+                let st = fusion_study(&sc, trials, seed)?;
+                if let Some(out) = flag(args, "--out") {
+                    write_json(&out, &st)?;
+                }
+                Ok(format!(
+                    "tactical study ({} trials): eLoran RMS {:.1} m (95 % {:.1} m) -> fused RMS {:.1} m (95 % {:.1} m); ambiguity success {:.3}; fallbacks {}",
+                    st.trials,
+                    st.rms_eloran_m,
+                    st.p95_eloran_m,
+                    st.rms_fused_m,
+                    st.p95_fused_m,
+                    st.ambiguity_success,
+                    st.fallbacks
+                ))
+            })())
+        }
+        _ => fail(USAGE),
+    }
+}
+
+/// `selfcal` job file: the loop configuration and the reference sites.
+#[derive(serde::Deserialize)]
+struct SelfCalJob {
+    config: kshana_eloran::valid::selfcal::SelfCalConfig,
+    sites: Vec<kshana_eloran::valid::selfcal::RefSite>,
+}
+
+fn selfcal_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::calreg::Register;
+    use kshana_eloran::valid::selfcal::{run_selfcal, verify_lineage, SelfCalResult};
+    let key_of = |args: &[String]| -> Result<Vec<u8>, String> {
+        let p = flag(args, "--key-file").ok_or("--key-file is required")?;
+        let k = std::fs::read(&p).map_err(|e| format!("{p}: {e}"))?;
+        if k.len() < 16 {
+            return Err("signing key: at least 16 bytes".into());
+        }
+        Ok(k)
+    };
+    if args.get(1).map(String::as_str) == Some("verify") {
+        let (Some(reg), Some(res)) = (flag(args, "--register"), flag(args, "--result")) else {
+            return fail(USAGE);
+        };
+        return match (|| {
+            let key = key_of(args)?;
+            let r: SelfCalResult =
+                serde_json::from_str(&read(&res)?).map_err(|e| format!("{res}: {e}"))?;
+            verify_lineage(&Register::open(Path::new(&reg)), &r.signature, &key)
+        })() {
+            Ok(c) if c.ok() => {
+                println!("selfcal lineage OK: {} entries", c.entries);
+                ExitCode::SUCCESS
+            }
+            Ok(c) => fail(format!("selfcal lineage FAILED: {}", c.problems.join("; "))),
+            Err(e) => fail(e),
+        };
+    }
+    let Some(scen) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else {
+        return fail(USAGE);
+    };
+    let (Some(cfg), Some(obs), Some(reg), Some(out)) = (
+        flag(args, "--config"),
+        flag(args, "--observations"),
+        flag(args, "--register"),
+        flag(args, "--out"),
+    ) else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let key = key_of(args)?;
+        let key_id = flag(args, "--key-id").unwrap_or_else(|| "default".into());
+        let sc = load(&scen)?;
+        let job: SelfCalJob =
+            serde_json::from_str(&read(&cfg)?).map_err(|e| format!("{cfg}: {e}"))?;
+        let observations: Vec<kshana_eloran::valid::selfcal::RefObservation> =
+            serde_json::from_str(&read(&obs)?).map_err(|e| format!("{obs}: {e}"))?;
+        let r = run_selfcal(
+            &sc,
+            &job.config,
+            &job.sites,
+            &observations,
+            None,
+            &Register::open(Path::new(&reg)),
+            &key,
+            &key_id,
+        )?;
+        write_json(&out, &r)?;
+        let last = r.records.last().ok_or("no passes")?;
+        Ok(format!(
+            "selfcal: {} passes ({}), fidelity {:.1} -> {:.1}, signed head {} -> {out}",
+            r.records.len(),
+            r.stop_reason,
+            r.records[0].fidelity_score,
+            last.fidelity_score,
+            &r.signature.head[..16]
+        ))
     })())
 }
 

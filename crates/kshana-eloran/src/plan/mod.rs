@@ -104,6 +104,13 @@ impl Default for PlanSettings {
     }
 }
 
+impl PlanSettings {
+    /// Ranging σ (m) at `snr_db`: `σ₀ · 10^(−(SNR − SNR₀)/20)`, floored at `σ_min`.
+    pub fn ranging_sigma_m(&self, snr_db: f64) -> f64 {
+        (self.sigma0_m * 10f64.powf(-(snr_db - self.snr0_db) / 20.0)).max(self.sigma_min_m)
+    }
+}
+
 /// One evaluated grid point.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GridPoint {
@@ -247,8 +254,7 @@ impl<'a> Planner<'a> {
     }
 
     fn sigma(&self, snr_db: f64) -> f64 {
-        let s = &self.settings;
-        (s.sigma0_m * 10f64.powf(-(snr_db - s.snr0_db) / 20.0)).max(s.sigma_min_m)
+        self.settings.ranging_sigma_m(snr_db)
     }
 
     fn accuracy(&self, per: &[(f64, f64)], use_idx: &[usize]) -> Option<f64> {

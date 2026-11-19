@@ -266,7 +266,8 @@ pub struct Metric {
 }
 
 impl Metric {
-    fn new(
+    /// A checked metric (pass and score from the bound, see the module docs).
+    pub fn new(
         level: Level,
         station: Option<String>,
         name: &str,

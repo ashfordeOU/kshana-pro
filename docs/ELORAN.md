@@ -179,6 +179,82 @@ CI: `.github/workflows/eloran.yml` runs format, strict clippy (with and without 
 
 Planner note: with the default station availability (0.999) and service-availability target (0.999), three stations cannot meet the target at any point (all three must be up: 0.997). Use more stations, or set the targets to the service you are planning.
 
+## Self-calibrating simulator (selfcal, W1119 A7)
+
+`kshana-pro eloran selfcal <scenario.toml> --config <selfcal.json> --observations <obs.json>
+--register <register.jsonl> --key-file <key> --out <result.json>` (Enterprise) closes the loop
+between a reference receiver and the simulator (`valid::selfcal`):
+
+1. generate the scenario from the current parameters (Millington groundwave over the
+   conductivity map with the calibrated sections, ionospheric skywave at the current height,
+   per-station ASF bias as a transmitter clock offset);
+2. compare the reference observations (groundwave ToA corrected for the known receiver clock;
+   skywave-minus-groundwave delay) with the simulator's prediction, scored with the fidelity
+   comparator's metric rules (and, from the library, the full signal-level comparator on a
+   recorded capture at the first and last pass);
+3. one damped Gauss-Newton step of inverse modelling on σ per section (log10, with
+   ground-class priors), ASF bias per station and skywave height, with uncertainty;
+4. regenerate and repeat until the cost stops falling.
+
+`selfcal.json` holds `{"config": {...SelfCalConfig...}, "sites": [{"id", "position"}]}`;
+`obs.json` is a list of `{"site", "chain", "station", "kind": "ground_toa" | "sky_minus_ground",
+"value_ns", "sigma_ns"}`. Every pass is one hash-chained calibration-register entry (parameters,
+deltas, fidelity, scenario hash, recording digest), and the run is closed by an HMAC-SHA256
+signature over the last entry, the calibrated scenario hash and the recording digest.
+`kshana-pro eloran selfcal verify --register <register.jsonl> --result <result.json> --key-file
+<key>` (free) re-checks the chain, every record digest and the signature. HMAC is symmetric
+(the key holder can sign); for a public-key signature, sign the output with `kshana-pro dossier
+sign`. Limits: an ASF bias and a transmitter timing offset cannot be told apart from ToA;
+receiver clocks must be known; several sites with different path fractions are needed to
+separate a section's σ from the station biases. Evidence: MODELLED (recovers a synthetic truth
+world within its uncertainty; not yet run on a live recording).
+
+## Coherent LF + L-band capture sets (capset, W1119 A15)
+
+`kshana-pro eloran capset record <scenario.toml> --nav <rinex-3 nav> --out <dir> --id <set-id>`
+(Enterprise) records one scenario as two SigMF streams on one timeline: `<id>_lf` (the eLoran
+channels, real `rf32_le`) and `<id>_gnss` (GPS L1 C/A + Galileo E1-B complex baseband,
+`ci16_le` at 1575.42 MHz, from the kshana-pro software GNSS generator through the engine's
+`capset::BasebandGenerator` seam). `<id>.capset.json` carries, per stream, the start instant
+as integer TAI picoseconds, the sample rate (and the exact rate ratio), the clock source and
+the cable delay to the common reference plane; each SigMF file repeats it under
+`global."kshana:capset"` and lists the markers as annotations. A PPS marker of known shape is
+injected into both streams at the same reference-plane instants (a 10 µs Gaussian on the LF
+stream, a Gaussian-enveloped chirp on the baseband).
+
+`kshana-pro eloran capset check <dir>/<id>.capset.json` (free) checks every data file's
+SHA-256 and finds each marker in each stream (correlation with the analytic marker, then a
+fractional-delay refinement). After the declared start times and delays, the two streams must
+agree within the stated tolerance (default 5 ns); a mis-stamped start, wrong cable delay or
+wrong sample rate fails the check. The report gives a Cramér–Rao σ of each marker time from
+the local noise (about 1 ns for the baseband marker at 2 MHz). Evidence: MODELLED (simulated
+streams); with hardware the marker is an injected PPS-locked pulse whose own injection delay
+must be calibrated.
+
+## Tactical transmitters and signals of opportunity (tactical, W1119 A16)
+
+Library `kshana_eloran::tactical` (NAVISP-EL1-151 / EL1-152 scenario modelling):
+
+* **Deployable transmitters**: transmitter power, mast height, top loading and loss
+  resistance give the short-monopole efficiency and radiated power; coverage and service
+  radius come from the network planner; `deployable_scenario` writes a simulator scenario with
+  the unknown initial ASF/timing offsets as transmitter clock errors.
+  `kshana-pro eloran tactical templates` lists three illustrative classes (man-pack, vehicle,
+  container; assumed parameters, not vendor data).
+* **Rapid ASF calibration**: a reference receiver at a surveyed site feeds a scalar Kalman
+  filter (random-walk transmitter timing) that converges on the correction beyond PF from a
+  wide prior; `spatial_residual_ns` shows how the correction degrades away from the site.
+* **Signals of opportunity**: AM/LW carriers at known sites and frequencies with unknown
+  phase, made usable by a reference station (differential phase) and cycle resolution against
+  the eLoran fix, fused with eLoran pseudoranges. `kshana-pro eloran tactical study
+  [--scenario <fusion.json>]` (Enterprise) reports weighted HDOP and Monte Carlo RMS / 95 %
+  error for eLoran alone and fused, and the ambiguity success rate. In the built-in
+  weak-geometry template (three eLoran stations within 50° of azimuth, two LW carriers on the
+  other side) the fused error is far smaller than eLoran alone.
+
+Limits: groundwave only (daytime), homogeneous ground in the fusion study, residual
+propagation errors as random biases with stated σ. Evidence: MODELLED.
+
 ## Bench readiness: hardware ready before it arrives
 
 The aim: when the hardware arrives, it only needs plugging in and testing. Everything that can
