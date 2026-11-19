@@ -1,0 +1,38 @@
+# PNT-DP test-vector configuration (SYNTHETIC)
+[[source]]
+id = "gps"
+kind = "gnss"
+group = "lband"
+sigma_m = 3.0
+
+[[source]]
+id = "galileo"
+kind = "gnss"
+group = "lband"
+sigma_m = 3.0
+
+[[source]]
+id = "dgnss"
+kind = "dgnss"
+group = "lband"
+sigma_m = 1.0
+
+[[source]]
+id = "eloran"
+kind = "eloran"
+group = "terrestrial"
+sigma_m = 20.0
+
+[[source]]
+id = "ins"
+kind = "inertial"
+group = "inertial"
+sigma_mps = 0.05
+
+[limits]
+k = 4.0
+max_speed_mps = 25.0
+max_age_s = 3.0
+frozen_epochs = 5
+reanchor_sigma_m = 5.0
+alert_limit_m = 100.0

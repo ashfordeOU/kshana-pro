@@ -61,6 +61,7 @@ pub mod pdf_text;
 pub mod pics;
 pub mod planner_front;
 pub mod pnt_study;
+pub mod pntdp;
 pub mod premium;
 pub mod pro_study;
 pub mod propack;
