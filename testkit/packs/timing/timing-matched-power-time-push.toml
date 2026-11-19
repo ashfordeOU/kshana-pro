@@ -1,0 +1,55 @@
+format = "kshana-testkit-scenario/1"
+id = "timing-matched-power-time-push"
+version = 1
+title = "Timing receiver: matched-power time push (TEXBAT ds3 analogue)"
+description = "The threat-library analogue of TEXBAT ds3: a slow time push (20 ns/s to 2 µs, the library timing profile) with the genuine C/N0 pattern kept, expanded at signal-parameter level."
+modelled_on = ["Threat library texbat-ds3-matched-power-time-push (published dataset description; representative parameters)"]
+tags = ["timing", "spoofing", "threat-library"]
+
+[scene]
+start_utc = "2026-06-01T18:00:00Z"
+duration_s = 4200
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[trajectory]
+platform = "timing"
+lat_deg = 30.288
+lon_deg = -97.736
+height_m = 150
+
+[environment]
+sensors = ["reference-clock"]
+
+[[threat]]
+id = "ds3"
+library = "texbat-ds3-matched-power-time-push"
+start_s = 300
+
+[expected]
+behaviour = "The receiver flags the time push before its time error exceeds 100 ns, and never outputs a time more than 100 ns off without warning."
+withdraw_counts_as_detection = false
+recover_time_error_ns = 50
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 60
+level = 2
+
+[[criterion]]
+id = "time-bounded"
+metric = "max_unflagged_time_error_ns"
+op = "<="
+value = 100
+level = 2
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 300
+level = 1

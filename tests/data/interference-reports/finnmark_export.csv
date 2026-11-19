@@ -1,0 +1,5 @@
+# Synthetic sample for tests: a CSV export of crew reports (Finnmark). Not real reports.
+start_utc,end_utc,reporter_role,registration,flight,latitude,longitude,altitude_ft,type,systems_affected,recovery_action,narrative
+2026-05-20T07:14:00Z,2026-05-20T07:31:00Z,Captain,LN-WDA,WIF915,69.73,29.89,4500,GNSS jamming,"GPS, TAWS, ADS-B",Switched to VOR/DME approach,"Lost GPS on approach to Kirkenes, TAWS caution"
+2026-05-20T07:22:00Z,,Pilot,LN-OOI,HEMS1,69.70,30.05,1600,signal loss,GPS,Continued visually,"GPS lost at 1,600 ft, regained after 9 minutes"
+2026-05-20T07:40:00Z,2026-05-20T07:52:00Z,First officer,LN-WDB,WIF917,69.80,29.70,7000,spoofing,"GPS, FMS",Deselected GPS,"Position shifted 12 nm east, time jump on the clock"

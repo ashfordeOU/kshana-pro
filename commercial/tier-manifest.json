@@ -43,6 +43,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-exposure-ledger",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-framework-pack",
       "type": "feature",
       "tier": "pro"
@@ -54,6 +59,16 @@
     },
     {
       "kind": "pro-insurer-scorecard",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-interference-reports",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-report-verification",
       "type": "feature",
       "tier": "pro"
     },
@@ -94,6 +109,11 @@
     },
     {
       "kind": "pro-study-dossier",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-test-kit",
       "type": "feature",
       "tier": "pro"
     },

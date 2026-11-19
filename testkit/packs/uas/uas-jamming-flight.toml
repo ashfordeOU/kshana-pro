@@ -1,0 +1,65 @@
+format = "kshana-testkit-scenario/1"
+id = "uas-jamming-flight"
+version = 1
+title = "Drone in transit: one minute of GNSS jamming"
+description = "Strong wideband jamming for 60 s while the drone flies a straight leg at 15 m/s."
+modelled_on = ["Published UAS jamming events and counter-UAS jamming (modelled on, representative parameters)"]
+tags = ["uas", "jamming"]
+
+[scene]
+start_utc = "2026-05-12T15:00:00Z"
+duration_s = 300
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[trajectory]
+platform = "uas"
+lat_deg = 58.38
+lon_deg = 26.72
+height_m = 100
+
+[[trajectory.waypoint]]
+lat_deg = 58.40
+lon_deg = 26.76
+speed_mps = 15
+
+[environment]
+sensors = ["imu", "baro"]
+
+[[threat]]
+id = "jam"
+type = "jamming"
+waveform = "wideband"
+start_s = 90
+duration_s = 60
+center_hz = 1575420000.0
+bandwidth_hz = 2000000.0
+js_db = 50
+
+[expected]
+behaviour = "Fix withdrawn or jamming flagged within 3 s; no degraded fix output as valid; back within 20 s of the end."
+misleading_h_error_m = 15
+recover_h_error_m = 5
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 3
+level = 2
+
+[[criterion]]
+id = "no-misleading"
+metric = "misleading_epochs"
+op = "<="
+value = 0
+level = 2
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 20
+level = 1
