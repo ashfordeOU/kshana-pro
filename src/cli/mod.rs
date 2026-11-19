@@ -21,6 +21,7 @@ mod pnt_cmd;
 mod pntdp_cmd;
 mod reports_cmd;
 mod scorecard_cmd;
+mod testkit_cmd;
 mod threats_cmd;
 mod timing_cmd;
 mod trust_cmd;
@@ -72,8 +73,9 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro verify-service <run|template|verify> ...   Pre-registered user-side verification study of a new PNT service (E4, Pro); template and verify free\n\
        kshana-pro frameworks <list|show|pack|verify> ...   Framework evidence packs: signed evidence mapped to EASA, NIST, DHS, IMO, RTS 25, EU Space Act, NIS 2 duties (E6, Pro; list, show, verify free)\n\
        kshana-pro pics <list|show|mapping|score|export|sample|verify> ...   PICS: PNT Interference Conformance Suite, versioned jamming/spoofing scenarios with pre-registered bars, clause mapping and signed scorecards (score Pro; the rest free)\n\
+       kshana-pro testkit <validate|compile|from-library|packs|show> ...   Test-as-code kit: neutral scenarios compiled for lab simulators, with what each adapter cannot express, and scenario packs (`kshana-pro testkit` for details; validate, packs, show free)\n\
        kshana-pro pntdp <run|vectors|check> ...   PNT data processing reference (MSC.1/Circ.1575): multi-source plausibility, consistency, selected solution and integrity level (Pro; vectors and check free)\n\
-       kshana-pro verdict <selfcal|survey|verify> ...   Hosted methods answered as signed verdicts, verified against the service key (`kshana-pro verdict` for details)\n\
+       kshana-pro verdict <selfcal|survey|cause|verify> ...   Hosted methods answered as signed verdicts, verified against the service key (`kshana-pro verdict` for details)\n\
        kshana-pro reports <normalise|validate|episodes|verify|reset-check|ledger|check|params|regimes|synth> ...   Interference reports: normalise crew/ATC/mariner reports, validate per regime, episodes, signed verification, exposure ledger and reset check (Pro; ledger Enterprise; check, params, regimes, synth free)\n\
        kshana-pro exposure <run|verify> ...   Insurer scorecard: periodic signed exposure summary of a fleet or route (E7, Pro); verify free\n\
        kshana-pro license <keygen|pubkey|issue|issue-invoice|extend-invoice|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
@@ -143,6 +145,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "pntdp",
     "verdict",
     "reports",
+    "testkit",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -279,6 +282,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("pntdp") => pntdp_cmd::run(&args[1..]),
         Some("verdict") => verdict_cmd::run(&args[1..]),
         Some("reports") => reports_cmd::run(&args[1..]),
+        Some("testkit") => testkit_cmd::run(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
         Some(name) if crate::extension::commands().iter().any(|c| c.name == name) => {
             let c = crate::extension::commands()

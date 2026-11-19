@@ -16,6 +16,12 @@ own bullet so parallel work merges cleanly.
   (MODELLED, recommendation only). Features `pro-interference-reports` and
   `pro-report-verification` (Pro), `pro-exposure-ledger` (Enterprise); tier manifest
   regenerated. All evidence MODELLED (synthetic data, `tests/interference_reports.rs`).
+- **Test-as-code kit, part 1 (research 2026-11-20 gaps 07, 08, 08b, 11, 12; docs/TEST-KIT.md).**
+  `kshana-pro testkit validate|compile|from-library|packs|show`: neutral scenario spec
+  `kshana-testkit-scenario/1` (signals, trajectory, environment, signal-parameter threats or
+  threat-library ids, expected behaviour, criteria); compiler and validator for the Skydel,
+  Spirent, R&S SMBV, LabSat and gps-sdr-sim adapters; scenario packs (DP after IMCA IN 1730
+  themes, aviation, UAS, timing, RPCF levels 1 to 4). Feature `pro-test-kit` (Pro). MODELLED.
 
 - **0.42 bars, phase 2 (owner approval 16 Nov 2026; docs/evidence/BARS-TO-GREEN-0.42.md).**
   E3b **met**: receiver scorecard v2 (`kshana-pro/receiver-scorecard/v2`: WGS-84 geodesic error,

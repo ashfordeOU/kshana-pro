@@ -113,6 +113,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-test-kit",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-threat-library",
       "type": "feature",
       "tier": "pro"

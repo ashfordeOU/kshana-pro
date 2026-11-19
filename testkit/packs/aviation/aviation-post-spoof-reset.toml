@@ -1,0 +1,73 @@
+format = "kshana-testkit-scenario/1"
+id = "aviation-post-spoof-reset"
+version = 1
+title = "Airliner en route: time and position reset after a spoof with a false time"
+description = "A spoof steps time 2 s ahead with a 10 km position offset; after it ends the receiver must not keep the false time (a corrupted clock or almanac state that only a reset clears)."
+modelled_on = ["EASA SIB 2022-02 (and revisions) theme: clock and position effects that persist after spoofing (modelled on; not a test of the bulletin)"]
+tags = ["aviation", "spoofing", "reset", "timing"]
+
+[scene]
+start_utc = "2026-04-07T09:00:00Z"
+duration_s = 1200
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[trajectory]
+platform = "aircraft"
+lat_deg = 59.0
+lon_deg = 18.0
+height_m = 10000
+
+[[trajectory.waypoint]]
+lat_deg = 59.0
+lon_deg = 22.0
+speed_mps = 120
+
+[[threat]]
+id = "false-time"
+type = "spoofing"
+technique = "simplistic"
+start_s = 300
+duration_s = 300
+offset_north_m = 10000
+time_offset_ns = 2000000000
+power_advantage_db = 6
+
+[expected]
+behaviour = "The receiver flags the spoof; within two minutes of its end both position and time are correct again without a manual reset."
+withdraw_counts_as_detection = false
+misleading_h_error_m = 370
+recover_h_error_m = 30
+recover_time_error_ns = 1000
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 10
+level = 2
+
+[[criterion]]
+id = "no-misleading"
+metric = "misleading_epochs"
+op = "<="
+value = 0
+level = 2
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 120
+level = 1
+
+[[criterion]]
+id = "time-after"
+metric = "max_unflagged_time_error_ns"
+window = "after"
+op = "<="
+value = 1000
+required = false
+note = "informative: reported when the log carries a time error"

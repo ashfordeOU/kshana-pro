@@ -1,0 +1,66 @@
+format = "kshana-testkit-scenario/1"
+id = "dp-position-reference-disagreement"
+version = 1
+title = "DP vessel on station: GNSS position reference disagrees with the second reference"
+description = "The GNSS position walks away at 0.2 m/s while the vessel holds station on its second position reference; the receiver should warn before the disagreement reaches the DP system's tolerance."
+modelled_on = ["IMCA IN 1730 theme: position reference disagreement between GNSS and other references (modelled on; the note gives no test method)"]
+tags = ["maritime", "dp", "spoofing"]
+
+[scene]
+start_utc = "2026-03-02T10:00:00Z"
+duration_s = 1200
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA", "L5"]
+
+[[signal]]
+constellation = "galileo"
+signals = ["E1", "E5a"]
+
+[trajectory]
+platform = "vessel"
+lat_deg = 57.10
+lon_deg = 1.90
+
+[environment]
+multipath = "low"
+sensors = ["gyro", "dp-reference-2"]
+
+[[threat]]
+id = "drag"
+type = "spoofing"
+technique = "position_drag"
+start_s = 300
+duration_s = 300
+drag_rate_mps = 0.2
+drag_bearing_deg = 90
+power_advantage_db = 3
+
+[expected]
+behaviour = "The receiver warns of spoofing before the GNSS position is 10 m off, so the DP system can reject the GNSS reference in favour of the second one."
+withdraw_counts_as_detection = false
+misleading_h_error_m = 10
+recover_h_error_m = 5
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 50
+level = 2
+note = "0.2 m/s reaches 10 m after 50 s"
+
+[[criterion]]
+id = "no-misleading"
+metric = "misleading_epochs"
+op = "<="
+value = 0
+level = 2
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 120
+level = 1

@@ -1,0 +1,59 @@
+format = "kshana-testkit-scenario/1"
+id = "dp-gnss-jamming"
+version = 1
+title = "DP vessel on station: GNSS jamming takes out both GNSS references"
+description = "Wideband L1 jamming for five minutes; both GNSS receivers share the threat, so the DP system falls back to its other references."
+modelled_on = ["IMCA IN 1730 theme: loss of GNSS position references to interference (modelled on; the note gives no test method)"]
+tags = ["maritime", "dp", "jamming"]
+
+[scene]
+start_utc = "2026-03-02T13:00:00Z"
+duration_s = 900
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[trajectory]
+platform = "vessel"
+lat_deg = 57.10
+lon_deg = 1.90
+
+[environment]
+sensors = ["gyro", "dp-reference-2"]
+
+[[threat]]
+id = "jam"
+type = "jamming"
+waveform = "wideband"
+start_s = 300
+duration_s = 300
+center_hz = 1575420000.0
+bandwidth_hz = 2000000.0
+js_db = 45
+
+[expected]
+behaviour = "The receiver withdraws its fix or flags jamming within seconds, outputs no degraded fix as valid, and is back within a minute of the end."
+misleading_h_error_m = 10
+recover_h_error_m = 5
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 5
+level = 2
+
+[[criterion]]
+id = "no-misleading"
+metric = "misleading_epochs"
+op = "<="
+value = 0
+level = 2
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 60
+level = 1
