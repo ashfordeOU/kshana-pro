@@ -52,6 +52,12 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         ASF grid per station with the scenario's ground model: <base>.asf.csv and .asf.geojson (Enterprise)\n\
     fidelity <recording-base> --meta <capture.json> --scenario <scenario.toml> --out <report.json> [--license <token>] [--dev]\n\
         Compare a recording with its simulation at signal, observable and solution level (Enterprise)\n\
+    selfcal <scenario.toml> --config <selfcal.json> --observations <obs.json> --register <register.jsonl> --key-file <key> [--key-id <id>] --out <result.json> [--license <token>] [--dev]\n\
+        Self-calibrating simulator loop: fit section conductivity, ASF bias and skywave height to\n\
+        reference-receiver observations, regenerate until the fidelity converges; every pass is a\n\
+        hash-chained register entry and the run is HMAC-signed (Enterprise)\n\
+    selfcal verify --register <register.jsonl> --result <result.json> --key-file <key>\n\
+        Verify a self-calibration lineage: register chain, record digests and signature (free)\n\
     import <log> --profile <csv-profile.toml> --out <observations.json> [--license <token>] [--dev]\n\
         Import a receiver log into common observation records (Enterprise)\n\
     conformance list\n\
@@ -111,6 +117,7 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("timeref") => timeref_cmd(args),
         Some("asfgrid") => asfgrid_cmd(args),
         Some("fidelity") => fidelity_cmd(args),
+        Some("selfcal") => selfcal_cmd(args),
         Some("import") => import_cmd(args),
         Some("conformance") => conformance_cmd(args),
         Some("campaign") => campaign_cmd(args),
@@ -966,6 +973,87 @@ fn fidelity_cmd(args: &[String]) -> ExitCode {
         )?;
         write_json(&out, &rep)?;
         Ok(format!("fidelity: report -> {out}"))
+    })())
+}
+
+/// `selfcal` job file: the loop configuration and the reference sites.
+#[derive(serde::Deserialize)]
+struct SelfCalJob {
+    config: kshana_eloran::valid::selfcal::SelfCalConfig,
+    sites: Vec<kshana_eloran::valid::selfcal::RefSite>,
+}
+
+fn selfcal_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::calreg::Register;
+    use kshana_eloran::valid::selfcal::{run_selfcal, verify_lineage, SelfCalResult};
+    let key_of = |args: &[String]| -> Result<Vec<u8>, String> {
+        let p = flag(args, "--key-file").ok_or("--key-file is required")?;
+        let k = std::fs::read(&p).map_err(|e| format!("{p}: {e}"))?;
+        if k.len() < 16 {
+            return Err("signing key: at least 16 bytes".into());
+        }
+        Ok(k)
+    };
+    if args.get(1).map(String::as_str) == Some("verify") {
+        let (Some(reg), Some(res)) = (flag(args, "--register"), flag(args, "--result")) else {
+            return fail(USAGE);
+        };
+        return match (|| {
+            let key = key_of(args)?;
+            let r: SelfCalResult =
+                serde_json::from_str(&read(&res)?).map_err(|e| format!("{res}: {e}"))?;
+            verify_lineage(&Register::open(Path::new(&reg)), &r.signature, &key)
+        })() {
+            Ok(c) if c.ok() => {
+                println!("selfcal lineage OK: {} entries", c.entries);
+                ExitCode::SUCCESS
+            }
+            Ok(c) => fail(format!("selfcal lineage FAILED: {}", c.problems.join("; "))),
+            Err(e) => fail(e),
+        };
+    }
+    let Some(scen) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else {
+        return fail(USAGE);
+    };
+    let (Some(cfg), Some(obs), Some(reg), Some(out)) = (
+        flag(args, "--config"),
+        flag(args, "--observations"),
+        flag(args, "--register"),
+        flag(args, "--out"),
+    ) else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let key = key_of(args)?;
+        let key_id = flag(args, "--key-id").unwrap_or_else(|| "default".into());
+        let sc = load(&scen)?;
+        let job: SelfCalJob =
+            serde_json::from_str(&read(&cfg)?).map_err(|e| format!("{cfg}: {e}"))?;
+        let observations: Vec<kshana_eloran::valid::selfcal::RefObservation> =
+            serde_json::from_str(&read(&obs)?).map_err(|e| format!("{obs}: {e}"))?;
+        let r = run_selfcal(
+            &sc,
+            &job.config,
+            &job.sites,
+            &observations,
+            None,
+            &Register::open(Path::new(&reg)),
+            &key,
+            &key_id,
+        )?;
+        write_json(&out, &r)?;
+        let last = r.records.last().ok_or("no passes")?;
+        Ok(format!(
+            "selfcal: {} passes ({}), fidelity {:.1} -> {:.1}, signed head {} -> {out}",
+            r.records.len(),
+            r.stop_reason,
+            r.records[0].fidelity_score,
+            last.fidelity_score,
+            &r.signature.head[..16]
+        ))
     })())
 }
 

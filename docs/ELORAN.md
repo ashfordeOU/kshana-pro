@@ -172,6 +172,36 @@ CI: `.github/workflows/eloran.yml` runs format, strict clippy (with and without 
 
 Planner note: with the default station availability (0.999) and service-availability target (0.999), three stations cannot meet the target at any point (all three must be up: 0.997). Use more stations, or set the targets to the service you are planning.
 
+## Self-calibrating simulator (selfcal, W1119 A7)
+
+`kshana-pro eloran selfcal <scenario.toml> --config <selfcal.json> --observations <obs.json>
+--register <register.jsonl> --key-file <key> --out <result.json>` (Enterprise) closes the loop
+between a reference receiver and the simulator (`valid::selfcal`):
+
+1. generate the scenario from the current parameters (Millington groundwave over the
+   conductivity map with the calibrated sections, ionospheric skywave at the current height,
+   per-station ASF bias as a transmitter clock offset);
+2. compare the reference observations (groundwave ToA corrected for the known receiver clock;
+   skywave-minus-groundwave delay) with the simulator's prediction, scored with the fidelity
+   comparator's metric rules (and, from the library, the full signal-level comparator on a
+   recorded capture at the first and last pass);
+3. one damped Gauss-Newton step of inverse modelling on σ per section (log10, with
+   ground-class priors), ASF bias per station and skywave height, with uncertainty;
+4. regenerate and repeat until the cost stops falling.
+
+`selfcal.json` holds `{"config": {...SelfCalConfig...}, "sites": [{"id", "position"}]}`;
+`obs.json` is a list of `{"site", "chain", "station", "kind": "ground_toa" | "sky_minus_ground",
+"value_ns", "sigma_ns"}`. Every pass is one hash-chained calibration-register entry (parameters,
+deltas, fidelity, scenario hash, recording digest), and the run is closed by an HMAC-SHA256
+signature over the last entry, the calibrated scenario hash and the recording digest.
+`kshana-pro eloran selfcal verify --register <register.jsonl> --result <result.json> --key-file
+<key>` (free) re-checks the chain, every record digest and the signature. HMAC is symmetric
+(the key holder can sign); for a public-key signature, sign the output with `kshana-pro dossier
+sign`. Limits: an ASF bias and a transmitter timing offset cannot be told apart from ToA;
+receiver clocks must be known; several sites with different path fractions are needed to
+separate a section's σ from the station biases. Evidence: MODELLED (recovers a synthetic truth
+world within its uncertainty; not yet run on a live recording).
+
 ## Bench readiness: hardware ready before it arrives
 
 The aim: when the hardware arrives, it only needs plugging in and testing. Everything that can
