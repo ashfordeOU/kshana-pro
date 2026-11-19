@@ -14,3 +14,4 @@
 
 pub mod calibrate;
 pub mod suite;
+pub mod transmitter;

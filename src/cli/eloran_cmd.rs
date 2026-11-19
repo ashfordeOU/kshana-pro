@@ -42,6 +42,9 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         never over the air (Enterprise, feature pro-eloran-hw)\n\
     awg <scenario.toml> --out <base> [--bits <n>] [--max-samples <n>] [--license <token>] [--dev]\n\
         Compile a periodic scenario into a repeating AWG segment (SigMF ri16 + report) (Enterprise)\n\
+    accept transmitter <capture base> --gri <µs> --first-group <s> --out <report.json> [--role master|secondary] [--parity A|B] [--groups <n>] [--channel <n>] [--limits <limits.toml>] [--license <token>] [--dev]\n\
+        Transmitter acceptance from a SigMF capture: phase codes, zero-crossing offset and jitter, ECD,\n\
+        amplitude stability, in-band power, against limits (defaults illustrative) (Enterprise)\n\
     accept software --out <report.json> [--license <token>] [--dev]\n\
         Run the software-only acceptance tests (resolution, SNR, skywave ranges) (Enterprise)\n\
     edo [<edo.toml>] --out <report.json> [--license <token>] [--dev]\n\
@@ -809,6 +812,9 @@ fn awg_cmd(args: &[String]) -> ExitCode {
 
 fn accept_cmd(args: &[String]) -> ExitCode {
     use kshana_eloran::accept::suite::{default_suite, run_suite, Bench};
+    if args.get(1).map(String::as_str) == Some("transmitter") {
+        return accept_transmitter(args);
+    }
     if args.get(1).map(String::as_str) != Some("software") {
         return fail(USAGE);
     }
@@ -833,6 +839,59 @@ fn accept_cmd(args: &[String]) -> ExitCode {
         Ok(format!(
             "accept: {pass}/{} software tests passed -> {out}",
             rep.results.len()
+        ))
+    })())
+}
+
+fn accept_transmitter(args: &[String]) -> ExitCode {
+    use kshana_eloran::accept::transmitter::{measure, TxLimits, TxSchedule};
+    use kshana_eloran::signal::{Parity, Role};
+    let (Some(base), Some(out)) = (
+        args.get(2).filter(|a| !a.starts_with("--")),
+        flag(args, "--out"),
+    ) else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let rec = kshana_eloran::io::read_sigmf(Path::new(base), None)?;
+        let ch: usize = num_flag(args, "--channel")?.unwrap_or(0);
+        let x = rec
+            .channels
+            .get(ch)
+            .ok_or_else(|| format!("{base}: no channel {ch}"))?;
+        let sch = TxSchedule {
+            gri_us: num_flag(args, "--gri")?.ok_or("--gri <µs> is required")?,
+            role: match flag(args, "--role").as_deref() {
+                Some("secondary") => Role::Secondary,
+                _ => Role::Master,
+            },
+            first_group_s: num_flag(args, "--first-group")?.ok_or("--first-group <s> (capture time of the first group's first pulse origin) is required")?,
+            first_parity: match flag(args, "--parity").as_deref() {
+                Some("B") | Some("b") => Parity::B,
+                _ => Parity::A,
+            },
+            groups: num_flag(args, "--groups")?.unwrap_or(10),
+        };
+        let limits: TxLimits = match flag(args, "--limits") {
+            Some(p) => toml::from_str(&read(&p)?).map_err(|e| format!("{p}: {e}"))?,
+            None => TxLimits::default(),
+        };
+        let r = measure(x, rec.fs_hz, &sch, &limits)?;
+        write_json(&out, &r)?;
+        let failed: Vec<&str> = r
+            .checks
+            .iter()
+            .filter(|c| !c.pass)
+            .map(|c| c.name.as_str())
+            .collect();
+        Ok(format!(
+            "transmitter acceptance: {} pulses, ECD {:.3} ± {:.3} µs, ZC offset {:.1} ns, jitter {:.2} ns, phase-code errors {}, in-band {:.4}: {} -> {out}{}",
+            r.pulses.len(), r.ecd_mean_us, r.ecd_std_us, r.zc_offset_mean_ns, r.zc_jitter_ns, r.phase_code_errors, r.in_band_fraction,
+            if r.pass { "PASS" } else { "FAIL" },
+            if failed.is_empty() { String::new() } else { format!(" (failed: {})", failed.join(", ")) }
         ))
     })())
 }
