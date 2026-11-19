@@ -419,9 +419,17 @@ pub fn profile_for(item: &InventoryItem, cat: &Catalog) -> Option<InstrumentProf
             terminator: "\n".into(),
         },
     };
+    // The vendor's own commands when built in; otherwise the generic placeholders.
+    if let Some(mut p) = InstrumentProfile::builtin(&item.catalog, role, transport.clone()) {
+        p.id = item.label();
+        return Some(p);
+    }
     let mut p = InstrumentProfile::default_for(&item.label(), role, transport);
     if let Some(s) = sp {
-        p.model = format!("{} {}", s.vendor, s.model);
+        p.model = format!(
+            "{} {} (GENERIC placeholder commands: confirm against the manual)",
+            s.vendor, s.model
+        );
     }
     Some(p)
 }

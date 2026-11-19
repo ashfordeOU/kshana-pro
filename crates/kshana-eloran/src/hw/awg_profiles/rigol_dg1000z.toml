@@ -1,0 +1,38 @@
+# Kshana Pro AWG profile: Rigol DG1000Z (DG1022Z / DG1032Z / DG1062Z).
+#
+# Every command is quoted from: Rigol DG1000Z Series Programming Guide, publication
+# PGB09106-1110, October 2016 (university mirror; rigol.com was unreachable when checked).
+#   [:SOURce<n>]:DATA VOLATILE,<value>,... : normalised values −1 to +1, 8 to 16384 points,
+#     overwrites the volatile waveform, which the instrument then selects itself.
+#   FUNC:ARB:MODE SRAT + FUNC:ARB:SRAT : sample-rate mode for arbitrary playback.
+#   BURS:MODE/NCYC/STAT, :OUTP:LOAD, :ROSC:SOUR, :TRIG:SOUR/SLOP, :SYST:ERR?.
+# The guide gives NO LAN socket port: 5555 below is from the DG2000 guide and must be checked
+# on the instrument (Utility > I/O). The float upload avoids the 14-bit offset-binary DAC form.
+name = "rigol-dg1000z"
+description = "Rigol DG1000Z; commands from PGB09106-1110 (2016); LAN port unconfirmed"
+port = 5555
+terminator = "\n"
+max_points = 16384
+min_points = 8
+granularity = 1
+dac_bits = 14
+data_format = "float_csv"
+idn = "*IDN?"
+error_query = ":SYST:ERR?"
+no_error = "0"
+opc = "*OPC?"
+init = ["*CLS"]
+upload = [":SOUR{ch}:DATA VOLATILE,{data}"]
+select = [":SOUR{ch}:FUNC:ARB:MODE SRAT"]
+sample_rate = [":SOUR{ch}:FUNC:ARB:SRAT {rate}"]
+amplitude = [":OUTP{ch}:LOAD 50", ":SOUR{ch}:VOLT {vpp}"]
+offset = [":SOUR{ch}:VOLT:OFFS {offset}"]
+loop_continuous = [":SOUR{ch}:BURS:STAT OFF"]
+loop_once = [":SOUR{ch}:BURS:MODE TRIG", ":SOUR{ch}:BURS:NCYC 1", ":SOUR{ch}:BURS:STAT ON"]
+ref_external = [":ROSC:SOUR EXT"]
+ref_internal = [":ROSC:SOUR INT"]
+trigger_external = [":TRIG{ch}:SOUR EXT", ":TRIG{ch}:SLOP POS"]
+trigger_immediate = [":TRIG{ch}:SOUR INT"]
+software_trigger = ["*TRG"]
+output_on = [":OUTP{ch} ON"]
+output_off = [":OUTP{ch} OFF"]

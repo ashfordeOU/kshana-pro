@@ -136,6 +136,19 @@ pub const BUILTIN_PROFILES: &[(&str, &str)] = &[
         "generic-ascii",
         include_str!("awg_profiles/generic_ascii.toml"),
     ),
+    // Vendor profiles: commands quoted from the vendors' programming manuals (cited in each file).
+    (
+        "keysight-33500b",
+        include_str!("awg_profiles/keysight_33500b.toml"),
+    ),
+    (
+        "keysight-33600a",
+        include_str!("awg_profiles/keysight_33600a.toml"),
+    ),
+    (
+        "rigol-dg1000z",
+        include_str!("awg_profiles/rigol_dg1000z.toml"),
+    ),
 ];
 
 impl ScpiProfile {
@@ -686,7 +699,7 @@ mod tests {
     fn answer(q: &str) -> Option<String> {
         match q {
             "*IDN?" => Some("MOCK,AWG,0,1.0".into()),
-            "SYST:ERR?" => Some("+0,\"No error\"".into()),
+            "SYST:ERR?" | ":SYST:ERR?" => Some("+0,\"No error\"".into()),
             "*OPC?" => Some("1".into()),
             _ => None,
         }
@@ -768,6 +781,83 @@ mod tests {
             .collect();
         for (i, c) in codes.iter().enumerate() {
             assert_eq!(*c, (x[i] * 32767.0).round() as i16);
+        }
+    }
+
+    #[test]
+    fn vendor_profiles_send_the_manual_commands() {
+        // Keysight 33500B: DAC block upload, LSB first, named arb selected, 50 Ω load.
+        let m = mock::start(answer);
+        let mut a = ScpiAwg::connect(
+            &m.addr,
+            ScpiProfile::builtin("keysight-33500b").unwrap(),
+            ScpiAwgSettings::default(),
+        )
+        .unwrap();
+        let mut cfg = DeviceConfig::tx(2e6, 1);
+        cfg.clock_source = RefSource::External;
+        a.configure(&cfg).unwrap();
+        let x: Vec<f64> = (0..400).map(|i| ((i as f64) * 0.05).sin() * 0.9).collect();
+        a.play(&[x.clone()], 2e6, true, StartTime::NextPps).unwrap();
+        drop(a);
+        std::thread::sleep(Duration::from_millis(50));
+        let log = m.log.lock().unwrap().clone();
+        let l = lines(&log);
+        for want in [
+            "FORM:BORD SWAP",
+            "ROSC:SOUR EXT",
+            "SOUR1:DATA:VOL:CLE",
+            "SOUR1:FUNC ARB",
+            "SOUR1:FUNC:ARB KSHANA1",
+            "SOUR1:FUNC:ARB:SRAT 2000000",
+            "OUTP1:LOAD 50",
+            "SOUR1:VOLT 1",
+            "SOUR1:BURS:STAT OFF",
+            "TRIG1:SOUR EXT",
+            "OUTP1 ON",
+        ] {
+            assert!(l.iter().any(|c| c == want), "missing {want}: {l:?}");
+        }
+        let (before, data, _) = log
+            .iter()
+            .find_map(|r| match r {
+                Rx::Block(b, d, a) => Some((b.clone(), d.clone(), a.clone())),
+                _ => None,
+            })
+            .unwrap();
+        assert_eq!(before, "SOUR1:DATA:ARB:DAC KSHANA1,");
+        let c0 = i16::from_le_bytes([data[2], data[3]]);
+        assert_eq!(c0, (x[1] * 32767.0).round() as i16);
+        // Rigol DG1000Z: normalised CSV into the volatile waveform, at most 16384 points.
+        let m = mock::start(answer);
+        let mut a = ScpiAwg::connect(
+            &m.addr,
+            ScpiProfile::builtin("rigol-dg1000z").unwrap(),
+            ScpiAwgSettings::default(),
+        )
+        .unwrap();
+        a.configure(&DeviceConfig::tx(1e6, 1)).unwrap();
+        a.play(&[x[..100].to_vec()], 1e6, false, StartTime::Now)
+            .unwrap();
+        assert!(a
+            .play(&[vec![0.0; 20_000]], 1e6, false, StartTime::Now)
+            .unwrap_err()
+            .contains("outside"));
+        drop(a);
+        std::thread::sleep(Duration::from_millis(50));
+        let l = lines(&m.log.lock().unwrap().clone());
+        assert!(
+            l.iter().any(|c| c.starts_with(":SOUR1:DATA VOLATILE,0")),
+            "{l:?}"
+        );
+        for want in [
+            ":SOUR1:FUNC:ARB:MODE SRAT",
+            ":SOUR1:FUNC:ARB:SRAT 1000000",
+            ":SOUR1:BURS:NCYC 1",
+            ":TRIG1:SOUR INT",
+            "*TRG",
+        ] {
+            assert!(l.iter().any(|c| c == want), "missing {want}: {l:?}");
         }
     }
 

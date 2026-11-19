@@ -43,7 +43,26 @@ pub fn address_of(item: &InventoryItem, spec: Option<&HwSpec>) -> Result<String,
         "uhd" => format!("uhd:{}", item.args.clone().unwrap_or_default()),
         "soapy" => format!("soapy:{}", item.args.clone().unwrap_or_default()),
         "digilent" => format!("digilent:{}", item.args.clone().unwrap_or_else(|| "0".into())),
-        "scpi_awg" => format!("scpi-awg:{}", with_port(host()?)),
+        "scpi_awg" => {
+            // Use the vendor profile when one is built in for this catalogue entry.
+            let prof = spec
+                .map(|s| s.id.clone())
+                .filter(|id| crate::hw::scpi_awg::ScpiProfile::builtin(id).is_ok());
+            let port = item.port.or_else(|| {
+                prof.as_deref()
+                    .and_then(|id| crate::hw::scpi_awg::ScpiProfile::builtin(id).ok())
+                    .map(|p| p.port)
+            });
+            let h = host()?;
+            let addr = match port {
+                Some(p) if !h.contains(':') => format!("{h}:{p}"),
+                _ => with_port(h),
+            };
+            match prof {
+                Some(id) => format!("scpi-awg:{addr}@{id}"),
+                None => format!("scpi-awg:{addr}"),
+            }
+        }
         other => {
             return Err(format!(
                 "{}: no Kshana streaming driver for this model ({other}); use `twin:{}` to rehearse, or `file:` export and the vendor's playback",

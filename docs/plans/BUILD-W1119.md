@@ -33,7 +33,7 @@ Status: [ ] todo, [~] in progress, [x] done (commit sha).
 - [ ] A16 Tactical/deployable transmitter and signals-of-opportunity scenarios (01-18/19)
 
 ## B. Hardware (plug in and test)
-- [ ] B1 Vendor command profiles from programming manuals (AWGs, counters, GNSS simulators), cited
+- [~] B1 Vendor command profiles (Keysight 33500B/33600A, Rigol DG1000Z AWGs; Keysight 53230A, CNT-91 counters done; Siglent pending byte order; Spirent/LabSat manuals unreachable) from programming manuals (AWGs, counters, GNSS simulators), cited
 - [x] B2 First-plug conformance against spec-twin prediction intervals (C2)
 - [x] B3 Hardware-anchored evidence of the emitted waveform: loopback digest + fidelity bound in the signed record (B2)
 

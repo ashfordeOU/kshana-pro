@@ -361,6 +361,78 @@ impl InstrumentProfile {
         p
     }
 
+    /// A built-in profile with the vendor's own commands for catalogue entry `catalog_id` in
+    /// `role`, when one exists. Commands are quoted from the programming manuals named in
+    /// `model`; trigger levels default to 1.0 V (half of a TTL PPS into 50 Ω): change them to
+    /// half your PPS amplitude.
+    pub fn builtin(
+        catalog_id: &str,
+        role: Role,
+        transport: TransportConfig,
+    ) -> Option<InstrumentProfile> {
+        let mut p = InstrumentProfile::default_for(catalog_id, role, transport);
+        let v = |x: &[&str]| x.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+        match (catalog_id, role) {
+            // Keysight 53220A/53230A User's Guide 53220-90001 Ed. 3 (2017): CONF:TINT, INP:LEV,
+            // INP:SLOP, INP:IMP, ROSC:SOUR, SAMP:COUN, READ?, CONF:FREQ, FREQ:GATE:TIME, SYST:ERR?.
+            ("keysight-53230a", Role::TimeIntervalCounter) => {
+                p.model = "Keysight 53230A (commands: User's Guide 53220-90001 Ed. 3)".into();
+                p.init = v(&["*RST", "*CLS"]);
+                p.tic = Some(TicCommands {
+                    setup: v(&[
+                        "CONF:TINT (@1),(@2)",
+                        "INP1:IMP 50",
+                        "INP2:IMP 50",
+                        "INP1:LEV 1.0",
+                        "INP2:LEV 1.0",
+                        "INP1:SLOP POS",
+                        "INP2:SLOP POS",
+                        "ROSC:SOUR EXT",
+                    ]),
+                    arm_pps: v(&["TRIG:SOUR IMM"]),
+                    read_one: "READ?".into(),
+                    read_block: Some("SAMP:COUN {n};:READ?".into()),
+                    unit: TicUnit::Seconds,
+                    offset_ns: 0.0,
+                });
+            }
+            ("keysight-53230a", Role::FrequencyCounter) => {
+                p.model = "Keysight 53230A (commands: User's Guide 53220-90001 Ed. 3)".into();
+                p.init = v(&["*RST", "*CLS"]);
+                p.freq_counter = Some(FreqCounterCommands {
+                    setup: v(&["CONF:FREQ (@1)", "FREQ:GATE:TIME {gate_s}", "ROSC:SOUR EXT"]),
+                    read: "READ?".into(),
+                });
+            }
+            // Pendulum CNT-90/91 Programmer's Handbook, 10th ed. (May 2017): :CONF:TINT, :INP:LEV,
+            // :INP:SLOP, :INP:IMP, :ROSC:SOUR, :INIT, :FETC?, :SYST:ERR?. GPIB/USB only: reach it
+            // through a GPIB- or USB-to-LAN bridge or a serial adapter.
+            ("pendulum-cnt-91", Role::TimeIntervalCounter) => {
+                p.model = "Pendulum CNT-91 (commands: Programmer's Handbook 10th ed.)".into();
+                p.init = v(&["*RST", "*CLS"]);
+                p.tic = Some(TicCommands {
+                    setup: v(&[
+                        ":CONF:TINT (@1),(@2)",
+                        ":INP1:IMP 50",
+                        ":INP2:IMP 50",
+                        ":INP1:LEV 1.0",
+                        ":INP2:LEV 1.0",
+                        ":INP1:SLOP POS",
+                        ":INP2:SLOP POS",
+                        ":ROSC:SOUR EXT",
+                    ]),
+                    arm_pps: v(&[]),
+                    read_one: ":INIT;:FETC?".into(),
+                    read_block: None,
+                    unit: TicUnit::Seconds,
+                    offset_ns: 0.0,
+                });
+            }
+            _ => return None,
+        }
+        Some(p)
+    }
+
     /// Open the transport, start a session and send the `init` commands.
     pub fn connect(&self, log: Option<SharedLog>) -> Result<super::ScpiSession, String> {
         let mut s = super::ScpiSession::new(&self.id, self.transport.open()?, log);
@@ -409,6 +481,61 @@ pub fn fill_all(templates: &[String], vars: &[(&str, String)]) -> Result<Vec<Str
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn builtin_keysight_tic_profile_drives_a_counter() {
+        use crate::instr::mock::MockTcpInstrument;
+        use crate::instr::roles::{FrequencyCounter, TimeIntervalCounter};
+        use crate::instr::{FrequencySource, TicSource};
+        let m = MockTcpInstrument::scripted(&[
+            ("*IDN?", "Keysight Technologies,53230A,MY123,1.0"),
+            ("SAMP:COUN 3;:READ?", "+1.00E-07,+1.10E-07,+9.00E-08"),
+            ("READ?", "+1.0000002E+07"),
+            ("SYST:ERR?", "+0,\"No error\""),
+        ])
+        .unwrap();
+        let tr = TransportConfig::Tcp {
+            host: "127.0.0.1".into(),
+            port: m.port(),
+            timeout_ms: 2000,
+            terminator: "\n".into(),
+        };
+        let p =
+            InstrumentProfile::builtin("keysight-53230a", Role::TimeIntervalCounter, tr.clone())
+                .unwrap();
+        assert!(p.model.contains("53220-90001"));
+        let mut t = TimeIntervalCounter::open(&p, None).unwrap();
+        t.arm_pps().unwrap();
+        let r = t.read_n(3).unwrap();
+        assert_eq!(r.len(), 3);
+        assert!(
+            (r[0] - 100.0).abs() < 1e-9 && (r[2] - 90.0).abs() < 1e-9,
+            "{r:?}"
+        );
+        let f = InstrumentProfile::builtin("keysight-53230a", Role::FrequencyCounter, tr).unwrap();
+        let mut c = FrequencyCounter::open(&f, None).unwrap();
+        assert!((c.read_hz(10.0).unwrap() - 10_000_002.0).abs() < 1e-3);
+        let got = m.received();
+        for want in [
+            "CONF:TINT (@1),(@2)",
+            "INP1:IMP 50",
+            "ROSC:SOUR EXT",
+            "CONF:FREQ (@1)",
+            "FREQ:GATE:TIME 10",
+        ] {
+            assert!(got.iter().any(|c| c == want), "missing {want}: {got:?}");
+        }
+        assert!(InstrumentProfile::builtin(
+            "unknown-model",
+            Role::TimeIntervalCounter,
+            TransportConfig::Serial {
+                path: "/dev/null".into(),
+                terminator: "\n".into()
+            }
+        )
+        .is_none());
+    }
+
     use super::*;
 
     #[test]

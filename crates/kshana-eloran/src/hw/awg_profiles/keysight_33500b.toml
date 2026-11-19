@@ -1,0 +1,38 @@
+# Kshana Pro AWG profile: Keysight 33500B Series (1 MSa per channel standard; 16 MSa option: raise max_points).
+#
+# Every command is quoted from: Keysight Trueform Series Operating and Service Guide,
+# part number 33500-90901, Edition 8, August 2026 (keysight.com), pages cited below. Confirm on
+# the bench with the installed firmware before the first acceptance run.
+#   DATA:ARB:DAC (p.250): int16 DAC codes ±32767 = peak at offset 0, 2 bytes per point,
+#     arb name unquoted, up to 12 characters. FORM:BORD SWAP = LSB first (p.268).
+#   FUNC:ARB:SRAT (p.287) 1 µSa/s to 250 MSa/s. BURS:* (p.240-241) one cycle = one pass.
+#   OUTP:LOAD (50 Ω or INF), ROSC:SOUR EXT, TRIG:SOUR/SLOP, SYST:ERR?.
+#   LAN: port 5025 (SCPI socket), 5024 (telnet) (p.387, 398, 454).
+name = "keysight-33500b"
+description = "Keysight 33500B Series (1 MSa per channel standard; 16 MSa option: raise max_points); commands from 33500-90901 Ed. 8 (Aug 2026)"
+port = 5025
+terminator = "\n"
+max_points = 1048576
+min_points = 8
+granularity = 1
+dac_bits = 16
+data_format = "int16_le_block"
+idn = "*IDN?"
+error_query = "SYST:ERR?"
+no_error = "0"
+opc = "*OPC?"
+init = ["*CLS", "FORM:BORD SWAP"]
+upload = ["SOUR{ch}:DATA:VOL:CLE", "SOUR{ch}:DATA:ARB:DAC {name},{block}"]
+select = ["SOUR{ch}:FUNC ARB", "SOUR{ch}:FUNC:ARB {name}"]
+sample_rate = ["SOUR{ch}:FUNC:ARB:SRAT {rate}"]
+amplitude = ["OUTP{ch}:LOAD 50", "SOUR{ch}:VOLT {vpp}"]
+offset = ["SOUR{ch}:VOLT:OFFS {offset}"]
+loop_continuous = ["SOUR{ch}:BURS:STAT OFF"]
+loop_once = ["SOUR{ch}:BURS:MODE TRIG", "SOUR{ch}:BURS:NCYC 1", "SOUR{ch}:BURS:STAT ON"]
+ref_external = ["ROSC:SOUR EXT"]
+ref_internal = ["ROSC:SOUR INT"]
+trigger_external = ["TRIG{ch}:SOUR EXT", "TRIG{ch}:SLOP POS"]
+trigger_immediate = ["TRIG{ch}:SOUR IMM"]
+software_trigger = ["*TRG"]
+output_on = ["OUTP{ch} ON"]
+output_off = ["OUTP{ch} OFF"]

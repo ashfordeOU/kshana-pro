@@ -1,0 +1,1573 @@
+{
+  "keysight-33500b": {
+    "manual": {
+      "title": "Keysight Trueform Series Operating and Service Guide (covers 33500B and 33600A Series)",
+      "revision": "Part Number 33500-90901, Edition 8, August 2026",
+      "url": "https://www.keysight.com/content/dam/keysight/en/doc/gate/service-manuals/9018-03714.pdf",
+      "accessed": "2026-11-18",
+      "source": "vendor (keysight.com)"
+    },
+    "transport": {
+      "port": 5025,
+      "terminator": "LF (binary block may be terminated by LF or EOI, per DATA:ARB example)",
+      "notes": "Manual: 'The instrument uses LAN port 5024 for SCPI Telnet sessions, and port 5025 for SCPI Socket sessions' (p.387, p.398, p.454)."
+    },
+    "commands": {
+      "identify": {
+        "command": "*IDN?",
+        "notes": "",
+        "page": "308"
+      },
+      "reset": {
+        "command": "*RST",
+        "notes": "Reset instrument to factory defaults. *CLS clears status (p.306).",
+        "page": "312"
+      },
+      "clear_waveform_memory": {
+        "command": "[SOURce[1|2]:]DATA:VOLatile:CLEar",
+        "notes": "Required before re-using an arb name: 'Specifying a waveform that is already loaded generates a \"Specified arb waveform already exists\" error.' (p.251)",
+        "page": "256"
+      },
+      "select_channel": {
+        "command": "SOURce1: | SOURce2: prefix, e.g. SOUR2:FUNC SIN",
+        "notes": "Channel selected by the [SOURce[1|2]:] and OUTPut[1|2] numeric suffix.",
+        "page": "281"
+      },
+      "select_arb_function": {
+        "command": "[SOURce[1|2]:]FUNCtion ARB",
+        "notes": "{SINusoid|SQUare|TRIangle|RAMP|PULSe|PRBS|NOISe|ARB|DC}",
+        "page": "281"
+      },
+      "set_sample_rate": {
+        "command": "[SOURce[1|2]:]FUNCtion:ARBitrary:SRATe {<sample_rate>|MINimum|MAXimum|DEFault}",
+        "notes": "1 µSa/s to 250 MSa/s (33500 Series, as printed in the manual); limited to 62.5 MSa/s if FUNCtion:ARBitrary:FILTer is OFF. Example: FUNC:ARB:SRAT 1e4. Advance method: FUNCtion:ARBitrary:ADVance {TRIGger|SRATe} (p.283).",
+        "page": "287"
+      },
+      "upload_waveform_float": {
+        "command": "[SOURce[1|2]:]DATA:ARBitrary[1|2] <arb_name>, {<binary_block>|<value>, <value>, . . .}",
+        "notes": "Float values -1.0 to +1.0; binary block = 32-bit floats (4 bytes/point). Example: DATA:ARB myArb, #236<36 bytes of your_binary_data><PMT>. Binary block: 8 to 1M or 16M samples per waveform depending on model/options; comma list 8 to 65,536 points. 33500 Series: 1 MSa or 16 MSa per channel depending on model/options.",
+        "page": "250"
+      },
+      "upload_waveform_dac": {
+        "command": "[SOURce[1|2]:]DATA:ARBitrary[1|2]:DAC <arb_name>, {<binary_block>|<value>, <value>, . . .}",
+        "notes": "16-bit integers; binary/list range -32,767 to +32,767 ('DAC codes go from -32,768 to +32,767'); +/-32767 correspond to peak values at offset 0 (10 Vpp -> +/-5 V). 2 bytes/point. <arb_name>: unquoted string up to 12 characters.",
+        "page": "250"
+      },
+      "byte_order": {
+        "command": "FORMat:BORDer {NORMal|SWAPped}",
+        "notes": "NORMal (default) = MSB first; SWAPped = LSB first ('Most computers use this').",
+        "page": "268"
+      },
+      "select_waveform": {
+        "command": "[SOURce[1|2]:]FUNCtion:ARBitrary {<filename>}",
+        "notes": "Selects an arb previously loaded with DATA:ARBitrary or MMEMory:LOAD:DATA[1|2]. Then FUNCtion ARB to play.",
+        "page": "282"
+      },
+      "set_amplitude_vpp": {
+        "command": "[SOURce[1|2]:]VOLTage {<amplitude>|MINimum|MAXimum|DEFault}",
+        "notes": "Units per VOLTage:UNIT; displayed value depends on OUTPut:LOAD.",
+        "page": "418"
+      },
+      "set_offset": {
+        "command": "[SOURce[1|2]:]VOLTage:OFFSet {<offset>|MINimum|MAXimum|DEFault}",
+        "notes": "",
+        "page": "423"
+      },
+      "set_output_load": {
+        "command": "OUTPut[1|2]:LOAD {<ohms>|INFinity|MINimum|MAXimum|DEFault}",
+        "notes": "1 Ω to 10 kΩ, default 50 Ω; OUTP:LOAD INF = high-Z (query returns 9.9E+37). Changes displayed values only, not actual output voltage.",
+        "page": "341"
+      },
+      "output_on_off": {
+        "command": "OUTPut[1|2] {ON|1|OFF|0}",
+        "notes": "",
+        "page": "340"
+      },
+      "external_10mhz_ref": {
+        "command": "ROSCillator:SOURce {INTernal|EXTernal}",
+        "notes": "EXTernal uses rear-panel 10 MHz In; error if absent/unlocked. ROSCillator:SOURce:AUTO {ON|OFF} (default ON) prefers 10 MHz In; explicit ROSC:SOUR sets AUTO OFF. ROSCillator:SOURce:CURRent? returns INT/EXT.",
+        "page": "368"
+      },
+      "trigger_source_external": {
+        "command": "TRIGger[1|2]:SOURce {IMMediate|EXTernal|TIMer|BUS}",
+        "notes": "",
+        "page": "412"
+      },
+      "trigger_slope": {
+        "command": "TRIGger[1|2]:SLOPe {POSitive|NEGative}",
+        "notes": "Slope at rear-panel Ext Trig connector.",
+        "page": "411"
+      },
+      "burst_mode": {
+        "command": "[SOURce[1|2]:]BURSt:MODE {TRIGgered|GATed}",
+        "notes": "",
+        "page": "240"
+      },
+      "burst_cycles": {
+        "command": "[SOURce[1|2]:]BURSt:NCYCles {<num_cycles>|INFinity|MINimum|MAXimum}",
+        "notes": "1 to 100,000,000 or INFinity. For arbs, one 'cycle' = one pass of the waveform (BURSt:PHASe 0 = first point, p.241).",
+        "page": "240"
+      },
+      "burst_state": {
+        "command": "[SOURce[1|2]:]BURSt:STATe {ON|1|OFF|0}",
+        "notes": "Enable after configuring other burst parameters. Continuous mode = BURSt:STATe OFF.",
+        "page": "241"
+      },
+      "query_errors": {
+        "command": "SYSTem:ERRor?",
+        "notes": "Reads and clears one error from error queue.",
+        "page": "391"
+      }
+    },
+    "missing": []
+  },
+  "keysight-33600a": {
+    "manual": {
+      "title": "Keysight Trueform Series Operating and Service Guide (covers 33500B and 33600A Series)",
+      "revision": "Part Number 33500-90901, Edition 8, August 2026",
+      "url": "https://www.keysight.com/content/dam/keysight/en/doc/gate/service-manuals/9018-03714.pdf",
+      "accessed": "2026-11-18",
+      "source": "vendor (keysight.com)"
+    },
+    "transport": {
+      "port": 5025,
+      "terminator": "LF (binary block may be terminated by LF or EOI, per DATA:ARB example)",
+      "notes": "Manual: 'The instrument uses LAN port 5024 for SCPI Telnet sessions, and port 5025 for SCPI Socket sessions' (p.387, p.398, p.454)."
+    },
+    "commands": {
+      "identify": {
+        "command": "*IDN?",
+        "notes": "",
+        "page": "308"
+      },
+      "reset": {
+        "command": "*RST",
+        "notes": "Reset instrument to factory defaults. *CLS clears status (p.306).",
+        "page": "312"
+      },
+      "clear_waveform_memory": {
+        "command": "[SOURce[1|2]:]DATA:VOLatile:CLEar",
+        "notes": "Required before re-using an arb name: 'Specifying a waveform that is already loaded generates a \"Specified arb waveform already exists\" error.' (p.251)",
+        "page": "256"
+      },
+      "select_channel": {
+        "command": "SOURce1: | SOURce2: prefix, e.g. SOUR2:FUNC SIN",
+        "notes": "Channel selected by the [SOURce[1|2]:] and OUTPut[1|2] numeric suffix.",
+        "page": "281"
+      },
+      "select_arb_function": {
+        "command": "[SOURce[1|2]:]FUNCtion ARB",
+        "notes": "{SINusoid|SQUare|TRIangle|RAMP|PULSe|PRBS|NOISe|ARB|DC}",
+        "page": "281"
+      },
+      "set_sample_rate": {
+        "command": "[SOURce[1|2]:]FUNCtion:ARBitrary:SRATe {<sample_rate>|MINimum|MAXimum|DEFault}",
+        "notes": "1 µSa/s to 1 GSa/s (33600 Series); limited to 250 MSa/s if FUNCtion:ARBitrary:FILTer is OFF. Example: FUNC:ARB:SRAT 1e4. Advance method: FUNCtion:ARBitrary:ADVance {TRIGger|SRATe} (p.283).",
+        "page": "287"
+      },
+      "upload_waveform_float": {
+        "command": "[SOURce[1|2]:]DATA:ARBitrary[1|2] <arb_name>, {<binary_block>|<value>, <value>, . . .}",
+        "notes": "Float values -1.0 to +1.0; binary block = 32-bit floats (4 bytes/point). Example: DATA:ARB myArb, #236<36 bytes of your_binary_data><PMT>. Binary block: 8 to 1M or 16M samples per waveform depending on model/options; comma list 8 to 65,536 points. 33600 Series: 4 MSa or 64 MSa per channel depending on model/options.",
+        "page": "250"
+      },
+      "upload_waveform_dac": {
+        "command": "[SOURce[1|2]:]DATA:ARBitrary[1|2]:DAC <arb_name>, {<binary_block>|<value>, <value>, . . .}",
+        "notes": "16-bit integers; binary/list range -32,767 to +32,767 ('DAC codes go from -32,768 to +32,767'); +/-32767 correspond to peak values at offset 0 (10 Vpp -> +/-5 V). 2 bytes/point. <arb_name>: unquoted string up to 12 characters.",
+        "page": "250"
+      },
+      "byte_order": {
+        "command": "FORMat:BORDer {NORMal|SWAPped}",
+        "notes": "NORMal (default) = MSB first; SWAPped = LSB first ('Most computers use this').",
+        "page": "268"
+      },
+      "select_waveform": {
+        "command": "[SOURce[1|2]:]FUNCtion:ARBitrary {<filename>}",
+        "notes": "Selects an arb previously loaded with DATA:ARBitrary or MMEMory:LOAD:DATA[1|2]. Then FUNCtion ARB to play.",
+        "page": "282"
+      },
+      "set_amplitude_vpp": {
+        "command": "[SOURce[1|2]:]VOLTage {<amplitude>|MINimum|MAXimum|DEFault}",
+        "notes": "Units per VOLTage:UNIT; displayed value depends on OUTPut:LOAD.",
+        "page": "418"
+      },
+      "set_offset": {
+        "command": "[SOURce[1|2]:]VOLTage:OFFSet {<offset>|MINimum|MAXimum|DEFault}",
+        "notes": "",
+        "page": "423"
+      },
+      "set_output_load": {
+        "command": "OUTPut[1|2]:LOAD {<ohms>|INFinity|MINimum|MAXimum|DEFault}",
+        "notes": "1 Ω to 10 kΩ, default 50 Ω; OUTP:LOAD INF = high-Z (query returns 9.9E+37). Changes displayed values only, not actual output voltage.",
+        "page": "341"
+      },
+      "output_on_off": {
+        "command": "OUTPut[1|2] {ON|1|OFF|0}",
+        "notes": "",
+        "page": "340"
+      },
+      "external_10mhz_ref": {
+        "command": "ROSCillator:SOURce {INTernal|EXTernal}",
+        "notes": "EXTernal uses rear-panel 10 MHz In; error if absent/unlocked. ROSCillator:SOURce:AUTO {ON|OFF} (default ON) prefers 10 MHz In; explicit ROSC:SOUR sets AUTO OFF. ROSCillator:SOURce:CURRent? returns INT/EXT.",
+        "page": "368"
+      },
+      "trigger_source_external": {
+        "command": "TRIGger[1|2]:SOURce {IMMediate|EXTernal|TIMer|BUS}",
+        "notes": "",
+        "page": "412"
+      },
+      "trigger_slope": {
+        "command": "TRIGger[1|2]:SLOPe {POSitive|NEGative}",
+        "notes": "Slope at rear-panel Ext Trig connector.",
+        "page": "411"
+      },
+      "burst_mode": {
+        "command": "[SOURce[1|2]:]BURSt:MODE {TRIGgered|GATed}",
+        "notes": "",
+        "page": "240"
+      },
+      "burst_cycles": {
+        "command": "[SOURce[1|2]:]BURSt:NCYCles {<num_cycles>|INFinity|MINimum|MAXimum}",
+        "notes": "1 to 100,000,000 or INFinity. For arbs, one 'cycle' = one pass of the waveform (BURSt:PHASe 0 = first point, p.241).",
+        "page": "240"
+      },
+      "burst_state": {
+        "command": "[SOURce[1|2]:]BURSt:STATe {ON|1|OFF|0}",
+        "notes": "Enable after configuring other burst parameters. Continuous mode = BURSt:STATe OFF.",
+        "page": "241"
+      },
+      "query_errors": {
+        "command": "SYSTem:ERRor?",
+        "notes": "Reads and clears one error from error queue.",
+        "page": "391"
+      }
+    },
+    "missing": []
+  },
+  "siglent-sdg2000x": {
+    "manual": {
+      "title": "SDG Series Arbitrary Waveform Generator Programming Guide",
+      "revision": "PG02_E05C",
+      "url": "https://www.int.siglent.com/u_file/download/24_06_07/SDG_Programming%20Guide_PG02-E05C.pdf",
+      "accessed": "2026-11-18",
+      "source": "vendor (int.siglent.com)"
+    },
+    "transport": {
+      "port": 5025,
+      "terminator": "not stated in extracted text (examples send '\\n')",
+      "notes": "Socket: 'PORT NUMBER 5025' (p.7). Telnet port 5024 (p.6). Commands use the Siglent native header style (C1:BSWV ...), not [SOURce] SCPI trees."
+    },
+    "commands": {
+      "identify": {
+        "command": "*IDN?",
+        "notes": "SDG2000X/SDG6000X use Format 2: <manufacturer>,<model>,<serial number>,<firmware version>.",
+        "page": "12"
+      },
+      "reset": {
+        "command": "*RST",
+        "notes": "Initiates a device reset and recalls the default setup.",
+        "page": "14"
+      },
+      "select_channel": {
+        "command": "<channel>: prefix, <channel>:= {C1, C2}",
+        "notes": "e.g. C1:OUTP ON",
+        "page": "15"
+      },
+      "select_arb_function": {
+        "command": "<channel>:BaSic_WaVe WVTP,ARB",
+        "notes": "WVTP := {SINE, SQUARE, RAMP, PULSE, NOISE, ARB, DC, PRBS, IQ}. Example form: C1:BSWV WVTP,RAMP.",
+        "page": "17"
+      },
+      "set_sample_rate": {
+        "command": "<channel>:SampleRATE MODE,<mode>,VALUE, <sample rate>,INTER,<interpolation>",
+        "notes": "<mode>:= {DDS, TARB} (TARB = TrueArb); rate and interpolation settable only in TARB. Examples: C1:SRATE MODE,TARB ; C1:SRATE VALUE,1000000. <interpolation> {LINE, HOLD}; INTER parameter listed as 'no' for SDG2000X in the availability table.",
+        "page": "129"
+      },
+      "upload_waveform": {
+        "command": "<channel>:WVDT,<parameter>,<value>  (example: C1:WVDT WVNM,\"wave1\",WAVEDATA, b'0x6000c0006000')",
+        "notes": "Parameters WVNM (name), LENGTH (bytes; not necessary for X series), FREQ, AMPL (Vpp), OFST, PHASE, WAVEDATA. Codeword range -32768~32767 per point ('bin' format chapter). Length: SDG2000X: 4B~16MB (WVDT <length> table, p.93; bin table p.146). Byte order and block-header format are NOT stated in this guide.",
+        "page": "91"
+      },
+      "select_waveform": {
+        "command": "<channel>:ArbWaVe NAME,<name>",
+        "notes": "e.g. C1:ARWV NAME,\"wave_1\"; also <channel>:ArbWaVe INDEX,<index> for built-ins.",
+        "page": "50"
+      },
+      "set_amplitude_vpp": {
+        "command": "<channel>:BaSic_WaVe AMP,<amplitude>",
+        "notes": "Unit Vpp. Example: C1:BSWV AMP,3",
+        "page": "18"
+      },
+      "set_offset": {
+        "command": "<channel>:BaSic_WaVe OFST,<offset>",
+        "notes": "Unit V.",
+        "page": "18"
+      },
+      "set_output_load": {
+        "command": "<channel>:OUTPut LOAD,<load>",
+        "notes": "C1:OUTP LOAD,50 / C1:OUTP LOAD,HZ. SDG2000X/SDG6000X LOAD range 50~100000, HiZ.",
+        "page": "16"
+      },
+      "output_on_off": {
+        "command": "<channel>:OUTPut ON|OFF",
+        "notes": "e.g. C1:OUTP ON",
+        "page": "15"
+      },
+      "external_10mhz_ref": {
+        "command": "ROSCillator <src>  (<src>:= {INT, EXT})",
+        "notes": "ROSC? returns ROSC <src>,10MOUT,<state>; ROSCillator 10MOUT,ON enables 10 MHz output.",
+        "page": "61"
+      },
+      "trigger_source_external": {
+        "command": "<channel>:BursTWaVe TRSR,EXT",
+        "notes": "TRSR := {EXT, INT, MAN}. Burst STATE must be ON before setting/reading other burst parameters.",
+        "page": "47"
+      },
+      "trigger_slope": {
+        "command": "<channel>:BursTWaVe EDGE,<edge>",
+        "notes": "EDGE := {RISE, FALL}; valid when TRSR is EXT (or MAN).",
+        "page": "47"
+      },
+      "burst_mode": {
+        "command": "<channel>:BursTWaVe STATE,ON ; <channel>:BursTWaVe GATE_NCYC,NCYC",
+        "notes": "GATE_NCYC := {GATE, NCYC}.",
+        "page": "47"
+      },
+      "burst_cycles": {
+        "command": "<channel>:BursTWaVe TIME,<circle_time>",
+        "notes": "{INF, 1, 2,..., M}; INF = infinite burst.",
+        "page": "47"
+      }
+    },
+    "missing": [
+      "query_errors (no SYSTem:ERRor? or equivalent error-queue query found in PG02_E05C)",
+      "upload_waveform byte order / binary block header format (not stated)"
+    ]
+  },
+  "siglent-sdg6000x": {
+    "manual": {
+      "title": "SDG Series Arbitrary Waveform Generator Programming Guide",
+      "revision": "PG02_E05C",
+      "url": "https://www.int.siglent.com/u_file/download/24_06_07/SDG_Programming%20Guide_PG02-E05C.pdf",
+      "accessed": "2026-11-18",
+      "source": "vendor (int.siglent.com)"
+    },
+    "transport": {
+      "port": 5025,
+      "terminator": "not stated in extracted text (examples send '\\n')",
+      "notes": "Socket: 'PORT NUMBER 5025' (p.7). Telnet port 5024 (p.6). Commands use the Siglent native header style (C1:BSWV ...), not [SOURce] SCPI trees."
+    },
+    "commands": {
+      "identify": {
+        "command": "*IDN?",
+        "notes": "SDG2000X/SDG6000X use Format 2: <manufacturer>,<model>,<serial number>,<firmware version>.",
+        "page": "12"
+      },
+      "reset": {
+        "command": "*RST",
+        "notes": "Initiates a device reset and recalls the default setup.",
+        "page": "14"
+      },
+      "select_channel": {
+        "command": "<channel>: prefix, <channel>:= {C1, C2}",
+        "notes": "e.g. C1:OUTP ON",
+        "page": "15"
+      },
+      "select_arb_function": {
+        "command": "<channel>:BaSic_WaVe WVTP,ARB",
+        "notes": "WVTP := {SINE, SQUARE, RAMP, PULSE, NOISE, ARB, DC, PRBS, IQ}. Example form: C1:BSWV WVTP,RAMP.",
+        "page": "17"
+      },
+      "set_sample_rate": {
+        "command": "<channel>:SampleRATE MODE,<mode>,VALUE, <sample rate>,INTER,<interpolation>",
+        "notes": "<mode>:= {DDS, TARB} (TARB = TrueArb); rate and interpolation settable only in TARB. Examples: C1:SRATE MODE,TARB ; C1:SRATE VALUE,1000000. <interpolation> {LINE, HOLD, SINC, SINC27, SINC13} (SINC* only SDG6000X/X-E).",
+        "page": "129"
+      },
+      "upload_waveform": {
+        "command": "<channel>:WVDT,<parameter>,<value>  (example: C1:WVDT WVNM,\"wave1\",WAVEDATA, b'0x6000c0006000')",
+        "notes": "Parameters WVNM (name), LENGTH (bytes; not necessary for X series), FREQ, AMPL (Vpp), OFST, PHASE, WAVEDATA. Codeword range -32768~32767 per point ('bin' format chapter). Length: SDG6000X: 4B~40MB; SDG6000X-E: 4B~16MB (WVDT <length> table, p.93; bin table p.146). Byte order and block-header format are NOT stated in this guide.",
+        "page": "91"
+      },
+      "select_waveform": {
+        "command": "<channel>:ArbWaVe NAME,<name>",
+        "notes": "e.g. C1:ARWV NAME,\"wave_1\"; also <channel>:ArbWaVe INDEX,<index> for built-ins.",
+        "page": "50"
+      },
+      "set_amplitude_vpp": {
+        "command": "<channel>:BaSic_WaVe AMP,<amplitude>",
+        "notes": "Unit Vpp. Example: C1:BSWV AMP,3",
+        "page": "18"
+      },
+      "set_offset": {
+        "command": "<channel>:BaSic_WaVe OFST,<offset>",
+        "notes": "Unit V.",
+        "page": "18"
+      },
+      "set_output_load": {
+        "command": "<channel>:OUTPut LOAD,<load>",
+        "notes": "C1:OUTP LOAD,50 / C1:OUTP LOAD,HZ. SDG2000X/SDG6000X LOAD range 50~100000, HiZ.",
+        "page": "16"
+      },
+      "output_on_off": {
+        "command": "<channel>:OUTPut ON|OFF",
+        "notes": "e.g. C1:OUTP ON",
+        "page": "15"
+      },
+      "external_10mhz_ref": {
+        "command": "ROSCillator <src>  (<src>:= {INT, EXT})",
+        "notes": "ROSC? returns ROSC <src>,10MOUT,<state>; ROSCillator 10MOUT,ON enables 10 MHz output.",
+        "page": "61"
+      },
+      "trigger_source_external": {
+        "command": "<channel>:BursTWaVe TRSR,EXT",
+        "notes": "TRSR := {EXT, INT, MAN}. Burst STATE must be ON before setting/reading other burst parameters.",
+        "page": "47"
+      },
+      "trigger_slope": {
+        "command": "<channel>:BursTWaVe EDGE,<edge>",
+        "notes": "EDGE := {RISE, FALL}; valid when TRSR is EXT (or MAN).",
+        "page": "47"
+      },
+      "burst_mode": {
+        "command": "<channel>:BursTWaVe STATE,ON ; <channel>:BursTWaVe GATE_NCYC,NCYC",
+        "notes": "GATE_NCYC := {GATE, NCYC}.",
+        "page": "47"
+      },
+      "burst_cycles": {
+        "command": "<channel>:BursTWaVe TIME,<circle_time>",
+        "notes": "{INF, 1, 2,..., M}; INF = infinite burst.",
+        "page": "47"
+      }
+    },
+    "missing": [
+      "query_errors (no SYSTem:ERRor? or equivalent error-queue query found in PG02_E05C)",
+      "upload_waveform byte order / binary block header format (not stated)"
+    ]
+  },
+  "rigol-dg1000z": {
+    "manual": {
+      "title": "DG1000Z Series Function/Arbitrary Waveform Generator Programming Guide",
+      "revision": "Publication Number PGB09106-1110, Oct. 2016",
+      "url": "https://intranet.ee.ucl.ac.uk/facilities/teaching-lab/dg1000z-programming-guide.pdf",
+      "accessed": "2026-11-18",
+      "source": "university mirror (UCL) of the Rigol PDF; rigol.com returned 502 from this environment"
+    },
+    "transport": {
+      "port": null,
+      "terminator": "not stated in extracted text",
+      "notes": "No LAN socket port found in this guide (USB, LAN, GPIB option supported). Port 5555 is stated only in the DG2000 guide; do not assume it for DG1000Z without checking."
+    },
+    "commands": {
+      "identify": {
+        "command": "*IDN?",
+        "notes": "",
+        "page": "2-30"
+      },
+      "reset": {
+        "command": "*RST",
+        "notes": "",
+        "page": "2-34"
+      },
+      "select_channel": {
+        "command": "[:SOURce[<n>]] / :OUTPut[<n>] suffix, <n> = 1|2",
+        "notes": "Omitted = CH1.",
+        "page": "2-101"
+      },
+      "arb_output_mode": {
+        "command": "[:SOURce[<n>]]:FUNCtion:ARBitrary:MODE {FREQ|SRATe}",
+        "notes": "Sample-rate mode needed to set a sample rate.",
+        "page": "2-101"
+      },
+      "set_sample_rate": {
+        "command": "[:SOURce[<n>]]:FUNCtion:ARBitrary:SRATe {<srate>|MINimum|MAXimum}",
+        "notes": "1uSa/s to 60MSa/s, default 20MSa/s. Also [:SOURce[<n>]]:APPLy:ARBitrary [<sample_rate>[,<amplitude>[,<offset>]]] (p.2-73).",
+        "page": "2-102"
+      },
+      "upload_waveform_dac": {
+        "command": "[:SOURce[<n>]][:TRACe]:DATA:DAC VOLATILE,[<binary_block_data>|<value>,<value>,<value>......]",
+        "notes": "Binary block '#516384<data>', 16 Bytes (8 pts) to 32 kBytes (16 kpts); each point 2 bytes, range 0000 to 3FFF; decimal values 0 to 16383 (0 = min, 16383 = max of amplitude). 8 to 16384 points. Byte order NOT stated.",
+        "page": "2-175"
+      },
+      "upload_waveform_dac16_chunked": {
+        "command": "[:SOURce[<n>]][:TRACe]:DATA:DAC16 VOLATILE,<flag>,<data>",
+        "notes": "<flag> CON|END (END switches to arb output). Same block/range rules as DATA:DAC.",
+        "page": "2-174"
+      },
+      "upload_waveform_float": {
+        "command": "[:SOURce[<n>]][:TRACe]:DATA[:DATA] VOLATILE,<value>{,<value>......}",
+        "notes": "-1 to +1, 8 to 16384 points; overwrites the volatile waveform.",
+        "page": "2-176"
+      },
+      "select_waveform": {
+        "command": "(automatic) instrument switches to the volatile waveform after DATA:DAC / DATA:DAC16 END",
+        "notes": "Only one volatile user waveform (name 'VOLATILE'); no user naming. [:SOURce[<n>]]:FUNCtion[:SHAPe] USER selects user arb type.",
+        "page": "2-109"
+      },
+      "set_amplitude_vpp": {
+        "command": "[:SOURce[<n>]]:VOLTage[:LEVel][:IMMediate][:AMPLitude] {<amplitude>|MINimum|MAXimum}",
+        "notes": "Range limited by :OUTPut[<n>]:LOAD.",
+        "page": "2-182"
+      },
+      "set_offset": {
+        "command": "[:SOURce[<n>]]:VOLTage[:LEVel][:IMMediate]:OFFSet {<voltage>|MINimum|MAXimum}",
+        "notes": "",
+        "page": "2-185"
+      },
+      "set_output_load": {
+        "command": ":OUTPut[<n>]:LOAD {<ohms>|INFinity|MINimum|MAXimum}",
+        "notes": "Alias :OUTPut[<n>]:IMPedance; INFinity query returns 9.900000E+37.",
+        "page": "2-56"
+      },
+      "output_on_off": {
+        "command": ":OUTPut[<n>][:STATe] {ON|1|OFF|0}",
+        "notes": "",
+        "page": "2-58"
+      },
+      "external_10mhz_ref": {
+        "command": ":ROSCillator:SOURce {INTernal|EXTernal}",
+        "notes": "Rear-panel [10MHz In/Out]. :ROSCillator:SOURce:CURRent? queries active source.",
+        "page": "2-65"
+      },
+      "trigger_source_external": {
+        "command": ":TRIGger[<n>]:SOURce {INTernal|EXTernal|BUS}",
+        "notes": "For burst/sweep. Ext input is rear [Mod/Trig/FSK/Sync] connector.",
+        "page": "2-208"
+      },
+      "trigger_slope": {
+        "command": ":TRIGger[<n>]:SLOPe {POSitive|NEGative}",
+        "notes": "",
+        "page": "2-207"
+      },
+      "burst_mode": {
+        "command": "[:SOURce[<n>]]:BURSt:MODE {TRIGgered|INFinity|GATed}",
+        "notes": "",
+        "page": "2-84"
+      },
+      "burst_cycles": {
+        "command": "[:SOURce[<n>]]:BURSt:NCYCles {<cycles>|MINimum|MAXimum}",
+        "notes": "",
+        "page": "2-85"
+      },
+      "burst_state": {
+        "command": "[:SOURce[<n>]]:BURSt[:STATe] {ON|1|OFF|0}",
+        "notes": "",
+        "page": "2-86"
+      },
+      "query_errors": {
+        "command": ":SYSTem:ERRor?",
+        "notes": "Returns <number>,<message>.",
+        "page": "2-199"
+      }
+    },
+    "missing": [
+      "upload_waveform byte order (not stated)",
+      "named waveform storage (only VOLATILE)",
+      "TCP port (not stated in this guide)"
+    ]
+  },
+  "rigol-dg2000": {
+    "manual": {
+      "title": "DG2000 Series Function/Arbitrary Waveform Generator Programming Guide",
+      "revision": "Publication Number PGB12100-1110, Aug. 2019 (software version 00.02.01)",
+      "url": "https://beyondmeasure.rigoltech.com/acton/attachment/1579/f-0da93459-3e01-4fff-bd2e-3f078633faed/1/-/-/-/-/DG2000_ProgrammingGuide_EN.pdf",
+      "accessed": "2026-11-18",
+      "source": "vendor-hosted (Rigol, linked from rigolna.com DG2000 product page)"
+    },
+    "transport": {
+      "port": 5555,
+      "terminator": "not stated in extracted text",
+      "notes": ":SYSTem:COMMunicate:LAN:CONTrol? 'Reads the port number of the initial control connecting port for socket communication. The query returns 5555.' (p.2-144)."
+    },
+    "commands": {
+      "identify": {
+        "command": "*IDN?",
+        "notes": "",
+        "page": "2-23"
+      },
+      "reset": {
+        "command": "*RST",
+        "notes": "",
+        "page": "2-25"
+      },
+      "select_channel": {
+        "command": "[:SOURce[<n>]] / :OUTPut[<n>] suffix, <n> = 1|2",
+        "notes": "",
+        "page": "2-85"
+      },
+      "select_arb_function": {
+        "command": "[:SOURce[<n>]]:APPLy:USER [<freq>[,<amp>[,<offset>[,<phase>]]]]",
+        "notes": "Sets channel to Arbitrary; <freq> 1 μHz to 20 MHz. Arb type via [:SOURce[<n>]]:FUNCtion[:SHAPe] <name> (USER among names, p.2-85).",
+        "page": "2-56"
+      },
+      "upload_waveform_dac16_chunked": {
+        "command": "[:SOURce[<n>]][:TRACe]:DATA:DAC16 VOLATILE,<flag>,<data>",
+        "notes": "<flag> CON|END; '#516384 binary data'; 8 pts (16 Bytes) to 16 kpts (32 kBytes); each point 2 bytes, 0000 to 3FFF. END switches to arb output. Byte order NOT stated.",
+        "page": "2-134"
+      },
+      "set_amplitude_vpp": {
+        "command": "[:SOURce[<n>]]:VOLTage[:LEVel][:IMMediate][:AMPLitude] {<amplitude>|MINimum|MAXimum}",
+        "notes": "",
+        "page": "2-136"
+      },
+      "set_offset": {
+        "command": "[:SOURce[<n>]]:VOLTage[:LEVel][:IMMediate]:OFFSet {<voltage>|MINimum|MAXimum}",
+        "notes": "",
+        "page": "2-138"
+      },
+      "set_output_load": {
+        "command": ":OUTPut[<n>]:LOAD {<ohms>|INFinity|MINimum|MAXimum}",
+        "notes": "Alias :OUTPut[<n>]:IMPedance.",
+        "page": "2-41"
+      },
+      "output_on_off": {
+        "command": ":OUTPut[<n>][:STATe] {ON|1|OFF|0}",
+        "notes": "",
+        "page": "2-42"
+      },
+      "external_10mhz_ref": {
+        "command": ":ROSCillator:SOURce {INTernal|EXTernal}",
+        "notes": "Rear [10MHz In/Out]; falls back to Internal if no valid clock. Also :SYSTem:ROSCillator:SOURce {INTernal|EXTernal}.",
+        "page": "2-46"
+      },
+      "trigger_source_external": {
+        "command": "[:SOURce[<n>]]:BURSt:TRIGger:SOURce {INTernal|EXTernal|MANual}",
+        "notes": "Also :TRIGger[<n>]:SOURce {INTernal|EXTernal|BUS}.",
+        "page": "2-62"
+      },
+      "trigger_slope": {
+        "command": "[:SOURce[<n>]]:BURSt:TRIGger:SLOPe {POSitive|NEGative}",
+        "notes": "Also :TRIGger[<n>]:SLOPe {POSitive|NEGative}.",
+        "page": "2-61"
+      },
+      "burst_mode": {
+        "command": "[:SOURce[<n>]]:BURSt:MODE {TRIGgered|INFinity|GATed}",
+        "notes": "",
+        "page": "2-58"
+      },
+      "burst_cycles": {
+        "command": "[:SOURce[<n>]]:BURSt:NCYCles {<cycles>|MINimum|MAXimum}",
+        "notes": "",
+        "page": "2-59"
+      },
+      "burst_state": {
+        "command": "[:SOURce[<n>]]:BURSt[:STATe] {ON|1|OFF|0}",
+        "notes": "",
+        "page": "2-60"
+      },
+      "query_errors": {
+        "command": ":SYSTem:ERRor?",
+        "notes": "Queries and clears one error.",
+        "page": "2-150"
+      }
+    },
+    "missing": [
+      "set_sample_rate for a single user arb (only [:SOURce[<n>]]:FUNCtion:SEQuence:SRATe for Sequence mode found)",
+      "upload_waveform byte order",
+      "named waveform select (volatile only)"
+    ]
+  },
+  "rigol-dg900-pro": {
+    "manual": {
+      "title": "DG800 Pro/DG900 Pro Series Programming Guide",
+      "revision": "Publication Number PGB16102-1110, software version 00.02.01, © 2025",
+      "url": "https://beyondmeasure.rigoltech.com/acton/attachment/1579/f-8b18f2fb-0d82-4a8d-aa41-c159cc562d36/1/-/-/-/-/DG800%20Pro%20%26%20DG900%20Pro%20Series%20Programming%20Guide.pdf",
+      "accessed": "2026-11-18",
+      "source": "vendor-hosted (Rigol, linked from rigolna.com DG900 Pro page)"
+    },
+    "transport": {
+      "port": 5000,
+      "terminator": "not stated in extracted text",
+      "notes": "Port taken from the :SYSTem:COMMunicate:LAN:CONTrol? example: 'The query returns 5000.' (p.184). Query it on the bench to confirm."
+    },
+    "commands": {
+      "identify": {
+        "command": "*IDN?",
+        "notes": "",
+        "page": "27"
+      },
+      "reset": {
+        "command": "*RST",
+        "notes": "",
+        "page": "31"
+      },
+      "select_channel": {
+        "command": "[:SOURce[<n>]] / :OUTPut[<n>], <n> = {1|2}",
+        "notes": "",
+        "page": "59"
+      },
+      "upload_waveform_float": {
+        "command": ":MMEMory[:TRACe]:ARB:DATA <arb_name>,<flag>,<data>",
+        "notes": "Floats -1.0 to 1.0, comma separated, into an .arb file (e.g. INT:\\ARB.arb). <flag> {HEADer|CONTinue|END}. DG900 Pro: 32 pts to 16 Mpts (32 Mpts/CH optional); DG800 Pro 32 pts to 2 Mpts. Recommend <=20 kbytes per send.",
+        "page": "54"
+      },
+      "upload_waveform_dac": {
+        "command": ":MMEMory[:TRACe]:ARB:DATA:DAC <arb_name>,<flag>,<data>",
+        "notes": "Integers -32768 to +32767 as comma list, or data stream 'TMC header + binary waveform data' (#NXXXXXXXXX, e.g. #9000001024). Byte order NOT stated.",
+        "page": "55"
+      },
+      "load_and_select_waveform": {
+        "command": ":MMEMory:LOAD:DATA <n>,<file_name>[,<separator>,<datatype>]",
+        "notes": "Loads *.arb/*.csv/*.txt (or .seq) into the channel's volatile memory. [:SOURce[<n>]]:FUNCtion:ARBitrary <arb> is for built-in arbs only (p.110).",
+        "page": "49"
+      },
+      "select_arb_function": {
+        "command": "[:SOURce[<n>]]:APPLy:ARBitrary [{<frequency>|<lim_set>}[,{<amplitude>|<lim_set>}[,{<offset>|<lim_set>}[,{<phase>|<lim_set>}]]]]",
+        "notes": "Frequency-based playback.",
+        "page": "74"
+      },
+      "set_sample_rate": {
+        "command": "[:SOURce[<n>]]:FUNCtion:SEQuence:ARB:SRATe <sample_rate>",
+        "notes": "Advanced Arb mode only: 1 μSa/s to 312.5 MSa/s, default 1 MSa/s. Enable with [:SOURce[<n>]]:FUNCtion:SEQuence:ARB:STATe <bool> (p.119); load file with [:SOURce[<n>]]:FUNCtion:SEQuence:ARB:LOAD <file_name>[,<separator>,<datatype>] (p.117).",
+        "page": "119"
+      },
+      "set_amplitude_vpp": {
+        "command": "[:SOURce[<n>]]:VOLTage {<amplitude>|<lim_set>}",
+        "notes": "",
+        "page": "175"
+      },
+      "set_offset": {
+        "command": "[:SOURce[<n>]]:VOLTage:OFFSet {<voltage>|<lim_set>}",
+        "notes": "",
+        "page": "181"
+      },
+      "set_output_load": {
+        "command": ":OUTPut[<n>]:LOAD {<ohms>|<lim_set>}",
+        "notes": "1 Ω to 10 kΩ, default 50 Ω; <lim_set> {INFinity|MINimum|MAXimum|DEFault}; INFinity = HighZ.",
+        "page": "58 (section 3.10)"
+      },
+      "output_on_off": {
+        "command": ":OUTPut[<n>][:STATe] <state>",
+        "notes": "{0|1|OFF|ON}",
+        "page": "59"
+      },
+      "external_10mhz_ref": {
+        "command": ":SYSTem:ROSCillator:SOURce <source>",
+        "notes": "{INTernal|EXTernal}; rear [10MHz In/Out].",
+        "page": "199"
+      },
+      "trigger_source_external": {
+        "command": ":TRIGger<n>:SOURce <source>",
+        "notes": "{IMMediate|EXTernal|BUS|TIMer}; burst/sweep only; EXTernal via rear [AUX IN/OUT].",
+        "page": "203"
+      },
+      "trigger_slope": {
+        "command": ":TRIGger<n>:SLOPe <slope>",
+        "notes": "{POSitive|NEGative}",
+        "page": "202"
+      },
+      "burst_mode": {
+        "command": "[:SOURce[<n>]]:BURSt:MODE <mode>",
+        "notes": "{TRIGgered|GATed}",
+        "page": "87"
+      },
+      "burst_cycles": {
+        "command": "[:SOURce[<n>]]:BURSt:NCYCles {<cycles>|<lim_set>}",
+        "notes": "",
+        "page": "88"
+      },
+      "burst_state": {
+        "command": "[:SOURce[<n>]]:BURSt:STATe <bool>",
+        "notes": "",
+        "page": "89"
+      },
+      "query_errors": {
+        "command": ":SYSTem:ERRor?",
+        "notes": "Returns e.g. -109,\"Missing parameter\".",
+        "page": "191"
+      }
+    },
+    "missing": [
+      "upload_waveform byte order",
+      "sample rate for normal (non-Advanced) arb playback (frequency-based only)"
+    ]
+  },
+  "tektronix-afg31000": {
+    "manual": {
+      "title": "AFG31000 Series Arbitrary Function Generator Programmer's Manual",
+      "revision": "077-1488-03 (Nov 2020)",
+      "url": "https://www.tek.com.cn/-/media/documents/077148803_afg31000_series_programmersmanual_nov2020.pdf",
+      "accessed": "2026-11-18",
+      "source": "vendor (Tektronix China site)"
+    },
+    "transport": {
+      "port": null,
+      "terminator": "not stated in extracted text",
+      "notes": "No TCP socket port found in this manual."
+    },
+    "commands": {
+      "identify": {
+        "command": "*IDN?",
+        "notes": "Returns TEKTRONIX,<model>,<serial>,<firmware>.",
+        "page": "37"
+      },
+      "reset": {
+        "command": "*RST",
+        "notes": "Resets to factory defaults.",
+        "page": "65"
+      },
+      "select_channel": {
+        "command": "[SOURce[1|2]] / OUTPut[1|2] suffix",
+        "notes": "",
+        "page": "119"
+      },
+      "upload_waveform": {
+        "command": "TRACe|DATA[:DATA] {EMEMory[1]|EMEMory2},<binary_block_data>",
+        "notes": "Example: DATA:DATA EMEMory1,#42000<DAB><DAB>...<DAB> (2000 bytes). DAC code range, byte order and max points are NOT given in this manual.",
+        "page": "168"
+      },
+      "select_waveform": {
+        "command": "[SOURce[1|2]]:FUNCtion[:SHAPe] {...|EMEMory[1]|EMEMory2|EFILe}",
+        "notes": "EFILe file set by [SOURce[1|2]]:FUNCtion:EFILe <file_name> (p.117); MMEMory:LOAD:TRACe EMEMory[1]|EMEMory2,<file_name> (p.52).",
+        "page": "119"
+      },
+      "set_frequency": {
+        "command": "[SOURce[1|2]]:FREQuency[:CW|:FIXed] {<frequency>|MINimum|MAXimum}",
+        "notes": "Arb playback is set by repetition frequency; no sample-rate command found.",
+        "page": "108"
+      },
+      "set_amplitude_vpp": {
+        "command": "[SOURce[1|2]]:VOLTage[:LEVel][:IMMediate][:AMPLitude] {<amplitude>|MINimum|MAXimum}",
+        "notes": "<units>::=[VPP | VRMS | DBM]",
+        "page": "149"
+      },
+      "set_offset": {
+        "command": "[SOURce[1|2]]:VOLTage[:LEVel][:IMMediate]:OFFSet {<voltage>|MINimum|MAXimum}",
+        "notes": "",
+        "page": "148"
+      },
+      "set_output_load": {
+        "command": "OUTPut[1|2]:IMPedance {<ohms>|INFinity|MINimum|MAXimum}",
+        "notes": "INFinity sets the load impedance to >10 kΩ; MINimum 1 Ω.",
+        "page": "59"
+      },
+      "output_on_off": {
+        "command": "OUTPut[1|2][:STATe]{ON|OFF|<NR1>}",
+        "notes": "",
+        "page": "61"
+      },
+      "external_10mhz_ref": {
+        "command": "[SOURce]:ROSCillator:SOURce {INTernal|EXTernal}",
+        "notes": "",
+        "page": "139"
+      },
+      "trigger_source_external": {
+        "command": "TRIGger[:SEQuence]:SOURce {TIMer|EXTernal}",
+        "notes": "",
+        "page": "170"
+      },
+      "trigger_slope": {
+        "command": "TRIGger[:SEQuence]:SLOPe {POSitive|NEGative}",
+        "notes": "",
+        "page": "169"
+      },
+      "burst_mode": {
+        "command": "[SOURce[1|2]]:BURSt:MODE {TRIGgered|GATed}",
+        "notes": "",
+        "page": "96"
+      },
+      "burst_cycles": {
+        "command": "[SOURce[1|2]]:BURSt:NCYCles {<cycles>|INFinity|MINimum|MAXimum}",
+        "notes": "1 to 1,000,000 or INFinity.",
+        "page": "97"
+      },
+      "burst_state": {
+        "command": "[SOURce[1|2]]:BURSt[:STATe] {ON|OFF|<NR1>}",
+        "notes": "",
+        "page": "98"
+      },
+      "query_errors": {
+        "command": "SYSTem:ERRor[:NEXT]?",
+        "notes": "Returns <number>,<string>.",
+        "page": "159"
+      }
+    },
+    "missing": [
+      "set_sample_rate (no arb sample-rate command found)",
+      "upload data format: DAC code range, byte order, max points (not in this manual)",
+      "clear edit memory command",
+      "TCP port"
+    ]
+  },
+  "redpitaya-stemlab-125-14": {
+    "manual": {
+      "title": "Red Pitaya Documentation: List of supported SCPI & API commands, Signal Generator (plus SCPI server source)",
+      "revision": "readthedocs 'latest' (© 2026); scpi-server master branch",
+      "url": "https://redpitaya.readthedocs.io/en/latest/appsFeatures/remoteControl/command_list/commands-gen.html ; https://redpitaya.readthedocs.io/en/latest/appsFeatures/remoteControl/scpi.html ; https://raw.githubusercontent.com/RedPitaya/RedPitaya/master/scpi-server/src/main.cpp ; https://raw.githubusercontent.com/RedPitaya/RedPitaya/master/scpi-server/src/scpi-commands.cpp",
+      "accessed": "2026-11-19",
+      "source": "vendor docs and vendor GitHub source"
+    },
+    "transport": {
+      "port": 5000,
+      "terminator": "not stated in docs (SCPI parser; examples send CR/LF via redpitaya_scpi helper, unverified)",
+      "notes": "Port from vendor source scpi-server/src/main.cpp: '#define LISTEN_PORT 5000'. The docs pages fetched do not state the number. SCPI server must be started (web UI Development > SCPI server, or at boot)."
+    },
+    "commands": {
+      "identify": {
+        "command": "*IDN?",
+        "notes": "Registered in scpi-commands.cpp (SCPI_CMD(\"*IDN?\", SCPI_CoreIdnQ)).",
+        "page": "scpi-commands.cpp line 80"
+      },
+      "reset": {
+        "command": "GEN:RST",
+        "notes": "Stops generation and sets all generator parameters to defaults. *RST also registered (scpi-commands.cpp).",
+        "page": "commands-gen: Generator control"
+      },
+      "select_channel": {
+        "command": "SOUR<n>: / OUTPUT<n>:, <n> = {1,2}",
+        "notes": "",
+        "page": "commands-gen"
+      },
+      "select_arb_function": {
+        "command": "SOUR<n>:FUNC ARBITRARY",
+        "notes": "<type> = {SINE, SQUARE, TRIANGLE, SAWU, SAWD, PWM, ARBITRARY, DC, DC_NEG}",
+        "page": "commands-gen: Generator settings"
+      },
+      "upload_waveform": {
+        "command": "SOUR<n>:TRAC:DATA:DATA <array>",
+        "notes": "ASCII comma list of floats -1 to 1, max 16384 values; 'should be exactly 16384 samples' per period. Example: SOUR1:TRAC:DATA:DATA 1,0.5,0.2. No binary block form documented.",
+        "page": "commands-gen: Generator settings"
+      },
+      "set_frequency": {
+        "command": "SOUR<n>:FREQ:FIX <frequency>",
+        "notes": "0 ... 62.5e6 Hz. Arb sample rate is not set directly; the 16384-sample buffer is played once per period.",
+        "page": "commands-gen"
+      },
+      "set_amplitude": {
+        "command": "SOUR<n>:VOLT <amplitude>",
+        "notes": "{-1 ... 1} V for STEMlab 125-14 (manual units: volts amplitude).",
+        "page": "commands-gen"
+      },
+      "set_offset": {
+        "command": "SOUR<n>:VOLT:OFFS <offset>",
+        "notes": "{-1 ... 1} V",
+        "page": "commands-gen"
+      },
+      "set_output_load": {
+        "command": "SOUR<n>:LOAD <load_mode>",
+        "notes": "{INF, L50}; marked '(SIGNALlab only)'. Not applicable to STEMlab 125-14.",
+        "page": "commands-gen"
+      },
+      "output_on_off": {
+        "command": "OUTPUT<n>:STATE <state>",
+        "notes": "{ON,OFF}; OUTPUT:STATE ON for both. Outputs must be enabled before triggering.",
+        "page": "commands-gen: Generator control"
+      },
+      "trigger_source_external": {
+        "command": "SOUR<n>:TRig:SOUR <trigger>",
+        "notes": "{EXT_PE, EXT_NE, INT, GATED}; EXT_PE/EXT_NE = external positive/negative edge. External trigger must be a 3V3 CMOS signal. Debounce: SOUR:TRig:EXT:DEBouncer[:US] <utime> (default 500 us).",
+        "page": "commands-gen: Generator trigger"
+      },
+      "trigger_now": {
+        "command": "SOUR<n>:TRig:INT",
+        "notes": "Also SOUR:TRig:INT / PHAS:ALIGN for both channels.",
+        "page": "commands-gen"
+      },
+      "burst_mode": {
+        "command": "SOUR<n>:BURS:STAT <mode>",
+        "notes": "{BURST, CONTINUOUS}",
+        "page": "commands-gen: Burst mode"
+      },
+      "burst_cycles": {
+        "command": "SOUR<n>:BURS:NCYC <num>",
+        "notes": "1...65536; repetitions SOUR<n>:BURS:NOR <repetitions>; period SOUR<n>:BURS:INT:PER <period> (µs).",
+        "page": "commands-gen: Burst mode"
+      },
+      "query_errors": {
+        "command": "SYSTem:ERRor[:NEXT]?",
+        "notes": "Registered in scpi-commands.cpp; also SYSTem:ERRor:COUNt?. Not listed in the docs tables.",
+        "page": "scpi-commands.cpp lines 91-92"
+      }
+    },
+    "missing": [
+      "external_10mhz_ref (no SCPI command; STEMlab 125-14 external clock is a hardware modification per docs FAQ; DAISY:SYNC:CLK is for daisy-chained boards)",
+      "set_sample_rate (not settable; derived from FREQ:FIX x 16384)",
+      "binary upload (ASCII floats only)",
+      "output load for 125-14"
+    ]
+  },
+  "digilent-waveforms": {
+    "manual": {
+      "title": "Digilent WaveForms-SDK-Getting-Started, WF_SDK/wavegen.py and WF_SDK/device.py (official Digilent example code). The WaveForms SDK Reference Manual itself was unreachable (HTTP 403).",
+      "revision": "GitHub master branch (no version tag)",
+      "url": "https://raw.githubusercontent.com/Digilent/WaveForms-SDK-Getting-Started/master/WF_SDK/wavegen.py",
+      "accessed": "2026-11-19",
+      "source": "vendor GitHub (Digilent); digilent.com reference manual returned 403 to curl and WebFetch"
+    },
+    "transport": {
+      "port": null,
+      "terminator": null,
+      "notes": "C library (dwf) over USB/Ethernet device link, not a socket protocol. Calls return 0 on failure."
+    },
+    "commands": {
+      "open_device": {
+        "command": "dwf.FDwfDeviceOpen(ctypes.c_int(-1), ctypes.byref(device_handle))",
+        "notes": "-1 = first available device.",
+        "page": "device.py"
+      },
+      "enable_channel": {
+        "command": "dwf.FDwfAnalogOutNodeEnableSet(device_data.handle, channel, constants.AnalogOutNodeCarrier, ctypes.c_bool(True))",
+        "notes": "channel is 0-based (channel - 1).",
+        "page": "wavegen.py generate()"
+      },
+      "select_custom_function": {
+        "command": "dwf.FDwfAnalogOutNodeFunctionSet(device_data.handle, channel, constants.AnalogOutNodeCarrier, constants.funcCustom)",
+        "notes": "",
+        "page": "wavegen.py generate()"
+      },
+      "upload_waveform": {
+        "command": "dwf.FDwfAnalogOutNodeDataSet(device_data.handle, channel, constants.AnalogOutNodeCarrier, buffer, ctypes.c_int(data_length))",
+        "notes": "buffer = (ctypes.c_double * data_length)(). Example docstring calls data 'list of voltages'; value scaling/range and max length are in the (unreachable) reference manual - unverified.",
+        "page": "wavegen.py generate()"
+      },
+      "set_frequency": {
+        "command": "dwf.FDwfAnalogOutNodeFrequencySet(device_data.handle, channel, constants.AnalogOutNodeCarrier, ctypes.c_double(frequency))",
+        "notes": "Repetition frequency of the whole buffer (sample rate = frequency x points; unverified).",
+        "page": "wavegen.py generate()"
+      },
+      "set_amplitude": {
+        "command": "dwf.FDwfAnalogOutNodeAmplitudeSet(device_data.handle, channel, constants.AnalogOutNodeCarrier, ctypes.c_double(amplitude))",
+        "notes": "Volts.",
+        "page": "wavegen.py generate()"
+      },
+      "set_offset": {
+        "command": "dwf.FDwfAnalogOutNodeOffsetSet(device_data.handle, channel, constants.AnalogOutNodeCarrier, ctypes.c_double(offset))",
+        "notes": "",
+        "page": "wavegen.py generate()"
+      },
+      "run_time_wait_repeat": {
+        "command": "dwf.FDwfAnalogOutRunSet(handle, channel, ctypes.c_double(run_time)); dwf.FDwfAnalogOutWaitSet(handle, channel, ctypes.c_double(wait)); dwf.FDwfAnalogOutRepeatSet(handle, channel, ctypes.c_int(repeat))",
+        "notes": "run_time 0 = infinite; repeat 0 = infinite (burst vs continuous).",
+        "page": "wavegen.py generate()"
+      },
+      "output_on_off": {
+        "command": "dwf.FDwfAnalogOutConfigure(device_data.handle, channel, ctypes.c_bool(True|False))",
+        "notes": "True starts, False stops. Reset: dwf.FDwfAnalogOutReset(device_data.handle, channel).",
+        "page": "wavegen.py generate()/enable()/disable()/close()"
+      },
+      "query_errors": {
+        "command": "dwf.FDwfGetLastErrorMsg(err_msg)",
+        "notes": "err_msg = ctypes.create_string_buffer(512).",
+        "page": "device.py check_error()"
+      }
+    },
+    "missing": [
+      "trigger on external edge (FDwfAnalogOutTriggerSourceSet / trigsrcExternal* not in fetched files; reference manual unreachable)",
+      "external 10 MHz reference / clock mode",
+      "sample rate semantics, data range and max points (reference manual unreachable)",
+      "output load setting (not applicable/not documented in fetched files)"
+    ]
+  },
+  "keysight-53230a": {
+    "manual": {
+      "title": "Keysight 53220A/53230A 350 MHz Universal Frequency Counter/Timer User's Guide",
+      "revision": "Manual Part Number 53220-90001, Edition 3, September 1, 2017",
+      "url": "https://ecse.rpi.edu/courses/static/ECSE-4770/Keysight_Equipment_User_Manuals/53220-90001.pdf",
+      "accessed": "2026-11-18",
+      "source": "university mirror (RPI) of the Keysight PDF. The separate 53220A/53230A Programmer's Reference was not found."
+    },
+    "transport": {
+      "port": 5025,
+      "terminator": "LF (+EOI) after last reading (p.248)",
+      "notes": "VISA string example 'TCPIP0::169.254.2.30::5025::SOCKET (Sockets)' (p.61)."
+    },
+    "commands": {
+      "reset": {
+        "command": "*RST",
+        "notes": "",
+        "page": "104"
+      },
+      "configure_time_interval": {
+        "command": "CONFigure:TINTerval [<channel(s)>]",
+        "notes": "channel(s): (@1),(@2)|(@2),(@1)|(@1)|(@2). Example: CONF:TINT (@1), (@2). Also MEASure:TINTerval? [<channel_pair>]. Defaults: auto-level 50 %, positive slope.",
+        "page": "103"
+      },
+      "trigger_level": {
+        "command": "INPut[{1|2}]:LEVel[{1|2}][:ABSolute] <volts>",
+        "notes": "Syntax continues {<volts>|MINimum|MAXimum|DEFault} per manual; LEVel1 = start, LEVel2 = stop threshold. Examples: INP:LEV1 1.0 ; INP:LEV2 1.0 (p.105). Auto/relative: INPut[{1|2}]:LEVel[{1|2}]:AUTO {OFF|ON|ONCE} (p.142); INPut[{1|2}]:LEVel[{1|2}]:RELative {<percent>|...} (p.143).",
+        "page": "141"
+      },
+      "trigger_slope": {
+        "command": "INPut[{1|2}]:SLOPe[{1|2}] {POSitive|NEGative}",
+        "notes": "SLOPe1 = start, SLOPe2 = stop. Example: INP1:SLOP POS / INP2:SLOP POS.",
+        "page": "150"
+      },
+      "input_impedance": {
+        "command": "INPut[{1|2}]:IMPedance {<impedance>|MINimum|MAXimum| DEFault}",
+        "notes": "Example INP:IMP 50.",
+        "page": "134"
+      },
+      "external_10mhz_ref": {
+        "command": "[SENSe:]ROSCillator:SOURce {INTernal|EXTernal}",
+        "notes": "[SENSe:]ROSCillator:SOURce:AUTO {OFF|ON}; explicit SOURce disables auto.",
+        "page": "78"
+      },
+      "n_readings": {
+        "command": "SAMPle:COUNt {<count>| MINimum|MAXImum|DEFault} ; TRIGger:COUNt {<count>|MINimum|MAXImum|DEFault}",
+        "notes": "# of measurements = TRIGger:COUNt x SAMPle:COUNt (p.160).",
+        "page": "164"
+      },
+      "trigger_source": {
+        "command": "TRIGger:SOURce {IMMediate|EXTernal|BUS} ; TRIGger:SLOPe {POSitive|NEGative}",
+        "notes": "",
+        "page": "162"
+      },
+      "start_measurement": {
+        "command": "INITiate[:IMMediate]",
+        "notes": "Or READ? (initiate and read).",
+        "page": "166"
+      },
+      "single_reading": {
+        "command": "READ?",
+        "notes": "Example sequence on p.104/105 ends with READ?.",
+        "page": "104"
+      },
+      "fetch_readings": {
+        "command": "FETCh?",
+        "notes": "After INIT; transfers all readings (TRIG:COUN x SAMP:COUN); REAL data preceded by indefinite-length block header. R? [<max_count>] reads and erases (definite-length block); DATA:REMove? <count>[,WAIT].",
+        "page": "253"
+      },
+      "reading_format": {
+        "command": "FORMat[:DATA] {ASCII|REAL}[,<length>]",
+        "notes": "ASCII: comma-separated, 15 significant digits (e.g. +4.57538162393720E+006), 23 bytes/reading. REAL: IEEE 754 64-bit, 8 bytes/reading. Default ASCII after *RST.",
+        "page": "248"
+      },
+      "byte_order": {
+        "command": "FORMat:BORDer {NORMal | SWAPped}",
+        "notes": "NORMal = MSB first (default), SWAPped = little-endian.",
+        "page": "249"
+      },
+      "frequency_measurement": {
+        "command": "CONFigure:FREQuency [{<expected>|MINimum|MAXimum|DEFault} ...]",
+        "notes": "Example: CONF:FREQ 500E3, 1E-6, (@1).",
+        "page": "94"
+      },
+      "gate_time": {
+        "command": "[SENSe:]FREQuency:GATE:TIME {<time>|MINimum|MAXimum|DEFault}",
+        "notes": "Gate source: [SENSe:]FREQuency:GATE:SOURce {TIME|EXTernal|INPut[1]| INPut2|ADVanced} (p.170).",
+        "page": "172"
+      },
+      "query_errors": {
+        "command": "SYST:ERR?",
+        "notes": "Shown in example '// read the error queue'; full syntax in the Programmer's Reference (not obtained).",
+        "page": "81"
+      }
+    },
+    "missing": [
+      "identify (*IDN? not documented in User's Guide extract)",
+      "full Programmer's Reference (not found)"
+    ]
+  },
+  "srs-sr620": {
+    "manual": {
+      "title": "Model SR620 Universal Time Interval Counter Operation and Service Manual",
+      "revision": "Revision 2.9 (04/2025)",
+      "url": "https://www.thinksrs.com/downloads/pdfs/manuals/SR620m.pdf",
+      "accessed": "2026-11-19",
+      "source": "vendor (thinksrs.com)"
+    },
+    "transport": {
+      "port": null,
+      "terminator": "Commands: <cr> or <lf> on RS-232; <lf> or EOI on GPIB. Responses: <cr><lf> on RS-232 (changeable with ENDT), <lf>+EOI on GPIB.",
+      "notes": "RS-232 300 to 19.2 kBaud; front-panel default 'rS 232 bAud 9600' (p.17). Data bits/parity set in CTRL menu. No network port (RS-232/GPIB only). Commands: four-letter mnemonic + args."
+    },
+    "commands": {
+      "identify": {
+        "command": "*IDN?",
+        "notes": "",
+        "page": "xiii, 37"
+      },
+      "reset": {
+        "command": "*RST",
+        "notes": "Clears instrument to default settings.",
+        "page": "xiii"
+      },
+      "configure_time_interval": {
+        "command": "MODE 0",
+        "notes": "MODE(?) j: 0=time, 1=width, 2=tr/tf, 3=freq, 4=period, 5=phase, 6=count. Set other parameters after changing mode.",
+        "page": "32"
+      },
+      "arming_mode": {
+        "command": "ARMM(?) j",
+        "notes": "0 = +- time, 1 = + time, ... 6 ext trig +- time, 7 ext trig + time, 8 ext gate/trig holdoff, ...",
+        "page": "xi, 31"
+      },
+      "trigger_level": {
+        "command": "LEVL(?) i,x",
+        "notes": "Set channel i threshold to x volts (remote only; turns off autolevel). Query returns 2 decimals. i=1 is channel A per the TERM example; index values for EXT/B not stated explicitly in extracted text (unverified). Autolevel: TMOD(?) i{,j}.",
+        "page": "xi, 30"
+      },
+      "trigger_slope": {
+        "command": "TSLP(?) i{,j}",
+        "notes": "For EXT, A and B inputs: j = 0 positive, 1 negative.",
+        "page": "31"
+      },
+      "input_impedance": {
+        "command": "TERM(?) i{,j}",
+        "notes": "j = 0 50 Ohm, 1 1 MOhm, 2 UHF prescaler (freq/period only). Example: TERM 1, 1 sets A input to 1 MOhm.",
+        "page": "30, 31"
+      },
+      "external_10mhz_ref": {
+        "command": "CLCK(?) j ; CLKF(?) j",
+        "notes": "CLCK 0 = internal, 1 = external; CLKF 0 = 10 MHz, 1 = 5 MHz.",
+        "page": "37"
+      },
+      "n_readings": {
+        "command": "SIZE(?) x",
+        "notes": "Number of samples per measurement (statistics over N).",
+        "page": "32"
+      },
+      "start_measurement": {
+        "command": "STRT",
+        "notes": "Same as front-panel START; STOP resets. AUTM(?) j: 0 = off recommended for computer control.",
+        "page": "31, 32"
+      },
+      "single_reading": {
+        "command": "MEAS? j",
+        "notes": "Starts a measurement, returns when complete; j=0 mean, 1 jitter, 2 max, 3 min.",
+        "page": "32"
+      },
+      "fetch_readings": {
+        "command": "XAVG? | XALL?",
+        "notes": "XAVG? mean of last measurement (float, up to 16 digits); XALL? returns mean,rel,jitter,max,min comma-separated. Raw per-sample stream: BDMP j (GPIB only, 1 to 65535 points, 8-byte 2's-complement integers, LSB first; Time scale factor (2.712673611111111 E-12)/256 ≈ 1.05963812934 E-14 s, p.34).",
+        "page": "33"
+      },
+      "frequency_measurement": {
+        "command": "MODE 3 ; GATE(?) x",
+        "notes": "GATE: 1 ms to 500 s in 1,2,5 sequence; negative x = externally triggered gate. SRCE(?) j selects source (0=A, 1=B, 2=REF, 3=ratio).",
+        "page": "32"
+      },
+      "query_errors": {
+        "command": "ERRS? {j}",
+        "notes": "Reads the error status register (or bit j). EREN sets enable; STAT? reads TIC status register.",
+        "page": "xiii"
+      }
+    },
+    "missing": [
+      "TCP port (instrument has no LAN)"
+    ]
+  },
+  "pendulum-cnt-91": {
+    "manual": {
+      "title": "Programmer's Handbook, Timer/Counter/Analyzers CNT-90, CNT-91, CNT-91R, CNT-90XL ('9X')",
+      "revision": "4031 600 90201, Tenth Edition, May 2017",
+      "url": "https://pendulum-instruments.com/wp-content/uploads/2022/05/CNT-90ph.pdf",
+      "accessed": "2026-11-19",
+      "source": "vendor (pendulum-instruments.com, linked from the CNT-91 product page). Note: manuals.pendulum-instruments.com 'Pendulum_Programmers_Handbook.pdf' (rev. 6) covers CNT-102/104 and FTR-210R, NOT CNT-91."
+    },
+    "transport": {
+      "port": null,
+      "terminator": "IEEE 488.2 program/response message terminators (NL/^END); see ch.3",
+      "notes": "GPIB and USB (USBTMC/USB488; VID 0x14EB, PID 0x0090, e.g. USB0::0x14EB::0x0090::991234::INSTR, p.1-6). No LAN socket in this handbook. The manual's '8' glyph denotes a space."
+    },
+    "commands": {
+      "identify": {
+        "command": "*IDN?",
+        "notes": "CNT-91R returns 'CNT-91'.",
+        "page": "8-133"
+      },
+      "reset": {
+        "command": "*RST",
+        "notes": "",
+        "page": "8-138"
+      },
+      "configure_time_interval": {
+        "command": ":CONFigure:TINTerval (@1),(@2)",
+        "notes": "Generic form :CONFigure :<Measuring Function> [<parameters>[,(<channels>)]] (p.8-28); first channel = start, second = stop; (@1)=A, (@2)=B. Also :MEASure:TINTerval? (p.8-70) and :FUNC 'TINT 1,2' (SENSe tree p.8-98).",
+        "page": "8-28, 8-70"
+      },
+      "trigger_level": {
+        "command": ":INPut«[1]|2»:LEVel «<Decimal data>|MAX|MIN»",
+        "notes": "-5 V to +5 V (2.5 mV steps) at 1X attenuation; setting a level turns off autotrigger. Example :INP2:LEV 2.0. Auto: :INPut«[1]|2»:LEVel:AUTO «<Boolean>|ONCE».",
+        "page": "8-49"
+      },
+      "trigger_slope": {
+        "command": ":INPut«[1]|2»:SLOPe «POS|NEG»",
+        "notes": "Example :INP2:SLOP NEG.",
+        "page": "8-51"
+      },
+      "input_impedance": {
+        "command": ":INPut«[1]|2»:IMPedance «<Decimal data>|MAX|MIN»",
+        "notes": "<=50 -> 50 Ω, >=1001 -> 1 MΩ. Example :INP:IMP 50.",
+        "page": "8-48"
+      },
+      "external_10mhz_ref": {
+        "command": ":ROSCillator:SOURce «INT|EXT|AUTO»",
+        "notes": "*RST AUTO (uses external if present).",
+        "page": "8-100"
+      },
+      "n_readings": {
+        "command": ":ARM:COUNt <Numeric value>|MIN|MAX|INFinity ; :TRIGger:COUNt «<Numeric value>|MIN|MAX»",
+        "notes": "Measurements per INIT = ARM:COUN x TRIG:COUN.",
+        "page": "8-6, 8-124"
+      },
+      "start_measurement": {
+        "command": ":INITiate",
+        "notes": "Also :INITiate:CONTinuous <Boolean>. :READ? = INIT + FETCh (p.8-88).",
+        "page": "8-44"
+      },
+      "fetch_readings": {
+        "command": ":FETCh? | :FETCh:ARRay? <fetch array size>|MAX",
+        "notes": "ARRay max 10000 (MAX = all, CNT-91 only); negative size fetches last N.",
+        "page": "8-34, 8-35"
+      },
+      "reading_format": {
+        "command": ":FORMat ASCii|REAL|PACKed ; :FORMat:BORDer NORMal|SWAPped ; :FORMat:TINFormation <boolean>",
+        "notes": "ASCII <Val> or <Val>,<TS>; REAL #18<Val> (double); PACKed #216<Val><TS> (TS int64 ps). *RST ASCii, BORDer NORMal.",
+        "page": "8-34, 8-38, 8-40"
+      },
+      "gate_time": {
+        "command": ":ACQuisition:APERture «<Decimal value>|MIN|MAX»",
+        "notes": "20 ns to 1000 s; *RST 10 ms. Frequency: :CONF:FREQ or :MEASure:FREQuency? (p.8-60).",
+        "page": "8-92"
+      },
+      "query_errors": {
+        "command": ":SYSTem:ERRor?",
+        "notes": "Returns <error number>,\"<Error Description String>\".",
+        "page": "8-114"
+      }
+    },
+    "missing": [
+      "TCP port (no LAN interface in this handbook)"
+    ]
+  },
+  "tapr-ticc": {
+    "manual": {
+      "title": "TICC Timestamping Counter Operation Manual",
+      "revision": "Revised 15 December 2025 (firmware 2025 series, e.g. 20251101.1)",
+      "url": "https://web.tapr.org/~n8ur/TICC_Manual.pdf",
+      "accessed": "2026-11-19",
+      "source": "vendor (TAPR; linked from tapr.org/manuals and the TICC product page)"
+    },
+    "transport": {
+      "port": null,
+      "terminator": "Output lines terminated with carriage return and linefeed; 7-bit ASCII. Config input lines terminated with carriage return.",
+      "notes": "USB serial emulation, default 115200 8N1; baud settable in 2025 firmware (230400 needed for max rate). Not a SCPI device."
+    },
+    "commands": {
+      "output_format_timestamp": {
+        "command": "<seconds> ch<name>  e.g. '1.897999794440 chA'",
+        "notes": "Timestamp mode: each value followed by channel ID (default names A/B -> chA/chB; settable with F <x>/<y>). Units seconds; default 11 decimal places (10 ps), settable 0-12. Strict ascending order; 'Paired Timestamp' mode gives chA/chB order.",
+        "page": "p.2, p.5-7 (PDF pages)"
+      },
+      "time_interval_mode": {
+        "command": "Mode menu > Time Interval (enter mode item as two characters, e.g. 'A1')",
+        "notes": "Outputs ch1 - ch0 for each pair (may be negative). The exact menu code for Time Interval is not listed in the text (only 'A1' = timestamp mode appears in an example) - read it from the menu on the unit.",
+        "page": "p.7, p.14 (PDF pages)"
+      },
+      "enter_config": {
+        "command": "#",
+        "notes": "Any key during the ~5 s startup delay, or '#' at any time; prompt '#>'. Multi-item: 'A1;F C/D;W'. W writes EEPROM (changes lost otherwise).",
+        "page": "p.5 (PDF page)"
+      },
+      "trigger_slope": {
+        "command": "D <ch0>/<ch1>  e.g. 'D F/F'",
+        "notes": "Trigger edge per channel (example from manual; R presumably rising - unverified).",
+        "page": "p.5 (PDF page)"
+      },
+      "comment_lines": {
+        "command": "lines starting with '#'",
+        "notes": "All configuration-system output lines have '#' prepended (comments for TimeLab).",
+        "page": "p.6 (PDF page)"
+      },
+      "binary_mode": {
+        "command": "Mode menu > Binary Timestamp",
+        "notes": "12-byte message: 2 header bytes, 1 byte channel ID, lowest 4 bytes of PICstop, 4 bytes tof; ts_picos = (PICstop * PICTICK_PS) - tof, PICTICK_PS = 10,000,000 default.",
+        "page": "p.14 (PDF page)"
+      },
+      "poll_mode": {
+        "command": "Poll character (main menu)",
+        "notes": "If set, outputs only the latest measurement when the poll character is received.",
+        "page": "p.6 (PDF page)"
+      }
+    },
+    "missing": [
+      "menu item letter/digit codes for each mode (except example A1)",
+      "input impedance / trigger level (hardware inputs, not configurable by command)",
+      "external 10 MHz reference command (EXT_REF is a hardware input; clock speed setting in Advanced menu)"
+    ]
+  },
+  "spirent-simremote": {
+    "manual": {
+      "title": "Spirent SimREMOTE user manual / ICD",
+      "revision": null,
+      "url": null,
+      "accessed": "2026-11-19",
+      "source": "not found: no public copy located; the web search budget was exhausted before a search for it could be run"
+    },
+    "transport": {
+      "port": null,
+      "terminator": null,
+      "notes": "Only Spirent/Keysight datasheets were seen (in another agent's notes): they describe SimREMOTE as time-stamped commands over Ethernet TCP/IP and do not state a port. No command strings are given."
+    },
+    "commands": {},
+    "missing": [
+      "load_scenario",
+      "run",
+      "stop",
+      "arm_on_1pps_trigger",
+      "satellite_power_offset",
+      "stream_motion_MOT_remote_vehicle",
+      "query_status",
+      "tcp_port"
+    ]
+  },
+  "safran-skydel": {
+    "manual": {
+      "title": "Skydel User Manual (HTML help and PDF)",
+      "revision": "Rev. v26.9 (Software Version 26.9, published 4 Nov 2026)",
+      "url": "https://safran-navigation-timing.com/wp-content/uploads/2026/11/Skydel-UM-26-9.pdf ; https://safran-navigation-timing.com/manuals/skydel/",
+      "accessed": "2026-11-19",
+      "source": "vendor (safran-navigation-timing.com). The full command list (Skydel-SDX/API/Documentation.txt) ships with the software and is not public."
+    },
+    "transport": {
+      "port": 4820,
+      "terminator": "n/a (JSON objects over TCP via the skydelsdx client library)",
+      "notes": "'Skydel is listening on port 4820 + id. If Skydel was started with instance id 2, it would be listening on port 4822.' (p.219). HIL client uses TCP for commands plus UDP for position data (HIL Time Reference page). Python lib: skydelsdx; C# lib: Skydel-SDX/API/CSharp/SdxApi; C++: Skydel-SDX/API/Cpp/sdx_api. Only Python strings are quoted in the manual; the manual says C#/C++ syntax differences are minor but gives no C# strings."
+    },
+    "commands": {
+      "connect": {
+        "command": "sim = skydelsdx.RemoteSimulator() ; sim.connect(\"localhost\")",
+        "notes": "connect(ip, instance id); defaults 'localhost' and 0. sim.disconnect() to close.",
+        "page": "219, 237"
+      },
+      "new_configuration": {
+        "command": "sim.call(New(True))",
+        "notes": "sim.call blocks; sim.post(cmd) + sim.wait(cmd) is asynchronous.",
+        "page": "219"
+      },
+      "run": {
+        "command": "sim.start()",
+        "notes": "From example_dynamic_sv_data.py walkthrough.",
+        "page": "106"
+      },
+      "arm": {
+        "command": "sim.arm()",
+        "notes": "",
+        "page": "106"
+      },
+      "stop": {
+        "command": "sim.stop()",
+        "notes": "",
+        "page": "239"
+      },
+      "arm_on_1pps": {
+        "command": "sim.call(EnableMasterPps(True)) ; sim.call(ArmPPS()) ; sim.call(WaitAndResetPPS()) ; sim.call(StartPPS(syncDurationMs))",
+        "notes": "StartPPS: RF starts at syncDurationMs relative to PPS zero. GetComputerSystemTimeSinceEpochAtPps0() gives PC time at PPS0.",
+        "page": "237, 238"
+      },
+      "satellite_power_offset": {
+        "command": "SetPowerForSV(system, svId, powerOffset, otherSatsFollow)",
+        "notes": "Shown in API-changes appendix (replaces deprecated SetSatellitePower(system, prn, powerOffset, otherSatsFollow)); send as sim.call(SetPowerForSV(...)).",
+        "page": "336"
+      },
+      "stream_motion_hil": {
+        "command": "sim.call(SetVehicleTrajectory(\"HIL\")) ; sim.call(SetHilTjoin(20)) ; sim.pushEcefNed(elapsedMs, position, attitude, velocity, angularVelocity)",
+        "notes": "First push must use elapsed time 0.0 (ms since RF start). Manual text writes 'Sim.call(SetHilTjoin(20))' (capital S, typo). Tracks: SetVehicleTrajectory(\"Track\"), beginTrackDefinition()/pushTrackEcef/pushTrackLla/endTrackDefinition().",
+        "page": "222, 237, 238"
+      },
+      "lock_gui": {
+        "command": "sim.call(LockGUI()) ... sim.call(UnlockGUI())",
+        "notes": "Speeds up bulk settings changes.",
+        "page": "219"
+      }
+    },
+    "missing": [
+      "load_scenario (no command name for opening a saved configuration found in the manual; see Documentation.txt on an installed system)",
+      "query_status (simulator-state query command name not given in manual)",
+      "C# command strings (not given)"
+    ]
+  },
+  "rohdeschwarz-smbv100b": {
+    "manual": {
+      "title": "R&S SMBV100B Satellite Navigation User Manual (SMBVB-K44/-K66/... options) and R&S SMBV100B User Manual (webhelp, base instrument)",
+      "revision": "GNSS: 1178.9403.02, Version 11; base: SMBVB_HTML_UserManual_en (webhelp, current)",
+      "url": "https://scdn.rohde-schwarz.com/ur/pws/dl_downloads/pdm/cl_manuals/user_manual/1178_9403_01/SMBVB_GNSS_UserManual_en_11.pdf ; https://www.rohde-schwarz.com/webhelp/SMBVB_HTML_UserManual_en/SMBVB_HTML_UserManual_en.htm",
+      "accessed": "2026-11-19",
+      "source": "vendor (rohde-schwarz.com)"
+    },
+    "transport": {
+      "port": 5025,
+      "terminator": "not stated in extracted text",
+      "notes": "Base manual, 'Starting remote control with socket communication': 'The R&S SMBV100B uses the port number 5025 for remote connection via Telnet.' HIL over UDP: [:SOURce<hw>]:BB:GNSS:RECeiver[:V<st>]:HIL:PORT, *RST 7755 (GNSS p.324)."
+    },
+    "commands": {
+      "identify": {
+        "command": "*IDN?",
+        "notes": "Returns Rohde&Schwarz,SMBV100B,<part number>/<serial number>,<firmware version>.",
+        "page": "base webhelp: Common commands"
+      },
+      "preset_gnss": {
+        "command": "[:SOURce<hw>]:BB:GNSS:PRESet",
+        "notes": "",
+        "page": "343"
+      },
+      "load_scenario": {
+        "command": "[:SOURce<hw>]:BB:GNSS:SETTing:LOAD <Filename>",
+        "notes": "Predefined: [:SOURce<hw>]:BB:GNSS:SETTing:LOAD:PREDefined <Scenario> (p.346); list: [:SOURce<hw>]:BB:GNSS:SETTing:CATalog? (p.345).",
+        "page": "345"
+      },
+      "run_stop": {
+        "command": "[:SOURce<hw>]:BB:GNSS:STATe <State>",
+        "notes": "1 | ON | 0 | OFF.",
+        "page": "343"
+      },
+      "arm_on_trigger": {
+        "command": "[:SOURce<hw>]:BB:GNSS[:TRIGger]:SEQuence <Sequence> ; [:SOURce<hw>]:BB:GNSS:TRIGger:SOURce <Source>",
+        "notes": "Sequence AUTO | RETRigger | AAUTo | ARETrigger | SINGle; Source INTernal|EGT1|EXTernal|BBSY. Example (p.617): :SOURce1:BB:GNSS:TRIGger:SOURce EGT1 // external trigger at the USER connector; :SOURce1:BB:GNSS:TRIGger:EXTernal:SYNChronize:OUTPut ON. Arm: [:SOURce<hw>]:BB:GNSS:TRIGger:ARM:EXECute; manual: [:SOURce<hw>]:BB:GNSS:TRIGger:EXECute (p.620). Edge of the global trigger input is configured in the base manual (not extracted).",
+        "page": "618, 620"
+      },
+      "satellite_power_offset": {
+        "command": "[:SOURce<hw>]:BB:GNSS:SVID<ch>:GPS:POWer:OFFSet <PowerOffset>",
+        "notes": "-21 to 0 dB; same for GALileo/GLONass/BEIDou/QZSS/NAVic/SBAS. Reference: [:SOURce<hw>]:BB:GNSS:POWer:REFerence (p.448).",
+        "page": "449"
+      },
+      "stream_motion_hil": {
+        "command": "[:SOURce<hw>]:BB:GNSS:RT:RECeiver[:V<st>]:HILPosition:MODE:A <ElapsedTime>, <X>, <Y>, <Z>, <XDot>, <YDot>, <ZDot>, <XDotDot>, <YDotDot>, <ZDotDot>, <XDotDotDot>, <YDotDotDot>, <ZDotDotDot>, <Yaw>, <Pitch>, <Roll>, <YawDot>, <PitchDot>, <RollDot>, <YawDotDot>, <PitchDotDot>, <RollDotDot>, <YawDotDotDot>, <PitchDotDotDot>, <RollDotDotDot>",
+        "notes": "ECEF; ElapsedTime from [:SOURce<hw>]:BB:GNSS:RT:HWTime? (p.324). MODE:B on p.320. Interface: [:SOURce<hw>]:BB:GNSS:RECeiver[:V<st>]:HIL:ITYPe SCPI | UDP (p.324). Requires SMBVB-K109 for UDP.",
+        "page": "319"
+      },
+      "query_status": {
+        "command": "[:SOURce<hw>]:BB:GNSS:TRIGger:RMODe?",
+        "notes": "Returns STOP | RUN. Also [:SOURce<hw>]:BB:GNSS:SIMulation:INFO? (p.345) and :BB:GNSS:RT:HWTime? elapsed time.",
+        "page": "618"
+      },
+      "external_10mhz_ref": {
+        "command": "[:SOURce]:ROSCillator:SOURce <Source> ; [:SOURce]:ROSCillator:EXTernal:FREQuency <Frequency>",
+        "notes": "INTernal| EXTernal; frequency 100MHZ| 1GHZ| VARiable| 10MHZ (factory 10MHZ).",
+        "page": "base webhelp: SOURce:ROSCillator subsystem"
+      },
+      "query_errors": {
+        "command": ":SYSTem:ERRor[:NEXT]?",
+        "notes": "Returns 0,\"No error\" when empty.",
+        "page": "base webhelp: SYSTem subsystem"
+      }
+    },
+    "missing": [
+      "external trigger edge selection for the USER/global trigger input (in base manual, not extracted)"
+    ]
+  },
+  "racelogic-labsat-3": {
+    "manual": {
+      "title": "LabSat 3 user manual / remote control (serial or Ethernet) command reference",
+      "revision": null,
+      "url": null,
+      "accessed": "2026-11-19",
+      "source": "unreachable: labsat.co.uk and en.racelogic.support returned HTTP 403 to curl and WebFetch; no mirror found (web search budget exhausted)"
+    },
+    "transport": {
+      "port": null,
+      "terminator": null,
+      "notes": "No command set obtained."
+    },
+    "commands": {},
+    "missing": [
+      "load_scenario/file",
+      "replay/run",
+      "stop",
+      "record",
+      "trigger/1PPS sync",
+      "attenuation/power",
+      "status query",
+      "serial baud / Ethernet port"
+    ]
+  }
+}

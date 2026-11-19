@@ -27,3 +27,13 @@ Collected 18 Nov 2026. Not catalogued for lack of a reliable source: Leo Bodnar 
 LabSat 4, Safran BroadSim hardware. A lab adds or overrides entries with its own file
 (`--catalog lab.json`); an entry with the same `id` replaces the built-in one, so a measured
 value can replace a datasheet value.
+
+## Instrument commands (`commands.json`)
+
+Remote-control commands for 18 instruments (AWGs, counters, GNSS simulators), each quoted from the
+vendor's programming manual with title, revision, URL, access date and page; tasks not found are
+listed under `missing` (nothing invented). Collected 19 Nov 2026. Spirent SimREMOTE and LabSat 3
+manuals were not reachable. Built into profiles so far: Keysight 33500B and 33600A, Rigol DG1000Z
+(AWG profiles in `src/hw/awg_profiles/`), Keysight 53230A (time interval and frequency) and
+Pendulum CNT-91 (time interval) (`InstrumentProfile::builtin`). Siglent SDG2000X/6000X are not:
+their guide does not state the upload byte order or framing.
