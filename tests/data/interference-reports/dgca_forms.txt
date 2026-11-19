@@ -1,0 +1,66 @@
+# Synthetic sample for tests: modelled on the content India's DGCA asks for (circular of
+# 10 Nov 2025, as summarised in Kshana research). Not real reports; no real aircraft.
+Report type: GNSS interference (DGCA)
+Reporter role: Pilot-in-command
+Operator: Example Airways
+Flight number: AI-117
+Aircraft registration: VT-ABC
+Aircraft type: A320neo
+Date of occurrence (UTC): 2026-11-12
+Time of occurrence (UTC): 0542Z
+Time of report (UTC): 05:49
+Position: 31 42N 074 48E
+Flight level / altitude: FL350
+Event type: Spoofing
+Equipment affected: GPS1, GPS2, FMS position, EGPWS terrain alert, ADS-B
+Recovery action: Deselected GPS in FMS, navigated on IRS/DME-DME, informed Lahore and Delhi ATC
+Duration (min): 18
+FMS screenshots: attached (3)
+Logs preserved: yes, QAR download requested
+Narrative: FMS position jumped about 60 nm north with GPS PRIMARY still shown.
+  EGPWS PULL UP caution at FL350 over flat terrain. GPS restored after 18 minutes.
+---
+Report type: GNSS interference (DGCA)
+Reporter role: First officer
+Flight number: 6E-2231
+Aircraft registration: VT-XYZ
+Aircraft type: A321
+Date of occurrence (UTC): 12 NOV 2026
+Time of occurrence (UTC): 05:50
+Time of report (UTC): 06:07
+Position: 31 39N 074 57E
+Flight level / altitude: FL310
+Event type: Signal loss
+Equipment affected: GPS1 and GPS2 lost, RNP unavailable
+Recovery action: Requested radar vectors
+Duration (min): 10
+FMS screenshots: no
+Logs preserved: yes
+Narrative: GPS LOST on both receivers, GPS PRIMARY LOST message, regained near Ludhiana.
+---
+Report type: GNSS interference (DGCA)
+Reporter role: Approach controller, Amritsar
+Date of occurrence (UTC): 2026-11-12
+Time of occurrence (UTC): 0555
+Time of report (UTC): 0601
+Position: 3143N07448E
+Event type: Jamming
+Equipment affected: ADS-B position of several aircraft
+Narrative: Three aircraft reported GPS jamming within 10 minutes; ADS-B positions dropped from the display.
+---
+Report type: GNSS interference (DGCA)
+Reporter role: Captain
+Flight number: AI-2915
+Aircraft registration: VT-PQR
+Date of occurrence (UTC): 2026-11-12
+Time of occurrence (UTC): 07:10
+Time of report (UTC): 07:16
+Position: 28 34N 077 06E
+Flight level / altitude: FL120
+Event type: Jamming
+Equipment affected: GPS1
+Recovery action: none required
+Duration (min): 4
+FMS screenshots: attached
+Logs preserved: yes
+Narrative: Brief GPS1 jamming suspected on descent, GPS2 normal.

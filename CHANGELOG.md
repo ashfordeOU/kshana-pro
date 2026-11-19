@@ -5,6 +5,17 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Interference reports (research 05 G1/G12/G13, 07 G5; docs/INTERFERENCE-REPORTS.md).**
+  `kshana-pro reports` (also `forensics reports`): a normaliser for DGCA-style and EASA
+  ECR-like forms, ASRS-like records, NOTAM text, ship logs and CSV exports into one versioned
+  schema (`kshana-pro-interference-report/1`); validation per regime (DGCA 10-minute rule, EU
+  376/2014 72-hour rule, ASRS, maritime, generic); episodes with written, configurable start and
+  end rules from reports and ADS-B NIC/NACp drops (signed, with unified events); verification
+  against receiver logs, ADS-B and AIS labelled CORROBORATED / UNCORROBORATED / CONTRADICTED
+  (signed record); a per-aircraft or per-vessel exposure ledger; a post-spoofing reset check
+  (MODELLED, recommendation only). Features `pro-interference-reports` and
+  `pro-report-verification` (Pro), `pro-exposure-ledger` (Enterprise); tier manifest
+  regenerated. All evidence MODELLED (synthetic data, `tests/interference_reports.rs`).
 - **Test-as-code kit, part 1 (research 2026-11-20 gaps 07, 08, 08b, 11, 12; docs/TEST-KIT.md).**
   `kshana-pro testkit validate|compile|from-library|packs|show`: neutral scenario spec
   `kshana-testkit-scenario/1` (signals, trajectory, environment, signal-parameter threats or

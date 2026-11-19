@@ -179,6 +179,12 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-audit-export" => Tier::Enterprise,
         "pro-retention" => Tier::Enterprise,
         "pro-watch-wall" => Tier::Enterprise,
+        // Interference reports (research 05 G1/G12/G13, 07 G5): normalising, validating and
+        // episodes; verification with a signed record and the post-spoofing reset check; the
+        // fleet exposure ledger is Enterprise.
+        "pro-interference-reports" => Tier::Pro,
+        "pro-report-verification" => Tier::Pro,
+        "pro-exposure-ledger" => Tier::Enterprise,
         // Test-as-code kit (research 2026-11-20 gaps 07/08/11/12): neutral scenarios compiled
         // for lab simulators (Pro).
         "pro-test-kit" => Tier::Pro,
@@ -216,6 +222,9 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-watch-wall",
     "pro-eloran",
     "pro-eloran-hw",
+    "pro-interference-reports",
+    "pro-report-verification",
+    "pro-exposure-ledger",
     "pro-test-kit",
 ];
 

@@ -1,0 +1,18 @@
+# Synthetic sample for tests: an occurrence report with EASA ECR/ECCAIRS-like field names
+# (Regulation (EU) No 376/2014 content as summarised in Kshana research). Not a real report.
+Headline: GNSS interference on climb out of Palanga
+Occurrence class: Occurrence without safety effect
+Reporter category: Flight crew (captain)
+Registration: LY-NVL
+Aircraft type: ATR 72-600
+Flight number: NVL402
+Occurrence date: 2026-06-14
+UTC time: 04:20
+Reported UTC: 2026-06-14T09:05:00Z
+Location: 55°58'N 021°05'E
+Altitude: 9,000 ft AMSL
+Event type: GNSS jamming
+Systems affected: GPS, TAWS, ADS-B out
+Action taken: Continued on conventional navigation, reported to ATC
+Time to recover: 25 min
+Narrative: GPS position lost at 9,000 ft climbing through the Baltic coast. TAWS inoperative caption. Normal after 25 minutes.

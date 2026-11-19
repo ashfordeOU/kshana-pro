@@ -55,6 +55,7 @@ pub mod forensics;
 pub mod frameworks;
 pub mod ievents;
 pub mod integrity;
+pub mod ireports;
 pub mod lab_campaign;
 pub mod license;
 pub mod lunar_pro;

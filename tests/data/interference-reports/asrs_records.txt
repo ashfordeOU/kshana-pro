@@ -1,0 +1,12 @@
+# Synthetic sample for tests: an ASRS-like de-identified record (month and six-hour local
+# time bin only). Not a real ASRS report.
+ACN: 9000001
+Date: 202605
+Local Time Of Day: 0601-1200
+Locale Reference: ZZZ.ARTCC
+Altitude.MSL.Single Value: 33000
+Aircraft 1 Make Model Name: B737-800
+Function.Flight Crew: Captain
+Events.Anomaly: Deviation - Track / Heading All Types
+Narrative 1: Over the eastern Mediterranean we received GPS position errors and the FMS showed us 20 NM off course. ATC confirmed we were on track. We suspect GPS spoofing. Position normal after 40 minutes.
+Synopsis: B737 Captain reported GPS spoofing in cruise.
