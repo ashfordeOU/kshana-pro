@@ -1,0 +1,59 @@
+format = "kshana-testkit-scenario/1"
+id = "timing-meaconing-delay"
+version = 1
+title = "Timing receiver: meaconing with a 1.5 µs delay"
+description = "The genuine signals re-broadcast with a 1.5 µs delay; position barely moves, time lags."
+modelled_on = ["Threat library hormuz-meaconing-delay theme (timing view; representative parameters)"]
+tags = ["timing", "spoofing", "meaconing"]
+
+[scene]
+start_utc = "2026-06-03T00:00:00Z"
+duration_s = 1200
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[trajectory]
+platform = "timing"
+lat_deg = 59.437
+lon_deg = 24.7536
+height_m = 30
+
+[environment]
+sensors = ["reference-clock"]
+
+[[threat]]
+id = "meacon"
+type = "spoofing"
+technique = "meaconing"
+start_s = 300
+duration_s = 600
+delay_ns = 1500
+power_advantage_db = 3
+
+[expected]
+behaviour = "The receiver flags the delayed signals within 30 s; no time more than 100 ns off is output without warning."
+withdraw_counts_as_detection = false
+recover_time_error_ns = 50
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 30
+level = 2
+
+[[criterion]]
+id = "time-bounded"
+metric = "max_unflagged_time_error_ns"
+op = "<="
+value = 100
+level = 2
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 120
+level = 1

@@ -1,0 +1,73 @@
+format = "kshana-testkit-scenario/1"
+id = "aviation-post-spoof-recovery"
+version = 1
+title = "Airliner en route: recovery after a position spoof ends"
+description = "A counterfeit drags the position away (0.5 m/s² up to 50 m/s) for ten minutes, then stops; the test is whether the receiver comes back to the true position promptly once the genuine signals are alone again."
+modelled_on = ["EASA SIB 2022-02 (and revisions) theme: GNSS spoofing with effects persisting after the event (modelled on; not a test of the bulletin)"]
+tags = ["aviation", "spoofing", "recovery"]
+
+[scene]
+start_utc = "2026-04-07T08:00:00Z"
+duration_s = 1500
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[[signal]]
+constellation = "galileo"
+signals = ["E1"]
+
+[trajectory]
+platform = "aircraft"
+lat_deg = 59.0
+lon_deg = 18.0
+height_m = 10000
+
+[[trajectory.waypoint]]
+lat_deg = 59.0
+lon_deg = 22.0
+speed_mps = 120
+
+[environment]
+sensors = ["irs"]
+
+[[threat]]
+id = "spoof"
+type = "spoofing"
+technique = "position_drag"
+start_s = 300
+duration_s = 600
+drag_accel_mps2 = 0.5
+drag_max_mps = 50
+drag_bearing_deg = 180
+power_advantage_db = 6
+
+[expected]
+behaviour = "The receiver flags the spoof, and after it ends returns to a correct, unflagged position within 60 s without a manual reset."
+withdraw_counts_as_detection = false
+misleading_h_error_m = 370
+recover_h_error_m = 30
+recover_dwell_s = 30
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 30
+level = 2
+
+[[criterion]]
+id = "no-misleading"
+metric = "misleading_epochs"
+op = "<="
+value = 0
+level = 2
+note = "0.2 NM"
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 60
+level = 1

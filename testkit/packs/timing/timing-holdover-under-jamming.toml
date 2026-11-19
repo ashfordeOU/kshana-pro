@@ -1,0 +1,59 @@
+format = "kshana-testkit-scenario/1"
+id = "timing-holdover-under-jamming"
+version = 1
+title = "Timing receiver: one hour of jamming in holdover"
+description = "GNSS denied by wideband jamming for an hour; the receiver must say it is in holdover and keep its time error within its holdover budget."
+modelled_on = ["Threat library baltic-timing-holdover-under-jamming theme (shortened to one hour)", "ITU-T G.8272 PRTC holdover theme (modelled on; budget illustrative)"]
+tags = ["timing", "jamming", "holdover"]
+
+[scene]
+start_utc = "2026-06-02T00:00:00Z"
+duration_s = 4800
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[trajectory]
+platform = "timing"
+lat_deg = 59.437
+lon_deg = 24.7536
+height_m = 30
+
+[environment]
+sensors = ["reference-clock"]
+
+[[threat]]
+id = "jam"
+type = "jamming"
+waveform = "wideband"
+start_s = 600
+duration_s = 3600
+center_hz = 1575420000.0
+bandwidth_hz = 2000000.0
+js_db = 50
+
+[expected]
+behaviour = "The receiver flags holdover (or withdraws its fix) within 5 s; its time error stays within 1.1 µs for the hour and it re-locks within 5 minutes of the end."
+recover_time_error_ns = 100
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 5
+level = 2
+
+[[criterion]]
+id = "holdover-budget"
+metric = "max_time_error_ns"
+op = "<="
+value = 1100
+level = 3
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 300
+level = 1

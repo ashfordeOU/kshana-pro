@@ -1,0 +1,65 @@
+format = "kshana-testkit-scenario/1"
+id = "uas-hover-drag-off"
+version = 1
+title = "Drone hovering: position drag-off at 2 m/s"
+description = "A counterfeit drags a hovering drone's position at 2 m/s for two minutes; a flight controller trusting it would fly the drone away to hold the false position."
+modelled_on = ["Published UAS spoofing demonstrations: capture of a hovering drone by a drag-off (modelled on, representative parameters)"]
+tags = ["uas", "spoofing"]
+
+[scene]
+start_utc = "2026-05-12T14:00:00Z"
+duration_s = 420
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[[signal]]
+constellation = "galileo"
+signals = ["E1"]
+
+[trajectory]
+platform = "uas"
+lat_deg = 58.38
+lon_deg = 26.72
+height_m = 120
+
+[environment]
+sensors = ["imu", "baro"]
+
+[[threat]]
+id = "drag"
+type = "spoofing"
+technique = "position_drag"
+start_s = 120
+duration_s = 120
+drag_rate_mps = 2
+drag_bearing_deg = 45
+power_advantage_db = 6
+
+[expected]
+behaviour = "The receiver flags the spoof within 5 s, before the position is 10 m off."
+withdraw_counts_as_detection = false
+misleading_h_error_m = 10
+recover_h_error_m = 5
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 5
+level = 2
+
+[[criterion]]
+id = "no-misleading"
+metric = "misleading_epochs"
+op = "<="
+value = 0
+level = 2
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 30
+level = 1
