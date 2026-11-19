@@ -58,6 +58,11 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         marker in both streams (Enterprise)\n\
     capset check <dir>/<set-id>.capset.json [--out <report.json>]\n\
         Replay check: data hashes and cross-stream PPS alignment within the stated tolerance (free)\n\
+    tactical templates [--lat <deg> --lon <deg>]\n\
+        Illustrative deployable-transmitter classes with antenna efficiency and radiated power (free)\n\
+    tactical study [--scenario <fusion.json>] [--trials <n>] [--seed <n>] [--out <study.json>] [--license <token>] [--dev]\n\
+        Signals-of-opportunity fusion study: eLoran alone vs eLoran + AM/LW carriers (weighted HDOP,\n\
+        Monte Carlo RMS/95 %, ambiguity success); default: the weak-geometry template (Enterprise)\n\
     selfcal <scenario.toml> --config <selfcal.json> --observations <obs.json> --register <register.jsonl> --key-file <key> [--key-id <id>] --out <result.json> [--license <token>] [--dev]\n\
         Self-calibrating simulator loop: fit section conductivity, ASF bias and skywave height to\n\
         reference-receiver observations, regenerate until the fidelity converges; every pass is a\n\
@@ -125,6 +130,7 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("fidelity") => fidelity_cmd(args),
         Some("selfcal") => selfcal_cmd(args),
         Some("capset") => capset_cmd(args),
+        Some("tactical") => tactical_cmd(args),
         Some("import") => import_cmd(args),
         Some("conformance") => conformance_cmd(args),
         Some("campaign") => campaign_cmd(args),
@@ -1054,6 +1060,59 @@ fn capset_cmd(args: &[String]) -> ExitCode {
                     set.streams.len(),
                     set.markers.len(),
                     gen.satellites.len()
+                ))
+            })())
+        }
+        _ => fail(USAGE),
+    }
+}
+
+fn tactical_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::geo::Geo;
+    use kshana_eloran::tactical::{
+        fusion_study, templates, weak_geometry_template, FusionScenario,
+    };
+    match args.get(1).map(String::as_str) {
+        Some("templates") => done((|| {
+            let lat = num_flag(args, "--lat")?.unwrap_or(50.0);
+            let lon = num_flag(args, "--lon")?.unwrap_or(10.0);
+            let rows: Vec<serde_json::Value> = templates(Geo::new(lat, lon))
+                .iter()
+                .map(|t| {
+                    serde_json::json!({
+                        "transmitter": t,
+                        "radiation_resistance_ohm": t.radiation_resistance_ohm(),
+                        "efficiency": t.efficiency(),
+                        "radiated_kw": t.radiated_kw(),
+                    })
+                })
+                .collect();
+            serde_json::to_string_pretty(&rows).map_err(|e| e.to_string())
+        })()),
+        Some("study") => {
+            if let Err(c) = licensed(args) {
+                return c;
+            }
+            done((|| {
+                let sc: FusionScenario = match flag(args, "--scenario") {
+                    Some(p) => serde_json::from_str(&read(&p)?).map_err(|e| format!("{p}: {e}"))?,
+                    None => weak_geometry_template(),
+                };
+                let trials = num_flag(args, "--trials")?.unwrap_or(1000);
+                let seed = num_flag(args, "--seed")?.unwrap_or(1);
+                let st = fusion_study(&sc, trials, seed)?;
+                if let Some(out) = flag(args, "--out") {
+                    write_json(&out, &st)?;
+                }
+                Ok(format!(
+                    "tactical study ({} trials): eLoran RMS {:.1} m (95 % {:.1} m) -> fused RMS {:.1} m (95 % {:.1} m); ambiguity success {:.3}; fallbacks {}",
+                    st.trials,
+                    st.rms_eloran_m,
+                    st.p95_eloran_m,
+                    st.rms_fused_m,
+                    st.p95_fused_m,
+                    st.ambiguity_success,
+                    st.fallbacks
                 ))
             })())
         }

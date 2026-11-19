@@ -68,6 +68,7 @@ pub mod scenario;
 pub mod scene;
 pub mod signal;
 pub mod sync;
+pub mod tactical;
 pub mod threat;
 pub mod time;
 pub mod timebase;

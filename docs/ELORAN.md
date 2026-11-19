@@ -224,6 +224,30 @@ the local noise (about 1 ns for the baseband marker at 2 MHz). Evidence: MODELLE
 streams); with hardware the marker is an injected PPS-locked pulse whose own injection delay
 must be calibrated.
 
+## Tactical transmitters and signals of opportunity (tactical, W1119 A16)
+
+Library `kshana_eloran::tactical` (NAVISP-EL1-151 / EL1-152 scenario modelling):
+
+* **Deployable transmitters**: transmitter power, mast height, top loading and loss
+  resistance give the short-monopole efficiency and radiated power; coverage and service
+  radius come from the network planner; `deployable_scenario` writes a simulator scenario with
+  the unknown initial ASF/timing offsets as transmitter clock errors.
+  `kshana-pro eloran tactical templates` lists three illustrative classes (man-pack, vehicle,
+  container; assumed parameters, not vendor data).
+* **Rapid ASF calibration**: a reference receiver at a surveyed site feeds a scalar Kalman
+  filter (random-walk transmitter timing) that converges on the correction beyond PF from a
+  wide prior; `spatial_residual_ns` shows how the correction degrades away from the site.
+* **Signals of opportunity**: AM/LW carriers at known sites and frequencies with unknown
+  phase, made usable by a reference station (differential phase) and cycle resolution against
+  the eLoran fix, fused with eLoran pseudoranges. `kshana-pro eloran tactical study
+  [--scenario <fusion.json>]` (Enterprise) reports weighted HDOP and Monte Carlo RMS / 95 %
+  error for eLoran alone and fused, and the ambiguity success rate. In the built-in
+  weak-geometry template (three eLoran stations within 50° of azimuth, two LW carriers on the
+  other side) the fused error is far smaller than eLoran alone.
+
+Limits: groundwave only (daytime), homogeneous ground in the fusion study, residual
+propagation errors as random biases with stated σ. Evidence: MODELLED.
+
 ## Bench readiness: hardware ready before it arrives
 
 The aim: when the hardware arrives, it only needs plugging in and testing. Everything that can
