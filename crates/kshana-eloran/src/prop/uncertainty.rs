@@ -489,20 +489,32 @@ impl<'a> Engine<'a> {
         self.evaluate(&self.nominal_draw(), &mut HashMap::new())
     }
 
-    /// Run the Monte Carlo and the sensitivity analysis.
-    pub fn run(&self) -> Result<UncertaintyReport, String> {
-        let mut curves = HashMap::new();
-        let nominal = self.evaluate(&self.nominal_draw(), &mut curves);
+    /// The individual Monte Carlo samples: per sample, per path (station-major, then point)
+    /// `[delay ns, ASF ns, field dBµV/m, skywave delay µs]` (the draws [`Engine::run`]
+    /// summarises). For callers that test a decision rule over the propagation draws.
+    pub fn samples(&self) -> Vec<Vec<[f64; 4]>> {
+        self.samples_with(&mut HashMap::new())
+    }
+
+    fn samples_with(&self, curves: &mut HashMap<(u64, u64, u64), GroundCurve>) -> Vec<Out> {
         let mut rng = ChaCha8Rng::seed_from_u64(self.cfg.seed);
         let mut samples: Vec<Out> = Vec::with_capacity(self.cfg.samples);
         for s in 0..self.cfg.samples {
             let d = self.random_draw(&mut rng, s);
-            samples.push(self.evaluate(&d, &mut curves));
+            samples.push(self.evaluate(&d, curves));
             // the per-sample curves are not reused: keep the cache bounded
             if curves.len() > 64 {
                 curves.clear();
             }
         }
+        samples
+    }
+
+    /// Run the Monte Carlo and the sensitivity analysis.
+    pub fn run(&self) -> Result<UncertaintyReport, String> {
+        let mut curves = HashMap::new();
+        let nominal = self.evaluate(&self.nominal_draw(), &mut curves);
+        let samples = self.samples_with(&mut curves);
         let pcts = &self.cfg.percentiles;
         let results = self
             .paths

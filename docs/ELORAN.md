@@ -265,3 +265,12 @@ crate's own simulator, threat models and receiver; no recorded attacks yet).
   explanation. Measured (400 cases per class): 0 clean false alarms; every class identified at
   ≥ 99 % (with the right station). Limits: snapshot, one cause at a time, no whole-band relay
   hypothesis, GNSS loss is attributed to jamming.
+- **Delay-bounded LDC authentication (E7)**, `kshana_eloran::ldc::delay_auth`. The HMAC tag
+  proves origin (and its frame number stops replays at a later frame); the arrival delay of
+  the carrying pulses must also lie within `k·√(σ_ASF² + σ_TOA² + σ_clock²)` of the predicted
+  `PF + SF + ASF`, so a relay of authentic frames is rejected (`Late`) although its MAC
+  verifies. The bound is the replay protection level (largest hideable relay delay).
+  `σ_ASF` can come straight from a `prop::uncertainty` run. Measured over 600 propagation
+  Monte Carlo draws (mapped-area priors): 0.67 % false rejects at `k` for a nominal 0.1 %
+  (the ASF tails are heavier than Gaussian; widen `k` if 0.1 % is required); `k = 1`
+  rejects 28 %.
