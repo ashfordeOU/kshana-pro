@@ -21,7 +21,7 @@ Status: [ ] todo, [~] in progress, [x] done (commit sha).
 - [x] A4 Cross-system spoofing attribution (E1) and meacon detection from propagation signature (E4) (01-3)
 - [x] A5 LDC delay-bounded authentication (E7) (01-27)
 - [x] A6 Spoof-safe online ASF learning gated by the protection level (E3) (01-12)
-- [ ] A7 Self-calibrating simulator loop with signed lineage (F1) (01-26)
+- [x] A7 Self-calibrating simulator loop with signed lineage (F1) (01-26)
 - [x] A8 Integrity-driven ASF survey planner (weighted-HDOP PL; switch to the A3 TPL when merged) (F2) (02-31)
 - [x] A9 Sync-Verify: LF<->GNSS alignment certificate, any simulator vendor (D3) (01-29, move 4)
 - [x] A10 eLoran-disciplined oscillator bench + GNSS->eLoran switchover transients (01-17/25)
@@ -29,8 +29,8 @@ Status: [ ] todo, [~] in progress, [x] done (commit sha).
 - [x] A12 Impulsive atmospheric noise validated against receiver behaviour (01-10)
 - [~] A13 R-Mode (MF R-Mode done: synthesis, ranging, fix; VDES R-Mode and G1187 conformance pending): MF (≈300 kHz) and VDES R-Mode signals + propagation + IALA G1187 conformance (01-11, 02-3)
 - [x] A14 Unified LF+GNSS interference event schema and report (01-23)
-- [ ] A15 Coherent LF + L-band record and replay on one timeline (01-9)
-- [ ] A16 Tactical/deployable transmitter and signals-of-opportunity scenarios (01-18/19)
+- [x] A15 Coherent LF + L-band record and replay on one timeline (01-9)
+- [x] A16 Tactical/deployable transmitter and signals-of-opportunity scenarios (01-18/19)
 
 - [x] A17 Receiver SNR estimate biased low (~28 dB) under Eurofix PPM: rx/mod.rs derives σ from the
       tracking-fit residual, which includes the unmodelled ±1 µs data shifts on pulses 3–8. Fix: noise
@@ -44,12 +44,12 @@ Status: [ ] todo, [~] in progress, [x] done (commit sha).
 ## C. Maritime, aviation, timing
 - [x] C1 PICS: PNT Interference Conformance Suite, clause-mapped (MSC.401/Circ.1575, IEC 61108, ED-259A, IEEE P1952, DHS RPCF, G.8272.1, C37.238), signed scorecards (02-1/7/8/14, P1)
 - [x] C2 PNT-DP (Circ.1575) reference implementation + test vectors (02-2)
-- [ ] C3 Maritime incident evidence pack: NMEA/AIS/VDR ingest, actor-vs-victim analysis (02-5/24/34)
+- [x] C3 Maritime incident evidence pack: NMEA/AIS/VDR ingest, actor-vs-victim analysis (02-5/24/34)
 - [x] C4 Timing compliance packs: MiFID RTS 25, DORA Art. 12, CER, India IST (02-15/16/22)
-- [ ] C5 FDM spoofing event detector for flight data (02-9)
-- [ ] C6 OSNMA receiver conformance scorecard (02-21)
-- [ ] C7 Insurer equipment-resilience scorecard and voyage risk score (02-25/26)
-- [ ] C8 Telecom/grid holdover-under-attack scenarios (G.8272.1 PRTC/ePRTC, C37.238) (02-17/18/19)
+- [x] C5 FDM spoofing event detector for flight data (02-9)
+- [x] C6 OSNMA receiver conformance scorecard (02-21)
+- [x] C7 Insurer equipment-resilience scorecard and voyage risk score (02-25/26)
+- [x] C8 Telecom/grid holdover-under-attack scenarios (G.8272.1 PRTC/ePRTC, C37.238) (02-17/18/19)
 
 ## D. Lunar and deep space (Pro, on top of the open lunar modules)
 - [x] D1 Lunar time with GUM uncertainty, TCL/TL switchable, W0 sensitivity (03-1/8)
@@ -57,10 +57,10 @@ Status: [ ] todo, [~] in progress, [x] done (commit sha).
 - [x] D3 Earth–Moon TWTT holdover calculator (03-4)
 - [x] D4 TL–UTC broadcast offset encoding + conformance vectors (03-5)
 - [x] D5 LUNEX prototype reader/writer/validator + LuGRE converter (03-30)
-- [ ] D6 LuGRE C/N0 reproduction harness, pre-registered (03-14)
-- [ ] D7 LNSP SLA verification: SISE/availability/continuity signed monthly reports (03-16/25)
-- [ ] D8 Lunar mission-review evidence pack (03-24)
-- [ ] D9 Mars coordinate time + MTC/MSD (03-9)
+- [x] D6 LuGRE C/N0 reproduction harness, pre-registered (03-14)
+- [x] D7 LNSP SLA verification: SISE/availability/continuity signed monthly reports (03-16/25)
+- [x] D8 Lunar mission-review evidence pack (03-24)
+- [x] D9 Mars coordinate time + MTC/MSD (03-9)
 
 ## Resume
 If a session stops: read this file on `build/w1119`, `git log`, pick the first [ ] or [~] item, continue.
