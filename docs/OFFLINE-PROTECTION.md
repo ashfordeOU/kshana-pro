@@ -12,7 +12,9 @@ attribution, E3 spoof-safe ASF learning, E4 meacon detection, E7 delay-bounded L
 authentication, F1 self-calibrating simulator loop, F2 integrity-driven ASF survey planner,
 C2 first-plug conformance, B2 hardware-anchored waveform evidence. Their CLI entry points
 are `eloran selfcal`, `eloran survey-plan`, `eloran guard` and `eloran bench firstplug`
-(plus the attribution library used by `guard`).
+(plus the attribution library used by `guard`). The LDC/ASF fault detection and exclusion
+(`eloran ldc-fde`, research 2026-11-20 gaps B3702; not yet in the register, for the owner to
+classify) is gated the same way.
 
 ## The layers
 
