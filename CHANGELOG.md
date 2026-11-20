@@ -123,6 +123,14 @@ own bullet so parallel work merges cleanly.
   break-even campaign rates), `synth` and `check`. All Pro; files in, files out; no instrument is
   driven. MODELLED, synthetic inputs (`tests/simlab.rs`). Tier manifest regenerated;
   integration tests 98 -> 99.
+- **LEO timing verification (backlog E21 B2102; docs/LEO-TIMING.md).** `kshana-pro leo-timing`
+  (feature `pro-leo-timing-scorecard`, Pro): `score` (pre-registered scorecard of a timing
+  receiver on its LEO field logs: per environment availability, RMS, 95th percentile and maximum
+  absolute time error, MTIE and TDEV, the maximum set against the PRTC-A limit as a measured
+  comparison, stated vendor claims reproduced or not, and the authentication replay window held
+  or breached; signed), plus free `hash` (the method hash to register before taking logs),
+  `check` and `synth`. VALIDATED only with real logs and a matching registration, MODELLED
+  otherwise. Tier manifest regenerated; tests/leo_timing.rs on synthetic logs.
 - **UTM / U-space positioning integrity (backlog E18 B1804; docs/UTM-INTEGRITY.md).**
   `kshana-pro utm` (feature `pro-utm-integrity`, Pro; `feed` `pro-ussp-feed`, Enterprise):
   `sora` (SORA-ready GNSS-interference input for one operation: route exposure on each day

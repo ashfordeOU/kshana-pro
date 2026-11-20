@@ -326,6 +326,9 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-simlab-replay" => Tier::Pro,
         "pro-simlab-selftest" => Tier::Pro,
         "pro-simlab-report" => Tier::Pro,
+        // LEO timing verification (research 2026-11-20 gaps E21 B2102): the pre-registered
+        // scorecard from field logs (Pro). Hashing a plan and checking a result stay free.
+        "pro-leo-timing-scorecard" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -439,6 +442,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-simlab-report",
     "pro-altpnt-evidence",
     "pro-altpnt-campaign",
+    "pro-leo-timing-scorecard",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered
