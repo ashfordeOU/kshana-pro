@@ -13,6 +13,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-approach-availability",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-area-console",
       "type": "feature",
       "tier": "pro"
@@ -83,12 +88,22 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-nuisance-alerts",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-obs-provenance",
       "type": "feature",
       "tier": "pro"
     },
     {
       "kind": "pro-report-verification",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-residual-effects",
       "type": "feature",
       "tier": "pro"
     },
@@ -199,6 +214,11 @@
     },
     {
       "kind": "pro-uncertainty",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-unpublished-areas",
       "type": "feature",
       "tier": "pro"
     },
