@@ -5,6 +5,12 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Marine survey and construction positioning QC under interference (research 2026-11-20
+  gaps B0807; docs/SURVEY-QC.md).** `kshana-pro survey-qc run` (`pro-survey-qc`, Pro): per-epoch
+  indicators (C/N0 and AGC drops against the line's own baseline, satellites, fix quality,
+  correction age, sigma and cross-track against the user's tolerance), merged intervals, PASS /
+  DEGRADED / RE-RUN per line, a signed QC annex and a site risk plan by hour and cell;
+  `survey-qc synth` (free). Tier manifest regenerated; `tests/survey_qc.rs` (2 tests).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference

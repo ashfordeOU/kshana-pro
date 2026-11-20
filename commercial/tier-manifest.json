@@ -358,6 +358,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-survey-qc",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-telematics-antispoof",
       "type": "feature",
       "tier": "pro"
