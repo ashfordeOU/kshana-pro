@@ -257,6 +257,10 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-space-rx-exposure" => Tier::Pro,
         "pro-space-rx-qual" => Tier::Pro,
         "pro-space-rx-see" => Tier::Pro,
+        // UTM / U-space positioning integrity (research 2026-11-20 gaps E18 B1804): SORA input,
+        // Remote ID checks and per-flight attestations (Pro); the USSP feed (Enterprise).
+        "pro-utm-integrity" => Tier::Pro,
+        "pro-ussp-feed" => Tier::Enterprise,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -333,6 +337,8 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-space-rx-exposure",
     "pro-space-rx-qual",
     "pro-space-rx-see",
+    "pro-utm-integrity",
+    "pro-ussp-feed",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered
