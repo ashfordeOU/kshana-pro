@@ -38,12 +38,57 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-avionics-kit",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-avionics-recovery",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-avionics-tests",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-bid-attestation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-bridge-consistency",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-bridge-drills",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-dependency-audit",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-dependency-register",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-desktop",
       "type": "feature",
       "tier": "pro"
     },
     {
       "kind": "pro-dispute-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-ecdis-ep-test",
       "type": "feature",
       "tier": "pro"
     },
@@ -83,6 +128,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-interference-complaint",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-interference-reports",
       "type": "feature",
       "tier": "pro"
@@ -109,6 +159,11 @@
     },
     {
       "kind": "pro-regional-datasets",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-regulator-pack",
       "type": "feature",
       "tier": "pro"
     },

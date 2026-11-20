@@ -1,0 +1,78 @@
+# Example MASS declaration (fictitious ship). The owner declares the architecture; Kshana
+# walks it. Kinds: gnss, sensor, processor, controller, actuator, link, operator, power, other.
+vessel = "Example autonomous coaster (fictitious)"
+override_path = ["roc-override", "override-controller"]
+controlled = ["ans", "autopilot"]
+
+[[component]]
+id = "gnss-a"
+kind = "gnss"
+
+[[component]]
+id = "gnss-b"
+kind = "gnss"
+
+[[component]]
+id = "radar"
+kind = "sensor"
+
+[[component]]
+id = "gyro"
+kind = "sensor"
+
+[[component]]
+id = "ans"
+kind = "processor"
+depends_on = ["gnss-a", "gnss-b", "radar", "gyro"]
+
+[[component]]
+id = "autopilot"
+kind = "controller"
+depends_on = ["ans", "gyro"]
+
+[[component]]
+id = "sat-link"
+kind = "link"
+depends_on = ["time-server"]
+
+[[component]]
+id = "time-server"
+kind = "processor"
+depends_on = ["gnss-a"]
+notes = "Disciplines the link's encryption clock from GNSS"
+
+[[component]]
+id = "roc-override"
+kind = "operator"
+depends_on = ["sat-link"]
+
+[[component]]
+id = "override-controller"
+kind = "controller"
+depends_on = ["gyro"]
+
+[[component]]
+id = "steering"
+kind = "actuator"
+depends_on = ["autopilot", "override-controller"]
+
+[[oe_condition]]
+id = "OE-3"
+description = "Coastal transit, Baltic approaches"
+pnt_condition = "GNSS jammed for up to 60 minutes"
+expected = "Continue on radar and gyro; alert the ROC within 1 minute"
+evidence = ["kshana-testkit-build/1", "kshana-pro-bam-alert-check/1"]
+
+[[oe_condition]]
+id = "OE-4"
+description = "Port approach"
+pnt_condition = "GNSS spoofed with a slow position drag"
+expected = "Detect and exclude GNSS; hand over to the ROC"
+evidence = ["kshana-testkit-build/1", "kshana-pics-scorecard/1"]
+
+[[oe_condition]]
+id = "OE-7"
+description = "Open sea, satellite link lost"
+pnt_condition = "GNSS available, link down"
+expected = "Minimum-risk condition"
+evidence = []

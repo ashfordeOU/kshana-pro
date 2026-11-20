@@ -1,0 +1,82 @@
+{
+  "format": "kshana-pro-regulator-catalogue/1",
+  "id": "imo-msc401-432",
+  "title": "IMO MSC.401(95) as amended by MSC.432(98): multi-system shipborne radionavigation receivers",
+  "kind": "type-approval",
+  "status": "Adopted performance standard; applies to installations from 31 Dec 2017 (research 09b G81)",
+  "source": {
+    "title": "Resolution MSC.401(95): performance standards for multi-system shipborne radionavigation receivers, as amended by Resolution MSC.432(98)",
+    "version": "MSC.401(95), 8 June 2015; MSC.432(98), 2017",
+    "url": "https://wwwcdn.imo.org/localresources/en/KnowledgeCentre/IndexofIMOResolutions/MSCResolutions/MSC.401(95).pdf",
+    "read": "Not read in full in this work; rows are at topic level from the research summaries. The IEC test specification for multi-system receivers was not found (research 09b, unverified). Type examination is by a notified body (MED module B)."
+  },
+  "rows": [
+    {
+      "id": "MSR-1",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 09b section 3.6 (source G81) and 2026-11-19 02 section 1.1: what the resolution covers; no clause numbers were read",
+      "topic": "Position from all available GNSS, augmentation and terrestrial radionavigation signals the receiver supports, combined",
+      "evidence": [
+        "kshana-testkit-build/1",
+        "kshana.standards-pack-report/1",
+        "kshana-pics-scorecard/1"
+      ],
+      "gap": "Measured accuracy of the equipment needs its own logged test; scenario parameters are representative."
+    },
+    {
+      "id": "MSR-2",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 09b section 3.6 (source G81) and 2026-11-19 02 section 1.1: what the resolution covers; no clause numbers were read",
+      "topic": "Integrity of the position (for example RAIM) and an indication when it cannot be assured",
+      "evidence": [
+        "kshana-testkit-build/1",
+        "kshana.standards-pack-report/1",
+        "kshana-pro-receiver-scorecard/1"
+      ],
+      "gap": "The equipment's integrity method is described by the maker; Kshana scores its observable output only."
+    },
+    {
+      "id": "MSR-3",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 09b section 3.6 (source G81) and 2026-11-19 02 section 1.1: what the resolution covers; no clause numbers were read",
+      "topic": "Alerts and status for loss of position, loss of integrity and degraded service",
+      "evidence": [
+        "kshana-pro-bam-alert-check/1",
+        "kshana-testkit-build/1"
+      ],
+      "gap": "The alert interface itself is examined against the bridge alert standards (see catalogue bam-pnt-alerts)."
+    },
+    {
+      "id": "MSR-4",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 09b section 3.6 (source G81) and 2026-11-19 02 section 1.1: what the resolution covers; no clause numbers were read; the resolution has no threat or spoofing test cases (research 02 section 1.1)",
+      "topic": "Behaviour under interference: jamming and spoofing detection and recovery (no test cases in the resolution)",
+      "evidence": [
+        "kshana-testkit-build/1",
+        "kshana-pics-scorecard/1",
+        "kshana-pro-receiver-scorecard/1"
+      ],
+      "gap": "Optional for the resolution; offered as additional evidence."
+    },
+    {
+      "id": "MSR-5",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 09b section 3.6 (source G81) and 2026-11-19 02 section 1.1: what the resolution covers; no clause numbers were read",
+      "topic": "Time output referenced to UTC and its validity indication",
+      "evidence": [
+        "kshana-testkit-build/1",
+        "kshana-pro-timing-scorecard/1"
+      ],
+      "gap": "Timing output tested only where the equipment logs it."
+    },
+    {
+      "id": "MSR-6",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 09b section 3.6 (source G81) and 2026-11-19 02 section 1.1: what the resolution covers; no clause numbers were read",
+      "topic": "Installation, power interruption and environmental tests (IEC 60945 family)",
+      "evidence": [],
+      "gap": "Not provided by Kshana: a test laboratory performs them."
+    }
+  ],
+  "wording": "Each row names a requirement of the document (paraphrased, never quoted at length, with its clause where the research read it), the Kshana evidence formats that speak to it and the gap Kshana does not cover. A pre-assessment is an aid for preparing a submission. It does not state, and must not be read as stating, that any product, ship or operator meets the document; that judgement belongs to the notified body, class society, administration or assessor."
+}

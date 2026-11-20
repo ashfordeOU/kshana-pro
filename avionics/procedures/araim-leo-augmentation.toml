@@ -1,0 +1,81 @@
+format = "kshana-avionics-procedure/1"
+id = "araim-leo-augmentation"
+version = 1
+title = "ARAIM: the change in protection levels from adding LEO ranging sources"
+purpose = "GPS and Galileo plus six satellites of a LEO constellation with representative, hypothetical ISM values. The reference reports the levels with and without the LEO satellites: readiness evidence for LEO in ARAIM, which no published ISM covers yet."
+kind = "araim"
+modelled_on = ["WG-C ARAIM Technical Subgroup, Reference Airborne Algorithm Description Document v4.2 (constellation-generic fault model)"]
+tags = ["araim", "leo", "readiness"]
+
+[[parameter]]
+name = "tol_pl_m"
+unit = "m"
+meaning = "largest difference between the equipment protection level and the reference"
+source = "applicant may tighten it"
+public_value = 0.05
+public_source = "WG-C ARAIM Technical Subgroup, Reference Airborne Algorithm Description Document v3.1 (2019), Table 4, TOL_PL"
+
+[[parameter]]
+name = "hal_m"
+unit = "m"
+meaning = "horizontal alert limit of the operation under test"
+source = "applicant: from the operation's requirements"
+
+[[parameter]]
+name = "val_m"
+unit = "m"
+meaning = "vertical alert limit of the operation under test (vertical: readiness evidence only)"
+source = "applicant: from the operation's requirements"
+
+[[parameter]]
+name = "emt_limit_m"
+unit = "m"
+meaning = "effective monitor threshold limit (optional)"
+source = "applicant"
+
+[[parameter]]
+name = "sigma_acc_limit_m"
+unit = "m"
+meaning = "vertical accuracy sigma limit (optional)"
+source = "applicant"
+
+[araim]
+check = "cases"
+
+[[araim.case]]
+id = "gps-galileo-leo"
+description = "7 GPS + 7 Galileo + 6 LEO; LEO ISM values hypothetical"
+compare_without = ["leo"]
+
+[[araim.case.constellation]]
+name = "gps"
+p_const = 1e-8
+p_sat = 1e-5
+sigma_ura_m = 1.0
+sigma_ure_m = 0.667
+b_nom_m = 0.5
+sigma_tropo_m = 0.2
+sigma_user_m = 0.4
+el_az_deg = [[78, 20], [52, 95], [41, 160], [33, 230], [27, 300], [18, 345], [12, 60]]
+
+[[araim.case.constellation]]
+name = "galileo"
+p_const = 1e-4
+p_sat = 1e-5
+sigma_ura_m = 1.0
+sigma_ure_m = 0.667
+b_nom_m = 0.5
+sigma_tropo_m = 0.2
+sigma_user_m = 0.4
+el_az_deg = [[66, 250], [47, 10], [38, 130], [29, 195], [22, 280], [15, 75], [10, 320]]
+
+[[araim.case.constellation]]
+name = "leo"
+p_const = 1e-4
+p_sat = 1e-4
+sigma_ura_m = 1.5
+sigma_ure_m = 1.0
+b_nom_m = 0.75
+sigma_tropo_m = 0.2
+sigma_user_m = 0.5
+el_az_deg = [[70, 140], [45, 300], [35, 40], [25, 180], [15, 250], [12, 110]]

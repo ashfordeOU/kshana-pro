@@ -19,6 +19,55 @@ own bullet so parallel work merges cleanly.
   free `check` and `synth`. MODELLED, decision support only, never a flight authorisation or a
   SORA approval. The hosted per-flight verdict is not part of this change.
   Tier manifest regenerated; tests/utm_integrity.rs on synthetic inputs.
+- **Avionics test library (research 2026-11-20 gaps E12: B1201, B1203, B1205, B1206 part 1;
+  docs/AVIONICS-TEST-LIBRARY.md).** `kshana-pro avionics`: SBAS L1 framing (MT 0, 1, 2-5, 6,
+  7, 26, 63; CRC-24Q) and a deterministic message-sequence generator for failure tests (UDREI
+  not monitored / do not use with IODF-3 alarm, fast-correction withholding, MT0, message
+  loss, fast-correction step, GIVEI, IODP change) with the expected-behaviour timeline; the
+  procedure format `kshana-avionics-procedure/1` (procedures modelled on RTCA DO-229F and the
+  WG-C ARAIM documents, cited by section only; limits are named parameters the applicant
+  supplies, not-assessed when missing) and ten built-in procedures; scoring of an equipment log
+  into a signed verdict (method `kshana-pro/avionics/v1`); ARAIM checks on the open engine's
+  reference algorithm (published WG-C vectors, equipment agreement within TOL_PL,
+  constellation-declared-unusable cases, LEO-added comparison, availability under the
+  applicant's alert limits); a per-avionics-type recovery-time scorecard from test-kit
+  verdicts; a requirement-to-run evidence pack and a tool-qualification support kit (material
+  for the applicant's own DO-330 work, not a qualification). Features `pro-avionics-tests`,
+  `pro-avionics-recovery` (Pro), `pro-avionics-kit` (Enterprise); tier manifest regenerated.
+  All MODELLED (synthetic equipment logs, `tests/avionics.rs`).
+- **Regulator, type-approval and framework pre-assessment packs (E29 B2901-B2906;
+  docs/REGULATOR-PACKS.md).** `kshana-pro regpack`: eight requirement catalogues
+  (`report-templates/regpacks/`) and `regpack assess` (feature `pro-regulator-pack`, Pro), which
+  verifies signed evidence directories and an optional open-engine standards-pack report and
+  states per row evidence supplied, no evidence supplied or not assessed by Kshana; `regpack bam`
+  (alert map rules and replay over PNT-DP output), `regpack mass` (override independence over a
+  declared architecture, OE PNT template), `regpack links` (cleartext links, unauthenticated
+  command paths, the operator's no-encryption-no-fly policy); `regpack complaint` (feature
+  `pro-interference-complaint`, Pro): RR Appendix 10 shaped report annex from episodes and
+  observations, areas at 0.5 degrees or coarser, interfering-station particulars not determined;
+  `regpack bid` (feature `pro-bid-attestation`, Pro): declared BOM export status plus a chain hash
+  over the BOM and test evidence, rechecked by `regpack verify`. Pre-assessment wording only.
+  MODELLED. Tier manifest regenerated; integration tests 85 -> 86.
+- **Ship bridge consistency, dead reckoning, drills and PNT dependency audits (research
+  2026-11-20 gaps, epic E08; docs/BRIDGE-AND-DEPENDENCY.md).** `kshana-pro bridge check`
+  (feature `pro-bridge-consistency`, Pro): cross-sensor consistency of a recorded bridge log
+  (NMEA 0183 or IEC 61162-450; GNSS, GNSS compass, gyro, log, echo-sounder, radar targets of
+  fixed marks, a second receiver, GNSS time against the bridge cadence), a score per epoch and
+  alerts that list the checks in the order they failed and name the implicated sensor by a
+  single-fault rule, saying when the data cannot separate candidates. `bridge dr` (free):
+  dead-reckoning error growth with a 95 % radius, time to a limit, bottom-track depth rule and a
+  Monte Carlo check. `bridge ep-vectors` (free) and `ep-check` (`pro-ecdis-ep-test`, Pro): ECDIS
+  estimated-position fallback vectors (loss, loss in a turn, frozen position, manual position)
+  and a checker of what the ECDIS showed. `bridge drills` (`pro-bridge-drills`, Pro for build
+  and score): six GNSS-denied drill packs with instructor log, rubric, scoring and a signed
+  training record. `kshana-pro dependency` (`pro-dependency-audit`, Pro): PNT dependency graph
+  and audit from a TOML/JSON inventory (GNSS denial with holdover, spoofing without
+  cross-check, single points of failure, isolation switches, autonomy), eight sector templates,
+  GraphML/JSON export, questionnaire kit; `dependency register` (`pro-dependency-register`,
+  Enterprise): pseudonymous per-operator status and per-sector aggregates with small groups
+  withheld. Tier manifest regenerated. Decision support only, never navigation. MODELLED;
+  tests `tests/bridge.rs`, `tests/dependency_audit.rs`.
+
 - **Power-grid and broadcast SFN timing evidence (backlog E31 B3101, B3102;
   docs/GRID-SFN-TIMING.md).** `kshana-pro grid` (feature `pro-grid-timing`, Pro): `pmu` (clock
   error as phase-angle and TVE evidence against the C37.118.1 1 % criterion, joined with the

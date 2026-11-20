@@ -1,0 +1,86 @@
+# Example alert map of PNT-integrity conditions to bridge alerts (fictitious equipment).
+# Conditions: integrity:none|low|medium, status:raised, no-solution, flag:<incomplete|invalid|
+# stale|frozen|jump|inconsistent|disagreement>. Priorities and categories as the maker
+# declares them; the [policy] rules are Kshana pre-assessment rules, not standard text.
+equipment = "Example multi-system PNT unit (fictitious)"
+
+[policy]
+allowed_priorities = ["caution", "warning", "alarm"]
+min_priority_integrity_none = "warning"
+
+[[alert]]
+condition = "integrity:none"
+alert_id = "3061"
+priority = "warning"
+category = "A"
+text = "Position integrity lost"
+
+[[alert]]
+condition = "integrity:low"
+alert_id = "3062"
+priority = "caution"
+category = "B"
+text = "Position integrity low"
+
+[[alert]]
+condition = "status:raised"
+alert_id = "3063"
+priority = "caution"
+category = "B"
+text = "PNT redundancy reduced"
+
+[[alert]]
+condition = "no-solution"
+alert_id = "3064"
+priority = "warning"
+category = "A"
+text = "No position solution"
+
+[[alert]]
+condition = "flag:inconsistent"
+alert_id = "3070"
+priority = "caution"
+category = "B"
+text = "Position source excluded: inconsistent"
+
+[[alert]]
+condition = "flag:disagreement"
+alert_id = "3071"
+priority = "warning"
+category = "A"
+text = "Position sources disagree"
+
+[[alert]]
+condition = "flag:jump"
+alert_id = "3072"
+priority = "caution"
+category = "B"
+text = "Position source excluded: jump"
+
+[[alert]]
+condition = "flag:frozen"
+alert_id = "3073"
+priority = "caution"
+category = "B"
+text = "Position source excluded: frozen"
+
+[[alert]]
+condition = "flag:stale"
+alert_id = "3074"
+priority = "caution"
+category = "B"
+text = "Position source excluded: stale"
+
+[[alert]]
+condition = "flag:invalid"
+alert_id = "3075"
+priority = "caution"
+category = "B"
+text = "Position source excluded: invalid"
+
+[[alert]]
+condition = "flag:incomplete"
+alert_id = "3076"
+priority = "caution"
+category = "B"
+text = "Position source excluded: incomplete"

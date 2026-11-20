@@ -558,7 +558,10 @@ pub struct Feed {
     pub decision_support: &'static str,
 }
 
-fn cells_of(text: &str) -> Result<(String, f64, Vec<(CellId, &'static str)>), String> {
+/// One day map's cells: (date, cell size, cell states).
+type DayCells = (String, f64, Vec<(CellId, &'static str)>);
+
+fn cells_of(text: &str) -> Result<DayCells, String> {
     let m = load_map(text).map_err(|e| e.to_string())?;
     let v: serde_json::Value = serde_json::from_str(text).map_err(|e| e.to_string())?;
     let mut out = Vec::new();
@@ -590,10 +593,12 @@ pub fn feed(req: &Request, maps: &[(String, String)]) -> Result<Feed, String> {
         .as_ref()
         .ok_or("the request has no [feed] table (area, valid_hours)")?;
     let a = p.area;
-    if !(a.iter().all(|x| x.is_finite()) && a[0] < a[2] && a[1] < a[3]) || !(p.valid_hours > 0.0) {
+    let valid =
+        a.iter().all(|x| x.is_finite()) && a[0] < a[2] && a[1] < a[3] && p.valid_hours > 0.0;
+    if !valid {
         return Err("feed.area must be [south, west, north, east] with south < north, west < east, and valid_hours positive".into());
     }
-    let mut days: Vec<(String, f64, Vec<(CellId, &'static str)>)> = Vec::new();
+    let mut days: Vec<DayCells> = Vec::new();
     for (file, text) in maps {
         days.push(cells_of(text).map_err(|e| format!("{file}: {e}"))?);
     }

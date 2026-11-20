@@ -1,0 +1,20 @@
+format = "kshana-avionics-procedure/1"
+id = "sbas-fast-correction-step"
+version = 1
+title = "SBAS: a large but valid fast-correction step does not drop the satellite"
+purpose = "A 40 m step in one satellite's fast correction for 60 s (within the field, UDREI unchanged). The equipment keeps the satellite in use: a continuity check alongside the alarm procedures."
+kind = "sbas-sequence"
+modelled_on = ["RTCA DO-229F, Appendix A (fast corrections)"]
+tags = ["sbas", "continuity"]
+
+[sequence]
+duration_s = 240
+prns = [1, 3, 6, 9, 12, 14, 17]
+
+[[sequence.event]]
+id = "step"
+kind = "fc_step"
+t_s = 90
+duration_s = 60
+prn = 9
+delta_m = 40.0

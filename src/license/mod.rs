@@ -207,6 +207,26 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // replay fidelity (Pro); the build-to-build regression diff (Enterprise).
         "pro-test-kit" => Tier::Pro,
         "pro-test-kit-regression" => Tier::Enterprise,
+        // Avionics test library (research 2026-11-20 gaps, E12): procedure runs, the SBAS
+        // sequence generator and ARAIM checks, the recovery-time scorecard (Pro); the evidence
+        // pack and tool-qualification support kit (Enterprise).
+        "pro-avionics-tests" => Tier::Pro,
+        "pro-avionics-recovery" => Tier::Pro,
+        "pro-avionics-kit" => Tier::Enterprise,
+        // Regulator, type-approval and framework pre-assessment packs (research 2026-11-20
+        // gaps E29): pre-assessment, BAM alert map, MASS override, link security; the
+        // RR Appendix 10 interference report annex; the bid evidence attestation.
+        "pro-regulator-pack" => Tier::Pro,
+        "pro-interference-complaint" => Tier::Pro,
+        "pro-bid-attestation" => Tier::Pro,
+        // Ship bridge and PNT dependency (research 2026-11-20 gaps, epic E08): the bridge
+        // consistency aid, the ECDIS EP fallback tester, drill packs and the dependency audit
+        // with its questionnaire (Pro); the national register across operators (Enterprise).
+        "pro-bridge-consistency" => Tier::Pro,
+        "pro-ecdis-ep-test" => Tier::Pro,
+        "pro-bridge-drills" => Tier::Pro,
+        "pro-dependency-audit" => Tier::Pro,
+        "pro-dependency-register" => Tier::Enterprise,
         // Exposure, route risk and briefings (research 2026-11-20 gaps, E09): transit history
         // and briefings, aviation exposure, regional datasets, road index, spillover footprints.
         "pro-route-exposure" => Tier::Pro,
@@ -281,8 +301,19 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-interference-reports",
     "pro-report-verification",
     "pro-exposure-ledger",
+    "pro-bridge-consistency",
+    "pro-ecdis-ep-test",
+    "pro-bridge-drills",
+    "pro-dependency-audit",
+    "pro-dependency-register",
     "pro-test-kit",
     "pro-test-kit-regression",
+    "pro-avionics-tests",
+    "pro-avionics-recovery",
+    "pro-avionics-kit",
+    "pro-regulator-pack",
+    "pro-interference-complaint",
+    "pro-bid-attestation",
     "pro-route-exposure",
     "pro-aviation-exposure",
     "pro-regional-datasets",
