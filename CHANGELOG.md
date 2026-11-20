@@ -73,6 +73,23 @@ own bullet so parallel work merges cleanly.
   anonymised outcome record written to a local outbox only. `license issue --programme ...`,
   `license feed-receipt issue|install`, `license bench-key init|show`, `license programme`.
   No binary is built or published. Tier manifest regenerated; tests/oem_licensing.rs.
+- **Simulation fidelity and lab tooling (research 2026-11-20 gaps E32: B3201, B3203 and B3206
+  in part; docs/SIMLAB.md).** `kshana-pro simlab`: `chain` (recorder-chain register: Friis
+  cascade NF and gain, recorded bandwidth, group delay with GUM uncertainty, bit depth, AGC and
+  reference findings, the change since the previous registration in the hash-chained `calreg`
+  register, and a `capture.toml` for `testkit fidelity`) and `sync` (synchronous multi-sensor
+  replay check: GNSS I/Q, IMU, CAN and camera streams aligned through shared events, offset,
+  drift, jitter, gaps and residual per stream, and the replay manifest), feature
+  `pro-simlab-replay`; `selftest` (simulator self-test, or AWG/SDR replay-rig check against the
+  station's observations, from reference receivers' C/N0, fixes and PPS, attributing a
+  deviation to the source only when every reference receiver sees it), feature
+  `pro-simlab-selftest`; `report` and `compare` (lab results mapped column by column into a
+  common spoofing/interference test-report vocabulary with an EN 16803 topic index, and
+  results of two or more labs compared with the ISO 13528 En number), feature
+  `pro-simlab-report`; free `tco` (simulator total cost of ownership over the user's quotes,
+  break-even campaign rates), `synth` and `check`. All Pro; files in, files out; no instrument is
+  driven. MODELLED, synthetic inputs (`tests/simlab.rs`). Tier manifest regenerated;
+  integration tests 98 -> 99.
 - **UTM / U-space positioning integrity (backlog E18 B1804; docs/UTM-INTEGRITY.md).**
   `kshana-pro utm` (feature `pro-utm-integrity`, Pro; `feed` `pro-ussp-feed`, Enterprise):
   `sora` (SORA-ready GNSS-interference input for one operation: route exposure on each day

@@ -36,6 +36,7 @@ mod regpack_cmd;
 mod reports_cmd;
 mod scorecard_cmd;
 mod space_rx_cmd;
+mod simlab_cmd;
 mod testkit_cmd;
 mod threats_cmd;
 mod timing_cmd;
@@ -112,6 +113,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro reports <normalise|validate|episodes|verify|reset-check|ledger|check|params|regimes|synth> ...   Interference reports: normalise crew/ATC/mariner reports, validate per regime, episodes, signed verification, exposure ledger and reset check (Pro; ledger Enterprise; check, params, regimes, synth free)\n\
        kshana-pro aviation <approach|residual|nuisance|areas|check|synth> ...   Aviation operational analytics: approach availability and go-around exposure, residual effects and clean-or-reset, nuisance-alert statistics, unpublished interference areas (Pro; areas Enterprise; check, synth free; decision support only)\n\
        kshana-pro utm <sora|feed|rid-check|attest|check|synth> ...   UTM / U-space positioning integrity: SORA-ready interference input, USSP integrity feed, Remote ID position authenticity, per-flight signed attestation (Pro; feed Enterprise; check, synth free; decision support only)\n\
+       kshana-pro simlab <chain|sync|selftest|report|compare|tco|synth|check> ...   Simulation fidelity and lab tooling: recorder-chain register, synchronous multi-sensor replay check, simulator self-test and replay-rig check, comparable lab test reports with En numbers, simulator TCO (Pro; tco, synth, check free)\n\
        kshana-pro obs-provenance <keygen|sign|verify|keyring-add> ...   Signed feeder provenance on kshana.obs/1 batches: feeder key, time, position, sequence, in a sidecar (sign Pro; the rest free)\n\
        kshana-pro ks-inside <methods|call|meter> ...   KS-Inside OEM SDK: the methods of the C ABI, a metered call for integration tests, the meter log's chain and per-unit report (call needs an OEM licence; methods and meter free)\n\
        kshana-pro longterm <key-genesis|key-rotate|request|add-token|stamp|history|verify> ...   Long-term signatures: key history and RFC 3161 archive time-stamp chain over a signed directory, verified offline (Pro; request and verify free)\n\
@@ -202,6 +204,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "sfn",
     "aviation",
     "utm",
+    "simlab",
     "obs-provenance",
     "longterm",
     "agri",
@@ -362,6 +365,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("sfn") => grid_cmd::run_sfn(&args[1..]),
         Some("aviation") => aviation_cmd::run(&args[1..]),
         Some("utm") => utm_cmd::run(&args[1..]),
+        Some("simlab") => simlab_cmd::run(&args[1..]),
         Some("obs-provenance") => evidence_infra_cmd::provenance(&args[1..]),
         Some("longterm") => evidence_infra_cmd::longterm(&args[1..]),
         Some("ks-inside") => ks_inside_cmd::run(&args[1..]),

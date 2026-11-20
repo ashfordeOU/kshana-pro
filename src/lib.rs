@@ -105,6 +105,7 @@ pub mod testkit;
 pub mod threat_library;
 pub mod units;
 // Shared helpers; public so a server-side extension crate can reuse them (not a stable API).
+pub mod simlab;
 #[doc(hidden)]
 pub mod util;
 pub mod utm;
