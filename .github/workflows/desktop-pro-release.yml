@@ -4,8 +4,8 @@
 # Studio frontend from the open repository at the given tag, as one universal app (Apple silicon and Intel),
 # signs it with the Developer ID Application identity and the hardened runtime, notarises and staples the app
 # and the disk image, checks both with codesign, spctl and stapler, and keeps the .dmg and its SHA-256 in a private draft release
-# of this repository and in ~/kshana-releases/desktop-pro on the runner Mac. Nothing is published. It runs on the owner's self-hosted Mac
-# (hosted macOS is not available to this private repository); the user keychain search list is saved and
+# of this repository and in ~/kshana-releases/desktop-pro on the runner Mac. Nothing is published. It runs on a GitHub-hosted macOS runner
+# (public repository since 20 Nov 2026); the user keychain search list is saved and
 # restored, and the temporary keychain is deleted at the end. Secret values are never printed.
 name: Desktop Pro release (macOS)
 on:
@@ -29,7 +29,7 @@ concurrency:
 jobs:
   macos:
     name: sign, notarise, keep
-    runs-on: [self-hosted, macos, arm64, kshana-pro]
+    runs-on: macos-latest
     timeout-minutes: 120
     env:
       OPEN_TAG: ${{ inputs.open_tag }}
