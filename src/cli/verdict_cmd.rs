@@ -15,7 +15,7 @@ use crate::remote_verdict::{
 const USAGE: &str = "kshana-pro verdict — hosted methods, answered as signed verdicts\n\
 \n\
 USAGE:\n\
-    kshana-pro verdict <selfcal|survey|cause> <request.json> [--url <base>] [--license <token>] [--trust <key>] [--out <verdict.json>]\n\
+    kshana-pro verdict <selfcal|survey|cause|calibrate> <request.json> [--url <base>] [--license <token>] [--trust <key>] [--out <verdict.json>]\n\
         Send the request to the verdict service, authorised by your licence, and verify the\n\
         signed verdict against the service's public key before printing or saving it.\n\
 \n\
@@ -27,6 +27,9 @@ USAGE:\n\
                insufficient evidence. The request holds the reported AIS/ADS-B track and\n\
                any independent tracks (radar, SAR, MLAT, LRIT, AIS relays), receiver\n\
                observables and regional interference reports (docs/REMOTE-VERDICTS.md)\n\
+      calibrate  general parametric calibration of a simulator against telemetry: named\n\
+               parameters with priors and bounds, a closed-form model per observable or\n\
+               runs of your own simulator over a design (docs/REMOTE-VERDICTS.md)\n\
 \n\
     kshana-pro verdict verify <verdict.json> [--trust <key>]\n\
         Check a saved verdict: intact, and signed by the trusted key.\n\
@@ -151,6 +154,6 @@ mod tests {
                 "{m} missing from usage"
             );
         }
-        assert!(USAGE.contains("<selfcal|survey|cause>"));
+        assert!(USAGE.contains("<selfcal|survey|cause|calibrate>"));
     }
 }
