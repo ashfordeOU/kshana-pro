@@ -45,6 +45,17 @@ electronically.)
 | **Restricted/classified resilience scenarios** | L2 | **Controlled / national-security** | Anything customer- or government-supplied at a classification level is handled under that customer's regime, not this assessment. |
 | Device twin (L1) built from NDA hardware data | L1 | **Depends on the device** | A quantum-PNT payload may itself be controlled; the twin inherits scrutiny. Screen per engagement. |
 
+> **DRAFT factual update, 2026-10-07, for counsel review (no determination changed).** The
+> "Open Kshana engine" row above was written before the engine's signal-level (IQ) work, and the
+> table does not list it. The public engine now contains a software GNSS receiver, GNSS signal
+> generators and interference-mitigation signal processing. It also synthesises jammer waveforms
+> into an IQ data file (the `spectrum` kind's `[iq]` export, since 0.29.0) and a spoofer signal in
+> memory (`spoof_capture`). It does not transmit and has no radio-hardware interface. Facts,
+> evidence and the new items counsel must screen (N1–N6) are in
+> `commercial/export-control/CLASSIFICATION-REQUEST-PACK.md` section 2.1a. Planned partner
+> work on lab recordings made under jammer and spoofer tests (item N6) touches gates 1 and 3
+> below and needs counsel's answer before it starts.
+
 ## 3. Control gates (operational rules until classification is final)
 
 1. **Default-controlled for L2.** Treat all L2 inputs and outputs as controlled

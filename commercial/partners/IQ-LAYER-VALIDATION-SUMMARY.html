@@ -139,9 +139,10 @@ no transmit path.</p>
 </ul>
 <h2>Explicit limits</h2>
 <ul>
-<li><strong>Software only; no transmit</strong>; no output drives radio hardware. <strong>No interference or spoofer
-  waveform synthesis</strong> — channel effects act on the legitimate signal only; jamming/spoofing remain
-  analytic models elsewhere in the engine.</li>
+<li><strong>Software only; no transmit</strong>; no output drives radio hardware. The IQ scene generator adds
+  <strong>no interference or spoofer signals</strong> (channel effects act on the legitimate signal only). Elsewhere
+  the engine synthesises them in software only: the <code>spectrum</code> kind can export a 3 ms jammer-waveform
+  IQ snapshot as SigMF (since 0.29.0), and <code>spoof_capture</code> builds an in-memory spoofer signal for a loop-capture model.</li>
 <li><strong>Not in WASM/browser or MCP in 0.32.0</strong> (<code>iq::cli</code> is <code>cfg(not(wasm32))</code>; no <code>iq_*</code> in <code>src/wasm.rs</code>
   or the MCP server). MCP exposure and a WASM demo are <strong><span class="mark planned">PLANNED</span></strong>.</li>
 <li><strong>Tracking hand-off default:</strong> <code>iq_track</code> with <code>acq_coherent=1</code> (≈ 667 Hz bins) can false-lock ≈ 500 Hz

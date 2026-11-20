@@ -354,8 +354,16 @@ the legitimate-signal / receiving / analysis side. The following would touch the
 | F1 | **Analytic interference models in scoring** — spectral-separation C/N0 degradation (`jamming::effective_cn0_dbhz`, `spectrum` SSC κ, already in the engine) used to draw a *predicted* C/N0-vs-J/S reference curve next to the measured one | Closed-form, no waveform; already shipped for the observable-level kinds | Gives the partner "measured vs predicted" per jammer type; feeds labfit (R7); SSC values already VALIDATED | It is a model *of* interference; must be labelled MODELLED; D5 must be fixed first; partner might read it as a jammer simulator claim |
 | F2 | **Equivalent-noise C/N0 degradation inside our scenes** (raise the noise floor or scale signal power over time to emulate wideband-jammer-equivalent C/N0 loss) | Not a jammer waveform, but a stand-in for one | Lets us test B3.3/B8.2 scoring end to end without their recordings | Blurs the line ("Kshana simulates jamming"); synthetic C/N0 ramps can be made with `--cn0` profiles that are explicitly not interference — prefer that wording |
 | F3 | **Duplicate-PRN / time-offset copies of a satellite in a scene** (a spoofer-shaped stimulus) | Synthesis of a spoofing signal | Would exercise spoof detectors (SQM, multi-peak) without lab data | **Crosses the line.** Recommend NO; use partner recordings only |
-| F4 | **CW/chirp/pulsed waveforms added to IQ** | Jammer synthesis | Front-end mitigation tests without lab data | **Crosses the line.** Recommend NO; the frontend tests already use tones and noise as generic DSP test signals (`tests/iq_frontend.rs` header) — keep it there, never as a "jammer" product feature |
+| F4 | **CW/chirp/pulsed waveforms added to IQ** | Jammer synthesis | Front-end mitigation tests without lab data | **Crosses the line.** Recommend NO; the frontend tests already use tones and noise as generic DSP test signals (`tests/iq_frontend.rs` header) — keep it there, never as a "jammer" product feature. **Exists already:** file-only analytic jammer IQ snapshots (CW, chirp, noise) via the `spectrum` kind's `[iq]` / `--export sigmf` since 0.29.0. The founder decided on 2026-10-07 to keep that existing feature; F4 as a NEW capability stays held pending counsel |
 | F5 | **Exporting scenes in a format that feeds an RF simulator / SDR transmitter** | A path to transmit | Partner might ask to load our scenes into their simulator | Policy says no format that drives radio hardware (`docs/design/GNSS-IQ-PLAN.md:24-29`); decide explicitly |
+
+**Correction (2026-10-07):** F3 and F4 are not purely hypothetical. The public engine already
+synthesises interference and spoofing signals in software in two places, outside the IQ layer.
+The `spectrum` kind's `[iq]` section, shipped since 0.29.0, draws CW, chirp and noise jammers
+into an IQ snapshot that `--export sigmf` writes to a file. `spoof_capture` adds an in-memory
+spoofer copy of GPS L1 C/A for its loop-capture model. Neither transmits. The facts and the
+counsel questions are in `commercial/export-control/CLASSIFICATION-REQUEST-PACK.md` §2.1a (items
+S4, S5, N3, N4). Founder decision (2026-10-07): keep these existing features and send the corrected pack to export-control counsel. F3, F4 and F5 as NEW capabilities stay held pending counsel.
 
 Recommendation: approve **F1** (with D5 fixed and MODELLED labels) and the non-interference wording of **F2**
 (C/N0 profiles only); decline **F3–F5**.

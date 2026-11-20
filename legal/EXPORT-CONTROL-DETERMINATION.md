@@ -141,6 +141,16 @@ counsel. Mark anything unresolved **OPEN**.
 
 ### A. Product characterization (what Pack B actually is)
 
+> **DRAFT factual note, 2026-10-07, for counsel review.** Pack B itself is unchanged. The
+> public engine it builds on, however, now has signal-level (IQ) capability: a software GNSS
+> receiver, signal generators, mitigation signal processing, a jammer-waveform IQ export and an
+> in-memory spoofer signal for a capture model. Its earlier description as containing "no
+> receiver, no signal generator, no jammer and no spoofer" was not accurate. See
+> `commercial/export-control/CLASSIFICATION-REQUEST-PACK.md` section 2.1a (items S1–S12 and
+> N1–N6). Answers to A2 and A4 below should take it into account.
+
+
+
 - **A1.** What does Pack B compute, precisely? State each output: **timing
   holdover** behaviour, **protection-level / TPL bounds**, **time-to-breach**,
   **CUSUM (or other) detector** logic, holdover curves, requirement-traceability
