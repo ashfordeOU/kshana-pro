@@ -346,6 +346,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-3gpp-tolerance" => Tier::Pro,
         // Sealed incident capture and chain of custody (research 2026-11-20 gaps, B0604).
         "pro-custody-capture" => Tier::Pro,
+        // Marine survey and construction positioning QC under interference (B0807).
+        "pro-survey-qc" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -469,6 +471,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-lunar-rf-forensics",
     "pro-3gpp-tolerance",
     "pro-custody-capture",
+    "pro-survey-qc",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered
