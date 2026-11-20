@@ -5,6 +5,20 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **UTM / U-space positioning integrity (backlog E18 B1804; docs/UTM-INTEGRITY.md).**
+  `kshana-pro utm` (feature `pro-utm-integrity`, Pro; `feed` `pro-ussp-feed`, Enterprise):
+  `sora` (SORA-ready GNSS-interference input for one operation: route exposure on each day
+  map through the open engine's route reader, days affected with a Wilson interval, the
+  dead-reckoning error over the worst degraded stretch for the UAS class, the containment
+  margin against the contingency buffer, filled into `sora-input.md`), `feed` (USSP integrity
+  feed: per cell in an area, latest state, degraded days, advisory class and validity, JSON
+  Lines), `rid-check` (Remote ID position authenticity from the broadcasts alone: speed
+  consistency, implied speed and climb, time order, clones, operator distance; no emitter
+  location), `attest` (per-flight positioning-integrity attestation from telemetry, the day
+  map and Remote ID, signed; verifies with `kshana-pro dossier verify` or `utm check`), plus
+  free `check` and `synth`. MODELLED, decision support only, never a flight authorisation or a
+  SORA approval. The hosted per-flight verdict is not part of this change.
+  Tier manifest regenerated; tests/utm_integrity.rs on synthetic inputs.
 - **Power-grid and broadcast SFN timing evidence (backlog E31 B3101, B3102;
   docs/GRID-SFN-TIMING.md).** `kshana-pro grid` (feature `pro-grid-timing`, Pro): `pmu` (clock
   error as phase-angle and TVE evidence against the C37.118.1 1 % criterion, joined with the

@@ -97,6 +97,7 @@ pub mod units;
 // Shared helpers; public so a server-side extension crate can reuse them (not a stable API).
 #[doc(hidden)]
 pub mod util;
+pub mod utm;
 pub mod watermark;
 
 // Value layers — gated stubs (seam guards only; no proprietary capability is built

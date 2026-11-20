@@ -258,6 +258,16 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-ussp-feed",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-utm-integrity",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-watch-wall",
       "type": "feature",
       "tier": "pro"
