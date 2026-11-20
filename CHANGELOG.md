@@ -15,6 +15,23 @@ own bullet so parallel work merges cleanly.
   withheld; side-by-side table in input order with no ranking; signed evidence directory.
   Tier manifest regenerated; synthetic demo in `examples/clock-bench/`; `tests/clock_bench.rs`
   (9 tests).
+- **Space-segment GNSS receiver evidence (research 2026-11-20 gaps E20: B2001, B2002,
+  B2003; docs/SPACE-RECEIVER.md).** `kshana-pro space-rx`: the ground-interference envelope
+  a spacecraft receiver meets (TLE on the open engine's SGP4, declared areas or degraded cells
+  of an open-engine interference map, antenna pattern; per-pass J/S and effective C/N0 per
+  assumed EIRP, time beyond the receiver's tested J/S, Doppler offset and rate of a ground
+  transmitter seen from orbit; per-revolution exposure and simulator test points, signal
+  parameters only); the campaign format `kshana-space-rx-campaign/1` (TID steps with
+  navigation outputs, SEE, vibration, thermal, tracking and interference runs), signed
+  scorecards against a `kshana-space-rx-mission/1` profile, the selection database
+  `kshana-space-rx-db/1` with its JSON Schema and a qualification process template populated
+  from a campaign; radiation-fault signatures in a receiver output trace (latch-up suspect,
+  reset, functional interrupt, frozen output, one-epoch upsets with a bit-flip test, time-tag
+  and clock upsets; persistent steps and millisecond clock jumps reported as not radiation),
+  an injector for fixtures with ground truth, NMEA receiver-to-OBC corrupt-data vectors with a
+  reference parser and OBC log scoring, and a Weibull/LET SEE rate forecast. Features
+  `pro-space-rx-exposure`, `pro-space-rx-qual`, `pro-space-rx-see` (Pro); tier manifest
+  regenerated. All MODELLED (SYNTHETIC samples, `tests/space_rx.rs`).
 - **UTM / U-space positioning integrity (backlog E18 B1804; docs/UTM-INTEGRITY.md).**
   `kshana-pro utm` (feature `pro-utm-integrity`, Pro; `feed` `pro-ussp-feed`, Enterprise):
   `sora` (SORA-ready GNSS-interference input for one operation: route exposure on each day

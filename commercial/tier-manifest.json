@@ -263,6 +263,21 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-space-rx-exposure",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-space-rx-qual",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-space-rx-see",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-spillover-footprint",
       "type": "feature",
       "tier": "pro"

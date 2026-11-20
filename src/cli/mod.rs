@@ -33,6 +33,7 @@ mod receiver_cmd;
 mod regpack_cmd;
 mod reports_cmd;
 mod scorecard_cmd;
+mod space_rx_cmd;
 mod testkit_cmd;
 mod threats_cmd;
 mod timing_cmd;
@@ -100,6 +101,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro pics <list|show|mapping|score|export|sample|verify> ...   PICS: PNT Interference Conformance Suite, versioned jamming/spoofing scenarios with pre-registered bars, clause mapping and signed scorecards (score Pro; the rest free)\n\
        kshana-pro testkit <validate|compile|run|diff|from-incident|from-library|fidelity|packs|show|sample|verify> ...   Test-as-code kit: neutral scenarios compiled for lab simulators, CI runner with signed verdicts per build, regression diff, incident-to-regression, replay fidelity, scenario packs (`kshana-pro testkit` for details; validate, packs, sample, verify free)\n\
        kshana-pro avionics <list|show|validate|generate|run|sample|recovery|evidence|kit|verify> ...   Avionics test library: SBAS failure-test procedures with a message-sequence generator, ARAIM checks, per-avionics-type recovery-time scorecard, evidence pack and tool-qualification support kit (`kshana-pro avionics` for details; list, show, validate, sample, verify free)\n\
+       kshana-pro space-rx <exposure|score|db|detect|inject|vectors|tolerance|rate|sample|verify> ...   Space-segment GNSS receiver evidence: ground-interference envelope from orbit, qualification scorecards, selection database and template, radiation-fault signatures, OBC interface vectors, SEE rate forecast (`kshana-pro space-rx` for details; inject, db select, db schema, sample, verify free)\n\
        kshana-pro regpack <list|show|example|assess|bam|mass|links|complaint|bid|verify> ...   Regulator, type-approval and framework pre-assessment packs: evidence per requirement and the gaps (MSC.401/432, Circ.1575, BAM, UR E27, EN 303 413, MASS Code, NIST CSF 2.0, EU Space Act), RR Appendix 10 interference report annex, bid attestation (Pro; list, show, example, verify free)\n\
        kshana-pro agri <convert|drift|realign|field|resilience|advise|translate|photo|sample|verify> ...   Agriculture, construction and survey operations: guidance-line converter and realignment, pass-to-pass drift, field planner, autosteer resilience score with outage diagnosis, scintillation and PPP-versus-RTK advisors, geotagged-photo checks (`kshana-pro agri` for details; convert, translate, sample, verify free)\n\
        kshana-pro navaids <coverage|rnp|inspect|ssv> ...   Terrestrial navaids: DME/VOR network twin with critical DMEs, multi-sensor RNP scenarios with the e-conspicuity NACp backup test, flight-inspection truth assurance (Pro; ssv free)\n\
@@ -198,6 +200,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "obs-provenance",
     "longterm",
     "agri",
+    "space-rx",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -340,6 +343,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("testkit") => testkit_cmd::run(&args[1..]),
         Some("avionics") => avionics_cmd::run(&args[1..]),
         Some("agri") => agri_cmd::run(&args[1..]),
+        Some("space-rx") => space_rx_cmd::run(&args[1..]),
         Some("regpack") => regpack_cmd::run(&args[1..]),
         Some("navaids") => navaids_cmd::run(&args[1..]),
         Some("grid") => grid_cmd::run_grid(&args[1..]),
