@@ -8,8 +8,8 @@
 mod alerts_cmd;
 mod area_cmd;
 mod attack_iq_cmd;
-mod briefing_cmd;
 mod aviation_cmd;
+mod briefing_cmd;
 mod dossier_cmd;
 mod eloran_cmd;
 mod evidence_cmd;
