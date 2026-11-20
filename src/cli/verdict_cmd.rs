@@ -15,7 +15,7 @@ use crate::remote_verdict::{
 const USAGE: &str = "kshana-pro verdict — hosted methods, answered as signed verdicts\n\
 \n\
 USAGE:\n\
-    kshana-pro verdict <selfcal|survey|cause|calibrate|flight-integrity|rtk-quality|parametric-trigger|policy-wording|spaceweather> <request.json> [--url <base>] [--license <token>] [--trust <key>] [--out <verdict.json>]\n\
+    kshana-pro verdict <selfcal|survey|cause|calibrate|flight-integrity|rtk-quality|parametric-trigger|policy-wording|spaceweather|perception-eval|feeder-trust|archive-seal> <request.json> [--url <base>] [--license <token>] [--trust <key>] [--out <verdict.json>]\n\
         Send the request to the verdict service, authorised by your licence, and verify the\n\
         signed verdict against the service's public key before printing or saving it.\n\
 \n\
@@ -43,6 +43,10 @@ USAGE:\n\
                service's own signed verdicts; never a coverage position, not advice\n\
       spaceweather  space-weather advisory per location and service (RTK, PPP, single\n\
                frequency): go / caution / no-go, not a forecast\n\
+      perception-eval  evaluation of a perception-aided positioning system's own outputs\n\
+               against tester truth: integrity classes, errors, landmark recall; evaluation only\n\
+      feeder-trust  trust class and score per feeder of a crowd-sourced monitoring network\n\
+      archive-seal  a signed, chained Merkle seal over an archive period's entry digests\n\
 \n\
     kshana-pro verdict verify <verdict.json> [--trust <key>]\n\
         Check a saved verdict: intact, and signed by the trusted key.\n\
@@ -168,7 +172,7 @@ mod tests {
             );
         }
         assert!(USAGE.contains(
-            "<selfcal|survey|cause|calibrate|flight-integrity|rtk-quality|parametric-trigger|policy-wording|spaceweather>"
+            "<selfcal|survey|cause|calibrate|flight-integrity|rtk-quality|parametric-trigger|policy-wording|spaceweather|perception-eval|feeder-trust|archive-seal>"
         ));
     }
 }

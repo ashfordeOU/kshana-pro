@@ -35,6 +35,9 @@ pub const METHODS: &[(&str, &str)] = &[
     ("parametric-trigger", "parametric-trigger"),
     ("policy-wording", "policy-wording"),
     ("spaceweather", "spaceweather"),
+    ("perception-eval", "perception-eval"),
+    ("feeder-trust", "feeder-trust"),
+    ("archive-seal", "archive-seal"),
 ];
 
 /// A signed verdict as the service returns it.
