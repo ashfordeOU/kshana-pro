@@ -1,0 +1,26 @@
+name = "SYNTHETIC station firmware"
+version = "0.9.0"
+supplier = "Example operator"
+
+[[components]]
+name = "linux"
+version = "6.6.30"
+type = "operating-system"
+licenses = ["GPL-2.0-only"]
+
+[[components]]
+name = "chrony"
+version = "4.6"
+type = "application"
+purl = "pkg:generic/chrony@4.6"
+licenses = ["GPL-2.0-only"]
+depends_on = ["linux"]
+
+[[components]]
+name = "linuxptp"
+version = "4.4"
+type = "application"
+purl = "pkg:generic/linuxptp@4.4"
+licenses = ["GPL-2.0-or-later"]
+depends_on = ["linux"]
+file = "firmware.img"

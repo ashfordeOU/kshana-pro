@@ -1,0 +1,59 @@
+format = "kshana-testkit-scenario/1"
+id = "flags-spoof-simplistic"
+version = 1
+title = "Static receiver: simplistic spoofing, 500 m step"
+description = "A counterfeit 3 dB above the genuine signals moves the position 500 m east for four minutes."
+modelled_on = ["Receiver flag tests: spoofing, jamming and integrity indicator response (modelled on, representative parameters)"]
+tags = ["receiver-flags", "spoofing"]
+
+[scene]
+start_utc = "2026-06-01T10:00:00Z"
+duration_s = 540
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[[signal]]
+constellation = "galileo"
+signals = ["E1"]
+
+[trajectory]
+platform = "static"
+lat_deg = 59.43
+lon_deg = 24.75
+height_m = 40
+
+[[threat]]
+id = "spoof"
+type = "spoofing"
+technique = "simplistic"
+start_s = 120
+duration_s = 240
+offset_east_m = 500
+power_advantage_db = 3
+
+[expected]
+behaviour = "Spoofing flagged within 10 s; no position more than 50 m off output as valid without a flag; back within 60 s of the end."
+withdraw_counts_as_detection = false
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 10
+level = 2
+
+[[criterion]]
+id = "no-misleading"
+metric = "misleading_epochs"
+op = "<="
+value = 0
+level = 2
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 60
+level = 1

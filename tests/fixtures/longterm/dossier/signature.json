@@ -1,0 +1,18 @@
+{
+  "format": "kshana-dossier-signature/1",
+  "signer": "Kshana Test Signer",
+  "utc": "2026-11-20T08:00:00Z",
+  "public_key": "d54207da194977dcf46adbfec2bc2e75b52d5a8a42184fedfdc00024f0e3e8da",
+  "key_id": "d7e1e084be213b01",
+  "files": [
+    {
+      "path": "README.txt",
+      "sha256": "b4331178d12391b1d1a4820a38632a6f52c513856fbd88fd141d8b1fad89db75"
+    },
+    {
+      "path": "report.json",
+      "sha256": "833781f382a147ba554fdd2a892c5f672c578df27879697b2434bf1d2110f188"
+    }
+  ],
+  "signature": "19d6bc69815dbb6653f6519e12eb7bd12e7de96720579ed7ab8a05e7c0de5a20663b766d3d6a228401eae878a4ffbca1cd856b8baf079ee772e6fb80b64dfc0a"
+}
