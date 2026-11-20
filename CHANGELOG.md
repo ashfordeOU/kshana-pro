@@ -94,6 +94,13 @@ own bullet so parallel work merges cleanly.
   timing model (phase-budget crossing, own-alarm timing, neighbour interference onset). Kshana
   ships no TS 37.571-1/-2 or TS 38.171 value and no vendor alarm names. Tier manifest
   regenerated; `tests/three_gpp_tolerance.rs` (6 tests).
+- **Operating envelope in every signed Pro output (research 2026-11-20 gaps B2508;
+  docs/OPERATING-ENVELOPE.md).** `operating-envelope.json` (valid inputs, ranges, exclusions;
+  schema `docs/schemas/operating-envelope.schema.json`) is written into every evidence directory
+  whose JSON carries a Kshana format, before signing, so it is covered by the signature; nine
+  output families with common exclusions; `kshana-pro envelope <format|dir>` (free).
+  `tests/operating_envelope.rs` (4 tests) checks that every format tag in the source has a
+  family and that envelopes follow the schema.
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference

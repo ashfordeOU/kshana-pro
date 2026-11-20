@@ -261,7 +261,10 @@ pub fn verify(
         }
     }
     for f in crate::signed_dossier::list_files(dir)? {
-        let allowed = f.path == MANIFEST || f.path == "README.txt" || listed.contains(&f.path);
+        let allowed = f.path == MANIFEST
+            || f.path == "README.txt"
+            || f.path == crate::envelope::FILE
+            || listed.contains(&f.path);
         if !allowed {
             v.problems.push(format!(
                 "{}: not a feed file (a feed carries scenario files only, never data)",

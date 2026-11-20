@@ -139,7 +139,9 @@ pub fn list_files(dir: &Path) -> Result<Vec<SignedFile>, KshanaError> {
     Ok(files)
 }
 
-/// Sign `dir` with `seed` as `signer` at `utc`; writes and returns `signature.json`.
+/// Sign `dir` with `seed` as `signer` at `utc`; writes and returns `signature.json`. A
+/// directory whose top-level JSON carries a Kshana format first gets its
+/// `operating-envelope.json` ([`crate::envelope::attach`]).
 pub fn sign(
     dir: &Path,
     seed: &[u8; KEY_LEN],
@@ -151,6 +153,8 @@ pub fn sign(
             "a signature needs a signer name".into(),
         ));
     }
+    // Every Kshana evidence directory carries its operating envelope under the signature.
+    crate::envelope::attach(dir).map_err(KshanaError::InvalidInput)?;
     let files = list_files(dir)?;
     if files.is_empty() {
         return Err(KshanaError::InvalidInput(format!(
