@@ -6,7 +6,9 @@
 //! tier entitlements on Pro packs).
 
 mod agri_cmd;
+mod ais_cmd;
 mod alerts_cmd;
+mod altpnt_cmd;
 mod area_cmd;
 mod attack_iq_cmd;
 mod aviation_cmd;
@@ -22,8 +24,12 @@ mod forensics_cmd;
 mod grid_cmd;
 mod incident_cmd;
 mod insurance_cmd;
+mod ks_inside_cmd;
+mod leo_timing_cmd;
 mod license_cmd;
 mod lunar_cmd;
+mod lunar_evidence_cmd;
+mod lunar_surface_cmd;
 mod navaids_cmd;
 mod packs_cmd;
 mod payments_cmd;
@@ -34,6 +40,7 @@ mod receiver_cmd;
 mod regpack_cmd;
 mod reports_cmd;
 mod scorecard_cmd;
+mod simlab_cmd;
 mod space_rx_cmd;
 mod testkit_cmd;
 mod threats_cmd;
@@ -82,6 +89,8 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro packs <build|issue|serve|trace|install|status> ...   Pro pack delivery (C10; `kshana-pro packs` for details)\n\
        kshana-pro timing <assess|console|metrics|history|audit|compliance|timebomb|selfcheck|holdover-evidence> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit and evidence packs, time-bomb vectors and fleet audit, clock self-check, holdover evidence (Pro; `kshana-pro timing` for details)\n\
        kshana-pro grid <pmu|drift|scada|prc002|event> ...   Power-grid timing evidence: PMU phase-angle error, gradual-spoof detection, SCADA time stamps, PRC-002 ±2 ms evidence with holdover resilience, event forensics (Pro; `kshana-pro grid` for details)\n\
+       kshana-pro ais <consistency|sanctions|iuu|subsea|synth> ...   Maritime AIS evidence: cross-source consistency against radar, VTS, LRIT or imagery, and signed sanctions-review, IUU-review and subsea-asset packs (Pro; synth free; no list bundled, no determination)\n\
+       kshana-pro lunar-surface <plume|traverse|rf-forensics|synth> ...   Lunar surface operations evidence: MODELLED parametric dust-plume visibility, LTV/EVA navigation safety evidence, RF self-interference forensics from I/Q (analysis only) (Pro; synth free)\n\
        kshana-pro sfn <assess|systems> ...   Broadcast SFN (DAB/DVB-T) timing: pair guard margins and UTC-level scenarios such as SVN-23 (Pro; systems free)\n\
        kshana-pro road <check|obu-eval|library> ...   Telematics and road-charging GNSS anti-spoof: indicators, episodes, jammer fingerprint class, trip trust (pseudonymised), signed on-board-unit fraud evaluation (Pro; library free)\n\
        kshana-pro ecall <suite|mapping|score|location|duty|battery> ...   eCall GNSS tests of 2017/79 Annex VI with signed scoring, AML/E112 and PSAP location reliability (Pro); suite, mapping, duty-cycle detection and battery model free\n\
@@ -92,6 +101,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro trust <run|verify> ...   Multi-source trust (F3): choose epoch by epoch among GNSS, OSNMA, LEO, eLoran, PTP and holdover, with hash-chained evidence (Pro; verify free)\n\
        kshana-pro eloran <run|validate|example> ...   eLoran/GNSS signal simulator: multi-chain, multi-time-reference eLoran signals with propagation, interference and truth, to SigMF files or LF hardware (Enterprise; validate and example free)
        kshana-pro lunar <time|rates|w0|circular|holdover|offset|lunex> ...   Lunar time with GUM uncertainty (TCL or TL), W0_L sensitivity, Circular T for the Moon, Earth-Moon TWTT holdover, KLTO-1 offset codec proposal, LUNEX prototype (Pro; decode, vectors, example and validate free; `kshana-pro lunar` for details)\n\
+       kshana-pro lunar-evidence <ura|time-consistency|afs-rx|clock|station-delay|radiometric|fdir|config|datum|tipover|check|synth> ...   Lunar and cislunar PNT evidence: URA overbounding, time consistency, AFS receiver verification, clock characterisation, station delay GUM, radiometric track quality, landing FDIR, configuration, datum tie, tip-over (Pro; check, synth free; MODELLED)\n\
        kshana-pro area picture <console.toml> ...   Area console (F1): fuse Stations, receivers and customer feeds into an area trust picture with event timelines; never emitter positions (Pro)\n\
        kshana-pro alerts <route|raw> ...   Alert policy engine (F5): routes, quiet hours, escalation, de-duplication to I5 outputs (Pro); raw alerts free\n\
        kshana-pro integrity <score|verify> ...   AIS and position integrity scoring at fleet and area scale (E5, Pro); verify free\n\
@@ -110,8 +120,12 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro verdict <selfcal|survey|cause|verify> ...   Hosted methods answered as signed verdicts, verified against the service key (`kshana-pro verdict` for details)\n\
        kshana-pro reports <normalise|validate|episodes|verify|reset-check|ledger|check|params|regimes|synth> ...   Interference reports: normalise crew/ATC/mariner reports, validate per regime, episodes, signed verification, exposure ledger and reset check (Pro; ledger Enterprise; check, params, regimes, synth free)\n\
        kshana-pro aviation <approach|residual|nuisance|areas|check|synth> ...   Aviation operational analytics: approach availability and go-around exposure, residual effects and clean-or-reset, nuisance-alert statistics, unpublished interference areas (Pro; areas Enterprise; check, synth free; decision support only)\n\
+       kshana-pro altpnt <failure-modes|labels|campaign|time-iface|check|synth> ...   Alternative-PNT evaluation and civil test-campaign evidence: architecture failure modes, twin-vs-flight labels, campaign scoring against truth, resilient-time interface tests (Pro; check, synth free; test evidence only)\n\
        kshana-pro utm <sora|feed|rid-check|attest|check|synth> ...   UTM / U-space positioning integrity: SORA-ready interference input, USSP integrity feed, Remote ID position authenticity, per-flight signed attestation (Pro; feed Enterprise; check, synth free; decision support only)\n\
+       kshana-pro simlab <chain|sync|selftest|report|compare|tco|synth|check> ...   Simulation fidelity and lab tooling: recorder-chain register, synchronous multi-sensor replay check, simulator self-test and replay-rig check, comparable lab test reports with En numbers, simulator TCO (Pro; tco, synth, check free)\n\
+       kshana-pro leo-timing <hash|score|check|synth> ...   LEO timing verification: pre-registered scorecard from field logs (availability, time error, MTIE/TDEV, PRTC-A limit comparison, vendor claims, replay window; score Pro; hash, check, synth free)\n\
        kshana-pro obs-provenance <keygen|sign|verify|keyring-add> ...   Signed feeder provenance on kshana.obs/1 batches: feeder key, time, position, sequence, in a sidecar (sign Pro; the rest free)\n\
+       kshana-pro ks-inside <methods|call|meter> ...   KS-Inside OEM SDK: the methods of the C ABI, a metered call for integration tests, the meter log's chain and per-unit report (call needs an OEM licence; methods and meter free)\n\
        kshana-pro longterm <key-genesis|key-rotate|request|add-token|stamp|history|verify> ...   Long-term signatures: key history and RFC 3161 archive time-stamp chain over a signed directory, verified offline (Pro; request and verify free)\n\
        kshana-pro exposure <run|verify> ...   Insurer scorecard: periodic signed exposure summary of a fleet or route (E7, Pro); verify free\n\
        kshana-pro briefing <transits|brief|tails|lowalt|occ|regional|road|spillover|notam|areas|verify> ...   Exposure history, route risk and briefings with stated confidence: transits, chokepoint and route briefings, per-tail ledger, OCC alerts, regional datasets, road index, spillover footprints (Pro; notam, areas, verify free)\n\
@@ -173,6 +187,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "trust",
     "eloran",
     "lunar",
+    "lunar-evidence",
     "area",
     "alerts",
     "integrity",
@@ -200,10 +215,16 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "sfn",
     "aviation",
     "utm",
+    "simlab",
+    "altpnt",
+    "leo-timing",
     "obs-provenance",
     "longterm",
     "agri",
     "space-rx",
+    "ks-inside",
+    "ais",
+    "lunar-surface",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -330,6 +351,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("trust") => trust_cmd::run(&args[1..]),
         Some("eloran") => eloran_cmd::run(&args[1..]),
         Some("lunar") => lunar_cmd::run(&args[1..]),
+        Some("lunar-evidence") => lunar_evidence_cmd::run(&args[1..]),
         Some("area") => area_cmd::run(&args[1..]),
         Some("alerts") => alerts_cmd::run(&args[1..]),
         Some("integrity") => evidence_cmd::integrity(&args[1..]),
@@ -348,6 +370,8 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("avionics") => avionics_cmd::run(&args[1..]),
         Some("agri") => agri_cmd::run(&args[1..]),
         Some("space-rx") => space_rx_cmd::run(&args[1..]),
+        Some("ais") => ais_cmd::run(&args[1..]),
+        Some("lunar-surface") => lunar_surface_cmd::run(&args[1..]),
         Some("regpack") => regpack_cmd::run(&args[1..]),
         Some("navaids") => navaids_cmd::run(&args[1..]),
         Some("grid") => grid_cmd::run_grid(&args[1..]),
@@ -359,8 +383,12 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("sfn") => grid_cmd::run_sfn(&args[1..]),
         Some("aviation") => aviation_cmd::run(&args[1..]),
         Some("utm") => utm_cmd::run(&args[1..]),
+        Some("simlab") => simlab_cmd::run(&args[1..]),
+        Some("altpnt") => altpnt_cmd::run(&args[1..]),
+        Some("leo-timing") => leo_timing_cmd::run(&args[1..]),
         Some("obs-provenance") => evidence_infra_cmd::provenance(&args[1..]),
         Some("longterm") => evidence_infra_cmd::longterm(&args[1..]),
+        Some("ks-inside") => ks_inside_cmd::run(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
         Some(name) if crate::extension::commands().iter().any(|c| c.name == name) => {
             let c = crate::extension::commands()
@@ -1594,6 +1622,12 @@ const DEV_BUILD: bool = cfg!(debug_assertions);
 /// release builds, so a release binary never accepts a token signed with it.
 #[cfg(debug_assertions)]
 const DEMO_SEED: [u8; license::KEY_LEN] = *b"kshana-pro-demo-key-debug-only!!";
+
+/// The licence keyring of this build (the keys compiled in; a debug build without any uses
+/// the demo key), for library callers such as the KS-Inside SDK ([`crate::ks_inside`]).
+pub fn licence_keyring() -> Result<license::Keyring, kshana::api::KshanaError> {
+    license_cmd::keyring()
+}
 
 fn verify_token(token: &str, now: i64) -> Result<Entitlement, kshana::api::KshanaError> {
     license_cmd::verify_token_for(token, now, license::Product::Cli)

@@ -143,6 +143,10 @@ sensors, and the reference oscillator's time error for timing criteria. Grade `f
 their sources are in the header of `src/testkit/fidelity.rs`; they are rules of thumb, not a
 calibration of the bench.
 
+The capture file can be derived from a registered recorder chain (`kshana-pro simlab chain`,
+which writes `capture.toml`), and `sensors_synchronised` checked with `kshana-pro simlab sync`
+on the recorded streams and their shared events; see [SIMLAB.md](SIMLAB.md).
+
 ## 5. Scenario packs
 
 | Pack | Scenarios | Modelled on |

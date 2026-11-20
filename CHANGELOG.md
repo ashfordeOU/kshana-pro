@@ -5,6 +5,63 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Alternative-PNT evaluation and civil test-campaign evidence (backlog E40 B4004;
+  docs/ALTPNT-EVIDENCE.md).** `kshana-pro altpnt` (features `pro-altpnt-evidence` and
+  `pro-altpnt-campaign`, Pro): `failure-modes` (architecture failure-mode pack from declared
+  sources, resources, modes and tests: single points of failure, shared resources with no
+  declared mode, undocumented sources, fallbacks the same failure takes out, missing detection
+  or mitigation, each mode's tests labelled by environment, cited signed evidence verified
+  against `--trust`), `labels` (digital-twin versus flight-test labels for stated claims:
+  VALIDATED, MEASURED-OPERATIONAL, MEASURED-LAB, MODELLED as an architectural target, CLAIMED;
+  the model's gap to operation), `campaign` (civil-releasability screen first, refusing
+  military signals and weapons end uses; the system's outputs scored against the tester's
+  truth per run and condition: availability, horizontal and vertical error percentiles, time
+  error, misleading and hazardously misleading epochs with Wilson intervals; claims checked,
+  rates also at the interval bound), `time-iface` (resilient-time civil interface tests:
+  locked accuracy, declared-quality honesty, holdover growth, recovery, continuity, MTIE
+  mask), plus free `check` and `synth`. Evaluation and test evidence only: no navigation
+  solution, sensor fusion, map matching, source switching or emitter location. MODELLED.
+  Tier manifest regenerated; tests/altpnt_evidence.rs on synthetic inputs.
+- **Lunar and cislunar PNT evidence (research 2026-11-20 gaps E24: B2401 parts, B2404 parts,
+  B2405 parts, a Pro view of B2403; docs/LUNAR-EVIDENCE.md).** `kshana-pro lunar-evidence`:
+  `ura` (URA/SISA overbounding per node and pooled, Wilson intervals on decorrelation blocks,
+  inflation needed), `time-consistency` (cross-satellite clock consistency against the ensemble of
+  clean nodes, CUSUM and threshold, step or ramp with onset), `afs-rx` (receiver replica codes,
+  frame CRC-24 and TOI continuity, PRN collisions, against the open LSIS V1.0 generator)
+  (`pro-lunar-service-verification`, Pro); `clock` (ADEV with 95 % intervals against a
+  `kshana::clock_specs` class or a mask), `station-delay` (GUM budget, Welch–Satterthwaite
+  coverage, En against the previous calibration), `radiometric` (outliers, steps, ramps, biases,
+  gaps and a per-pass track-quality score) (`pro-lunar-clock-evidence`, Pro); `fdir` (FDIR results
+  against a hash-locked pre-registered plan), `config` (configuration-state attestation), `datum`
+  (map-to-frame datum tie with the mean-Earth/principal-axis check), `tipover` (MODELLED tip-over
+  and design-slope exceedance probability) (`pro-lunar-surface-evidence`, Pro); `check` and
+  `synth` free. All MODELLED, signed. Not built: dust plume, LTV/EVA, RF self-interference,
+  CAPSTONE reproduction, ephemeris exchange format; B2402 and B2403 proper are open-engine items.
+  Tier manifest regenerated; tests/lunar_evidence.rs on synthetic inputs.
+- **Maritime AIS integrity evidence (research 2026-11-20 gaps E07, Pro parts;
+  docs/AIS-EVIDENCE.md).** `kshana-pro ais consistency|sanctions|iuu|subsea|synth` over the
+  user's decoded AIS: cross-source consistency against radar, VTS, LRIT, satellite AIS or
+  imagery detections with declared accuracies (gate, episodes, unconfirmed vessels inside a
+  source's coverage, targets without AIS) (`pro-ais-consistency`); a sanctions-review pack for
+  named vessels with gaps, encounter candidates, identity changes, shared IMO, jumps and one
+  MMSI on two transmitters, no list bundled and no determination (`pro-ais-sanctions-pack`);
+  an IUU-review pack against declared zones (`pro-ais-iuu-pack`); a subsea-asset pack for
+  declared cable and pipeline corridors with anchor-status-while-moving and vessels around a
+  reported fault, presence not attribution (`pro-ais-subsea-pack`). Signed evidence
+  directories; all Pro; tier manifest regenerated. MODELLED (SYNTHETIC scenario,
+  `tests/ais_evidence.rs`, 8 tests).
+- **Lunar surface operations evidence, second slice (research 2026-11-20 gaps E24 B2404;
+  docs/LUNAR-SURFACE.md).** `kshana-pro lunar-surface plume|traverse|rf-forensics|synth`:
+  dust-plume visibility as a MODELLED parametric ejecta-sheet model with every assumption
+  stated and no defaults for physical parameters (optical and Rayleigh-limit RF extinction
+  along declared lines of sight, obscuration onset height and duration)
+  (`pro-lunar-plume-visibility`); LTV/EVA navigation safety evidence from a traverse log
+  (Stanford regions and per-axis overbound of the reported sigma, hazard keep-out margins with
+  the PL, walk-back margin against declared consumables) (`pro-lunar-traverse-safety`); RF
+  self-interference forensics from a SigMF recording, analysis only (spurs at a stated Pfa,
+  harmonic match to declared on-board sources, time correlation with an activity log, in-band
+  C/N0 loss) (`pro-lunar-rf-forensics`). All Pro; tier manifest regenerated. MODELLED
+  (SYNTHETIC inputs, `tests/lunar_surface.rs`, 5 tests).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
@@ -56,6 +113,48 @@ own bullet so parallel work merges cleanly.
   own decision; not advice, an underwriting or claims decision. MODELLED. Not built here: the
   hosted trigger oracle and policy-wording verdicts (B2804). Tier manifest regenerated;
   integration tests 98 -> 99 (`tests/insurance_analytics.rs`).
+- **KS-Inside OEM SDK and programme licences (backlog E39 B3901, B3902; docs/KS-INSIDE.md,
+  docs/PROGRAMME-LICENCES.md).** KS-Inside: a Rust facade and a stable C ABI
+  (`sdk/ks-inside/include/ks_inside.h`, ABI version 1, example `sdk/ks-inside/examples/minimal.c`)
+  over three Pro functions (`scenario.run` for any `pro-` kind, `timing.drift`,
+  `timing.timebomb-analyse`). Opens only under a token naming the new `sdk` product (never in a
+  default token) with the explicit grant `pro-ks-inside` (Enterprise); every call is checked again
+  and metered per unit in a hash-chained meter log (`src/license/meter.rs`) before its answer is
+  returned, and fails when the line cannot be written. `kshana-pro ks-inside methods|call|meter
+  verify|meter summary`. Programme licences: v3 tokens with a `programme` block (`feeder`, `host`,
+  `teaching`, `bench`), each kind with an explicit highest tier, products, life and seat rule
+  (`programme::POLICIES`), checked at issue and at every verification; older builds refuse v3.
+  Feeder and host tokens grant Evaluation until a signed feed receipt shows the station fed within
+  48 hours; bench tokens until the bound key signs a challenge (software key binder, marked weaker;
+  TPM binder interface with P-256, no TPM binder in this build). `telemetry_opt_in` claim with an
+  anonymised outcome record written to a local outbox only. `license issue --programme ...`,
+  `license feed-receipt issue|install`, `license bench-key init|show`, `license programme`.
+  No binary is built or published. Tier manifest regenerated; tests/oem_licensing.rs.
+- **Simulation fidelity and lab tooling (research 2026-11-20 gaps E32: B3201, B3203 and B3206
+  in part; docs/SIMLAB.md).** `kshana-pro simlab`: `chain` (recorder-chain register: Friis
+  cascade NF and gain, recorded bandwidth, group delay with GUM uncertainty, bit depth, AGC and
+  reference findings, the change since the previous registration in the hash-chained `calreg`
+  register, and a `capture.toml` for `testkit fidelity`) and `sync` (synchronous multi-sensor
+  replay check: GNSS I/Q, IMU, CAN and camera streams aligned through shared events, offset,
+  drift, jitter, gaps and residual per stream, and the replay manifest), feature
+  `pro-simlab-replay`; `selftest` (simulator self-test, or AWG/SDR replay-rig check against the
+  station's observations, from reference receivers' C/N0, fixes and PPS, attributing a
+  deviation to the source only when every reference receiver sees it), feature
+  `pro-simlab-selftest`; `report` and `compare` (lab results mapped column by column into a
+  common spoofing/interference test-report vocabulary with an EN 16803 topic index, and
+  results of two or more labs compared with the ISO 13528 En number), feature
+  `pro-simlab-report`; free `tco` (simulator total cost of ownership over the user's quotes,
+  break-even campaign rates), `synth` and `check`. All Pro; files in, files out; no instrument is
+  driven. MODELLED, synthetic inputs (`tests/simlab.rs`). Tier manifest regenerated;
+  integration tests 98 -> 99.
+- **LEO timing verification (backlog E21 B2102; docs/LEO-TIMING.md).** `kshana-pro leo-timing`
+  (feature `pro-leo-timing-scorecard`, Pro): `score` (pre-registered scorecard of a timing
+  receiver on its LEO field logs: per environment availability, RMS, 95th percentile and maximum
+  absolute time error, MTIE and TDEV, the maximum set against the PRTC-A limit as a measured
+  comparison, stated vendor claims reproduced or not, and the authentication replay window held
+  or breached; signed), plus free `hash` (the method hash to register before taking logs),
+  `check` and `synth`. VALIDATED only with real logs and a matching registration, MODELLED
+  otherwise. Tier manifest regenerated; tests/leo_timing.rs on synthetic logs.
 - **UTM / U-space positioning integrity (backlog E18 B1804; docs/UTM-INTEGRITY.md).**
   `kshana-pro utm` (feature `pro-utm-integrity`, Pro; `feed` `pro-ussp-feed`, Enterprise):
   `sora` (SORA-ready GNSS-interference input for one operation: route exposure on each day

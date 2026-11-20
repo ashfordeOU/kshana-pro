@@ -31,7 +31,9 @@
 pub use kshana;
 
 pub mod agri;
+pub mod ais_evidence;
 pub mod alerts;
+pub mod altpnt;
 pub mod area;
 pub mod attack_iq;
 pub mod aviation;
@@ -64,10 +66,14 @@ pub mod ievents;
 pub mod insurance;
 pub mod integrity;
 pub mod ireports;
+pub mod ks_inside;
 pub mod lab_campaign;
+pub mod leo_timing;
 pub mod license;
 pub mod longterm;
+pub mod lunar_evidence;
 pub mod lunar_pro;
+pub mod lunar_surface;
 pub mod multi_source;
 pub mod navaids;
 pub mod obs_provenance;
@@ -104,6 +110,7 @@ pub mod testkit;
 pub mod threat_library;
 pub mod units;
 // Shared helpers; public so a server-side extension crate can reuse them (not a stable API).
+pub mod simlab;
 #[doc(hidden)]
 pub mod util;
 pub mod utm;
