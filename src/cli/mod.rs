@@ -19,6 +19,7 @@ mod evidence_infra_cmd;
 mod forensics_cmd;
 mod grid_cmd;
 mod incident_cmd;
+mod ks_inside_cmd;
 mod license_cmd;
 mod lunar_cmd;
 mod packs_cmd;
@@ -98,6 +99,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro aviation <approach|residual|nuisance|areas|check|synth> ...   Aviation operational analytics: approach availability and go-around exposure, residual effects and clean-or-reset, nuisance-alert statistics, unpublished interference areas (Pro; areas Enterprise; check, synth free; decision support only)\n\
        kshana-pro utm <sora|feed|rid-check|attest|check|synth> ...   UTM / U-space positioning integrity: SORA-ready interference input, USSP integrity feed, Remote ID position authenticity, per-flight signed attestation (Pro; feed Enterprise; check, synth free; decision support only)\n\
        kshana-pro obs-provenance <keygen|sign|verify|keyring-add> ...   Signed feeder provenance on kshana.obs/1 batches: feeder key, time, position, sequence, in a sidecar (sign Pro; the rest free)\n\
+       kshana-pro ks-inside <methods|call|meter> ...   KS-Inside OEM SDK: the methods of the C ABI, a metered call for integration tests, the meter log's chain and per-unit report (call needs an OEM licence; methods and meter free)\n\
        kshana-pro longterm <key-genesis|key-rotate|request|add-token|stamp|history|verify> ...   Long-term signatures: key history and RFC 3161 archive time-stamp chain over a signed directory, verified offline (Pro; request and verify free)\n\
        kshana-pro exposure <run|verify> ...   Insurer scorecard: periodic signed exposure summary of a fleet or route (E7, Pro); verify free\n\
        kshana-pro briefing <transits|brief|tails|lowalt|occ|regional|road|spillover|notam|areas|verify> ...   Exposure history, route risk and briefings with stated confidence: transits, chokepoint and route briefings, per-tail ledger, OCC alerts, regional datasets, road index, spillover footprints (Pro; notam, areas, verify free)\n\
@@ -180,6 +182,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "utm",
     "obs-provenance",
     "longterm",
+    "ks-inside",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -328,6 +331,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("utm") => utm_cmd::run(&args[1..]),
         Some("obs-provenance") => evidence_infra_cmd::provenance(&args[1..]),
         Some("longterm") => evidence_infra_cmd::longterm(&args[1..]),
+        Some("ks-inside") => ks_inside_cmd::run(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
         Some(name) if crate::extension::commands().iter().any(|c| c.name == name) => {
             let c = crate::extension::commands()
@@ -1561,6 +1565,12 @@ const DEV_BUILD: bool = cfg!(debug_assertions);
 /// release builds, so a release binary never accepts a token signed with it.
 #[cfg(debug_assertions)]
 const DEMO_SEED: [u8; license::KEY_LEN] = *b"kshana-pro-demo-key-debug-only!!";
+
+/// The licence keyring of this build (the keys compiled in; a debug build without any uses
+/// the demo key), for library callers such as the KS-Inside SDK ([`crate::ks_inside`]).
+pub fn licence_keyring() -> Result<license::Keyring, kshana::api::KshanaError> {
+    license_cmd::keyring()
+}
 
 fn verify_token(token: &str, now: i64) -> Result<Entitlement, kshana::api::KshanaError> {
     license_cmd::verify_token_for(token, now, license::Product::Cli)

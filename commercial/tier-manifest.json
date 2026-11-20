@@ -138,6 +138,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-ks-inside",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-log-time-integrity",
       "type": "feature",
       "tier": "pro"

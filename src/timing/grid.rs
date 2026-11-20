@@ -860,7 +860,8 @@ impl Default for DriftParams {
 }
 
 impl DriftParams {
-    fn check(&self) -> Result<(), String> {
+    /// Check the settings are usable (also used by the KS-Inside SDK, crate::ks_inside).
+    pub fn check(&self) -> Result<(), String> {
         let pos_ = [
             self.window_s,
             self.noise_s,

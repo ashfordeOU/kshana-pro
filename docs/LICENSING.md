@@ -28,21 +28,23 @@ so a customer binary cannot mint tokens.
 | `tier` | v1 | `evaluation`, `pro` or `enterprise` |
 | `expires_unix` | v1 | Expiry, Unix seconds; `0` is perpetual |
 | `features` | v1 | Extra Pro features granted above the tier |
-| `v` | v2 | `2` (absent on v1 tokens) |
+| `v` | v2 | `2` (absent on v1 tokens); `3` on a programme licence |
 | `id` | v2 | Token ID (`kt_` and 24 hex), what a revocation list names. A v1 token is named `sha256:` and the SHA-256 of its text |
-| `products` | v2 | Any of `cli`, `desktop`, `station`, `service`. A v2 token names at least one; a v1 token covers all |
+| `products` | v2 | Any of `cli`, `desktop`, `station`, `service`, `sdk`. A v2 token names at least one; a v1 token covers all but `sdk` opens the OEM SDK only when named (docs/KS-INSIDE.md) |
 | `seats` | v2 | Seats bought (shown in the apps, kept in the register) |
 | `stations` | v2 | Stations allowed at once. Absent: one Station, the open allowance. More than one is the Pro "Station fleet" feature |
 | `machine` | v2 | Optional binding: the machine hash from `kshana-pro license machine-id` (a salted SHA-256 of the hardware ID; the raw ID never leaves the machine) |
 | `kid` | v2 | Key ID of the signing key: the first 16 hex characters of the SHA-256 of its public key |
 | `not_before_unix` | v2 | The token is refused before this time |
 | `issued_unix` | v2 | When it was issued |
+| `programme` | v3 | A programme licence: feeder, host, teaching or bench, with its own rules (docs/PROGRAMME-LICENCES.md) |
+| `telemetry_opt_in` | v2 | The holder opted in to sharing anonymised scenario outcomes (local outbox only) |
 
 A claims value with no v2 field set serialises exactly as a v1 token did, so v1 tokens
 keep verifying unchanged (`tests::v1_claims_serialise_exactly_as_before`).
 
 **Checks, in order:** format; key (a retired key ID, or one the build does not know, is
-refused by name); signature; tier; claims version (newer than 2 is refused); product;
+refused by name); signature; tier; claims version (newer than 3 is refused; v3 only with a valid programme); product;
 not-before; machine binding (a bound token fails closed when this machine's ID cannot
 be read); expiry.
 
