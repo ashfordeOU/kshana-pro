@@ -268,12 +268,27 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-lunar-plume-visibility",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-lunar-rf-forensics",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-lunar-service-verification",
       "type": "feature",
       "tier": "pro"
     },
     {
       "kind": "pro-lunar-surface-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-lunar-traverse-safety",
       "type": "feature",
       "tier": "pro"
     },
