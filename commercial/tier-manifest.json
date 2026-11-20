@@ -248,6 +248,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-leo-timing-scorecard",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-log-time-integrity",
       "type": "feature",
       "tier": "pro"
@@ -374,6 +379,21 @@
     },
     {
       "kind": "pro-signed-pack",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-simlab-replay",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-simlab-report",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-simlab-selftest",
       "type": "feature",
       "tier": "pro"
     },
