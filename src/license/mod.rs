@@ -341,6 +341,9 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-lunar-plume-visibility" => Tier::Pro,
         "pro-lunar-traverse-safety" => Tier::Pro,
         "pro-lunar-rf-forensics" => Tier::Pro,
+        // 3GPP test-tolerance calculator and A-GNSS vector scoring on user-transcribed values
+        // (research 2026-11-20 gaps, E30 B3004).
+        "pro-3gpp-tolerance" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -462,6 +465,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-lunar-plume-visibility",
     "pro-lunar-traverse-safety",
     "pro-lunar-rf-forensics",
+    "pro-3gpp-tolerance",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

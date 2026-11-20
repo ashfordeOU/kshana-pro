@@ -26,7 +26,12 @@
 //!   decoded message log, and a data-level fault-injection library for recorded output.
 //! * [`nr`] (B3004, first slice): 5G TDD frame-timing failure under GNSS loss (on the
 //!   holdover evidence model), a PRS timing-accuracy model against bandwidth and geometry,
-//!   and Rel-18-style integrity vectors with a checker of a device's reported levels.
+//!   and Rel-18-style integrity vectors with a checker of a device's reported levels;
+//!   [`tolerance`] and [`agnss`] (B3004): a shared-risk test-tolerance calculator and an A-GNSS
+//!   vector-set scaffold with placeholders and scoring, on values the user transcribes (no
+//!   TS 37.571-1 value is shipped); [`gnb_alarms`] (B3004): a gNB timing-alarm adapter that
+//!   maps a vendor alarm export through a user-supplied table and puts holdover episodes
+//!   against the TDD timing model.
 //! * [`rail`] (B3005, first slice): a tolerable-hazard-rate position-error model including
 //!   jamming episodes, a virtual-balise passage error test with an overbound check, and the
 //!   EN 50129 evidence catalogue (`regpack assess --catalogue rail-gnss-sil4`).
@@ -36,12 +41,15 @@
 //! regulation or standard is for its assessor and authority to decide. No output locates an
 //! emitter, controls an antenna, fuses sensors for navigation or generates a signal.
 
+pub mod agnss;
 pub mod auto;
 pub mod ecall;
+pub mod gnb_alarms;
 pub mod integrity;
 pub mod nr;
 pub mod rail;
 pub mod telematics;
+pub mod tolerance;
 
 use std::collections::BTreeMap;
 use std::path::Path;

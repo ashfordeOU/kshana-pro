@@ -8,6 +8,11 @@
       "tier": "open-seam"
     },
     {
+      "kind": "pro-3gpp-tolerance",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-accumulation",
       "type": "feature",
       "tier": "pro"

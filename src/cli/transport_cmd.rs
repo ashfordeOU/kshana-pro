@@ -9,7 +9,7 @@
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-use crate::transport::{auto, ecall, nr, rail, telematics, Table};
+use crate::transport::{agnss, auto, ecall, gnb_alarms, nr, rail, telematics, tolerance, Table};
 
 use super::grid_cmd::{gate, signing, Signing};
 
@@ -36,7 +36,12 @@ pub const NR_USAGE: &str = "usage: kshana-pro nr <command>\n\
     tdd <request.toml> [--json <out>] [--license <token>] [--dev]   5G TDD frame timing under GNSS loss: phase budget and guard-period interference onset from the holdover model (Pro)\n\
     prs <request.toml> [--json <out>] [--license <token>] [--dev]   PRS DL-TDOA accuracy against bandwidth, SNR, gNB synchronisation and geometry (Pro)\n\
     vectors [--out <file>]                                           GNSS integrity reference vectors (no licence needed)\n\
-    check <vectors.json> <device.csv> [--json <out>] [--license <token>] [--dev]   Check a device's protection levels against the vectors (Pro)";
+    check <vectors.json> <device.csv> [--json <out>] [--license <token>] [--dev]   Check a device's protection levels against the vectors (Pro)\n\
+    tolerance <request.toml> [--json <out>] [--license <token>] [--dev]   Shared-risk test tolerances and test requirements on user-transcribed TS 37.571-1 values, with placeholders (Pro)\n\
+    agnss-scaffold [--out <file>]                                    A-GNSS vector-set skeleton, every value a placeholder (no licence needed)\n\
+    agnss-status <set.json> [--json <out>]                           Which values are still placeholders; refuses values without a source (no licence needed)\n\
+    agnss-score <set.json> <results.csv> [--rule point|lower-bound] [--json <out>] [--license <token>] [--dev]   Score device trials against the transcribed limits and tolerances (Pro)\n\
+    alarms <request.toml> [--utc <iso>] [--json <out>] [--license <token>] [--dev]   gNB timing-alarm adapter: vendor alarms through your map, holdover episodes against the TDD model, neighbour interference risk (Pro)";
 
 pub const RAIL_USAGE: &str = "usage: kshana-pro rail <command>\n\
     thr <request.toml> [--json <out>] [--out <dir> --signer <name> --key-file <file> [--utc <iso>]] [--license <token>] [--dev]   Position hazard rate including jamming and spoofing against the apportioned THR (Pro)\n\
@@ -404,6 +409,89 @@ pub fn nr(args: &[String]) -> ExitCode {
                 let r = nr::check_vectors(&set, &Table::read(Path::new(&d))?)?;
                 emit(args, &r)?;
                 Ok(format!("[nr check] {}", r.verdict))
+            })())
+        }
+        Some("tolerance") => {
+            let Some(path) = arg1(args) else {
+                return fail(NR_USAGE);
+            };
+            if let Err(e) = gate(args, tolerance::FEATURE) {
+                return fail(e);
+            }
+            finish((|| {
+                let (req, _): (tolerance::Request, _) = parse(&path)?;
+                let r = tolerance::run(&req)?;
+                emit(args, &r)?;
+                Ok(format!("[nr tolerance] {}", r.verdict))
+            })())
+        }
+        Some("alarms") => {
+            let Some(path) = arg1(args) else {
+                return fail(NR_USAGE);
+            };
+            if let Err(e) = gate(args, nr::FEATURE) {
+                return fail(e);
+            }
+            finish((|| {
+                let (req, _): (gnb_alarms::Request, _) = parse(&path)?;
+                let utc = super::flag(args, "--utc").unwrap_or_else(super::utc_iso8601_now);
+                let r = gnb_alarms::run(&req, &base_of(&path), &utc)?;
+                emit(args, &r)?;
+                Ok(format!("[nr alarms] {}", r.verdict))
+            })())
+        }
+        Some("agnss-scaffold") => {
+            let text = serde_json::to_string_pretty(&agnss::scaffold()).unwrap_or_default() + "\n";
+            match super::flag(args, "--out") {
+                Some(o) => {
+                    if let Err(e) = std::fs::write(&o, text) {
+                        return fail(format!("{o}: {e}"));
+                    }
+                    eprintln!("[nr agnss-scaffold] placeholder vector set written to {o}");
+                }
+                None => print!("{text}"),
+            }
+            ExitCode::SUCCESS
+        }
+        Some("agnss-status") => {
+            let Some(path) = arg1(args) else {
+                return fail(NR_USAGE);
+            };
+            finish((|| {
+                let set: agnss::VectorSet =
+                    serde_json::from_str(&read(&path)?).map_err(|e| format!("{path}: {e}"))?;
+                let s = agnss::status(&set).map_err(|e| format!("{path}: {e}"))?;
+                emit(args, &s)?;
+                Ok(format!(
+                    "[nr agnss-status] {} placeholder(s); {} of {} case(s) scorable",
+                    s.placeholders,
+                    s.cases.iter().filter(|c| c.scorable).count(),
+                    s.cases.len()
+                ))
+            })())
+        }
+        Some("agnss-score") => {
+            let (Some(v), Some(d)) = (
+                arg1(args),
+                args.get(2).filter(|a| !a.starts_with("--")).cloned(),
+            ) else {
+                return fail(NR_USAGE);
+            };
+            if let Err(e) = gate(args, tolerance::FEATURE) {
+                return fail(e);
+            }
+            finish((|| {
+                let rule = match super::flag(args, "--rule").as_deref() {
+                    None | Some("point") => tolerance::Decision::Point,
+                    Some("lower-bound") => tolerance::Decision::LowerBound,
+                    Some(o) => return Err(format!("--rule '{o}': point or lower-bound")),
+                };
+                let set: agnss::VectorSet =
+                    serde_json::from_str(&read(&v)?).map_err(|e| format!("{v}: {e}"))?;
+                let r = agnss::score(&set, &Table::read(Path::new(&d))?, rule)
+                    .map_err(|e| format!("{v}: {e}"))?;
+                emit(args, &r)?;
+                Ok(format!("[nr agnss-score] {}", r.verdict))
             })())
         }
         Some(sub @ ("tdd" | "prs")) => {
