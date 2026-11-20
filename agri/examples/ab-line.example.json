@@ -1,0 +1,19 @@
+{
+  "format": "kshana-guidance-lines/1",
+  "lines": [
+    {
+      "name": "AB",
+      "kind": "ab",
+      "points": [
+        [
+          49.9,
+          -97.1
+        ],
+        [
+          49.90269718290145,
+          -97.1
+        ]
+      ]
+    }
+  ]
+}

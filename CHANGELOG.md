@@ -5,6 +5,23 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Agriculture, construction and survey operations (research 2026-11-20 gaps E35: B3501,
+  B3502 local part; docs/AGRI-SURVEY-OPERATIONS.md).** `kshana-pro agri`: machine logs (neutral
+  CSV, NMEA GGA); guidance-line converter (neutral JSON, GeoJSON, KML, ISO 11783-10 guidance
+  pattern subset, CSV, A plus heading; free) and realignment of stored lines onto planted rows
+  from a pass on existing rows or re-measured markers (weighted least-squares shift with GUM
+  type A uncertainty; along-line component reported unobservable for parallel lines);
+  pass-to-pass and within-pass drift with overlap and miss area; field planner with a working
+  window from an advisory; autosteer GNSS-loss resilience score (availability, recovery,
+  continuity, degraded accuracy) with an indicative per-episode diagnosis (interference-,
+  correction-feed- or ionosphere-like; locates nothing); Kp from the GFZ file and NOAA SWPC
+  products, the NOAA G scale, scintillation and PPP-versus-RTK advisors per field and hour on
+  the open engine's IGRF, Cornell scintillation and IONEX code, and a plain-language grower
+  translation (free); geotagged-photo consistency checks against a parcel. Signed reports via
+  `signed_dossier`. Features `pro-agri-guidance`, `pro-agri-resilience`, `pro-agri-advisor`
+  (Pro), `pro-agri-photo` (Enterprise); tier manifest regenerated; README test count 98.
+  MODELLED (synthetic logs and photos); the May 2024 storm backtest runs on the published GFZ
+  Kp series and matches reported outage dates only.
 - **Avionics test library (research 2026-11-20 gaps E12: B1201, B1203, B1205, B1206 part 1;
   docs/AVIONICS-TEST-LIBRARY.md).** `kshana-pro avionics`: SBAS L1 framing (MT 0, 1, 2-5, 6,
   7, 26, 63; CRC-24Q) and a deterministic message-sequence generator for failure tests (UDREI
