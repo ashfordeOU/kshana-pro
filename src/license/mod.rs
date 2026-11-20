@@ -282,6 +282,11 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // Remote ID checks and per-flight attestations (Pro); the USSP feed (Enterprise).
         "pro-utm-integrity" => Tier::Pro,
         "pro-ussp-feed" => Tier::Enterprise,
+        // Alternative-PNT evaluation and civil test-campaign evidence (research 2026-11-20
+        // gaps E40 B4004): failure-mode packs, twin-vs-flight labels, resilient-time interface
+        // tests, and campaign scoring against truth. Test evidence only.
+        "pro-altpnt-evidence" => Tier::Pro,
+        "pro-altpnt-campaign" => Tier::Pro,
         // Road, rail, automotive, eCall and 3GPP evidence (research 2026-11-20 gaps E30):
         // telematics anti-spoof and the on-board-unit fraud evaluation, eCall GNSS test scoring
         // and emergency-location reliability, automotive PL validation, V2X checks and fault
@@ -409,6 +414,8 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-agri-resilience",
     "pro-agri-advisor",
     "pro-agri-photo",
+    "pro-altpnt-evidence",
+    "pro-altpnt-campaign",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

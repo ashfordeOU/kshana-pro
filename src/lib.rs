@@ -32,6 +32,7 @@ pub use kshana;
 
 pub mod agri;
 pub mod alerts;
+pub mod altpnt;
 pub mod area;
 pub mod attack_iq;
 pub mod aviation;

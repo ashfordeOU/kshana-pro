@@ -5,6 +5,23 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Alternative-PNT evaluation and civil test-campaign evidence (backlog E40 B4004;
+  docs/ALTPNT-EVIDENCE.md).** `kshana-pro altpnt` (features `pro-altpnt-evidence` and
+  `pro-altpnt-campaign`, Pro): `failure-modes` (architecture failure-mode pack from declared
+  sources, resources, modes and tests: single points of failure, shared resources with no
+  declared mode, undocumented sources, fallbacks the same failure takes out, missing detection
+  or mitigation, each mode's tests labelled by environment, cited signed evidence verified
+  against `--trust`), `labels` (digital-twin versus flight-test labels for stated claims:
+  VALIDATED, MEASURED-OPERATIONAL, MEASURED-LAB, MODELLED as an architectural target, CLAIMED;
+  the model's gap to operation), `campaign` (civil-releasability screen first, refusing
+  military signals and weapons end uses; the system's outputs scored against the tester's
+  truth per run and condition: availability, horizontal and vertical error percentiles, time
+  error, misleading and hazardously misleading epochs with Wilson intervals; claims checked,
+  rates also at the interval bound), `time-iface` (resilient-time civil interface tests:
+  locked accuracy, declared-quality honesty, holdover growth, recovery, continuity, MTIE
+  mask), plus free `check` and `synth`. Evaluation and test evidence only: no navigation
+  solution, sensor fusion, map matching, source switching or emitter location. MODELLED.
+  Tier manifest regenerated; tests/altpnt_evidence.rs on synthetic inputs.
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
