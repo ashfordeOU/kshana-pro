@@ -38,12 +38,37 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-bridge-consistency",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-bridge-drills",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-dependency-audit",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-dependency-register",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-desktop",
       "type": "feature",
       "tier": "pro"
     },
     {
       "kind": "pro-dispute-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-ecdis-ep-test",
       "type": "feature",
       "tier": "pro"
     },
