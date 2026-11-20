@@ -22,6 +22,22 @@ own bullet so parallel work merges cleanly.
   mask), plus free `check` and `synth`. Evaluation and test evidence only: no navigation
   solution, sensor fusion, map matching, source switching or emitter location. MODELLED.
   Tier manifest regenerated; tests/altpnt_evidence.rs on synthetic inputs.
+- **Lunar and cislunar PNT evidence (research 2026-11-20 gaps E24: B2401 parts, B2404 parts,
+  B2405 parts, a Pro view of B2403; docs/LUNAR-EVIDENCE.md).** `kshana-pro lunar-evidence`:
+  `ura` (URA/SISA overbounding per node and pooled, Wilson intervals on decorrelation blocks,
+  inflation needed), `time-consistency` (cross-satellite clock consistency against the ensemble of
+  clean nodes, CUSUM and threshold, step or ramp with onset), `afs-rx` (receiver replica codes,
+  frame CRC-24 and TOI continuity, PRN collisions, against the open LSIS V1.0 generator)
+  (`pro-lunar-service-verification`, Pro); `clock` (ADEV with 95 % intervals against a
+  `kshana::clock_specs` class or a mask), `station-delay` (GUM budget, Welch–Satterthwaite
+  coverage, En against the previous calibration), `radiometric` (outliers, steps, ramps, biases,
+  gaps and a per-pass track-quality score) (`pro-lunar-clock-evidence`, Pro); `fdir` (FDIR results
+  against a hash-locked pre-registered plan), `config` (configuration-state attestation), `datum`
+  (map-to-frame datum tie with the mean-Earth/principal-axis check), `tipover` (MODELLED tip-over
+  and design-slope exceedance probability) (`pro-lunar-surface-evidence`, Pro); `check` and
+  `synth` free. All MODELLED, signed. Not built: dust plume, LTV/EVA, RF self-interference,
+  CAPSTONE reproduction, ephemeris exchange format; B2402 and B2403 proper are open-engine items.
+  Tier manifest regenerated; tests/lunar_evidence.rs on synthetic inputs.
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference

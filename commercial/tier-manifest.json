@@ -238,6 +238,21 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-lunar-clock-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-lunar-service-verification",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-lunar-surface-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-navaids",
       "type": "feature",
       "tier": "pro"

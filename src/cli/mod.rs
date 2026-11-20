@@ -26,6 +26,7 @@ mod insurance_cmd;
 mod ks_inside_cmd;
 mod license_cmd;
 mod lunar_cmd;
+mod lunar_evidence_cmd;
 mod navaids_cmd;
 mod packs_cmd;
 mod payments_cmd;
@@ -95,6 +96,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro trust <run|verify> ...   Multi-source trust (F3): choose epoch by epoch among GNSS, OSNMA, LEO, eLoran, PTP and holdover, with hash-chained evidence (Pro; verify free)\n\
        kshana-pro eloran <run|validate|example> ...   eLoran/GNSS signal simulator: multi-chain, multi-time-reference eLoran signals with propagation, interference and truth, to SigMF files or LF hardware (Enterprise; validate and example free)
        kshana-pro lunar <time|rates|w0|circular|holdover|offset|lunex> ...   Lunar time with GUM uncertainty (TCL or TL), W0_L sensitivity, Circular T for the Moon, Earth-Moon TWTT holdover, KLTO-1 offset codec proposal, LUNEX prototype (Pro; decode, vectors, example and validate free; `kshana-pro lunar` for details)\n\
+       kshana-pro lunar-evidence <ura|time-consistency|afs-rx|clock|station-delay|radiometric|fdir|config|datum|tipover|check|synth> ...   Lunar and cislunar PNT evidence: URA overbounding, time consistency, AFS receiver verification, clock characterisation, station delay GUM, radiometric track quality, landing FDIR, configuration, datum tie, tip-over (Pro; check, synth free; MODELLED)\n\
        kshana-pro area picture <console.toml> ...   Area console (F1): fuse Stations, receivers and customer feeds into an area trust picture with event timelines; never emitter positions (Pro)\n\
        kshana-pro alerts <route|raw> ...   Alert policy engine (F5): routes, quiet hours, escalation, de-duplication to I5 outputs (Pro); raw alerts free\n\
        kshana-pro integrity <score|verify> ...   AIS and position integrity scoring at fleet and area scale (E5, Pro); verify free\n\
@@ -179,6 +181,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "trust",
     "eloran",
     "lunar",
+    "lunar-evidence",
     "area",
     "alerts",
     "integrity",
@@ -339,6 +342,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("trust") => trust_cmd::run(&args[1..]),
         Some("eloran") => eloran_cmd::run(&args[1..]),
         Some("lunar") => lunar_cmd::run(&args[1..]),
+        Some("lunar-evidence") => lunar_evidence_cmd::run(&args[1..]),
         Some("area") => area_cmd::run(&args[1..]),
         Some("alerts") => alerts_cmd::run(&args[1..]),
         Some("integrity") => evidence_cmd::integrity(&args[1..]),
