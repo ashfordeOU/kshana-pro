@@ -19,6 +19,7 @@ mod payments_cmd;
 mod pics_cmd;
 mod pnt_cmd;
 mod pntdp_cmd;
+mod receiver_cmd;
 mod reports_cmd;
 mod scorecard_cmd;
 mod testkit_cmd;
@@ -58,7 +59,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro backup <create --data-dir <dir> --out <backup-dir> | verify <backup-dir>>   Back up a service data directory while it runs; check a backup offline\n\
        kshana-pro dossier <keygen|sign|verify> ...   Sign a dossier or any delivery directory (Pro); verify one offline (free; `kshana-pro dossier` for details)\n\
        kshana-pro forensics <run|review|verify|pack-payload> ...   Incident forensics (E1, Pro pack): signed, reproducible forensic report; review and verify (free; `kshana-pro forensics` for details)\n\
-       kshana-pro scorecard <run|verify> ...   Receiver resilience scorecard and signed test report (E3, Pro); verify (free; `kshana-pro scorecard` for details)\n\
+       kshana-pro scorecard <run|verify|osnma|flags|units> ...   Receiver resilience, OSNMA, flag-efficacy and unit scorecards, signed (E3, E13, Pro); verify (free; `kshana-pro scorecard` for details)\n\
        kshana-pro attack-iq <generate|attestation-template|trace> ...   Synthetic attack IQ files for shielded labs and authorised ranges (F7): vetted buyers only, attestation first, files only, watermarked and logged\n\
        kshana-pro threats <list|show|export|feed> ...   Threat scenario library (E2): provenance, analogue, test-bench exports, signed monthly feed (Pro; list and feed verify free)\n\
        kshana-pro payments <check|checkout|stripe-checkout|serve> [--config <payments.toml>] ...   Payments and paywall; inert while payments.enabled and payments.stripe.enabled are false (vendor side)\n\

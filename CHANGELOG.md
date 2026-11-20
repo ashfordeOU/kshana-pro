@@ -5,6 +5,21 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Receiver scorecards (research backlog E13, B1301-B1304; docs/RECEIVER-SCORECARDS.md,
+  docs/EVIDENCE-PRODUCTS.md, docs/TIMING-ASSURANCE.md).** `kshana-pro scorecard flags`
+  (`pro-receiver-scorecard`): spoof-, jamming- and integrity-flag efficacy per model and
+  firmware from logs under test-kit scenarios: detection rates with Wilson intervals, false
+  alarms, CW-vs-broadband indicator truth, precondition dependence checked against the vendor's
+  stated preconditions, never-fired flags, and a generic "flag normal while wrong" detector;
+  new test-kit pack `receiver-flags` (six scenarios, including a clean baseline). `scorecard
+  units`: board, module and handset scorecards per model and firmware with unit-to-unit
+  variability and firmware regression alerts whose tolerance includes the spread between units.
+  `exposure scheme` (`pro-insurer-scorecard`): discount-scheme device scorecard checking stated
+  claims (detection, no misleading output, recovery, A-PNT holdover) against signed evidence,
+  with a publication rule for maker-paid testing. `timing recovery` (`pro-timing-scorecard`,
+  T4): recovery time, residual offset and holdover-exit step from recorded time-error logs, with
+  a multi-receiver median comparison. `-synth` commands write fixtures. All MODELLED; tested on
+  synthetic fixtures (`tests/receiver_flag_scorecards.rs`). No new licence kind.
 - **Timing assurance v2 (W1120 TA1-TA4; docs/TIMING-ASSURANCE.md).** `kshana-pro timing
   timebomb` (feature `pro-timing-timebomb`, Pro): future-epoch replay vectors (NMEA ZDA/RMC,
   UBX NAV-TIMEGPS/TIMEUTC/TIMELS, simulator sheet with the gps-sdr-sim command, expected

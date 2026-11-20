@@ -41,6 +41,7 @@ pub mod fleet;
 pub mod holdover_evidence;
 pub mod metrics;
 pub mod model;
+pub mod recovery;
 pub mod scorecard;
 pub mod selfcheck;
 pub mod timebomb;
