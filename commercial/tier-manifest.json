@@ -53,6 +53,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-grid-timing",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-incident-replay",
       "type": "feature",
       "tier": "pro"
@@ -89,6 +94,11 @@
     },
     {
       "kind": "pro-service-ha",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-sfn-timing",
       "type": "feature",
       "tier": "pro"
     },

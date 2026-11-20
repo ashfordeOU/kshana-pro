@@ -5,6 +5,24 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Power-grid and broadcast SFN timing evidence (backlog E31 B3101, B3102;
+  docs/GRID-SFN-TIMING.md).** `kshana-pro grid` (feature `pro-grid-timing`, Pro): `pmu` (clock
+  error as phase-angle and TVE evidence against the C37.118.1 1 % criterion, joined with the
+  PMU's own C37.118.2 sync flags and claimed time quality; per event window the
+  angle-difference error of every PMU pair), `drift` (gradual-spoof detection on a recorded
+  time-error series or a same-bus PMU angle pair: level CUSUM, rate and step tests, onset,
+  rate and warning before the budget is used up), `scada` (time-stamp integrity per device:
+  backwards, repeated, ahead, clock steps and drift of the latency floor, resolution),
+  `prc002` (measured time error against the ±2 ms PRC-002 criterion with monitoring gaps and
+  holdover resilience from the holdover evidence model, signed) and `event` (was timing
+  implicated in a grid event: per device error, drift look-back, sync flags, SCADA findings,
+  sequence-of-events orders re-checked after correcting each stamp by its device's error,
+  signed). `kshana-pro sfn` (feature `pro-sfn-timing`, Pro; `systems` free): DAB/DVB-T guard
+  intervals, recorded transmitter logs (UTC-level, transmitter and pair-margin events) and
+  scenarios (`svn23` 13 µs UTC step, GNSS loss with holdover, ramp) with each transmitter's
+  reaction (accept, holdover, mute), signed. Reuses the self-check log readers, the holdover
+  evidence model, signed dossiers and the open engine's C37.118 reader. MODELLED; evidence, not
+  a regulatory determination; tested on synthetic records (`tests/grid_sfn_timing.rs`).
 - **Timing assurance v2 (W1120 TA1-TA4; docs/TIMING-ASSURANCE.md).** `kshana-pro timing
   timebomb` (feature `pro-timing-timebomb`, Pro): future-epoch replay vectors (NMEA ZDA/RMC,
   UBX NAV-TIMEGPS/TIMEUTC/TIMELS, simulator sheet with the gps-sdr-sim command, expected

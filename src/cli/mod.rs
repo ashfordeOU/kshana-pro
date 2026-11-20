@@ -12,6 +12,7 @@ mod dossier_cmd;
 mod eloran_cmd;
 mod evidence_cmd;
 mod forensics_cmd;
+mod grid_cmd;
 mod license_cmd;
 mod lunar_cmd;
 mod packs_cmd;
@@ -64,6 +65,8 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro payments <check|checkout|stripe-checkout|serve> [--config <payments.toml>] ...   Payments and paywall; inert while payments.enabled and payments.stripe.enabled are false (vendor side)\n\
        kshana-pro packs <build|issue|serve|trace|install|status> ...   Pro pack delivery (C10; `kshana-pro packs` for details)\n\
        kshana-pro timing <assess|console|metrics|history|audit|compliance|timebomb|selfcheck|holdover-evidence> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit and evidence packs, time-bomb vectors and fleet audit, clock self-check, holdover evidence (Pro; `kshana-pro timing` for details)\n\
+       kshana-pro grid <pmu|drift|scada|prc002|event> ...   Power-grid timing evidence: PMU phase-angle error, gradual-spoof detection, SCADA time stamps, PRC-002 ±2 ms evidence with holdover resilience, event forensics (Pro; `kshana-pro grid` for details)\n\
+       kshana-pro sfn <assess|systems> ...   Broadcast SFN (DAB/DVB-T) timing: pair guard margins and UTC-level scenarios such as SVN-23 (Pro; systems free)\n\
        kshana-pro trust <run|verify> ...   Multi-source trust (F3): choose epoch by epoch among GNSS, OSNMA, LEO, eLoran, PTP and holdover, with hash-chained evidence (Pro; verify free)\n\
        kshana-pro eloran <run|validate|example> ...   eLoran/GNSS signal simulator: multi-chain, multi-time-reference eLoran signals with propagation, interference and truth, to SigMF files or LF hardware (Enterprise; validate and example free)
        kshana-pro lunar <time|rates|w0|circular|holdover|offset|lunex> ...   Lunar time with GUM uncertainty (TCL or TL), W0_L sensitivity, Circular T for the Moon, Earth-Moon TWTT holdover, KLTO-1 offset codec proposal, LUNEX prototype (Pro; decode, vectors, example and validate free; `kshana-pro lunar` for details)\n\
@@ -146,6 +149,8 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "verdict",
     "reports",
     "testkit",
+    "grid",
+    "sfn",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -283,6 +288,8 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("verdict") => verdict_cmd::run(&args[1..]),
         Some("reports") => reports_cmd::run(&args[1..]),
         Some("testkit") => testkit_cmd::run(&args[1..]),
+        Some("grid") => grid_cmd::run_grid(&args[1..]),
+        Some("sfn") => grid_cmd::run_sfn(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
         Some(name) if crate::extension::commands().iter().any(|c| c.name == name) => {
             let c = crate::extension::commands()

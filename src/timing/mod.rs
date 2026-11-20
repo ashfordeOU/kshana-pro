@@ -26,6 +26,10 @@
 //!   two-week rule), signed. Feature `pro-timing-holdover-evidence`.
 //! * **TA4** ([`compliance`]): the RTS 25 pack's cable-delay and holdover items and the ITU-T
 //!   G.8271.1 network-limit pack, under the audit feature.
+//! * **E31** ([`grid`], [`sfn`]): power-grid timing evidence (PMU phase-angle error, gradual
+//!   spoof detection, SCADA time stamps, PRC-002 evidence with holdover resilience, event
+//!   forensics), feature `pro-grid-timing`; broadcast SFN timing (pair guard margins and
+//!   UTC-level scenarios such as SVN-23), feature `pro-sfn-timing`.
 //!
 //! The prediction method is pre-registered and scored as evidence row V5, and its successor
 //! (used by the fleet assessment) as V5b (`docs/evidence/v5-holdover-time-to-breach/`);
@@ -38,11 +42,13 @@ pub mod compliance;
 pub mod console;
 pub mod evidence;
 pub mod fleet;
+pub mod grid;
 pub mod holdover_evidence;
 pub mod metrics;
 pub mod model;
 pub mod scorecard;
 pub mod selfcheck;
+pub mod sfn;
 pub mod timebomb;
 
 /// The scenario kind of a fleet assessment.

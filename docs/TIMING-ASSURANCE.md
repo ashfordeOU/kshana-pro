@@ -411,3 +411,9 @@ Every pack keeps the C4 verdicts and the wording rule (tested on every framework
   reports name, and several vendor pages behind them were not read directly.
 * No PTP management-plane (`pmc`) or SNMP reader for the self-check; logs only.
 * None of TA1 to TA4 has been run against a real device, network or operator record.
+
+## Power grid and broadcast SFN (E31)
+
+PMU phase-angle evidence, gradual-spoof detection, SCADA time stamps, PRC-002 evidence with
+holdover resilience, grid event forensics and DAB/DVB-T SFN timing build on this layer: see
+[`GRID-SFN-TIMING.md`](GRID-SFN-TIMING.md).
