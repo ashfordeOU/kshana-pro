@@ -8,6 +8,16 @@
       "tier": "open-seam"
     },
     {
+      "kind": "pro-accumulation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-agnss-integrity",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-agri-advisor",
       "type": "feature",
       "tier": "pro"
@@ -53,6 +63,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-automotive-pl",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-aviation-exposure",
       "type": "feature",
       "tier": "pro"
@@ -73,6 +88,16 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-basis-risk",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-bi-quantification",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-bid-attestation",
       "type": "feature",
       "tier": "pro"
@@ -84,6 +109,11 @@
     },
     {
       "kind": "pro-bridge-drills",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-claims-triage",
       "type": "feature",
       "tier": "pro"
     },
@@ -104,6 +134,11 @@
     },
     {
       "kind": "pro-dispute-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-ecall-tests",
       "type": "feature",
       "tier": "pro"
     },
@@ -133,7 +168,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-emergency-location",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-exposure-ledger",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-fault-injection",
       "type": "feature",
       "tier": "pro"
     },
@@ -183,12 +228,32 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-nr-timing",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-nuisance-alerts",
       "type": "feature",
       "tier": "pro"
     },
     {
       "kind": "pro-obs-provenance",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-obu-fraud-eval",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-parametric-trigger",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-rail-evidence",
       "type": "feature",
       "tier": "pro"
     },
@@ -293,6 +358,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-telematics-antispoof",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-test-kit",
       "type": "feature",
       "tier": "pro"
@@ -368,6 +438,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-underwriting-feed",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-unpublished-areas",
       "type": "feature",
       "tier": "pro"
@@ -379,6 +454,11 @@
     },
     {
       "kind": "pro-utm-integrity",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-v2x-checks",
       "type": "feature",
       "tier": "pro"
     },
