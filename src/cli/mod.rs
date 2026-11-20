@@ -5,6 +5,7 @@
 //! binary) and the licensing mechanics (issue / verify tokens; `--license` enforces
 //! tier entitlements on Pro packs).
 
+mod agri_cmd;
 mod alerts_cmd;
 mod area_cmd;
 mod attack_iq_cmd;
@@ -12,6 +13,7 @@ mod aviation_cmd;
 mod avionics_cmd;
 mod bridge_cmd;
 mod briefing_cmd;
+mod clock_bench_cmd;
 mod dossier_cmd;
 mod eloran_cmd;
 mod evidence_cmd;
@@ -19,8 +21,10 @@ mod evidence_infra_cmd;
 mod forensics_cmd;
 mod grid_cmd;
 mod incident_cmd;
+mod insurance_cmd;
 mod license_cmd;
 mod lunar_cmd;
+mod navaids_cmd;
 mod packs_cmd;
 mod payments_cmd;
 mod pics_cmd;
@@ -30,10 +34,12 @@ mod receiver_cmd;
 mod regpack_cmd;
 mod reports_cmd;
 mod scorecard_cmd;
+mod space_rx_cmd;
 mod testkit_cmd;
 mod threats_cmd;
 mod timing_cmd;
 mod timing_net_cmd;
+mod transport_cmd;
 mod trust_cmd;
 mod utm_cmd;
 mod verdict_cmd;
@@ -77,6 +83,11 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro timing <assess|console|metrics|history|audit|compliance|timebomb|selfcheck|holdover-evidence> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit and evidence packs, time-bomb vectors and fleet audit, clock self-check, holdover evidence (Pro; `kshana-pro timing` for details)\n\
        kshana-pro grid <pmu|drift|scada|prc002|event> ...   Power-grid timing evidence: PMU phase-angle error, gradual-spoof detection, SCADA time stamps, PRC-002 ±2 ms evidence with holdover resilience, event forensics (Pro; `kshana-pro grid` for details)\n\
        kshana-pro sfn <assess|systems> ...   Broadcast SFN (DAB/DVB-T) timing: pair guard margins and UTC-level scenarios such as SVN-23 (Pro; systems free)\n\
+       kshana-pro road <check|obu-eval|library> ...   Telematics and road-charging GNSS anti-spoof: indicators, episodes, jammer fingerprint class, trip trust (pseudonymised), signed on-board-unit fraud evaluation (Pro; library free)\n\
+       kshana-pro ecall <suite|mapping|score|location|duty|battery> ...   eCall GNSS tests of 2017/79 Annex VI with signed scoring, AML/E112 and PSAP location reliability (Pro); suite, mapping, duty-cycle detection and battery model free\n\
+       kshana-pro auto <catalogue|pl|v2x|inject> ...   Automotive GNSS: SOTIF triggering-condition catalogue, PL validation by condition, V2X ellipse and time checks, data-level fault injection (Pro; catalogue free)\n\
+       kshana-pro nr <tdd|prs|vectors|check> ...   5G: TDD frame timing under GNSS loss, PRS accuracy model, GNSS integrity reference vectors and device check (Pro; vectors free)\n\
+       kshana-pro rail <thr|balise> ...   Rail GNSS: position hazard rate with jamming and spoofing against the apportioned THR, virtual-balise passage test (Pro); EN 50129 template via regpack assess\n\
        kshana-pro timing <assess|console|metrics|history|audit|compliance|timebomb|selfcheck|holdover-evidence|posture|chain|crosscheck|station> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit and evidence packs, time-bomb vectors and fleet audit, clock self-check, holdover evidence, appliance security posture and SBOMs, distribution-chain traceability, multi-source cross-check, ground-station pass assurance (Pro; `kshana-pro timing` for details)\n\
        kshana-pro trust <run|verify> ...   Multi-source trust (F3): choose epoch by epoch among GNSS, OSNMA, LEO, eLoran, PTP and holdover, with hash-chained evidence (Pro; verify free)\n\
        kshana-pro eloran <run|validate|example> ...   eLoran/GNSS signal simulator: multi-chain, multi-time-reference eLoran signals with propagation, interference and truth, to SigMF files or LF hardware (Enterprise; validate and example free)
@@ -91,7 +102,10 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro pics <list|show|mapping|score|export|sample|verify> ...   PICS: PNT Interference Conformance Suite, versioned jamming/spoofing scenarios with pre-registered bars, clause mapping and signed scorecards (score Pro; the rest free)\n\
        kshana-pro testkit <validate|compile|run|diff|from-incident|from-library|fidelity|packs|show|sample|verify> ...   Test-as-code kit: neutral scenarios compiled for lab simulators, CI runner with signed verdicts per build, regression diff, incident-to-regression, replay fidelity, scenario packs (`kshana-pro testkit` for details; validate, packs, sample, verify free)\n\
        kshana-pro avionics <list|show|validate|generate|run|sample|recovery|evidence|kit|verify> ...   Avionics test library: SBAS failure-test procedures with a message-sequence generator, ARAIM checks, per-avionics-type recovery-time scorecard, evidence pack and tool-qualification support kit (`kshana-pro avionics` for details; list, show, validate, sample, verify free)\n\
+       kshana-pro space-rx <exposure|score|db|detect|inject|vectors|tolerance|rate|sample|verify> ...   Space-segment GNSS receiver evidence: ground-interference envelope from orbit, qualification scorecards, selection database and template, radiation-fault signatures, OBC interface vectors, SEE rate forecast (`kshana-pro space-rx` for details; inject, db select, db schema, sample, verify free)\n\
        kshana-pro regpack <list|show|example|assess|bam|mass|links|complaint|bid|verify> ...   Regulator, type-approval and framework pre-assessment packs: evidence per requirement and the gaps (MSC.401/432, Circ.1575, BAM, UR E27, EN 303 413, MASS Code, NIST CSF 2.0, EU Space Act), RR Appendix 10 interference report annex, bid attestation (Pro; list, show, example, verify free)\n\
+       kshana-pro agri <convert|drift|realign|field|resilience|advise|translate|photo|sample|verify> ...   Agriculture, construction and survey operations: guidance-line converter and realignment, pass-to-pass drift, field planner, autosteer resilience score with outage diagnosis, scintillation and PPP-versus-RTK advisors, geotagged-photo checks (`kshana-pro agri` for details; convert, translate, sample, verify free)\n\
+       kshana-pro navaids <coverage|rnp|inspect|ssv> ...   Terrestrial navaids: DME/VOR network twin with critical DMEs, multi-sensor RNP scenarios with the e-conspicuity NACp backup test, flight-inspection truth assurance (Pro; ssv free)\n\
        kshana-pro pntdp <run|vectors|check> ...   PNT data processing reference (MSC.1/Circ.1575): multi-source plausibility, consistency, selected solution and integrity level (Pro; vectors and check free)\n\
        kshana-pro verdict <selfcal|survey|cause|verify> ...   Hosted methods answered as signed verdicts, verified against the service key (`kshana-pro verdict` for details)\n\
        kshana-pro reports <normalise|validate|episodes|verify|reset-check|ledger|check|params|regimes|synth> ...   Interference reports: normalise crew/ATC/mariner reports, validate per regime, episodes, signed verification, exposure ledger and reset check (Pro; ledger Enterprise; check, params, regimes, synth free)\n\
@@ -101,6 +115,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro longterm <key-genesis|key-rotate|request|add-token|stamp|history|verify> ...   Long-term signatures: key history and RFC 3161 archive time-stamp chain over a signed directory, verified offline (Pro; request and verify free)\n\
        kshana-pro exposure <run|verify> ...   Insurer scorecard: periodic signed exposure summary of a fleet or route (E7, Pro); verify free\n\
        kshana-pro briefing <transits|brief|tails|lowalt|occ|regional|road|spillover|notam|areas|verify> ...   Exposure history, route risk and briefings with stated confidence: transits, chokepoint and route briefings, per-tail ledger, OCC alerts, regional datasets, road index, spillover footprints (Pro; notam, areas, verify free)\n\
+       kshana-pro insurance <trigger|basis|accumulation|bi|feed|triage|schema|sample|verify> ...   Insurance and finance analytics: parametric outage trigger on your station data, basis risk, portfolio accumulation, business-interruption quantification with sensitivity, underwriting feed, claims triage aid (Pro; accumulation Enterprise; schema, sample, bi models, verify free; evidence and calculations, not advice or decisions)\n\
        kshana-pro license <keygen|pubkey|issue|issue-invoice|extend-invoice|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
      \n\
      --sample (any command): every page of every document written also carries the mark\n\
@@ -167,6 +182,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "bridge",
     "dependency",
     "briefing",
+    "insurance",
     "pics",
     "pntdp",
     "verdict",
@@ -174,12 +190,20 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "testkit",
     "avionics",
     "regpack",
+    "navaids",
     "grid",
+    "road",
+    "ecall",
+    "auto",
+    "nr",
+    "rail",
     "sfn",
     "aviation",
     "utm",
     "obs-provenance",
     "longterm",
+    "agri",
+    "space-rx",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -315,14 +339,23 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("bridge") => bridge_cmd::bridge(&args[1..]),
         Some("dependency") => bridge_cmd::dependency(&args[1..]),
         Some("briefing") => briefing_cmd::run(&args[1..]),
+        Some("insurance") => insurance_cmd::run(&args[1..]),
         Some("pics") => pics_cmd::run(&args[1..]),
         Some("pntdp") => pntdp_cmd::run(&args[1..]),
         Some("verdict") => verdict_cmd::run(&args[1..]),
         Some("reports") => reports_cmd::run(&args[1..]),
         Some("testkit") => testkit_cmd::run(&args[1..]),
         Some("avionics") => avionics_cmd::run(&args[1..]),
+        Some("agri") => agri_cmd::run(&args[1..]),
+        Some("space-rx") => space_rx_cmd::run(&args[1..]),
         Some("regpack") => regpack_cmd::run(&args[1..]),
+        Some("navaids") => navaids_cmd::run(&args[1..]),
         Some("grid") => grid_cmd::run_grid(&args[1..]),
+        Some("road") => transport_cmd::road(&args[1..]),
+        Some("ecall") => transport_cmd::ecall(&args[1..]),
+        Some("auto") => transport_cmd::auto(&args[1..]),
+        Some("nr") => transport_cmd::nr(&args[1..]),
+        Some("rail") => transport_cmd::rail(&args[1..]),
         Some("sfn") => grid_cmd::run_sfn(&args[1..]),
         Some("aviation") => aviation_cmd::run(&args[1..]),
         Some("utm") => utm_cmd::run(&args[1..]),

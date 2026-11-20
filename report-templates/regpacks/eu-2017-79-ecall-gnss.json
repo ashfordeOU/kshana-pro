@@ -1,0 +1,124 @@
+{
+  "format": "kshana-pro-regulator-catalogue/1",
+  "id": "eu-2017-79-ecall-gnss",
+  "title": "eCall in-vehicle system GNSS requirements: Commission Delegated Regulation (EU) 2017/79, Annex VI",
+  "kind": "type-approval",
+  "status": "In force for eCall type-approval in the EU; UN Regulation No 144 carries aligned GNSS test methods (Annex 8, paragraphs to be confirmed)",
+  "source": {
+    "title": "Commission Delegated Regulation (EU) 2017/79, Annex VI",
+    "version": "as published 2017, consolidated text",
+    "url": "https://www.legislation.gov.uk/eur/2017/79/data.htm?view=plain",
+    "read": "Annex VI sections 1 and 2 read from the legislation.gov.uk consolidated text on 20 Nov 2026; the EUR-Lex text is authoritative."
+  },
+  "rows": [
+    {
+      "id": "ANNEXVI-1.1",
+      "clause": "Annex VI 1.1",
+      "basis": "Annex VI sections 1 and 2 read from the legislation.gov.uk consolidated text on 20 Nov 2026",
+      "topic": "Galileo and EGNOS compatibility",
+      "evidence": [
+        "kshana-pro-ecall-gnss-tests/1"
+      ],
+      "gap": "The laboratory runs are the manufacturer's or its technical service's; Kshana scores them against the stated limit."
+    },
+    {
+      "id": "ANNEXVI-1.2.1",
+      "clause": "Annex VI 1.2.1",
+      "basis": "Annex VI sections 1 and 2 read from the legislation.gov.uk consolidated text on 20 Nov 2026",
+      "topic": "NMEA-0183 output: RMC, GGA, VTG, GSA, GSV",
+      "evidence": [
+        "kshana-pro-ecall-gnss-tests/1"
+      ],
+      "gap": "The laboratory runs are the manufacturer's or its technical service's; Kshana scores them against the stated limit."
+    },
+    {
+      "id": "ANNEXVI-1.2.2",
+      "clause": "Annex VI 1.2.2",
+      "basis": "Annex VI sections 1 and 2 read from the legislation.gov.uk consolidated text on 20 Nov 2026",
+      "topic": "Individual L1/E1 signals of at least two GNSS including Galileo and GPS",
+      "evidence": [
+        "kshana-pro-ecall-gnss-tests/1"
+      ],
+      "gap": "The laboratory runs are the manufacturer's or its technical service's; Kshana scores them against the stated limit."
+    },
+    {
+      "id": "ANNEXVI-1.2.3",
+      "clause": "Annex VI 1.2.3",
+      "basis": "Annex VI sections 1 and 2 read from the legislation.gov.uk consolidated text on 20 Nov 2026",
+      "topic": "Combined signals of at least two GNSS plus SBAS",
+      "evidence": [
+        "kshana-pro-ecall-gnss-tests/1"
+      ],
+      "gap": "The laboratory runs are the manufacturer's or its technical service's; Kshana scores them against the stated limit."
+    },
+    {
+      "id": "ANNEXVI-1.2.4",
+      "clause": "Annex VI 1.2.4",
+      "basis": "Annex VI sections 1 and 2 read from the legislation.gov.uk consolidated text on 20 Nov 2026",
+      "topic": "Coordinates in WGS-84",
+      "evidence": [],
+      "gap": "A declaration; not tested by Kshana."
+    },
+    {
+      "id": "ANNEXVI-1.2.5",
+      "clause": "Annex VI 1.2.5",
+      "basis": "Annex VI sections 1 and 2 read from the legislation.gov.uk consolidated text on 20 Nov 2026",
+      "topic": "Horizontal error at 95 %: 15 m open sky, 40 m urban canyon",
+      "evidence": [
+        "kshana-pro-ecall-gnss-tests/1"
+      ],
+      "gap": "The laboratory runs are the manufacturer's or its technical service's; Kshana scores them against the stated limit."
+    },
+    {
+      "id": "ANNEXVI-1.2.6",
+      "clause": "Annex VI 1.2.6",
+      "basis": "Annex VI sections 1 and 2 read from the legislation.gov.uk consolidated text on 20 Nov 2026",
+      "topic": "Operating range: 0 to 140 km/h, 0 to 2 g",
+      "evidence": [
+        "kshana-pro-ecall-gnss-tests/1"
+      ],
+      "gap": "The 2 g bound is not exercised by the 2.2.3 method."
+    },
+    {
+      "id": "ANNEXVI-1.2.7",
+      "clause": "Annex VI 1.2.7",
+      "basis": "Annex VI sections 1 and 2 read from the legislation.gov.uk consolidated text on 20 Nov 2026",
+      "topic": "Cold-start time to first fix at -130 and -140 dBm",
+      "evidence": [
+        "kshana-pro-ecall-gnss-tests/1"
+      ],
+      "gap": "The laboratory runs are the manufacturer's or its technical service's; Kshana scores them against the stated limit."
+    },
+    {
+      "id": "ANNEXVI-1.2.8",
+      "clause": "Annex VI 1.2.8",
+      "basis": "Annex VI sections 1 and 2 read from the legislation.gov.uk consolidated text on 20 Nov 2026",
+      "topic": "Re-acquisition after a 60 s block-out",
+      "evidence": [
+        "kshana-pro-ecall-gnss-tests/1"
+      ],
+      "gap": "The laboratory runs are the manufacturer's or its technical service's; Kshana scores them against the stated limit."
+    },
+    {
+      "id": "ANNEXVI-1.2.9",
+      "clause": "Annex VI 1.2.9",
+      "basis": "Annex VI sections 1 and 2 read from the legislation.gov.uk consolidated text on 20 Nov 2026",
+      "topic": "Acquisition, tracking and re-acquisition sensitivity",
+      "evidence": [
+        "kshana-pro-ecall-gnss-tests/1"
+      ],
+      "gap": "The laboratory runs are the manufacturer's or its technical service's; Kshana scores them against the stated limit."
+    },
+    {
+      "id": "ANNEXVI-1.2.10",
+      "clause": "Annex VI 1.2.10",
+      "basis": "Annex VI sections 1 and 2 read from the legislation.gov.uk consolidated text on 20 Nov 2026",
+      "topic": "Position fix at least every second",
+      "evidence": [
+        "kshana-pro-ecall-gnss-tests/1"
+      ],
+      "gap": "The laboratory runs are the manufacturer's or its technical service's; Kshana scores them against the stated limit."
+    }
+  ],
+  "wording": "Each row names a requirement of the document (paraphrased, never quoted at length, with its clause where the research read it), the Kshana evidence formats that speak to it and the gap Kshana does not cover. A pre-assessment is an aid for preparing a submission. It does not state, and must not be read as stating, that any product, ship or operator meets the document; that judgement belongs to the notified body, class society, administration or assessor."
+}

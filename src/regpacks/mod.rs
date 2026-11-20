@@ -104,6 +104,18 @@ pub const CATALOGUES: &[(&str, &str)] = &[
         "eu-space-act-cyber",
         include_str!("../../report-templates/regpacks/eu-space-act-cyber.json"),
     ),
+    (
+        "rail-gnss-sil4",
+        include_str!("../../report-templates/regpacks/rail-gnss-sil4.json"),
+    ),
+    (
+        "iso26262-gnss-seooc",
+        include_str!("../../report-templates/regpacks/iso26262-gnss-seooc.json"),
+    ),
+    (
+        "eu-2017-79-ecall-gnss",
+        include_str!("../../report-templates/regpacks/eu-2017-79-ecall-gnss.json"),
+    ),
 ];
 
 /// The evidence formats a row may name: format tag and product name.
@@ -144,6 +156,27 @@ pub const EVIDENCE_FORMATS: &[(&str, &str)] = &[
     (links::FORMAT, "Link-security evidence"),
     (complaint::FORMAT, "Interference report pack"),
     (bid::FORMAT, "Bid evidence attestation"),
+    (
+        crate::transport::telematics::OBU_FORMAT,
+        "On-board-unit GNSS attack evaluation",
+    ),
+    (crate::transport::ecall::FORMAT, "eCall GNSS test scoring"),
+    (
+        crate::transport::auto::PL_FORMAT,
+        "Protection-level validation",
+    ),
+    (
+        crate::transport::auto::V2X_FORMAT,
+        "V2X position and time checks",
+    ),
+    (
+        crate::transport::rail::THR_FORMAT,
+        "Rail position hazard against THR",
+    ),
+    (
+        crate::transport::rail::BALISE_FORMAT,
+        "Virtual-balise passage test",
+    ),
 ];
 
 /// The product name of a format tag.

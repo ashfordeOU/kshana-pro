@@ -160,6 +160,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-timing-chain" => Tier::Pro,
         "pro-timing-crosscheck" => Tier::Pro,
         "pro-timing-station" => Tier::Pro,
+        // Neutral clock benchmarks under a pre-registered protocol (E33 B3302).
+        "pro-timing-clock-bench" => Tier::Pro,
         // Synthetic attack IQ files (roadmap 0.42 F7, owner gate K6): Pro edition, but never
         // by tier below Enterprise: the vendor names the feature on a vetted buyer's licence
         // (with `vetted_buyer`), and crate::attack_iq checks both.
@@ -168,6 +170,15 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // pro-eloran-hw, driving LF hardware into cables or antenna simulators (never over the air).
         "pro-eloran" => Tier::Enterprise,
         "pro-eloran-hw" => Tier::Enterprise,
+        // eLoran, R-Mode and terrestrial navaids (research 2026-11-20 gaps, E37): draft R-Mode
+        // receiver performance tests, WWRNS multi-source trust, timing-claim and
+        // interoperability checks, the DME/VOR twin with RNP and inspection checks (Pro); the
+        // signed safety-of-life evidence index (Enterprise).
+        "pro-rmode-perf" => Tier::Pro,
+        "pro-wwrns-trust" => Tier::Pro,
+        "pro-eloran-claims" => Tier::Pro,
+        "pro-eloran-sol-evidence" => Tier::Enterprise,
+        "pro-navaids" => Tier::Pro,
         // Multi-source trust (roadmap 0.42 F3): the selector kind and `kshana-pro trust run`.
         "pro-multi-source-trust" => Tier::Pro,
         // Area console (roadmap 0.42 F1, F2): the picture kind and the console command and
@@ -250,10 +261,50 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // time-stamp chains (B2503). Verifying both stays free.
         "pro-obs-provenance" => Tier::Pro,
         "pro-longterm-signature" => Tier::Pro,
+        // Space-segment GNSS receiver evidence (research 2026-11-20 gaps E20): the
+        // ground-interference envelope from orbit (B2001), qualification scorecards, selection
+        // database and template (B2002), radiation-fault signatures, OBC interface vectors and
+        // SEE rate forecast (B2003).
+        "pro-space-rx-exposure" => Tier::Pro,
+        "pro-space-rx-qual" => Tier::Pro,
+        "pro-space-rx-see" => Tier::Pro,
+        // Insurance and finance analytics (research 2026-11-20 gaps E28): the parametric
+        // trigger on the user's station data, basis risk, business-interruption quantification,
+        // the underwriting feed and the claims triage aid (Pro); portfolio accumulation
+        // (Enterprise).
+        "pro-parametric-trigger" => Tier::Pro,
+        "pro-basis-risk" => Tier::Pro,
+        "pro-accumulation" => Tier::Enterprise,
+        "pro-bi-quantification" => Tier::Pro,
+        "pro-underwriting-feed" => Tier::Pro,
+        "pro-claims-triage" => Tier::Pro,
         // UTM / U-space positioning integrity (research 2026-11-20 gaps E18 B1804): SORA input,
         // Remote ID checks and per-flight attestations (Pro); the USSP feed (Enterprise).
         "pro-utm-integrity" => Tier::Pro,
         "pro-ussp-feed" => Tier::Enterprise,
+        // Road, rail, automotive, eCall and 3GPP evidence (research 2026-11-20 gaps E30):
+        // telematics anti-spoof and the on-board-unit fraud evaluation, eCall GNSS test scoring
+        // and emergency-location reliability, automotive PL validation, V2X checks and fault
+        // injection, 5G TDD timing and PRS accuracy, integrity-vector checks, rail THR and
+        // virtual-balise evidence.
+        "pro-telematics-antispoof" => Tier::Pro,
+        "pro-obu-fraud-eval" => Tier::Pro,
+        "pro-ecall-tests" => Tier::Pro,
+        "pro-emergency-location" => Tier::Pro,
+        "pro-automotive-pl" => Tier::Pro,
+        "pro-v2x-checks" => Tier::Pro,
+        "pro-fault-injection" => Tier::Pro,
+        "pro-nr-timing" => Tier::Pro,
+        "pro-agnss-integrity" => Tier::Pro,
+        "pro-rail-evidence" => Tier::Pro,
+        // Agriculture, construction and survey operations (research 2026-11-20 gaps, E35):
+        // pass-to-pass drift, guidance-line realignment and the field planner; the autosteer
+        // resilience score and outage diagnosis; the scintillation and PPP-versus-RTK
+        // advisors (Pro); geotagged-photo checks over a parcel set (Enterprise).
+        "pro-agri-guidance" => Tier::Pro,
+        "pro-agri-resilience" => Tier::Pro,
+        "pro-agri-advisor" => Tier::Pro,
+        "pro-agri-photo" => Tier::Enterprise,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -284,6 +335,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-timing-chain",
     "pro-timing-crosscheck",
     "pro-timing-station",
+    "pro-timing-clock-bench",
     "pro-threat-library",
     "pro-attack-iq",
     "pro-area-console",
@@ -298,6 +350,11 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-watch-wall",
     "pro-eloran",
     "pro-eloran-hw",
+    "pro-rmode-perf",
+    "pro-wwrns-trust",
+    "pro-eloran-claims",
+    "pro-eloran-sol-evidence",
+    "pro-navaids",
     "pro-interference-reports",
     "pro-report-verification",
     "pro-exposure-ledger",
@@ -327,8 +384,31 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-dispute-evidence",
     "pro-obs-provenance",
     "pro-longterm-signature",
+    "pro-space-rx-exposure",
+    "pro-space-rx-qual",
+    "pro-space-rx-see",
+    "pro-parametric-trigger",
+    "pro-basis-risk",
+    "pro-accumulation",
+    "pro-bi-quantification",
+    "pro-underwriting-feed",
+    "pro-claims-triage",
     "pro-utm-integrity",
     "pro-ussp-feed",
+    "pro-telematics-antispoof",
+    "pro-obu-fraud-eval",
+    "pro-ecall-tests",
+    "pro-emergency-location",
+    "pro-automotive-pl",
+    "pro-v2x-checks",
+    "pro-fault-injection",
+    "pro-nr-timing",
+    "pro-agnss-integrity",
+    "pro-rail-evidence",
+    "pro-agri-guidance",
+    "pro-agri-resilience",
+    "pro-agri-advisor",
+    "pro-agri-photo",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

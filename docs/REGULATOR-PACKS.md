@@ -48,6 +48,9 @@ cited only where the research or the open engine read the document; every other 
 | `imo-mass-code` | MASS Code, MSC.595(111) | Read in full in research 07b; 16.3.2 EP4 and 16.5 EP1 as cited there |
 | `nist-csf2-pnt` | NIST IR 8323 Rev. 2 ipd on CSF 2.0 | CSF 2.0 category identifiers; the draft profile text not read |
 | `eu-space-act-cyber` | EU Space Act proposal COM(2025) 335 | Topic level; check against the adopted text |
+| `rail-gnss-sil4` | EN 50129 safety-case headings for a GNSS virtual balise (E30) | Not read; topic level ([`ROAD-RAIL-AUTO.md`](ROAD-RAIL-AUTO.md)) |
+| `iso26262-gnss-seooc` | ISO 26262 SEooC and ISO 21448 (SOTIF) for a GNSS element (E30) | Not read; topic level |
+| `eu-2017-79-ecall-gnss` | Delegated Regulation (EU) 2017/79 Annex VI (E30) | Annex VI 1.1-1.2.10 and 2.1-2.2.7 read on legislation.gov.uk, 20 Nov 2026 |
 
 ## Pre-assessment (`assess`)
 

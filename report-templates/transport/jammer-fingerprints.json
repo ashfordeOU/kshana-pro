@@ -1,0 +1,39 @@
+{
+  "format": "kshana-jammer-fingerprints/1",
+  "version": "2026-11-20",
+  "title": "Jamming episode fingerprints from receiver-side observables (road and logistics)",
+  "basis": "Classes are defined by what a vehicle's own telematics record shows during a jamming episode: duration, distance driven, fix toggling and the depth of the C/N0 and AGC drop. They describe the episode as seen from the vehicle, never where a jammer was. Research 2026-11-20 gaps 07:I07 and 07:I13; class boundaries are Kshana's starting values, to be tuned on labelled episodes.",
+  "use": "Evidence for an insurer, fleet operator or investigator that an outage looks like jamming of a given pattern. A class is not proof of a device or of who used it.",
+  "classes": [
+    {
+      "id": "intermittent-cycling",
+      "name": "Intermittent, cycling outage",
+      "rule": { "min_toggles_per_min": 2.0, "min_duration_s": 30.0 },
+      "meaning": "The fix is lost and regained repeatedly: consistent with a pulsed or switched jammer, or with a jammer near the edge of its effective range."
+    },
+    {
+      "id": "parked-vehicle",
+      "name": "Long outage while stationary",
+      "rule": { "max_wheel_km": 0.05, "min_duration_s": 600.0 },
+      "meaning": "The vehicle did not move while the fix was denied for ten minutes or more: the pattern reported before cargo theft from parked trucks, and also seen in shielded car parks (check the site)."
+    },
+    {
+      "id": "travels-with-vehicle",
+      "name": "Outage that travels with the vehicle",
+      "rule": { "min_wheel_km": 5.0, "min_duration_s": 300.0, "min_cn0_drop_db": 6.0 },
+      "meaning": "The denial persisted over 5 km or more of driving with a deep C/N0 drop: consistent with a jammer carried in or on the vehicle (a personal privacy device)."
+    },
+    {
+      "id": "passing-source",
+      "name": "Short outage while moving",
+      "rule": { "min_wheel_km": 0.05, "max_wheel_km": 5.0, "max_duration_s": 600.0 },
+      "meaning": "Denial that ended within a few kilometres of driving: consistent with passing a fixed source or another vehicle carrying a jammer."
+    },
+    {
+      "id": "unclassified",
+      "name": "Unclassified",
+      "rule": {},
+      "meaning": "No class rule matched; the episode is reported with its features only."
+    }
+  ]
+}

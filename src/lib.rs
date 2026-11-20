@@ -30,6 +30,7 @@
 // is unambiguous that Pro *embeds* (does not reimplement) the open core.
 pub use kshana;
 
+pub mod agri;
 pub mod alerts;
 pub mod area;
 pub mod attack_iq;
@@ -47,6 +48,7 @@ pub mod dependency;
 pub mod desktop;
 #[cfg(feature = "unfiled-methods")]
 pub mod eloran_attrib;
+pub mod eloran_claims;
 pub mod eloran_fusion;
 pub mod eloran_gnss;
 pub mod eloran_gnss_sdr;
@@ -59,6 +61,7 @@ pub mod fdm;
 pub mod forensics;
 pub mod frameworks;
 pub mod ievents;
+pub mod insurance;
 pub mod integrity;
 pub mod ireports;
 pub mod lab_campaign;
@@ -66,6 +69,7 @@ pub mod license;
 pub mod longterm;
 pub mod lunar_pro;
 pub mod multi_source;
+pub mod navaids;
 pub mod obs_provenance;
 pub mod osnma_conformance;
 pub mod pack_c;
@@ -93,6 +97,7 @@ pub mod results_only;
 pub mod scorecards;
 pub mod serve;
 pub mod signed_dossier;
+pub mod space_rx;
 pub mod study_dossier;
 pub mod study_ledger;
 pub mod testkit;
@@ -109,6 +114,7 @@ pub mod watermark;
 pub mod resilience;
 pub mod suite;
 pub mod timing;
+pub mod transport;
 pub mod twin;
 
 /// The version of this Pro overlay crate (distinct from the embedded open engine).

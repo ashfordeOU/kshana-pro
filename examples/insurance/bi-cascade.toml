@@ -1,0 +1,11 @@
+# SYNTHETIC example: fleet-cascade risk for a 40-vessel fleet on shared routes.
+title = "Fleet cascade, 40 vessels (SYNTHETIC figures)"
+model = "cascade"
+currency = "USD"
+
+[params]
+fleet_size = 40
+p_unit = 0.05             # per-vessel probability of an interference loss in the period
+correlation = 0.2         # common routes and areas
+loss_per_unit = 150000.0
+threshold_units = 3

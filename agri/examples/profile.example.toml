@@ -1,0 +1,14 @@
+format = "kshana-agri-profile/1"
+class = "agriculture"
+required_fix = "rtk_fixed"
+tolerance_m = 0.05
+merge_s = 10.0
+hold_s = 10.0
+recovery_good_s = 10.0
+recovery_bad_s = 300.0
+max_corr_age_s = 10.0
+sat_drop_frac = 0.4
+cn0_drop_db = 6.0
+toggle_min = 3
+weights = [40.0, 20.0, 20.0, 20.0]
+source = "kshana-pro demonstration defaults (not a machine maker's figures)"

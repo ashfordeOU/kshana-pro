@@ -5,6 +5,57 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
+  "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
+  Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
+  and its stability, holdover test, environmental phases); scoring refuses a protocol changed
+  after registration; per clock and phase, overlapping ADEV with chi-squared intervals, TDEV,
+  MTIE, a holdover prediction test, frequency shift and stability ratio to the baseline phase,
+  datasheet claims as measured/claimed ratios; points below the reference floor flagged and
+  withheld; side-by-side table in input order with no ranking; signed evidence directory.
+  Tier manifest regenerated; synthetic demo in `examples/clock-bench/`; `tests/clock_bench.rs`
+  (9 tests).
+- **Space-segment GNSS receiver evidence (research 2026-11-20 gaps E20: B2001, B2002,
+  B2003; docs/SPACE-RECEIVER.md).** `kshana-pro space-rx`: the ground-interference envelope
+  a spacecraft receiver meets (TLE on the open engine's SGP4, declared areas or degraded cells
+  of an open-engine interference map, antenna pattern; per-pass J/S and effective C/N0 per
+  assumed EIRP, time beyond the receiver's tested J/S, Doppler offset and rate of a ground
+  transmitter seen from orbit; per-revolution exposure and simulator test points, signal
+  parameters only); the campaign format `kshana-space-rx-campaign/1` (TID steps with
+  navigation outputs, SEE, vibration, thermal, tracking and interference runs), signed
+  scorecards against a `kshana-space-rx-mission/1` profile, the selection database
+  `kshana-space-rx-db/1` with its JSON Schema and a qualification process template populated
+  from a campaign; radiation-fault signatures in a receiver output trace (latch-up suspect,
+  reset, functional interrupt, frozen output, one-epoch upsets with a bit-flip test, time-tag
+  and clock upsets; persistent steps and millisecond clock jumps reported as not radiation),
+  an injector for fixtures with ground truth, NMEA receiver-to-OBC corrupt-data vectors with a
+  reference parser and OBC log scoring, and a Weibull/LET SEE rate forecast. Features
+  `pro-space-rx-exposure`, `pro-space-rx-qual`, `pro-space-rx-see` (Pro); tier manifest
+  regenerated. All MODELLED (SYNTHETIC samples, `tests/space_rx.rs`).
+- **Insurance and finance analytics (research 2026-11-20 gaps E28: B2801 local part, B2802,
+  B2803, B2805; docs/INSURANCE-ANALYTICS.md).** `kshana-pro insurance`: `trigger`
+  (`pro-parametric-trigger`, Pro): a parametric PNT-outage trigger evaluated on the user's own
+  station C/N0 series (CSV or `kshana.obs/1`): per-site baselines, episodes, the k-of-n site
+  rule, duration threshold, outage index in dB·h, modelled payouts under a stated (or synthetic,
+  labelled) tier schedule with per-event and aggregate limits, backtest against archived events
+  with their documented basis; missing data never counts as degraded. `basis`
+  (`pro-basis-risk`, Pro): payouts against the insureds' loss records: shortfall, excess,
+  basis-risk ratio with a seeded bootstrap 90 % interval, hit rate, payout-loss correlation,
+  duration basis and location basis. `accumulation` (`pro-accumulation`, Enterprise): a
+  portfolio under historical event footprints and deterministic scenarios: per footprint, per
+  cell with Herfindahl index, largest event, period and annualised aggregate, empirical
+  exceedance. `bi` (`pro-bi-quantification`, Pro): timing (telecom/finance, SVN-23 preset or a
+  time-error log), farm yield, port delay, grounding severity and fleet cascade (beta-binomial)
+  models, each with assumptions and a one-at-a-time sensitivity table; `bi models` free.
+  `feed` (`pro-underwriting-feed`, Pro): per vessel or aircraft RFI exposure, position-jump
+  statistics, listed-area hours (user-supplied areas), a cyber exposure indicator and data
+  quality as a JSON Lines feed `kshana-pro-underwriting-feed/1` with its JSON Schema
+  (`schema`, free) and a synthetic sample (`sample`, free). `triage` (`pro-claims-triage`,
+  Pro): a claimed interference loss set against events, signed evidence and a signed hosted
+  cause verdict, with a handler checklist. Evidence, indicators and calculations for the user's
+  own decision; not advice, an underwriting or claims decision. MODELLED. Not built here: the
+  hosted trigger oracle and policy-wording verdicts (B2804). Tier manifest regenerated;
+  integration tests 98 -> 99 (`tests/insurance_analytics.rs`).
 - **UTM / U-space positioning integrity (backlog E18 B1804; docs/UTM-INTEGRITY.md).**
   `kshana-pro utm` (feature `pro-utm-integrity`, Pro; `feed` `pro-ussp-feed`, Enterprise):
   `sora` (SORA-ready GNSS-interference input for one operation: route exposure on each day
@@ -19,6 +70,68 @@ own bullet so parallel work merges cleanly.
   free `check` and `synth`. MODELLED, decision support only, never a flight authorisation or a
   SORA approval. The hosted per-flight verdict is not part of this change.
   Tier manifest regenerated; tests/utm_integrity.rs on synthetic inputs.
+- **Road, rail, automotive, eCall and 3GPP evidence (research 2026-11-20 gaps E30: B3002,
+  B3003; first slices of B3001, B3004, B3005; docs/ROAD-RAIL-AUTO.md).** `kshana-pro road`:
+  telematics and on-board-unit GNSS anti-spoof indicators (position jump, GNSS against wheel
+  speed, frozen position, outage while moving, C/N0 drop and rise, AGC, receiver time, network
+  position), episodes with a verdict, a jammer fingerprint library on receiver-side features
+  (`report-templates/transport/jammer-fingerprints.json`), per-trip trust; vehicles salted and
+  pseudonymised, positions as 0.1-degree cells (`pro-telematics-antispoof`); a signed on-board
+  unit fraud evaluation over runs with recorded attack windows: detection with Wilson interval,
+  time to detect, false episodes per hour, unreported distance (`pro-obu-fraud-eval`).
+  `kshana-pro ecall`: the GNSS tests of Delegated Regulation (EU) 2017/79 Annex VI (limits read
+  on legislation.gov.uk, 20 Nov 2026), every Annex VI requirement mapped to its tests with the
+  UN R144 and ERA-GLONASS notes, signed scoring of laboratory results (`pro-ecall-tests`), two
+  interference extensions marked as not in the regulation; AML/E112 and PSAP reliability
+  against the declared confidence (`pro-emergency-location`); duty-cycle detection and an IoT
+  tracker battery model (free). `kshana-pro auto`: SOTIF triggering-condition catalogue (free),
+  PL validation per condition with Stanford counts, exact MI-rate bounds on an effective sample
+  size and coverage (`pro-automotive-pl`), V2X confidence-ellipse, time, detection and
+  false-flag checks (`pro-v2x-checks`), data-level fault injection (`pro-fault-injection`).
+  `kshana-pro nr`: 5G TDD phase budget and guard-period interference onset under GNSS loss from
+  the holdover evidence model, PRS DL-TDOA accuracy (`pro-nr-timing`); GNSS integrity reference
+  vectors (free, not 3GPP conformance cases) and a device check (`pro-agnss-integrity`).
+  `kshana-pro rail`: position hazard rate with jamming and spoofing against the apportioned THR,
+  virtual-balise passage test with GUM uncertainty and a Gaussian overbound check
+  (`pro-rail-evidence`). Three regpack catalogues: `rail-gnss-sil4` (EN 50129 headings),
+  `iso26262-gnss-seooc`, `eu-2017-79-ecall-gnss`. All Pro tier; tier manifest regenerated.
+  MODELLED; tests `tests/road_rail_auto.rs`; integration tests 97 -> 98.
+- **Agriculture, construction and survey operations (research 2026-11-20 gaps E35: B3501,
+  B3502 local part; docs/AGRI-SURVEY-OPERATIONS.md).** `kshana-pro agri`: machine logs (neutral
+  CSV, NMEA GGA); guidance-line converter (neutral JSON, GeoJSON, KML, ISO 11783-10 guidance
+  pattern subset, CSV, A plus heading; free) and realignment of stored lines onto planted rows
+  from a pass on existing rows or re-measured markers (weighted least-squares shift with GUM
+  type A uncertainty; along-line component reported unobservable for parallel lines);
+  pass-to-pass and within-pass drift with overlap and miss area; field planner with a working
+  window from an advisory; autosteer GNSS-loss resilience score (availability, recovery,
+  continuity, degraded accuracy) with an indicative per-episode diagnosis (interference-,
+  correction-feed- or ionosphere-like; locates nothing); Kp from the GFZ file and NOAA SWPC
+  products, the NOAA G scale, scintillation and PPP-versus-RTK advisors per field and hour on
+  the open engine's IGRF, Cornell scintillation and IONEX code, and a plain-language grower
+  translation (free); geotagged-photo consistency checks against a parcel. Signed reports via
+  `signed_dossier`. Features `pro-agri-guidance`, `pro-agri-resilience`, `pro-agri-advisor`
+  (Pro), `pro-agri-photo` (Enterprise); tier manifest regenerated; README test count 98.
+  MODELLED (synthetic logs and photos); the May 2024 storm backtest runs on the published GFZ
+  Kp series and matches reported outage dates only.
+- **eLoran, R-Mode and terrestrial navaids (research 2026-11-20 gaps E37: B3701, B3702 first
+  slice, B3703; docs/ELORAN-RMODE-NAVAIDS.md).** `kshana-pro eloran rmode-perf` (feature
+  `pro-rmode-perf`, Pro): draft R-Mode receiver performance tests RMP-01..08 on receiver logs or
+  on the MF R-Mode simulator repeated per epoch with a night skywave period; order-statistic,
+  Wilson and Poisson bounds, sample-size checks, limits only from a user profile with its source
+  and status (no NCSR 13 limit built in). `eloran wwrns-trust` (`pro-wwrns-trust`, Pro): the F3
+  vote rule in the position domain over GNSS, R-Mode and eLoran fixes, GNSS-suspect epochs, the
+  chosen source's own fix (never a blend). `eloran claim` and `eloran interop`
+  (`pro-eloran-claims`, Pro): timing-claim verification with a GUM budget, Circular T
+  interpolation and guard-banded mean and 95 % instantaneous decisions; E_n per station pair
+  with shared laboratory terms cancelled, Birge ratio. `eloran sol-evidence`
+  (`pro-eloran-sol-evidence`, Enterprise): signed safety-of-life evidence index over Kshana's
+  own categories. `eloran ldc-fde` (unfiled-methods, machine-bound on-prem licence): LDC/ASF
+  fault detection and exclusion on TOA residuals separating correction faults from signal
+  faults, slope HPL. `kshana-pro navaids` (`pro-navaids`, Pro; `ssv` free): DME/VOR coverage
+  twin with critical DMEs, multi-sensor RNP scenarios with inertial coast and the e-conspicuity
+  NACp backup test, flight-inspection truth assurance. Shared statistics moved to
+  `kshana_eloran::stats`. Tier manifest regenerated; integration tests 97 -> 99. All MODELLED
+  (`tests/rmode_eloran_claims.rs`, `tests/navaids.rs`).
 - **Avionics test library (research 2026-11-20 gaps E12: B1201, B1203, B1205, B1206 part 1;
   docs/AVIONICS-TEST-LIBRARY.md).** `kshana-pro avionics`: SBAS L1 framing (MT 0, 1, 2-5, 6,
   7, 26, 63; CRC-24Q) and a deterministic message-sequence generator for failure tests (UDREI

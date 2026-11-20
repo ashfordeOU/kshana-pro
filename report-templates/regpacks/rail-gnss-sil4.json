@@ -1,0 +1,115 @@
+{
+  "format": "kshana-pro-regulator-catalogue/1",
+  "id": "rail-gnss-sil4",
+  "title": "Rail GNSS position function (virtual balise) safety case evidence, structured after EN 50129 (SIL 4)",
+  "kind": "framework",
+  "status": "No GNSS-specific certification method is agreed for ETCS virtual balises (research 07 G9, S100); EN 50126/50128/50129 set the safety-case structure",
+  "source": {
+    "title": "EN 50129, Railway applications: communication, signalling and processing systems; safety related electronic systems for signalling",
+    "version": "edition to be confirmed by the applicant (2018 assumed)",
+    "url": "https://standards.cencenelec.eu/",
+    "read": "Not read in this work; rows follow the safety-case headings as the research records them, at topic level."
+  },
+  "rows": [
+    {
+      "id": "RAIL-THR",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:H01, H02, H06, H09 and 08:D17, E10, E11 (sources S100, S101, [103] to [106])",
+      "topic": "Tolerable hazard rate apportioned to the GNSS position function and the argument that the modelled hazard rate stays below it",
+      "evidence": [
+        "kshana-pro-rail-thr/1"
+      ],
+      "gap": "The apportionment itself and the hazard log are the applicant's; Kshana models the stated parameters."
+    },
+    {
+      "id": "RAIL-ERR",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:H01, H02, H06, H09 and 08:D17, E10, E11 (sources S100, S101, [103] to [106])",
+      "topic": "Along-track position error model and its overbounding, with the uncertainty of the statistics",
+      "evidence": [
+        "kshana-pro-rail-balise/1",
+        "kshana-pro-pl-validation/1"
+      ],
+      "gap": "Data from the applicant's own runs; representativeness of the data set is for the assessor."
+    },
+    {
+      "id": "RAIL-VB",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:H01, H02, H06, H09 and 08:D17, E10, E11 (sources S100, S101, [103] to [106])",
+      "topic": "Virtual balise passage accuracy against a reference (physical balise, survey or reference trajectory)",
+      "evidence": [
+        "kshana-pro-rail-balise/1"
+      ],
+      "gap": "Carrier-phase virtual-balise integrity validation is not built."
+    },
+    {
+      "id": "RAIL-EXT",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:H01, H02, H06, H09 and 08:D17, E10, E11 (sources S100, S101, [103] to [106])",
+      "topic": "Operation under external influences: radio-frequency interference, jamming and spoofing, modelled as position error as well as outage",
+      "evidence": [
+        "kshana-pro-rail-thr/1",
+        "kshana-testkit-build/1",
+        "kshana-pics-scorecard/1"
+      ],
+      "gap": "Conducted or shielded laboratory runs only; field exposure rates are the applicant's."
+    },
+    {
+      "id": "RAIL-INT",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:H01, H02, H06, H09 and 08:D17, E10, E11 (sources S100, S101, [103] to [106])",
+      "topic": "Integrity monitoring (for example EGNOS protection levels) against measured error: misleading information and availability",
+      "evidence": [
+        "kshana-pro-pl-validation/1"
+      ],
+      "gap": "EGNOS as a pre-existing item needs its own argument (not built)."
+    },
+    {
+      "id": "RAIL-FAULT",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:H01, H02, H06, H09 and 08:D17, E10, E11 (sources S100, S101, [103] to [106])",
+      "topic": "Effects of satellite and system faults and the monitor's missed detection",
+      "evidence": [
+        "kshana-pro-rail-thr/1"
+      ],
+      "gap": "Fault rates and the FMEA come from the applicant and the service provider."
+    },
+    {
+      "id": "RAIL-SRAC",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:H01, H02, H06, H09 and 08:D17, E10, E11 (sources S100, S101, [103] to [106])",
+      "topic": "Safety-related application conditions: antenna installation, sky visibility, line exposure to interference",
+      "evidence": [],
+      "gap": "The applicant's application conditions; Kshana has no evidence product for them."
+    },
+    {
+      "id": "RAIL-PRE",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:H01, H02, H06, H09 and 08:D17, E10, E11 (sources S100, S101, [103] to [106])",
+      "topic": "GNSS and augmentation services used as pre-existing items outside the applicant's control",
+      "evidence": [],
+      "gap": "Not built; needs the service provider's commitments."
+    },
+    {
+      "id": "RAIL-QUAL",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:H01, H02, H06, H09 and 08:D17, E10, E11 (sources S100, S101, [103] to [106])",
+      "topic": "Safety qualification tests of the position function",
+      "evidence": [
+        "kshana-pro-rail-balise/1",
+        "kshana-pro-pl-validation/1",
+        "kshana-testkit-build/1"
+      ],
+      "gap": "Test plans and their independence are the applicant's."
+    },
+    {
+      "id": "RAIL-INDEP",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:H01, H02, H06, H09 and 08:D17, E10, E11 (sources S100, S101, [103] to [106])",
+      "topic": "Independent safety assessment",
+      "evidence": [],
+      "gap": "Not assessed by Kshana; the independent safety assessor decides."
+    }
+  ],
+  "wording": "Each row names a requirement of the document (paraphrased, never quoted at length, with its clause where the research read it), the Kshana evidence formats that speak to it and the gap Kshana does not cover. A pre-assessment is an aid for preparing a submission. It does not state, and must not be read as stating, that any product, ship or operator meets the document; that judgement belongs to the notified body, class society, administration or assessor."
+}
