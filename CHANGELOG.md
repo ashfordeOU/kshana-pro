@@ -5,6 +5,22 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Incident reconstruction, part 1 (research 2026-11-20 gaps E06: B0603, B0606;
+  docs/INCIDENT-EVIDENCE.md).** `kshana-pro forensics log-time` (feature
+  `pro-log-time-integrity`, Pro): time integrity of operational logs (documented CSV/JSON
+  schema, NMEA 0183 ZDA/RMC VDR/ECDIS exports split by talker with the recorder stamp as
+  reference, ACARS/CPDLC JSON lines with the ground receive time as reference): steps, backward
+  time, frozen clocks, drift rate, GPS week rollover / century / 32-bit wrap / GPS-as-UTC (the
+  time-bomb classifier), false and missed leap seconds, ordering, absolute epoch, cross-log
+  disagreement within a reference group (the clock self-check vote); corrected timeline with
+  uncertainty, integrity intervals, human text or `--json`, optional signed directory.
+  `kshana-pro forensics dispute` (feature `pro-dispute-evidence`, Pro): charter-party dispute
+  evidence from the maritime actor-vs-victim pack, the incident forensics bundle, the log check
+  and DP/operations status logs: periods of lost position or timing integrity with inner and
+  outer durations, agreeing sources, overlap with each claimed period, and five clause
+  templates (off-hire, delay-laycan, dp-downtime, deviation, safe-port) answered with pack and
+  finding IDs cited; signed. MODELLED, not a legal finding; synthetic tests only
+  (`tests/incident_evidence.rs`). Tier manifest regenerated.
 - **Timing assurance v2 (W1120 TA1-TA4; docs/TIMING-ASSURANCE.md).** `kshana-pro timing
   timebomb` (feature `pro-timing-timebomb`, Pro): future-epoch replay vectors (NMEA ZDA/RMC,
   UBX NAV-TIMEGPS/TIMEUTC/TIMELS, simulator sheet with the gps-sdr-sim command, expected

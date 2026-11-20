@@ -33,6 +33,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-dispute-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-eloran",
       "type": "feature",
       "tier": "pro"
@@ -64,6 +69,11 @@
     },
     {
       "kind": "pro-interference-reports",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-log-time-integrity",
       "type": "feature",
       "tier": "pro"
     },
