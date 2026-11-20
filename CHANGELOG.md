@@ -16,7 +16,11 @@ own bullet so parallel work merges cleanly.
   declared cable and pipeline corridors with anchor-status-while-moving and vessels around a
   reported fault, presence not attribution (`pro-ais-subsea-pack`). Signed evidence
   directories; all Pro; tier manifest regenerated. MODELLED (SYNTHETIC scenario,
-  `tests/ais_evidence.rs`, 8 tests).
+  `tests/ais_evidence.rs`, 12 tests). Backlog B0703-B0706: explainable position-trust score
+  with stated weights, concealed port-call and dark ship-to-ship candidates, VMS integrity
+  indicators and AIS-off vs interference gap causes, anchor-drag likelihood with alert lead
+  time, LRIT/ECDIS/satellite-AIS discrepancy alarms with magnitude and duration as JSON and CAP
+  1.2; every indicator cites its observations.
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference

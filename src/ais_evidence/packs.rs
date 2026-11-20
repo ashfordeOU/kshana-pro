@@ -20,6 +20,11 @@ use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 
+use super::trust::{
+    anchor_drag, classify_gap, dark_sts, port_calls, trust_scores, DarkSts, Drag, GapClass,
+    PortCall, Trust,
+};
+use super::vms::{self, VmsResult};
 use super::{
     collision, encounters, gaps, hash_inputs, identity_changes, interp, jumps, load_tracks, r,
     seg_dist_m, shared_imo, Area, Collision, Encounter, Gap, IdentityChange, InputHash, Jump,
@@ -51,10 +56,37 @@ pub struct Indicator {
     pub code: &'static str,
     pub label: Label,
     pub text: String,
+    /// The observations behind it (UTC times and what was seen).
+    pub observations: Vec<String>,
 }
 
-fn ind(code: &'static str, label: Label, text: String) -> Indicator {
-    Indicator { code, label, text }
+fn ind(code: &'static str, label: Label, text: String, observations: Vec<String>) -> Indicator {
+    Indicator {
+        code,
+        label,
+        text,
+        observations,
+    }
+}
+
+fn gap_obs(x: &Gap) -> Vec<String> {
+    vec![
+        format!(
+            "last report {} at {:.4},{:.4}",
+            x.start_utc, x.start[0], x.start[1]
+        ),
+        format!(
+            "next report {} at {:.4},{:.4}",
+            x.end_utc, x.end[0], x.end[1]
+        ),
+    ]
+}
+
+fn enc_obs(x: &Encounter) -> Vec<String> {
+    vec![format!(
+        "{} and {} within {:.0} m from {} to {} near {:.4},{:.4}",
+        x.a, x.b, x.min_separation_m, x.start_utc, x.end_utc, x.position[0], x.position[1]
+    )]
 }
 
 /// Common head of every pack.
@@ -197,12 +229,33 @@ pub mod sanctions {
         /// A gap end within this distance of an area counts as near it (m).
         #[serde(default = "d_near")]
         pub near_area_m: f64,
+        /// Ports the user declares, for concealed port-call candidates.
+        #[serde(default)]
+        pub ports: Vec<Area>,
+        /// Service speed for reconstructing dark periods (kn).
+        #[serde(default = "d_service")]
+        pub service_speed_kn: f64,
+        /// Shortest port call that counts (h).
+        #[serde(default = "d_stay")]
+        pub min_port_stay_h: f64,
+        /// Period of the position-trust score (h).
+        #[serde(default = "d_period")]
+        pub trust_period_h: f64,
         #[serde(default)]
         pub params: Params,
     }
 
     fn d_near() -> f64 {
         20_000.0
+    }
+    pub(crate) fn d_service() -> f64 {
+        15.0
+    }
+    fn d_stay() -> f64 {
+        6.0
+    }
+    pub(crate) fn d_period() -> f64 {
+        24.0
     }
 
     /// Findings for one vessel.
@@ -217,6 +270,9 @@ pub mod sanctions {
         pub collision: Option<Collision>,
         pub identity_changes: Vec<IdentityChange>,
         pub encounters: Vec<Encounter>,
+        /// Explainable position-trust score per period.
+        pub trust: Vec<Trust>,
+        pub port_calls: Vec<PortCall>,
         pub indicators: Vec<Indicator>,
     }
 
@@ -227,6 +283,8 @@ pub mod sanctions {
         pub head: Head,
         pub request: Request,
         pub vessels: Vec<Vessel>,
+        /// Overlapping gaps of two vessels with a feasible meeting point.
+        pub dark_sts: Vec<DarkSts>,
         /// IMO numbers seen under more than one MMSI.
         pub shared_imo: std::collections::BTreeMap<String, Vec<String>>,
         pub verdict: String,
@@ -238,12 +296,25 @@ pub mod sanctions {
         "An encounter is proximity at low speed for a sustained time; it does not show a transfer of cargo.",
         "Identity changes are as broadcast in static data; a broadcast identity can be wrong without intent.",
         "Areas must not cross the antimeridian.",
+        "Port calls and dark ship-to-ship meetings are candidates the time budget allows, not findings that they happened.",
+        "The position-trust score uses stated weights, not weights fitted to labelled cases.",
     ];
 
     /// Build the pack.
     pub fn run(q: &Request, base: &Path) -> Result<Pack, String> {
-        for a in &q.areas {
+        for a in q.areas.iter().chain(&q.ports) {
             a.validate()?;
+        }
+        for (n, v) in [
+            ("service_speed_kn", q.service_speed_kn),
+            ("trust_period_h", q.trust_period_h),
+        ] {
+            if v.is_nan() || v <= 0.0 {
+                return Err(format!("{n} must be positive"));
+            }
+        }
+        if q.min_port_stay_h.is_nan() || q.min_port_stay_h < 0.0 {
+            return Err("min_port_stay_h must be zero or positive".into());
         }
         let (t, inputs) = load(base, &q.ais, q.static_data.as_deref(), &q.params)?;
         let f = focus(&t, &q.vessels)?;
@@ -286,6 +357,7 @@ pub mod sanctions {
                         area.map(|a| format!("; starts or ends near area '{a}'"))
                             .unwrap_or_default()
                     ),
+                    gap_obs(x),
                 ));
             }
             for x in &e {
@@ -297,6 +369,7 @@ pub mod sanctions {
                         "with {other} for {:.1} h from {} (closest {:.0} m)",
                         x.duration_h, x.start_utc, x.min_separation_m
                     ),
+                    enc_obs(x),
                 ));
             }
             if !j.is_empty() {
@@ -309,6 +382,14 @@ pub mod sanctions {
                         p.max_speed_kn,
                         j.iter().map(|x| x.implied_speed_kn).fold(0.0, f64::max)
                     ),
+                    j.iter()
+                        .map(|x| {
+                            format!(
+                                "{}: {:.4},{:.4} to {:.4},{:.4} ({:.0} kn)",
+                                x.utc, x.from[0], x.from[1], x.to[0], x.to[1], x.implied_speed_kn
+                            )
+                        })
+                        .collect(),
                 ));
             }
             if let Some(c) = &c {
@@ -319,6 +400,25 @@ pub mod sanctions {
                         "{} away-and-back alternations from {}: consistent with two transmitters on one MMSI",
                         c.alternations, c.first_utc
                     ),
+                    vec![format!(
+                        "{} alternations among {} reports from {}",
+                        c.alternations, c.reports, c.first_utc
+                    )],
+                ));
+            }
+            let pc = port_calls(&g, &q.ports, q.service_speed_kn, q.min_port_stay_h);
+            for x in &pc {
+                inds.push(ind(
+                    "port-call-candidate",
+                    Label::Derived,
+                    format!(
+                        "a call at '{}' of at least {} h fits in the gap from {} ({:.1} h slack at {} kn)",
+                        x.port, q.min_port_stay_h, x.gap_start_utc, x.slack_h, q.service_speed_kn
+                    ),
+                    vec![
+                        format!("last report {}", x.gap_start_utc),
+                        format!("next report {}", x.gap_end_utc),
+                    ],
                 ));
             }
             for x in &ids {
@@ -329,6 +429,7 @@ pub mod sanctions {
                         "{} changed from '{}' to '{}' at {}",
                         x.field, x.from, x.to, x.utc
                     ),
+                    vec![format!("static record at {}", x.utc)],
                 ));
             }
             vessels.push(Vessel {
@@ -341,8 +442,28 @@ pub mod sanctions {
                 collision: c,
                 identity_changes: ids,
                 encounters: e,
+                trust: trust_scores(&t, m, q.trust_period_h * 3600.0, p),
+                port_calls: pc,
                 indicators: inds,
             });
+        }
+        let dsts = dark_sts(&t, &f, p, q.service_speed_kn);
+        for d in &dsts {
+            for v in vessels
+                .iter_mut()
+                .filter(|v| v.mmsi == d.a || v.mmsi == d.b)
+            {
+                let other = if v.mmsi == d.a { &d.b } else { &d.a };
+                v.indicators.push(ind(
+                    "dark-sts-candidate",
+                    Label::Derived,
+                    format!(
+                        "silent together with {other} for {:.1} h from {}; a common meeting point near {:.3},{:.3} fits ({:.1} h slack)",
+                        d.overlap_h, d.overlap_start_utc, d.point[0], d.point[1], d.slack_h
+                    ),
+                    d.observations.clone(),
+                ));
+            }
         }
         let shared = shared_imo(&t);
         let flagged = vessels.iter().filter(|v| !v.indicators.is_empty()).count();
@@ -356,6 +477,7 @@ pub mod sanctions {
             head: head(FORMAT, METHOD_ID, &q.title, inputs, &t, p),
             request: q.clone(),
             vessels,
+            dark_sts: dsts,
             shared_imo: shared,
             verdict,
             limits: LIMITS.to_vec(),
@@ -405,8 +527,33 @@ pub mod iuu {
         /// A gap end within this distance of a zone counts as near it (m).
         #[serde(default = "d_near")]
         pub near_zone_m: f64,
+        /// Optional VMS export `timestamp,vessel_id,lat,lon[,sog_kn,cog_deg]`.
+        #[serde(default)]
+        pub vms: Option<String>,
+        /// Declared VMS polling interval (s).
+        #[serde(default = "d_poll")]
+        pub vms_interval_s: f64,
+        /// VMS vessel id to MMSI.
+        #[serde(default)]
+        pub vms_mmsi: std::collections::BTreeMap<String, String>,
+        /// VMS-to-AIS distance above which they disagree (m).
+        #[serde(default = "d_disagree")]
+        pub vms_disagreement_m: f64,
+        /// Neighbours within this distance inform the gap cause (m).
+        #[serde(default = "d_radius")]
+        pub neighbour_radius_m: f64,
         #[serde(default)]
         pub params: Params,
+    }
+
+    fn d_poll() -> f64 {
+        3600.0
+    }
+    fn d_disagree() -> f64 {
+        2000.0
+    }
+    fn d_radius() -> f64 {
+        30_000.0
     }
 
     fn d_band() -> [f64; 2] {
@@ -436,6 +583,8 @@ pub mod iuu {
         pub reports: usize,
         pub zones: Vec<ZoneActivity>,
         pub gaps: Vec<Gap>,
+        /// What the data say about each gap's cause (AIS off, interference, undetermined).
+        pub gap_causes: Vec<GapClass>,
         pub encounters: Vec<Encounter>,
         pub indicators: Vec<Indicator>,
     }
@@ -447,6 +596,8 @@ pub mod iuu {
         pub head: Head,
         pub request: Request,
         pub vessels: Vec<Vessel>,
+        /// VMS integrity indicators per VMS vessel.
+        pub vms: Vec<VmsResult>,
         pub verdict: String,
         pub limits: Vec<&'static str>,
     }
@@ -457,6 +608,7 @@ pub mod iuu {
         "Navigational status is as broadcast and is often left unchanged by crews.",
         "An encounter at sea is proximity at low speed; it does not show transshipment.",
         "Zones must not cross the antimeridian.",
+        "VMS indicators and gap causes are what the data are consistent with, not findings of tampering or intent.",
     ];
 
     /// Build the pack.
@@ -471,15 +623,52 @@ pub mod iuu {
         if !(lo >= 0.0 && hi > lo) {
             return Err("fishing_band_kn must be [low, high] with 0 <= low < high".into());
         }
-        let (t, inputs) = load(base, &q.ais, q.static_data.as_deref(), &q.params)?;
+        if !(q.vms_interval_s > 0.0 && q.vms_disagreement_m > 0.0 && q.neighbour_radius_m > 0.0) {
+            return Err(
+                "vms_interval_s, vms_disagreement_m and neighbour_radius_m must be positive".into(),
+            );
+        }
+        let (t, mut inputs) = load(base, &q.ais, q.static_data.as_deref(), &q.params)?;
         let f = focus(&t, &q.vessels)?;
         let p = &q.params;
+        let vms_tracks = match &q.vms {
+            Some(file) => {
+                inputs.extend(hash_inputs(base, &[file.as_str()])?);
+                vms::parse(&super::super::read_rel(base, file)?)
+                    .map_err(|e| format!("{file}: {e}"))?
+            }
+            None => Default::default(),
+        };
+        let vms_results: Vec<VmsResult> = vms_tracks
+            .iter()
+            .map(|(id, v)| {
+                vms::check(
+                    id,
+                    v,
+                    q.vms_interval_s,
+                    q.vms_mmsi.get(id).map(String::as_str),
+                    &t,
+                    q.vms_disagreement_m,
+                    p,
+                )
+            })
+            .collect();
         let enc = encounters(&t, &f, p);
         let mut vessels = Vec::new();
         for m in &f {
             let v = &t.by_mmsi[m];
             let s = samples(v, p);
             let g = gaps(v, p);
+            let vpts = q
+                .vms_mmsi
+                .iter()
+                .find(|(_, mm)| *mm == m)
+                .and_then(|(id, _)| vms_tracks.get(id))
+                .map(|v| vms::points(v));
+            let causes: Vec<GapClass> = g
+                .iter()
+                .map(|x| classify_gap(x, &t, vpts.as_deref(), q.neighbour_radius_m, p))
+                .collect();
             let mut zones = Vec::new();
             let mut inds = Vec::new();
             for z in &q.zones {
@@ -513,6 +702,12 @@ pub mod iuu {
                             "navigational status 'engaged in fishing' for {:.1} h inside '{}'",
                             za.hours_status_fishing, z.name
                         ),
+                        inside
+                            .iter()
+                            .filter(|x| x.nav == Some(NAV_FISHING))
+                            .take(20)
+                            .map(|x| format!("{} at {:.4},{:.4}", iso(x.t), x.lat, x.lon))
+                            .collect(),
                     ));
                 }
                 if za.hours_in_band > 0.0 {
@@ -523,6 +718,12 @@ pub mod iuu {
                             "{:.1} h at {lo}-{hi} kn inside '{}' (of {:.1} h inside)",
                             za.hours_in_band, z.name, za.hours_inside
                         ),
+                        inside
+                            .iter()
+                            .filter(|x| x.sog.is_some_and(|v| v >= lo && v <= hi))
+                            .take(20)
+                            .map(|x| format!("{} at {:.1} kn", iso(x.t), x.sog.unwrap_or(0.0)))
+                            .collect(),
                     ));
                 }
                 if gn > 0 {
@@ -534,6 +735,13 @@ pub mod iuu {
                             q.near_zone_m / 1000.0,
                             z.name
                         ),
+                        g.iter()
+                            .filter(|x| {
+                                z.distance_m(x.start[0], x.start[1]) <= q.near_zone_m
+                                    || z.distance_m(x.end[0], x.end[1]) <= q.near_zone_m
+                            })
+                            .flat_map(gap_obs)
+                            .collect(),
                     ));
                 }
                 zones.push(za);
@@ -558,13 +766,36 @@ pub mod iuu {
                         "with {other} for {:.1} h from {}{zn}",
                         x.duration_h, x.start_utc
                     ),
+                    enc_obs(x),
                 ));
+            }
+            for c in &causes {
+                inds.push(ind(
+                    "gap-cause",
+                    Label::Derived,
+                    format!("gap from {} to {}: {}", c.start_utc, c.end_utc, c.meaning),
+                    c.observations.clone(),
+                ));
+            }
+            for r in vms_results
+                .iter()
+                .filter(|r| r.mmsi.as_deref() == Some(m.as_str()))
+            {
+                for i in &r.indicators {
+                    inds.push(ind(
+                        "vms",
+                        Label::Derived,
+                        format!("VMS {} {}: {}", r.vessel_id, i.code, i.text),
+                        i.observations.clone(),
+                    ));
+                }
             }
             vessels.push(Vessel {
                 mmsi: m.clone(),
                 reports: v.len(),
                 zones,
                 gaps: g,
+                gap_causes: causes,
                 encounters: e,
                 indicators: inds,
             });
@@ -580,6 +811,7 @@ pub mod iuu {
             head: head(FORMAT, METHOD_ID, &q.title, inputs, &t, p),
             request: q.clone(),
             vessels,
+            vms: vms_results,
             verdict,
             limits: LIMITS.to_vec(),
         })
@@ -679,8 +911,30 @@ pub mod subsea {
         pub moving_kn: f64,
         #[serde(default)]
         pub incident: Option<Incident>,
+        /// Anchor-drag likelihood at which to alert.
+        #[serde(default = "d_drag_thr")]
+        pub drag_threshold: f64,
+        /// Sliding window of the anchor-drag features (s).
+        #[serde(default = "d_drag_win")]
+        pub drag_window_s: f64,
+        /// Alert only within this distance of a corridor edge (m).
+        #[serde(default = "d_alert_dist")]
+        pub alert_distance_m: f64,
+        /// Period of the position-trust score (h).
+        #[serde(default = "super::sanctions::d_period")]
+        pub trust_period_h: f64,
         #[serde(default)]
         pub params: Params,
+    }
+
+    fn d_drag_thr() -> f64 {
+        0.7
+    }
+    fn d_drag_win() -> f64 {
+        1800.0
+    }
+    fn d_alert_dist() -> f64 {
+        10_000.0
     }
 
     fn d_slow() -> f64 {
@@ -721,6 +975,10 @@ pub mod subsea {
     pub struct Vessel {
         pub mmsi: String,
         pub corridors: Vec<CorridorActivity>,
+        /// Running anchor-drag likelihood and alert timing.
+        pub drag: Drag,
+        /// Explainable position-trust score per period.
+        pub trust: Vec<Trust>,
         pub indicators: Vec<Indicator>,
     }
 
@@ -742,6 +1000,7 @@ pub mod subsea {
         "Presence near an asset or a fault is not attribution of damage; vessels without AIS are not in this pack.",
         "Anchor or moored status while moving is an indicator of a dragged anchor or of a status left unchanged.",
         "Positions are the vessels' own broadcasts and inherit their errors and any manipulation.",
+        "The anchor-drag likelihood uses stated coefficients, not coefficients fitted to labelled incidents.",
     ];
 
     /// Build the pack.
@@ -759,6 +1018,14 @@ pub mod subsea {
         }
         if !(q.slow_kn > 0.0 && q.moving_kn >= 0.0) {
             return Err("slow_kn must be positive and moving_kn zero or positive".into());
+        }
+        let ok = q.drag_threshold > 0.0
+            && q.drag_threshold < 1.0
+            && q.drag_window_s > 0.0
+            && q.alert_distance_m >= 0.0
+            && q.trust_period_h > 0.0;
+        if !ok {
+            return Err("drag_threshold must be in (0, 1); drag_window_s and trust_period_h positive; alert_distance_m zero or positive".into());
         }
         let (t, inputs) = load(base, &q.ais, q.static_data.as_deref(), &q.params)?;
         let f = focus(&t, &q.vessels)?;
@@ -817,6 +1084,19 @@ pub mod subsea {
                             a.name,
                             ca.first_anchor_status_moving_utc.clone().unwrap_or_default()
                         ),
+                        drag.iter()
+                            .take(20)
+                            .map(|r| {
+                                format!(
+                                    "{} status {} at {:.1} kn, {:.4},{:.4}",
+                                    iso(r.t),
+                                    r.nav_status.unwrap_or(0),
+                                    r.sog_kn.unwrap_or(0.0),
+                                    r.lat,
+                                    r.lon
+                                )
+                            })
+                            .collect(),
                     ));
                 }
                 if ca.hours_slow > 0.0 {
@@ -827,6 +1107,12 @@ pub mod subsea {
                             "{:.1} h at or below {} kn inside the '{}' corridor",
                             ca.hours_slow, q.slow_kn, a.name
                         ),
+                        s.iter()
+                            .zip(&ins)
+                            .filter(|(x, &b)| b && x.sog.is_some_and(|v| v <= q.slow_kn))
+                            .take(20)
+                            .map(|(x, _)| format!("{} at {:.1} kn", iso(x.t), x.sog.unwrap_or(0.0)))
+                            .collect(),
                     ));
                 }
                 if gi > 0 {
@@ -837,13 +1123,45 @@ pub mod subsea {
                             "{gi} gap(s) starting or ending inside the '{}' corridor",
                             a.name
                         ),
+                        g.iter()
+                            .filter(|x| {
+                                a.contains(x.start[0], x.start[1]) || a.contains(x.end[0], x.end[1])
+                            })
+                            .flat_map(gap_obs)
+                            .collect(),
                     ));
                 }
                 cs.push(ca);
             }
+            let dr = anchor_drag(
+                v,
+                &q.assets,
+                q.drag_window_s,
+                q.drag_threshold,
+                q.alert_distance_m,
+                q.slow_kn,
+            );
+            if let Some(a) = &dr.alert_utc {
+                inds.push(ind(
+                    "anchor-drag-alert",
+                    Label::Derived,
+                    format!(
+                        "anchor-drag likelihood {:.2} reached {} at {a} within {:.0} km of an asset{}",
+                        dr.max_likelihood,
+                        q.drag_threshold,
+                        q.alert_distance_m / 1000.0,
+                        dr.lead_h
+                            .map(|h| format!("; {h:.2} h before slow entry into '{}'", dr.corridor.clone().unwrap_or_default()))
+                            .unwrap_or_default()
+                    ),
+                    dr.observations.clone(),
+                ));
+            }
             vessels.push(Vessel {
                 mmsi: m.clone(),
                 corridors: cs,
+                drag: dr,
+                trust: trust_scores(&t, m, q.trust_period_h * 3600.0, p),
                 indicators: inds,
             });
         }

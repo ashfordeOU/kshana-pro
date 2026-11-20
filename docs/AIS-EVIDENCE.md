@@ -94,6 +94,22 @@ radius in the window before the fault time, closest first, with its closest appr
 within the radius, slow time, anchor-status reports and whether a gap covers the fault time.
 Presence is not attribution; vessels without AIS are not in the pack.
 
+## Backlog items covered
+
+| Item | What is built here |
+|---|---|
+| B0703 sanctions and due-diligence history | Explainable position-trust score per vessel and period (five components with stated weights: continuity 0.30, kinematics 0.25, SOG agreement 0.15, identity 0.15, fix availability 0.15; each lists the observations that lowered it); concealed port-call candidates (a call of `min_port_stay_h` at a declared port fits in a gap at `service_speed_kn`); dark ship-to-ship candidates (two vessels silent together for at least the encounter duration with a meeting point both could reach and leave in time); every indicator cites its observations; the pack is reproducible from its hashed inputs and request |
+| B0704 fisheries VMS integrity | VMS indicators (missed polls, frozen position while moving, jumps, too-regular track, disagreement with AIS); per AIS gap a cause class: reports without a fix (transponder on, GNSS lost: consistent with interference), area-wide (most neighbours affected), AIS-only silent (VMS kept a plausible track: consistent with AIS switched off), or undetermined |
+| B0705 anchor drag and subsea assets | Running anchor-drag likelihood over a sliding window (slow-band share, heading-to-course divergence, straightness, anchor status while moving) through a logistic link with stated coefficients (-4, 3, 2.5, 1.5, 2); alert time within `alert_distance_m` of a corridor against the first slow entry (lead time); position-trust score per vessel |
+| B0706 cross-source consistency | LRIT, ECDIS EP, radar or imagery as declared sources; satellite against terrestrial AIS (`primary_ais_source`); alarms with magnitude and duration (episodes join across 1.5 times a source's median report spacing); CAP 1.2 documents under `alerts/` (scope Restricted, urgency and severity Unknown, certainty Possible) |
+
+The open-engine AIS detectors (B0701) are not in the pinned engine release (0.41.0); this module
+carries its own track engine until the pin advances.
+
+Synthetic fixtures (`ais synth`) include a 40 nm AIS-to-LRIT offset, a Baltic-type drag across
+two cable corridors with a control vessel, an area-wide fix loss, a VMS freeze and a
+too-regular VMS track.
+
 ## Limits
 
 * Gaussian gate on declared accuracies; heavier-tailed sources raise inconsistent counts.
