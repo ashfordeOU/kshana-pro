@@ -1,0 +1,30 @@
+title = "SYNTHETIC exchange timing appliances"
+
+[[appliances]]
+id = "gm-1"
+site = "LD4"
+vendor = "Microchip"
+model = "TimeProvider 4100"
+firmware = "2.4"
+management = "internal"
+services = ["https", "ssh", "snmpv2c"]
+
+[[appliances]]
+id = "gm-2"
+site = "FR2"
+vendor = "Microchip"
+model = "TimeProvider 4100"
+firmware = "2.5"
+management = "isolated"
+firmware_check = "gm-2.fwcheck.json"
+
+[[appliances]]
+id = "ntp-edge"
+site = "LD4"
+vendor = "Example Vendor"
+model = "NTP-1"
+firmware = "1.0"
+management = "internet"
+upgrade_signing = "device-verifies"
+services = ["https", "ntp", "ntp-mode6"]
+sbom = "ntp-edge.cdx.json"

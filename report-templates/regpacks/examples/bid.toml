@@ -1,0 +1,5 @@
+# Example bid (fictitious). The BOM is given with --bom.
+bidder = "Example Timing Ltd (fictitious)"
+tender = "Example resilient timing and positioning request for information"
+product = "Example resilient timing unit"
+clauses = ["no ITAR components", "jamming resilience and test or operational results"]

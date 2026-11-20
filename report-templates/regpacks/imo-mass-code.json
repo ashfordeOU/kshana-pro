@@ -1,0 +1,83 @@
+{
+  "format": "kshana-pro-regulator-catalogue/1",
+  "id": "imo-mass-code",
+  "title": "IMO MASS Code (MSC.595(111)): PNT-integrity evidence for autonomous navigation",
+  "kind": "code",
+  "status": "Adopted 21 May 2026, non-mandatory, effective 1 Jul 2026; mandatory version 2032 at the earliest (research 07b T7, T8)",
+  "source": {
+    "title": "International Code of Safety for Maritime Autonomous Surface Ships (MASS Code), Resolution MSC.595(111)",
+    "version": "Adopted 21 May 2026 (non-mandatory)",
+    "url": "https://wwwcdn.imo.org/localresources/en/KnowledgeCentre/IndexofIMOResolutions/MSCResolutions/MSC.595(111).pdf",
+    "read": "Read in full in research 07b (T7). Chapter 16 sets goals only; paragraph numbers cited where the research gives them."
+  },
+  "rows": [
+    {
+      "id": "MASS-OE",
+      "clause": "chapter 16 (goal)",
+      "basis": "research 07b (source T7): MSC.595(111) read in full; the Code has no GNSS, spoofing or jamming text",
+      "topic": "Navigation keeps its function under the expected conditions of the Operational Envelope (OE), including degraded PNT the OE expects",
+      "evidence": [
+        "kshana-pro-mass-override-check/1",
+        "kshana-testkit-build/1",
+        "kshana-pics-scorecard/1",
+        "kshana-pro-trust-evidence/1"
+      ],
+      "gap": "The OE is the owner's; Kshana supplies the PNT conditions as test scenarios and the template rows."
+    },
+    {
+      "id": "MASS-MON",
+      "clause": "chapter 16 (goal)",
+      "basis": "research 07b (source T7): MSC.595(111) read in full; the Code has no GNSS, spoofing or jamming text",
+      "topic": "Continuous monitoring of the information needed for safe navigation, including PNT integrity",
+      "evidence": [
+        "kshana-pro-trust-evidence/1",
+        "kshana-pro-bam-alert-check/1",
+        "kshana-pro-ais-integrity/1"
+      ],
+      "gap": "Monitoring on board is the owner's system; Kshana evidence covers the PNT inputs."
+    },
+    {
+      "id": "MASS-ALT",
+      "clause": "16.3.2 EP4 (as cited in the research)",
+      "basis": "research 07b (source T7): MSC.595(111) read in full; the Code has no GNSS, spoofing or jamming text",
+      "topic": "After a failure, navigation can be operated safely by alternative means",
+      "evidence": [
+        "kshana-testkit-build/1",
+        "kshana-pro-mass-override-check/1"
+      ],
+      "gap": "The alternative means is the owner's design; Kshana tests GNSS-loss scenarios."
+    },
+    {
+      "id": "MASS-OVR",
+      "clause": "16.5 EP1 (as cited in the research)",
+      "basis": "research 07b (source T7): MSC.595(111) read in full; the Code has no GNSS, spoofing or jamming text",
+      "topic": "Override independent of the systems it controls",
+      "evidence": [
+        "kshana-pro-mass-override-check/1"
+      ],
+      "gap": "Computed over the declared architecture only."
+    },
+    {
+      "id": "MASS-EBP",
+      "clause": "clause to be confirmed",
+      "basis": "research 07b R02 and T8: experience-building phase, reporting through flag and ROC",
+      "topic": "PNT events recorded and reported during the experience-building phase",
+      "evidence": [
+        "kshana-pro-interference-episodes/1",
+        "kshana-pro-forensic-report/1",
+        "kshana-pro-maritime-evidence-pack/1",
+        "kshana-pro-exposure-summary/1"
+      ],
+      "gap": "The reporting route is the flag administration's."
+    },
+    {
+      "id": "MASS-ROC",
+      "clause": "clause to be confirmed",
+      "basis": "research 07b R03",
+      "topic": "Remote operation centre handling of remote-navigation PNT failures",
+      "evidence": [],
+      "gap": "Not provided by Kshana beyond the scenarios in MASS-ALT."
+    }
+  ],
+  "wording": "Each row names a requirement of the document (paraphrased, never quoted at length, with its clause where the research read it), the Kshana evidence formats that speak to it and the gap Kshana does not cover. A pre-assessment is an aid for preparing a submission. It does not state, and must not be read as stating, that any product, ship or operator meets the document; that judgement belongs to the notified body, class society, administration or assessor."
+}

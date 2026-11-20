@@ -1,0 +1,35 @@
+format = "kshana-testkit-scenario/1"
+id = "flags-clean"
+version = 1
+title = "Static receiver, open sky, no threat"
+description = "Ten minutes without any threat: the baseline for false alarms of every indicator."
+modelled_on = ["Receiver flag tests: spoofing, jamming and integrity indicator response (modelled on, representative parameters)"]
+tags = ["receiver-flags", "clean"]
+
+[scene]
+start_utc = "2026-06-01T10:00:00Z"
+duration_s = 600
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[[signal]]
+constellation = "galileo"
+signals = ["E1"]
+
+[trajectory]
+platform = "static"
+lat_deg = 59.43
+lon_deg = 24.75
+height_m = 40
+
+[expected]
+behaviour = "No spoofing, jamming or integrity indication; valid output within 20 m throughout."
+
+[[criterion]]
+id = "no-false-alarm"
+metric = "false_alarms"
+window = "all"
+op = "<="
+value = 0

@@ -8,11 +8,17 @@
 mod alerts_cmd;
 mod area_cmd;
 mod attack_iq_cmd;
+mod aviation_cmd;
 mod avionics_cmd;
+mod bridge_cmd;
+mod briefing_cmd;
 mod dossier_cmd;
 mod eloran_cmd;
 mod evidence_cmd;
+mod evidence_infra_cmd;
 mod forensics_cmd;
+mod grid_cmd;
+mod incident_cmd;
 mod license_cmd;
 mod lunar_cmd;
 mod packs_cmd;
@@ -20,11 +26,14 @@ mod payments_cmd;
 mod pics_cmd;
 mod pnt_cmd;
 mod pntdp_cmd;
+mod receiver_cmd;
+mod regpack_cmd;
 mod reports_cmd;
 mod scorecard_cmd;
 mod testkit_cmd;
 mod threats_cmd;
 mod timing_cmd;
+mod timing_net_cmd;
 mod trust_cmd;
 mod verdict_cmd;
 
@@ -58,13 +67,16 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro license <verify|activate|status|deactivate|machine-id|revocations|refresh> ...   Licence on this machine (offline; `kshana-pro license` for details)\n\
        kshana-pro backup <create --data-dir <dir> --out <backup-dir> | verify <backup-dir>>   Back up a service data directory while it runs; check a backup offline\n\
        kshana-pro dossier <keygen|sign|verify> ...   Sign a dossier or any delivery directory (Pro); verify one offline (free; `kshana-pro dossier` for details)\n\
-       kshana-pro forensics <run|review|verify|pack-payload> ...   Incident forensics (E1, Pro pack): signed, reproducible forensic report; review and verify (free; `kshana-pro forensics` for details)\n\
-       kshana-pro scorecard <run|verify> ...   Receiver resilience scorecard and signed test report (E3, Pro); verify (free; `kshana-pro scorecard` for details)\n\
+       kshana-pro forensics <run|review|verify|maritime|fdm|reports|log-time|dispute|pack-payload> ...   Incident forensics (E1, Pro pack): signed, reproducible forensic report; review and verify (free); maritime and FDM evidence, log time integrity, dispute evidence (`kshana-pro forensics` for details)\n\
+       kshana-pro scorecard <run|verify|osnma|flags|units> ...   Receiver resilience, OSNMA, flag-efficacy and unit scorecards, signed (E3, E13, Pro); verify (free; `kshana-pro scorecard` for details)\n\
        kshana-pro attack-iq <generate|attestation-template|trace> ...   Synthetic attack IQ files for shielded labs and authorised ranges (F7): vetted buyers only, attestation first, files only, watermarked and logged\n\
        kshana-pro threats <list|show|export|feed> ...   Threat scenario library (E2): provenance, analogue, test-bench exports, signed monthly feed (Pro; list and feed verify free)\n\
        kshana-pro payments <check|checkout|stripe-checkout|serve> [--config <payments.toml>] ...   Payments and paywall; inert while payments.enabled and payments.stripe.enabled are false (vendor side)\n\
        kshana-pro packs <build|issue|serve|trace|install|status> ...   Pro pack delivery (C10; `kshana-pro packs` for details)\n\
        kshana-pro timing <assess|console|metrics|history|audit|compliance|timebomb|selfcheck|holdover-evidence> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit and evidence packs, time-bomb vectors and fleet audit, clock self-check, holdover evidence (Pro; `kshana-pro timing` for details)\n\
+       kshana-pro grid <pmu|drift|scada|prc002|event> ...   Power-grid timing evidence: PMU phase-angle error, gradual-spoof detection, SCADA time stamps, PRC-002 ±2 ms evidence with holdover resilience, event forensics (Pro; `kshana-pro grid` for details)\n\
+       kshana-pro sfn <assess|systems> ...   Broadcast SFN (DAB/DVB-T) timing: pair guard margins and UTC-level scenarios such as SVN-23 (Pro; systems free)\n\
+       kshana-pro timing <assess|console|metrics|history|audit|compliance|timebomb|selfcheck|holdover-evidence|posture|chain|crosscheck|station> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit and evidence packs, time-bomb vectors and fleet audit, clock self-check, holdover evidence, appliance security posture and SBOMs, distribution-chain traceability, multi-source cross-check, ground-station pass assurance (Pro; `kshana-pro timing` for details)\n\
        kshana-pro trust <run|verify> ...   Multi-source trust (F3): choose epoch by epoch among GNSS, OSNMA, LEO, eLoran, PTP and holdover, with hash-chained evidence (Pro; verify free)\n\
        kshana-pro eloran <run|validate|example> ...   eLoran/GNSS signal simulator: multi-chain, multi-time-reference eLoran signals with propagation, interference and truth, to SigMF files or LF hardware (Enterprise; validate and example free)
        kshana-pro lunar <time|rates|w0|circular|holdover|offset|lunex> ...   Lunar time with GUM uncertainty (TCL or TL), W0_L sensitivity, Circular T for the Moon, Earth-Moon TWTT holdover, KLTO-1 offset codec proposal, LUNEX prototype (Pro; decode, vectors, example and validate free; `kshana-pro lunar` for details)\n\
@@ -73,13 +85,20 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro integrity <score|verify> ...   AIS and position integrity scoring at fleet and area scale (E5, Pro); verify free\n\
        kshana-pro verify-service <run|template|verify> ...   Pre-registered user-side verification study of a new PNT service (E4, Pro); template and verify free\n\
        kshana-pro frameworks <list|show|pack|verify> ...   Framework evidence packs: signed evidence mapped to EASA, NIST, DHS, IMO, RTS 25, EU Space Act, NIS 2 duties (E6, Pro; list, show, verify free)\n\
+       kshana-pro bridge <check|dr|ep-vectors|ep-check|drills|verify> ...   Ship bridge: cross-sensor consistency aid naming the disagreeing sensor, dead-reckoning quality, ECDIS EP fallback tester, GNSS-denied drill packs; decision support, never navigation (check, ep-check, drills build/score Pro; the rest free)\n\
+       kshana-pro dependency <templates|template|audit|questionnaire|register|verify> ...   PNT dependency graph and audit with sector templates (ship, port, aircraft, water, pipeline, emergency calls, TETRA, rescue), GraphML/JSON export, questionnaire kit (Pro), national register (Enterprise); templates and verify free\n\
        kshana-pro pics <list|show|mapping|score|export|sample|verify> ...   PICS: PNT Interference Conformance Suite, versioned jamming/spoofing scenarios with pre-registered bars, clause mapping and signed scorecards (score Pro; the rest free)\n\
        kshana-pro testkit <validate|compile|run|diff|from-incident|from-library|fidelity|packs|show|sample|verify> ...   Test-as-code kit: neutral scenarios compiled for lab simulators, CI runner with signed verdicts per build, regression diff, incident-to-regression, replay fidelity, scenario packs (`kshana-pro testkit` for details; validate, packs, sample, verify free)\n\
        kshana-pro avionics <list|show|validate|generate|run|sample|recovery|evidence|kit|verify> ...   Avionics test library: SBAS failure-test procedures with a message-sequence generator, ARAIM checks, per-avionics-type recovery-time scorecard, evidence pack and tool-qualification support kit (`kshana-pro avionics` for details; list, show, validate, sample, verify free)\n\
+       kshana-pro regpack <list|show|example|assess|bam|mass|links|complaint|bid|verify> ...   Regulator, type-approval and framework pre-assessment packs: evidence per requirement and the gaps (MSC.401/432, Circ.1575, BAM, UR E27, EN 303 413, MASS Code, NIST CSF 2.0, EU Space Act), RR Appendix 10 interference report annex, bid attestation (Pro; list, show, example, verify free)\n\
        kshana-pro pntdp <run|vectors|check> ...   PNT data processing reference (MSC.1/Circ.1575): multi-source plausibility, consistency, selected solution and integrity level (Pro; vectors and check free)\n\
        kshana-pro verdict <selfcal|survey|cause|verify> ...   Hosted methods answered as signed verdicts, verified against the service key (`kshana-pro verdict` for details)\n\
        kshana-pro reports <normalise|validate|episodes|verify|reset-check|ledger|check|params|regimes|synth> ...   Interference reports: normalise crew/ATC/mariner reports, validate per regime, episodes, signed verification, exposure ledger and reset check (Pro; ledger Enterprise; check, params, regimes, synth free)\n\
+       kshana-pro aviation <approach|residual|nuisance|areas|check|synth> ...   Aviation operational analytics: approach availability and go-around exposure, residual effects and clean-or-reset, nuisance-alert statistics, unpublished interference areas (Pro; areas Enterprise; check, synth free; decision support only)\n\
+       kshana-pro obs-provenance <keygen|sign|verify|keyring-add> ...   Signed feeder provenance on kshana.obs/1 batches: feeder key, time, position, sequence, in a sidecar (sign Pro; the rest free)\n\
+       kshana-pro longterm <key-genesis|key-rotate|request|add-token|stamp|history|verify> ...   Long-term signatures: key history and RFC 3161 archive time-stamp chain over a signed directory, verified offline (Pro; request and verify free)\n\
        kshana-pro exposure <run|verify> ...   Insurer scorecard: periodic signed exposure summary of a fleet or route (E7, Pro); verify free\n\
+       kshana-pro briefing <transits|brief|tails|lowalt|occ|regional|road|spillover|notam|areas|verify> ...   Exposure history, route risk and briefings with stated confidence: transits, chokepoint and route briefings, per-tail ledger, OCC alerts, regional datasets, road index, spillover footprints (Pro; notam, areas, verify free)\n\
        kshana-pro license <keygen|pubkey|issue|issue-invoice|extend-invoice|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
      \n\
      --sample (any command): every page of every document written also carries the mark\n\
@@ -143,12 +162,21 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "verify-service",
     "frameworks",
     "exposure",
+    "bridge",
+    "dependency",
+    "briefing",
     "pics",
     "pntdp",
     "verdict",
     "reports",
     "testkit",
     "avionics",
+    "regpack",
+    "grid",
+    "sfn",
+    "aviation",
+    "obs-provenance",
+    "longterm",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -281,12 +309,21 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("verify-service") => evidence_cmd::verify_service(&args[1..]),
         Some("frameworks") => evidence_cmd::frameworks(&args[1..]),
         Some("exposure") => evidence_cmd::exposure(&args[1..]),
+        Some("bridge") => bridge_cmd::bridge(&args[1..]),
+        Some("dependency") => bridge_cmd::dependency(&args[1..]),
+        Some("briefing") => briefing_cmd::run(&args[1..]),
         Some("pics") => pics_cmd::run(&args[1..]),
         Some("pntdp") => pntdp_cmd::run(&args[1..]),
         Some("verdict") => verdict_cmd::run(&args[1..]),
         Some("reports") => reports_cmd::run(&args[1..]),
         Some("testkit") => testkit_cmd::run(&args[1..]),
         Some("avionics") => avionics_cmd::run(&args[1..]),
+        Some("regpack") => regpack_cmd::run(&args[1..]),
+        Some("grid") => grid_cmd::run_grid(&args[1..]),
+        Some("sfn") => grid_cmd::run_sfn(&args[1..]),
+        Some("aviation") => aviation_cmd::run(&args[1..]),
+        Some("obs-provenance") => evidence_infra_cmd::provenance(&args[1..]),
+        Some("longterm") => evidence_infra_cmd::longterm(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
         Some(name) if crate::extension::commands().iter().any(|c| c.name == name) => {
             let c = crate::extension::commands()

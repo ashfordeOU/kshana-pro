@@ -1,0 +1,52 @@
+format = "kshana-testkit-scenario/1"
+id = "flags-jam-cw"
+version = 1
+title = "Static receiver: CW jamming on L1"
+description = "A continuous-wave tone at the L1 centre frequency for three minutes; a CW-jamming indicator should respond and a broadband one should not."
+modelled_on = ["Receiver flag tests: spoofing, jamming and integrity indicator response (modelled on, representative parameters)"]
+tags = ["receiver-flags", "jamming"]
+
+[scene]
+start_utc = "2026-06-01T10:00:00Z"
+duration_s = 480
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[[signal]]
+constellation = "galileo"
+signals = ["E1"]
+
+[trajectory]
+platform = "static"
+lat_deg = 59.43
+lon_deg = 24.75
+height_m = 40
+
+[[threat]]
+id = "cw"
+type = "jamming"
+waveform = "cw"
+start_s = 120
+duration_s = 180
+center_hz = 1575420000.0
+js_db = 40
+
+[expected]
+behaviour = "Jamming indicated (or the fix withdrawn) within 10 s; no degraded fix output as valid; back within 30 s of the end."
+recover_h_error_m = 10
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 10
+level = 2
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 30
+level = 1

@@ -51,7 +51,9 @@ pub const EXPOSURE_USAGE: &str = "usage: kshana-pro exposure <command>\n\
     equipment <equipment.toml> --out <dir> --signer <name> --key-file <file> [--trust <hex>[,...]] [--dev]\n\
         Equipment-resilience rating from scorecards or declared capabilities (Pro)\n\
     voyage <voyage.toml> --out <dir> --signer <name> --key-file <file> [--trust <hex>[,...]] [--dev]\n\
-        Voyage risk score from route exposure to historic events and the equipment rating (Pro)";
+        Voyage risk score from route exposure to historic events and the equipment rating (Pro)\n\
+    scheme <request.toml> --out <dir> --signer <name> --key-file <file> [--trust <hex>[,...]] [--dev]\n\
+        Discount-scheme device scorecard: stated claims checked against signed scorecards, with the publication rule (Pro)";
 
 fn fail(msg: impl std::fmt::Display) -> ExitCode {
     eprintln!("error: {msg}");
@@ -244,6 +246,7 @@ pub fn exposure(args: &[String]) -> ExitCode {
         Some("verify") => verify_dir(args),
         Some("equipment") => super::pnt_cmd::equipment(args),
         Some("voyage") => super::pnt_cmd::voyage(args),
+        Some("scheme") => super::receiver_cmd::scheme(args),
         _ => fail(EXPOSURE_USAGE),
     }
 }
