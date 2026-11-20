@@ -1,0 +1,69 @@
+format = "kshana-avionics-procedure/1"
+id = "araim-h-dual-constellation"
+version = 1
+title = "ARAIM: horizontal and vertical protection levels on a GPS and Galileo geometry"
+purpose = "Representative dual-constellation geometry and ISM values. The reference gives VPL, HPL, EMT and the vertical accuracy sigma; the equipment's outputs for the same inputs are compared within the tolerance, and its availability decisions with the reference decisions under the applicant's alert limits."
+kind = "araim"
+modelled_on = ["WG-C ARAIM Technical Subgroup, Reference Airborne Algorithm Description Document v4.2", "EUROCAE ED-259A (horizontal ARAIM airborne requirements; section supplied by the applicant)"]
+tags = ["araim", "h-araim", "v-araim-readiness"]
+
+[[parameter]]
+name = "tol_pl_m"
+unit = "m"
+meaning = "largest difference between the equipment protection level and the reference"
+source = "applicant may tighten it"
+public_value = 0.05
+public_source = "WG-C ARAIM Technical Subgroup, Reference Airborne Algorithm Description Document v3.1 (2019), Table 4, TOL_PL"
+
+[[parameter]]
+name = "hal_m"
+unit = "m"
+meaning = "horizontal alert limit of the operation under test"
+source = "applicant: from the operation's requirements"
+
+[[parameter]]
+name = "val_m"
+unit = "m"
+meaning = "vertical alert limit of the operation under test (vertical: readiness evidence only)"
+source = "applicant: from the operation's requirements"
+
+[[parameter]]
+name = "emt_limit_m"
+unit = "m"
+meaning = "effective monitor threshold limit (optional)"
+source = "applicant"
+
+[[parameter]]
+name = "sigma_acc_limit_m"
+unit = "m"
+meaning = "vertical accuracy sigma limit (optional)"
+source = "applicant"
+
+[araim]
+check = "cases"
+
+[[araim.case]]
+id = "gps-galileo-nominal"
+description = "7 GPS + 7 Galileo satellites, representative ISM values"
+
+[[araim.case.constellation]]
+name = "gps"
+p_const = 1e-8
+p_sat = 1e-5
+sigma_ura_m = 1.0
+sigma_ure_m = 0.667
+b_nom_m = 0.5
+sigma_tropo_m = 0.2
+sigma_user_m = 0.4
+el_az_deg = [[78, 20], [52, 95], [41, 160], [33, 230], [27, 300], [18, 345], [12, 60]]
+
+[[araim.case.constellation]]
+name = "galileo"
+p_const = 1e-4
+p_sat = 1e-5
+sigma_ura_m = 1.0
+sigma_ure_m = 0.667
+b_nom_m = 0.5
+sigma_tropo_m = 0.2
+sigma_user_m = 0.4
+el_az_deg = [[66, 250], [47, 10], [38, 130], [29, 195], [22, 280], [15, 75], [10, 320]]

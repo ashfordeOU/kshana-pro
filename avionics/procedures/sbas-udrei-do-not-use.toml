@@ -1,0 +1,39 @@
+format = "kshana-avionics-procedure/1"
+id = "sbas-udrei-do-not-use"
+version = 1
+title = "SBAS: a satellite set to 'do not use' (UDREI 15) is dropped within the alert time"
+purpose = "An alarm on one satellite: MT6 with IODF 3 at onset, then UDREI 15 in every MT2-5 and MT6 for 60 s. The equipment stops using the satellite within the alert time and uses it again after the alarm clears."
+kind = "sbas-sequence"
+modelled_on = ["RTCA DO-229F, Appendix A (SBAS message content: UDREI, IODF alarm)", "RTCA DO-229F, Section 2 (time to alert of the operation under test; value supplied by the applicant)"]
+tags = ["sbas", "integrity", "alarm"]
+
+[[parameter]]
+name = "alert_time_s"
+unit = "s"
+meaning = "from the first message carrying the change to the equipment acting on it"
+source = "applicant: the time to alert of the operation under test, from their copy of RTCA DO-229F"
+
+[[parameter]]
+name = "return_time_s"
+unit = "s"
+meaning = "from the end of the event to the satellites being used again"
+source = "applicant: a test-design limit (the MOPS sets no single value for this)"
+
+[sequence]
+duration_s = 240
+prns = [1, 3, 6, 9, 12, 14, 17, 19, 22]
+iodp = 1
+
+[sequence.schedule]
+mask_s = 60
+fast_s = 6
+integrity_s = 6
+degradation_s = 120
+
+[[sequence.event]]
+id = "udrei15"
+kind = "udrei"
+t_s = 90
+duration_s = 60
+prn = 6
+udrei = 15

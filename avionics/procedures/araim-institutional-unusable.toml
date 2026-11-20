@@ -1,0 +1,71 @@
+format = "kshana-avionics-procedure/1"
+id = "araim-institutional-unusable"
+version = 1
+title = "ARAIM: a constellation declared unusable by the ISM is excluded"
+purpose = "An ICAO-style institutional case: the integrity support message declares Galileo unusable. The reference recomputes the levels from GPS alone; the equipment must exclude Galileo and match the reduced reference."
+kind = "araim"
+modelled_on = ["WG-C ARAIM Technical Subgroup, Reference Airborne Algorithm Description Document v4.2 (ISM content)", "ICAO Navigation Systems Panel ARAIM work: institutional scenarios (theme; section supplied by the applicant)"]
+tags = ["araim", "institutional"]
+
+[[parameter]]
+name = "tol_pl_m"
+unit = "m"
+meaning = "largest difference between the equipment protection level and the reference"
+source = "applicant may tighten it"
+public_value = 0.05
+public_source = "WG-C ARAIM Technical Subgroup, Reference Airborne Algorithm Description Document v3.1 (2019), Table 4, TOL_PL"
+
+[[parameter]]
+name = "hal_m"
+unit = "m"
+meaning = "horizontal alert limit of the operation under test"
+source = "applicant: from the operation's requirements"
+
+[[parameter]]
+name = "val_m"
+unit = "m"
+meaning = "vertical alert limit of the operation under test (vertical: readiness evidence only)"
+source = "applicant: from the operation's requirements"
+
+[[parameter]]
+name = "emt_limit_m"
+unit = "m"
+meaning = "effective monitor threshold limit (optional)"
+source = "applicant"
+
+[[parameter]]
+name = "sigma_acc_limit_m"
+unit = "m"
+meaning = "vertical accuracy sigma limit (optional)"
+source = "applicant"
+
+[araim]
+check = "cases"
+
+[[araim.case]]
+id = "galileo-declared-unusable"
+description = "Same geometry as araim-h-dual-constellation; Galileo set unusable"
+compare_without = []
+
+[[araim.case.constellation]]
+name = "gps"
+p_const = 1e-8
+p_sat = 1e-5
+sigma_ura_m = 1.0
+sigma_ure_m = 0.667
+b_nom_m = 0.5
+sigma_tropo_m = 0.2
+sigma_user_m = 0.4
+el_az_deg = [[78, 20], [52, 95], [41, 160], [33, 230], [27, 300], [18, 345], [12, 60]]
+
+[[araim.case.constellation]]
+name = "galileo"
+p_const = 1e-4
+p_sat = 1e-5
+sigma_ura_m = 1.0
+sigma_ure_m = 0.667
+b_nom_m = 0.5
+sigma_tropo_m = 0.2
+sigma_user_m = 0.4
+el_az_deg = [[66, 250], [47, 10], [38, 130], [29, 195], [22, 280], [15, 75], [10, 320]]
+unusable = true

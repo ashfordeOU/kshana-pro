@@ -1,0 +1,16 @@
+# Example fleet file for `kshana-pro avionics recovery`: the test kit's receiver names per
+# avionics type, and aircraft counts for the fleet-weighted share. Names are placeholders.
+format = "kshana-avionics-fleet/1"
+operator = "Example operator"
+
+[[type]]
+id = "gnss-sensor-type-a"
+description = "Stand-alone GNSS sensor, example"
+receivers = ["unit-a1", "unit-a2"]
+aircraft = 30
+
+[[type]]
+id = "integrated-gnss-type-b"
+description = "GNSS integrated in a multi-mode receiver, example"
+receivers = ["unit-b1"]
+aircraft = 10

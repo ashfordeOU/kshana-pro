@@ -1,0 +1,65 @@
+{
+  "format": "kshana-pro-regulator-catalogue/1",
+  "id": "bam-pnt-alerts",
+  "title": "Bridge alert management of PNT-integrity alerts (IMO MSC.302(87); IEC 62923-1 and -2)",
+  "kind": "type-approval",
+  "status": "In force (IEC 62923-1:2018); research 09b G82",
+  "source": {
+    "title": "IMO Resolution MSC.302(87) performance standards for bridge alert management; IEC 62923-1:2018 and IEC 62923-2 bridge alert management",
+    "version": "MSC.302(87), 2010; IEC 62923-1:2018; IEC 62923-2 (edition to be confirmed)",
+    "url": "https://www.evs.ee/en/iec-62923-1-2018",
+    "read": "Not read: the IEC standards are paywalled and MSC.302(87) was not read in this work. The research records scope (all alerts presented on and transferred to the bridge) and the module split (A and C for BAM; also B and D for CAM). Rows are at topic level."
+  },
+  "rows": [
+    {
+      "id": "BAM-ID",
+      "clause": "clause to be confirmed",
+      "basis": "research 09b section 3.6 (source G82); speculation in the research that PNT-integrity alerts map to IEC 62923-2 identifiers",
+      "topic": "Every PNT-integrity condition the equipment raises has an alert identifier",
+      "evidence": [
+        "kshana-pro-bam-alert-check/1"
+      ],
+      "gap": "The identifier scheme of IEC 62923-2 is to be confirmed against the standard."
+    },
+    {
+      "id": "BAM-PRIO",
+      "clause": "clause to be confirmed",
+      "basis": "MSC.302(87) priority and category names as commonly used; to be confirmed against the resolution",
+      "topic": "Each alert has a priority (emergency alarm, alarm, warning, caution) and a category (A, B, C)",
+      "evidence": [
+        "kshana-pro-bam-alert-check/1"
+      ],
+      "gap": "Kshana checks the declared map against the rules stated in the check; the allowed priorities are configuration."
+    },
+    {
+      "id": "BAM-LOSS",
+      "clause": "clause to be confirmed",
+      "basis": "Kshana rule, not standard text",
+      "topic": "Loss of position integrity raises an alert of at least the policy's minimum priority",
+      "evidence": [
+        "kshana-pro-bam-alert-check/1"
+      ],
+      "gap": "The minimum is the maker's policy until confirmed against the standard."
+    },
+    {
+      "id": "BAM-REPLAY",
+      "clause": "clause to be confirmed",
+      "basis": "Kshana rule, not standard text",
+      "topic": "Every integrity condition seen in a replay of the processing output reaches the bridge as an alert",
+      "evidence": [
+        "kshana-pro-bam-alert-check/1",
+        "kshana-testkit-build/1"
+      ],
+      "gap": "Replay of logged or reference output; the alert transport (IEC 61162-450 and similar) is not tested."
+    },
+    {
+      "id": "BAM-HMI",
+      "clause": "clause to be confirmed",
+      "basis": "research 09b G82 module split",
+      "topic": "Presentation, acknowledgement and escalation at the workstation (modules A to D)",
+      "evidence": [],
+      "gap": "Not provided by Kshana: tested on the bridge system."
+    }
+  ],
+  "wording": "Each row names a requirement of the document (paraphrased, never quoted at length, with its clause where the research read it), the Kshana evidence formats that speak to it and the gap Kshana does not cover. A pre-assessment is an aid for preparing a submission. It does not state, and must not be read as stating, that any product, ship or operator meets the document; that judgement belongs to the notified body, class society, administration or assessor."
+}

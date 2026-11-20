@@ -1,0 +1,11 @@
+format = "kshana-avionics-procedure/1"
+id = "araim-published-vectors"
+version = 1
+title = "ARAIM: the WG-C reference worked examples reproduced by this build"
+purpose = "Runs the reference airborne algorithm of the open engine on the ARAIM Technical Subgroup's published worked examples and reports each output against the tolerance the source states. Evidence about the tool, not about equipment; it needs no equipment log."
+kind = "araim"
+modelled_on = ["WG-C ARAIM Technical Subgroup, Reference Airborne Algorithm Description Document v3.1 (2019), Appendix D", "WG-C ARAIM Technical Subgroup, Milestone 3 Report (2016), Annex A, section A.IX"]
+tags = ["araim", "tool-evidence"]
+
+[araim]
+check = "published_vectors"

@@ -1,0 +1,79 @@
+{
+  "format": "kshana-pro-regulator-catalogue/1",
+  "id": "eu-space-act-cyber",
+  "title": "EU Space Act (Commission proposal): cybersecurity of space links and commands",
+  "kind": "regulation",
+  "status": "Proposal, not adopted; the text may change",
+  "source": {
+    "title": "Proposal for a Regulation on the safety, resilience and sustainability of space activities in the Union (EU Space Act)",
+    "version": "Commission proposal COM(2025) 335, June 2025",
+    "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52025PC0335",
+    "read": "Not read in full in this work; rows at topic level, to be checked against the adopted text before a pack is sent."
+  },
+  "rows": [
+    {
+      "id": "SAC-LINK",
+      "clause": "clause to be confirmed",
+      "basis": "research 06 (sources [76], [77]); the existing Kshana Pro framework template eu-space-act: proposal not read in full",
+      "topic": "Protection of telecommand and telemetry links against unauthorised access",
+      "evidence": [
+        "kshana-pro-link-security/1"
+      ],
+      "gap": "From the declared configuration; Kshana does not observe the link."
+    },
+    {
+      "id": "SAC-CMD",
+      "clause": "clause to be confirmed",
+      "basis": "research 06 (sources [76], [77]); the existing Kshana Pro framework template eu-space-act: proposal not read in full",
+      "topic": "Authentication of commands, with protection that cannot be switched off in operation",
+      "evidence": [
+        "kshana-pro-link-security/1"
+      ],
+      "gap": "From the declared configuration."
+    },
+    {
+      "id": "SAC-RISK",
+      "clause": "clause to be confirmed",
+      "basis": "research 06 (sources [76], [77]); the existing Kshana Pro framework template eu-space-act: proposal not read in full",
+      "topic": "Cybersecurity risk assessment of the space and ground segments",
+      "evidence": [
+        "kshana-pro-link-security/1",
+        "kshana-pro-timing-audit/1"
+      ],
+      "gap": "The assessment is the operator's."
+    },
+    {
+      "id": "SAC-INC",
+      "clause": "clause to be confirmed",
+      "basis": "research 06 (sources [76], [77]); the existing Kshana Pro framework template eu-space-act: proposal not read in full",
+      "topic": "Incident notification and records, including interference with the service",
+      "evidence": [
+        "kshana-pro-forensic-report/1",
+        "kshana-pro-interference-complaint/1",
+        "kshana-pro-interference-episodes/1"
+      ],
+      "gap": "The notification is the operator's act."
+    },
+    {
+      "id": "SAC-PNT",
+      "clause": "clause to be confirmed",
+      "basis": "research 06 (sources [76], [77]); the existing Kshana Pro framework template eu-space-act: proposal not read in full",
+      "topic": "Resilience of ground-segment timing and positioning",
+      "evidence": [
+        "kshana-pro-timing-scorecard/1",
+        "kshana-pro-timing-audit/1",
+        "kshana-pro-trust-evidence/1"
+      ],
+      "gap": "Spacecraft design is not covered."
+    },
+    {
+      "id": "SAC-ORG",
+      "clause": "clause to be confirmed",
+      "basis": "research 06 (sources [76], [77]); the existing Kshana Pro framework template eu-space-act: proposal not read in full",
+      "topic": "Governance, training and supplier security",
+      "evidence": [],
+      "gap": "Not provided by Kshana."
+    }
+  ],
+  "wording": "Each row names a requirement of the document (paraphrased, never quoted at length, with its clause where the research read it), the Kshana evidence formats that speak to it and the gap Kshana does not cover. A pre-assessment is an aid for preparing a submission. It does not state, and must not be read as stating, that any product, ship or operator meets the document; that judgement belongs to the notified body, class society, administration or assessor."
+}

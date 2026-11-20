@@ -1,0 +1,35 @@
+# Example harmful-interference report request (fictitious administration and data).
+# Positions below are observation positions; the pack reduces them to 0.5-degree cells.
+reporting_administration = "Administration of Exampleland (fictitious)"
+reporting_entity = "Exampleland Transport and Communications Agency (fictitious)"
+reference = "EX-RNSS-2026-001"
+rr_edition = "ITU Radio Regulations, edition as used by the administration (to be stated)"
+cell_deg = 0.5
+action_requested = "Example: the administration asks the notified administration to identify and stop the source of the interference to the RNSS in the areas listed."
+
+[victim]
+service = "Radionavigation-satellite service (RNSS), receivers on aircraft, ships and land"
+stations = "GNSS receivers of aircraft, ships and land users in the areas listed"
+frequencies_mhz = [1575.42, 1602.0]
+bands = ["GPS L1 / Galileo E1", "GLONASS G1"]
+
+[[observation]]
+start_utc = "2026-04-02T06:10:00Z"
+end_utc = "2026-04-02T09:40:00Z"
+lat_deg = 59.43
+lon_deg = 24.77
+kind = "jamming"
+effect = "loss of GNSS fix on aircraft in approach; ADS-B integrity degraded"
+observers = 7
+measured = "C/N0 drop of 20 dB-Hz on a monitoring station"
+source = "monitoring station EX-1 (fictitious)"
+
+[[observation]]
+start_utc = "2026-04-02T07:00:00Z"
+end_utc = "2026-04-02T08:15:00Z"
+lat_deg = 59.71
+lon_deg = 25.02
+kind = "spoofing"
+effect = "ships reported positions displaced inland"
+observers = 3
+source = "ship reports (fictitious)"

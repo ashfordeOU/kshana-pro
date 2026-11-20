@@ -1,0 +1,14 @@
+# Example trace file for `kshana-pro avionics evidence`: your own requirement identifiers and
+# text, each mapped to the procedures that test it.
+format = "kshana-avionics-trace/1"
+project = "Example project"
+
+[[requirement]]
+id = "REQ-SBAS-001"
+text = "The equipment stops using a satellite flagged 'do not use' within the alert time."
+procedures = ["sbas-udrei-do-not-use", "sbas-mt0-do-not-use"]
+
+[[requirement]]
+id = "REQ-SBAS-002"
+text = "The equipment stops using satellites whose fast corrections have timed out."
+procedures = ["sbas-fast-correction-timeout"]

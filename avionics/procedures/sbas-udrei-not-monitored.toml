@@ -1,0 +1,33 @@
+format = "kshana-avionics-procedure/1"
+id = "sbas-udrei-not-monitored"
+version = 1
+title = "SBAS: a satellite set to 'not monitored' (UDREI 14) leaves the SBAS-corrected solution"
+purpose = "UDREI 14 on one satellite for 60 s, with the alarm sent at onset. The equipment stops using the satellite in its SBAS-corrected solution within the alert time."
+kind = "sbas-sequence"
+modelled_on = ["RTCA DO-229F, Appendix A (SBAS message content: UDREI)", "RTCA DO-229F, Section 2 (time to alert; value supplied by the applicant)"]
+tags = ["sbas", "integrity"]
+
+[[parameter]]
+name = "alert_time_s"
+unit = "s"
+meaning = "from the first message carrying the change to the equipment acting on it"
+source = "applicant: the time to alert of the operation under test, from their copy of RTCA DO-229F"
+
+[[parameter]]
+name = "return_time_s"
+unit = "s"
+meaning = "from the end of the event to the satellites being used again"
+source = "applicant: a test-design limit (the MOPS sets no single value for this)"
+
+[sequence]
+duration_s = 240
+prns = [2, 5, 7, 10, 13, 15, 18, 21, 24, 26, 29, 30, 31, 32]
+iodp = 2
+
+[[sequence.event]]
+id = "udrei14"
+kind = "udrei"
+t_s = 90
+duration_s = 60
+prn = 31
+udrei = 14

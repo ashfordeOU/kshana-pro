@@ -1,0 +1,47 @@
+{
+  "format": "kshana-pro-regulator-catalogue/1",
+  "id": "etsi-en-303-413",
+  "title": "ETSI EN 303 413 (Radio Equipment Directive): GNSS receivers",
+  "kind": "type-approval",
+  "status": "Harmonised standard; manufacturers may self-declare, a notified body is optional (research 09 [86] to [88])",
+  "source": {
+    "title": "ETSI EN 303 413, Satellite Earth Stations and Systems; Global Navigation Satellite System (GNSS) receivers; radio equipment operating in the 1164 MHz to 1300 MHz and 1559 MHz to 1610 MHz frequency bands",
+    "version": "version to be confirmed by the maker",
+    "url": "https://www.etsi.org/standards",
+    "read": "Not read in this work; rows at topic level."
+  },
+  "rows": [
+    {
+      "id": "RED-SEL",
+      "clause": "clause to be confirmed",
+      "basis": "research 09 section on RED (sources [86] to [88])",
+      "topic": "Receiver performance with interfering signals in and next to the GNSS bands",
+      "evidence": [
+        "kshana-testkit-build/1",
+        "kshana-pics-scorecard/1"
+      ],
+      "gap": "Conducted or shielded scenario runs; the standard's own test set-up and limits are not reproduced."
+    },
+    {
+      "id": "RED-REPORT",
+      "clause": "clause to be confirmed",
+      "basis": "research 09 C9: optional third-party test reports",
+      "topic": "An independent test report the maker can attach to its technical documentation",
+      "evidence": [
+        "kshana-testkit-build/1",
+        "kshana-pics-scorecard/1",
+        "kshana-pro-receiver-scorecard/1"
+      ],
+      "gap": "Kshana is not a notified body; its reports are supporting evidence."
+    },
+    {
+      "id": "RED-EMC",
+      "clause": "clause to be confirmed",
+      "basis": "not in the research",
+      "topic": "Spurious emissions, EMC and safety tests",
+      "evidence": [],
+      "gap": "Not provided by Kshana: an accredited laboratory performs them."
+    }
+  ],
+  "wording": "Each row names a requirement of the document (paraphrased, never quoted at length, with its clause where the research read it), the Kshana evidence formats that speak to it and the gap Kshana does not cover. A pre-assessment is an aid for preparing a submission. It does not state, and must not be read as stating, that any product, ship or operator meets the document; that judgement belongs to the notified body, class society, administration or assessor."
+}

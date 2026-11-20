@@ -1,0 +1,71 @@
+{
+  "format": "kshana-pro-regulator-catalogue/1",
+  "id": "iacs-ur-e27",
+  "title": "IACS UR E27: cyber resilience of on-board systems and equipment (PNT-dependent computer-based systems)",
+  "kind": "class",
+  "status": "In force for newbuilds contracted from 1 Jul 2024 (research 09 [77] to [80])",
+  "source": {
+    "title": "IACS Unified Requirement E27, Cyber resilience of on-board systems and equipment",
+    "version": "Rev.1, September 2023",
+    "url": "https://iacs.s3.af-south-1.amazonaws.com/wp-content/uploads/2022/05/29103854/UR-E27-Rev.1-Sep-2023-UL.pdf",
+    "read": "Not read in full in this work; the research records Appendix 2 (reduced vessel-specific document set after type approval) and the check sheet and templates at its end."
+  },
+  "rows": [
+    {
+      "id": "E27-INV",
+      "clause": "clause to be confirmed",
+      "basis": "research 09b section 3.5 (source G79): UR E27 Rev.1 (Sep 2023); supplier test reports accepted as evidence items (BV attestation, 2026)",
+      "topic": "Inventory of the system's inputs and interfaces, including every PNT input and its source",
+      "evidence": [
+        "kshana-pro-mass-override-check/1",
+        "kshana-pro-trust-evidence/1"
+      ],
+      "gap": "The maker's inventory; Kshana's dependency check uses what the maker declares."
+    },
+    {
+      "id": "E27-DETECT",
+      "clause": "clause to be confirmed",
+      "basis": "research 09b section 3.5 (source G79): UR E27 Rev.1 (Sep 2023); supplier test reports accepted as evidence items (BV attestation, 2026)",
+      "topic": "Detection of anomalous inputs and security events on the system's interfaces, including GNSS jamming and spoofing",
+      "evidence": [
+        "kshana-testkit-build/1",
+        "kshana-pics-scorecard/1",
+        "kshana-pro-receiver-scorecard/1"
+      ],
+      "gap": "Kshana tests the PNT inputs only; network-security detection is outside its scope."
+    },
+    {
+      "id": "E27-RESP",
+      "clause": "clause to be confirmed",
+      "basis": "research 09b section 3.5 (source G79): UR E27 Rev.1 (Sep 2023); supplier test reports accepted as evidence items (BV attestation, 2026)",
+      "topic": "Response and recovery: fallback behaviour and recovery after a lost or corrupted input",
+      "evidence": [
+        "kshana-testkit-build/1",
+        "kshana-pro-receiver-scorecard/1",
+        "kshana-pro-trust-evidence/1"
+      ],
+      "gap": "Scenario parameters are representative."
+    },
+    {
+      "id": "E27-TEST",
+      "clause": "Appendix 2 (as cited in the research)",
+      "basis": "research 09b section 3.5 (source G79): UR E27 Rev.1 (Sep 2023); supplier test reports accepted as evidence items (BV attestation, 2026)",
+      "topic": "Test evidence for the type approval in a test-report form the class society reviews",
+      "evidence": [
+        "kshana-testkit-build/1",
+        "kshana-pics-scorecard/1",
+        "kshana-pro-receiver-scorecard/1"
+      ],
+      "gap": "The class society decides what it accepts; the report format follows the maker's submission."
+    },
+    {
+      "id": "E27-SEC",
+      "clause": "clause to be confirmed",
+      "basis": "research 09b section 3.5 (source G79): UR E27 Rev.1 (Sep 2023); supplier test reports accepted as evidence items (BV attestation, 2026)",
+      "topic": "Access control, network segmentation, secure development and patching",
+      "evidence": [],
+      "gap": "Not provided by Kshana."
+    }
+  ],
+  "wording": "Each row names a requirement of the document (paraphrased, never quoted at length, with its clause where the research read it), the Kshana evidence formats that speak to it and the gap Kshana does not cover. A pre-assessment is an aid for preparing a submission. It does not state, and must not be read as stating, that any product, ship or operator meets the document; that judgement belongs to the notified body, class society, administration or assessor."
+}
