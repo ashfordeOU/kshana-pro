@@ -68,6 +68,16 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-longterm-signature",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-obs-provenance",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-report-verification",
       "type": "feature",
       "tier": "pro"

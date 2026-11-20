@@ -5,6 +5,21 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Evidence infrastructure, part 1 (research 2026-11-20 gaps E25 B2501, B2503;
+  docs/EVIDENCE-INFRASTRUCTURE.md).** `kshana-pro obs-provenance` (signing: feature
+  `pro-obs-provenance`, Pro): an Ed25519 provenance sidecar per `kshana.obs/1` batch (feeder key,
+  feeder clock, position from the header or declared, batch hash and summary, sequence and
+  predecessor hash); `verify` against a feeder keyring with key validity and revocation, signed /
+  unsigned / rejected per batch and per-feeder sequence checks; batches stay readable by any
+  `kshana.obs/1` reader. `kshana-pro longterm` (feature `pro-longterm-signature`, Pro; request and
+  verify free): `longterm.json` beside a signed dossier with a key history (genesis and rotations
+  signed by both keys, hash-chained) and an RFC 3161 archive time-stamp chain (stamp 0 over
+  `signature.json`, each later stamp over the previous one), verified offline at any `--at` time;
+  holds across key rotation and across a change of authority, refuses a first stamp after key
+  retirement and an unrenewed expired chain. Optional network stamping via system curl.
+  `signed_dossier` and the Python verifier now leave `longterm.json` out of the signed file list.
+  MODELLED: test keys and self-made test authorities only.
+
 - **Timing assurance v2 (W1120 TA1-TA4; docs/TIMING-ASSURANCE.md).** `kshana-pro timing
   timebomb` (feature `pro-timing-timebomb`, Pro): future-epoch replay vectors (NMEA ZDA/RMC,
   UBX NAV-TIMEGPS/TIMEUTC/TIMELS, simulator sheet with the gps-sdr-sim command, expected
