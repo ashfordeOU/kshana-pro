@@ -161,6 +161,21 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         position (millington or smooth_earth ground model): ASF σ from conductivity class, terrain\n\
         and seasonal variation, station-fault and ASF-model-error hypotheses; --grid writes an\n\
         availability map (Enterprise)\n\
+    rmode-perf <limits.toml> (--records <records.csv|.json> | --simulate <plan.toml>) --out <report.json> [--records-out <csv>] [--license <token>] [--dev]\n\
+        Draft R-Mode receiver performance tests RMP-01..08 against the limits the profile supplies (none\n\
+        built in): pre-assessment with confidence bounds and sample-size checks (Pro, pro-rmode-perf)\n\
+    wwrns-trust <config.toml> --fixes <fixes.csv> --out <report.json> [--license <token>] [--dev]\n\
+        GNSS + R-Mode + eLoran fixes: per-epoch trust decision, GNSS-suspect epochs, accuracy against the\n\
+        stated requirement (Pro, pro-wwrns-trust)\n\
+    claim <request.toml> --out <report.json> [--license <token>] [--dev]\n\
+        Timing-claim verification (e.g. 20 ns to UTC) with a GUM budget and Circular T (Pro, pro-eloran-claims)\n\
+    interop <request.toml> --out <report.json> [--license <token>] [--dev]\n\
+        Interoperability across stations steered to different UTC(k): E_n per pair (Pro, pro-eloran-claims)\n\
+    sol-evidence <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]\n\
+        Signed safety-of-life evidence index (Enterprise, pro-eloran-sol-evidence)\n\
+    ldc-fde <request.toml> --out <report.json> --license <machine-bound token>\n\
+        LDC/ASF fault detection and exclusion on TOA residuals, correction versus signal faults, slope HPL\n\
+        (patent-pending; on-prem builds only)\n\
     validate <scenario.toml>\n\
         Check a scenario and print its SHA-256 (no licence needed)\n\
     example\n\
@@ -362,6 +377,41 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("elof") => elof_cmd(args),
         Some("bench-eloran") => bench_eloran_cmd(args),
         Some("tpl") => tpl_cmd(args),
+        Some("rmode-perf" | "wwrns-trust" | "claim" | "interop" | "sol-evidence") => {
+            super::navaids_cmd::eloran(args)
+        }
+        #[cfg(not(feature = "unfiled-methods"))]
+        Some("ldc-fde") => method_not_in_build("ldc-fde"),
+        #[cfg(feature = "unfiled-methods")]
+        Some("ldc-fde") => {
+            if let Err(c) = require_bound(args) {
+                return c;
+            }
+            done((|| {
+                use kshana_eloran::guard::asf_fde::{run, FdeConfig, FdeEpoch};
+                #[derive(serde::Deserialize)]
+                #[serde(deny_unknown_fields)]
+                struct Req {
+                    config: FdeConfig,
+                    #[serde(rename = "epoch")]
+                    epochs: Vec<FdeEpoch>,
+                }
+                let path = args.get(1).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+                let out = flag(args, "--out").ok_or("--out <report.json> is required")?;
+                let text = read(path)?;
+                let req: Req = if path.ends_with(".json") {
+                    serde_json::from_str(&text).map_err(|e| format!("{path}: {e}"))?
+                } else {
+                    toml::from_str(&text).map_err(|e| format!("{path}: {e}"))?
+                };
+                let r = run(&req.config, &req.epochs)?;
+                write_json(&out, &r)?;
+                Ok(format!(
+                    "LDC/ASF FDE: {} epochs, {} nominal, {} corrections excluded, {} stations excluded, {} unresolved, {} alarms -> {out}",
+                    r.epochs.len(), r.nominal, r.corrections_excluded, r.stations_excluded, r.unresolved, r.alarms
+                ))
+            })())
+        }
         Some("example") => {
             print!("{EXAMPLE}");
             ExitCode::SUCCESS

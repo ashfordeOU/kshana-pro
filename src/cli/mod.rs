@@ -23,6 +23,7 @@ mod grid_cmd;
 mod incident_cmd;
 mod license_cmd;
 mod lunar_cmd;
+mod navaids_cmd;
 mod packs_cmd;
 mod payments_cmd;
 mod pics_cmd;
@@ -101,6 +102,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro avionics <list|show|validate|generate|run|sample|recovery|evidence|kit|verify> ...   Avionics test library: SBAS failure-test procedures with a message-sequence generator, ARAIM checks, per-avionics-type recovery-time scorecard, evidence pack and tool-qualification support kit (`kshana-pro avionics` for details; list, show, validate, sample, verify free)\n\
        kshana-pro regpack <list|show|example|assess|bam|mass|links|complaint|bid|verify> ...   Regulator, type-approval and framework pre-assessment packs: evidence per requirement and the gaps (MSC.401/432, Circ.1575, BAM, UR E27, EN 303 413, MASS Code, NIST CSF 2.0, EU Space Act), RR Appendix 10 interference report annex, bid attestation (Pro; list, show, example, verify free)\n\
        kshana-pro agri <convert|drift|realign|field|resilience|advise|translate|photo|sample|verify> ...   Agriculture, construction and survey operations: guidance-line converter and realignment, pass-to-pass drift, field planner, autosteer resilience score with outage diagnosis, scintillation and PPP-versus-RTK advisors, geotagged-photo checks (`kshana-pro agri` for details; convert, translate, sample, verify free)\n\
+       kshana-pro navaids <coverage|rnp|inspect|ssv> ...   Terrestrial navaids: DME/VOR network twin with critical DMEs, multi-sensor RNP scenarios with the e-conspicuity NACp backup test, flight-inspection truth assurance (Pro; ssv free)\n\
        kshana-pro pntdp <run|vectors|check> ...   PNT data processing reference (MSC.1/Circ.1575): multi-source plausibility, consistency, selected solution and integrity level (Pro; vectors and check free)\n\
        kshana-pro verdict <selfcal|survey|cause|verify> ...   Hosted methods answered as signed verdicts, verified against the service key (`kshana-pro verdict` for details)\n\
        kshana-pro reports <normalise|validate|episodes|verify|reset-check|ledger|check|params|regimes|synth> ...   Interference reports: normalise crew/ATC/mariner reports, validate per regime, episodes, signed verification, exposure ledger and reset check (Pro; ledger Enterprise; check, params, regimes, synth free)\n\
@@ -183,6 +185,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "testkit",
     "avionics",
     "regpack",
+    "navaids",
     "grid",
     "road",
     "ecall",
@@ -338,6 +341,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("avionics") => avionics_cmd::run(&args[1..]),
         Some("agri") => agri_cmd::run(&args[1..]),
         Some("regpack") => regpack_cmd::run(&args[1..]),
+        Some("navaids") => navaids_cmd::run(&args[1..]),
         Some("grid") => grid_cmd::run_grid(&args[1..]),
         Some("road") => transport_cmd::road(&args[1..]),
         Some("ecall") => transport_cmd::ecall(&args[1..]),

@@ -118,7 +118,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-eloran-claims",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-eloran-hw",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-eloran-sol-evidence",
       "type": "feature",
       "tier": "pro"
     },
@@ -168,6 +178,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-navaids",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-nuisance-alerts",
       "type": "feature",
       "tier": "pro"
@@ -199,6 +214,11 @@
     },
     {
       "kind": "pro-retention",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-rmode-perf",
       "type": "feature",
       "tier": "pro"
     },
@@ -349,6 +369,11 @@
     },
     {
       "kind": "pro-watch-wall",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-wwrns-trust",
       "type": "feature",
       "tier": "pro"
     },

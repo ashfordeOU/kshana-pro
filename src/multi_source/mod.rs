@@ -35,6 +35,7 @@
 //! pre-registration); no real multi-source recording has been scored.
 
 pub mod v4;
+pub mod wwrns;
 
 use kshana::api::{ExternalPack, KshanaError, RunOutput, Scenario, ScenarioMeta};
 use serde::{Deserialize, Serialize};

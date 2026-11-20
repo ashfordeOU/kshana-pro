@@ -75,6 +75,7 @@ pub mod rx;
 pub mod scenario;
 pub mod scene;
 pub mod signal;
+pub mod stats;
 pub mod sync;
 pub mod tactical;
 pub mod threat;
