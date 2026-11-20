@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kshana-pro-operating-envelope/1",
+  "title": "Kshana Pro operating envelope",
+  "description": "Where a Kshana Pro output may be relied on: valid inputs, ranges and exclusions. Written as operating-envelope.json into every signed Pro evidence directory.",
+  "type": "object",
+  "required": ["format", "output_format", "family", "valid_inputs", "ranges", "exclusions", "evidence"],
+  "additionalProperties": false,
+  "properties": {
+    "format": { "const": "kshana-pro-operating-envelope/1" },
+    "output_format": { "type": "string", "pattern": "^kshana" },
+    "family": { "type": "string", "minLength": 1 },
+    "valid_inputs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "ranges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["quantity", "range"],
+        "additionalProperties": false,
+        "properties": {
+          "quantity": { "type": "string", "minLength": 1 },
+          "range": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "exclusions": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "evidence": { "type": "string", "minLength": 1 }
+  }
+}

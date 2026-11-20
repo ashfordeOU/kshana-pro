@@ -55,6 +55,7 @@ pub mod eloran_gnss_sdr;
 pub mod eloran_service;
 pub mod eloran_timexfer;
 pub mod eloran_trust;
+pub mod envelope;
 pub mod exposure;
 pub mod extension;
 pub mod fdm;
