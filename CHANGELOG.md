@@ -5,6 +5,8 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Tiers: one more hidden extension kind registered (20 Nov 2026).** `ARKSA_ENTRIES` gains one
+  `kind` hash; the tier manifest is regenerated; Pro pack count 32 -> 33.
 - **Timing assurance v2 (W1120 TA1-TA4; docs/TIMING-ASSURANCE.md).** `kshana-pro timing
   timebomb` (feature `pro-timing-timebomb`, Pro): future-epoch replay vectors (NMEA ZDA/RMC,
   UBX NAV-TIMEGPS/TIMEUTC/TIMELS, simulator sheet with the gps-sdr-sim command, expected
