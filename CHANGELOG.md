@@ -5,6 +5,12 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Station fleet management and calibration register (research 2026-11-20 gaps B2604;
+  docs/STATION-FLEET.md).** `kshana-pro fleet` under the existing `pro-station-fleet`:
+  hash-chained configuration history (`config-verify` free), calibration register ageing with
+  the date a prediction leaves tolerance (on `kshana_eloran::calreg`), site logs in the IGS
+  section layout, signed monthly clock-quality statements (MTIE, TDEV, ADEV) that verify offline,
+  and a static fleet dashboard. `tests/station_fleet.rs` (3 tests).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
