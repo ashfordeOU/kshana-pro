@@ -5,6 +5,23 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Aviation operational analytics (research backlog E11, B1101-B1104;
+  docs/AVIATION-ANALYTICS.md).** `kshana-pro aviation approach` (feature
+  `pro-approach-availability`, Pro): terminal-area outage windows from ADS-B NIC/NACp, per-
+  procedure GNSS approach availability with the final segment's exposure on open interference
+  maps, GNSS-only fallback, go-around rates under degradation and otherwise (Wilson 95 %), a
+  stated-rate capacity-impact model and oceanic RNP support after spoofing. `aviation residual`
+  (`pro-residual-effects`, Pro): residual effects across consecutive flights on the FDM
+  detector (clock still wrong, degradation after leaving the area, degraded from flight start,
+  TAWS/clock alerts with no concurrent event) and a clean-or-reset recommendation (RESET
+  RECOMMENDED / LRU CHECK RECOMMENDED / NO RESIDUAL EFFECT FOUND). `aviation nuisance`
+  (`pro-nuisance-alerts`, Pro): nuisance-alert and alert-fatigue statistics per route, phase and
+  class (TAWS, clock, GNSS, bridge BNWAS/GNSS alarms), rates per crew-hour, workload estimate,
+  training extract. `aviation areas` (`pro-unpublished-areas`, Enterprise): interference areas
+  and short bursts in fleet ADS-B and FDM events with no covering NOTAM, at 0.5° cells and above
+  the open engine's publication minimum, with alerts for the alert policy engine and GeoJSON.
+  All signed, MODELLED and decision support only; synthetic fixtures
+  (`kshana-pro aviation synth`); tests in `tests/aviation_analytics.rs`.
 - **Timing assurance v2 (W1120 TA1-TA4; docs/TIMING-ASSURANCE.md).** `kshana-pro timing
   timebomb` (feature `pro-timing-timebomb`, Pro): future-epoch replay vectors (NMEA ZDA/RMC,
   UBX NAV-TIMEGPS/TIMEUTC/TIMELS, simulator sheet with the gps-sdr-sim command, expected

@@ -197,6 +197,13 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // replay fidelity (Pro); the build-to-build regression diff (Enterprise).
         "pro-test-kit" => Tier::Pro,
         "pro-test-kit-regression" => Tier::Enterprise,
+        // Aviation operational analytics (research 2026-11-20 gaps E11): approach availability,
+        // residual effects and nuisance-alert statistics (Pro); fleet-wide unpublished
+        // interference areas (Enterprise).
+        "pro-approach-availability" => Tier::Pro,
+        "pro-residual-effects" => Tier::Pro,
+        "pro-nuisance-alerts" => Tier::Pro,
+        "pro-unpublished-areas" => Tier::Enterprise,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -240,6 +247,10 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-exposure-ledger",
     "pro-test-kit",
     "pro-test-kit-regression",
+    "pro-approach-availability",
+    "pro-residual-effects",
+    "pro-nuisance-alerts",
+    "pro-unpublished-areas",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered
