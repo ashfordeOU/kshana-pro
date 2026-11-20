@@ -5,6 +5,23 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Exposure, route risk and briefings (research backlog E09, B0901-B0905;
+  docs/EXPOSURE-BRIEFINGS.md).** `kshana-pro briefing`: per-transit exposure records from AIS
+  tracks with listed-area records and a fleet view (`transits`); area and route briefings for
+  chokepoints, regions and listed areas with stated confidence, data window and input
+  provenance as JSON, HTML and PDF (`brief`); a per-tail exposure ledger over 90 days by
+  altitude band, a low-altitude cell map and OCC flight alerts with data latency (`tails`,
+  `lowalt`, `occ`/`preflight`); versioned regional datasets with pattern separation and
+  airport pattern libraries that rebuild byte-identically (`regional`); a road corridor
+  exposure index and heat map under the V22 privacy rule (`road`); a NOTAM-to-geometry
+  converter with harmonised start/end criteria (`notam`, free) and a modelled spillover
+  footprint of declared test areas with affected users and agreement against ADS-B layers
+  (`spillover`). Reuses the open engine's interference-map reader, route exposure and
+  clustering (kshana 0.41.0) and `exposure::voyage`. Features `pro-route-exposure`,
+  `pro-aviation-exposure`, `pro-regional-datasets`, `pro-road-exposure`,
+  `pro-spillover-footprint` (Pro); tier manifest regenerated. Outputs are named areas or cells
+  of at least 0.5 degrees; no emitter positions. All MODELLED, tested on synthetic fixtures
+  (`tests/exposure_briefings.rs`).
 - **Timing assurance v2 (W1120 TA1-TA4; docs/TIMING-ASSURANCE.md).** `kshana-pro timing
   timebomb` (feature `pro-timing-timebomb`, Pro): future-epoch replay vectors (NMEA ZDA/RMC,
   UBX NAV-TIMEGPS/TIMEUTC/TIMELS, simulator sheet with the gps-sdr-sim command, expected

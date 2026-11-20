@@ -36,6 +36,7 @@ pub mod attack_iq;
 pub mod batch;
 pub mod benefits;
 pub mod brand_pdf;
+pub mod briefings;
 pub mod cli;
 pub mod connectors;
 pub mod criterion;

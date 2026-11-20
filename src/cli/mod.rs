@@ -8,6 +8,7 @@
 mod alerts_cmd;
 mod area_cmd;
 mod attack_iq_cmd;
+mod briefing_cmd;
 mod dossier_cmd;
 mod eloran_cmd;
 mod evidence_cmd;
@@ -78,6 +79,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro verdict <selfcal|survey|cause|verify> ...   Hosted methods answered as signed verdicts, verified against the service key (`kshana-pro verdict` for details)\n\
        kshana-pro reports <normalise|validate|episodes|verify|reset-check|ledger|check|params|regimes|synth> ...   Interference reports: normalise crew/ATC/mariner reports, validate per regime, episodes, signed verification, exposure ledger and reset check (Pro; ledger Enterprise; check, params, regimes, synth free)\n\
        kshana-pro exposure <run|verify> ...   Insurer scorecard: periodic signed exposure summary of a fleet or route (E7, Pro); verify free\n\
+       kshana-pro briefing <transits|brief|tails|lowalt|occ|regional|road|spillover|notam|areas|verify> ...   Exposure history, route risk and briefings with stated confidence: transits, chokepoint and route briefings, per-tail ledger, OCC alerts, regional datasets, road index, spillover footprints (Pro; notam, areas, verify free)\n\
        kshana-pro license <keygen|pubkey|issue|issue-invoice|extend-invoice|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
      \n\
      --sample (any command): every page of every document written also carries the mark\n\
@@ -141,6 +143,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "verify-service",
     "frameworks",
     "exposure",
+    "briefing",
     "pics",
     "pntdp",
     "verdict",
@@ -278,6 +281,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("verify-service") => evidence_cmd::verify_service(&args[1..]),
         Some("frameworks") => evidence_cmd::frameworks(&args[1..]),
         Some("exposure") => evidence_cmd::exposure(&args[1..]),
+        Some("briefing") => briefing_cmd::run(&args[1..]),
         Some("pics") => pics_cmd::run(&args[1..]),
         Some("pntdp") => pntdp_cmd::run(&args[1..]),
         Some("verdict") => verdict_cmd::run(&args[1..]),
