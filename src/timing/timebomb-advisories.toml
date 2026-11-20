@@ -9,6 +9,8 @@
 #
 # kind: vendor-security-advisory | vendor-time-advisory | community-report | example
 # vendor: alternatives separated by "|"; models: "*" for every model of the vendor.
+# tags: "unsigned-firmware" marks an advisory whose hazard is an upgrade image the device does
+# not verify (read by `timing posture check`).
 
 [[advisory]]
 id = "CVE-2024-9054"
@@ -65,6 +67,7 @@ models = ["TimeProvider 4100"]
 hazard = "upgrade images not signed (disclosed 19 Feb 2026 as reported): a firmware image can be replaced"
 source = "research 08b finding 7 [S14]: Microchip PSIRT page 'timeprovider-4100-unsigned-upgrade-vulnerability'"
 verification = "as summarised in the research; fixed version not transcribed: read the vendor advisory"
+tags = ["unsigned-firmware"]
 
 [[advisory]]
 id = "MBGSA-2025.07"

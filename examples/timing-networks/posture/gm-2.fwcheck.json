@@ -1,0 +1,14 @@
+{
+  "format": "kshana-pro-firmware-check/1",
+  "image": "firmware.img",
+  "size": 29,
+  "sha256": "98def16559db2d3a582216771d24097ebbedb95280a9abfc949984e0124fd49e",
+  "method": "sha256",
+  "reference": "98def16559db2d3a582216771d24097ebbedb95280a9abfc949984e0124fd49e",
+  "verdict": "match",
+  "vendor": "Microchip",
+  "model": "TimeProvider 4100",
+  "version": "2.5",
+  "utc": "2026-11-20T12:00:00Z",
+  "note": "digest compared with the value given; check that it came from the vendor's own advisory or download page"
+}

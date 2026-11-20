@@ -150,3 +150,83 @@ evidence, never a statement of conformance. `kshana-pro scorecard osnma-synth <g
 writes a synthetic log.
 
 Evidence: **MODELLED** (synthetic receiver logs, `tests/osnma_conformance.rs`).
+
+## Flag-efficacy scorecard (research backlog B1301, E13)
+
+`kshana-pro scorecard flags <request.toml> --out <dir> --signer <name> --key-file <file>`
+(licence: `pro-receiver-scorecard`; code `src/scorecards/flags.rs`; method
+`kshana-pro/flag-efficacy/v1`, format `kshana-pro-flag-efficacy/1`). It measures a receiver's own
+spoofing, jamming and integrity indications per model and firmware, from logs recorded under
+test-kit scenarios (`kshana-testkit-scenario/1`; the `receiver-flags` pack has a clean
+baseline, CW and broadband jamming, simplistic, drag and time-push spoofing).
+
+```toml
+format = "kshana-pro-flag-efficacy-request/1"
+title = "Timing modules, spoof-flag campaign"
+[bars]                              # stated before scoring, hashed into the scorecard
+fixed_utc = "2026-11-20T09:00:00Z"
+detect_within_s = 60                # raised within this of onset counts as a detection
+min_runs = 3                        # fewer judged runs: the rate is not assessed
+precondition_gap = 0.5              # detection-rate gap that makes a flag precondition-dependent
+[[indicator]]                       # declared per model from the vendor's documentation
+model = "Module-A"
+name = "spoof"                      # key in the log's `ind` map
+meaning = "spoofing"                # spoofing | jamming | jamming_cw | jamming_broadband | integrity
+raise_at = 2                        # numeric indicators; flags raise on true; words on caution/unsafe/...
+documented_in = "Interface description, section on spoofing detection"
+preconditions = ["constellations=multi", "start=genuine-first"]   # as the vendor states them
+[[run]]
+log = "logs/a-spoof-1.json"         # kshana-flag-log/1, or a PICS device log
+scenario = "receiver-flags/flags-spoof-simplistic"   # or the log's own
+preconditions = { constellations = "single" }
+```
+
+The flag log (`kshana-flag-log/1`, JSON) carries the unit (model, firmware, serial, class), the
+scenario, the run's preconditions and per epoch the fix, its validity, the time error when
+measured, and `ind`: any named indicators (true/false, a level, or a word). A PICS device log
+reads as one, with indicators `jamming`, `spoofing` and `integrity`.
+
+Per model, firmware and indicator, per threat class (`jamming-cw`, `jamming-broadband`,
+`jamming-chirp`, `jamming-pulsed`, `spoofing-<technique>`, `degradation-<type>`, `clean`): the
+response rate with its Wilson 95 % interval and median latency, split by precondition set; the
+false-alarm epochs in clean runs and before the first onset. Whether an indicator should
+respond to a class follows from its declared meaning (a CW indicator should respond to CW and
+stay quiet under broadband jamming, and the reverse: the CW-vs-broadband indicator truth test).
+Findings: `never-fired` (an indicator that should respond did not fire in any run of the
+class), `wrong-class`, `precondition-dependent` and `undisclosed-precondition` (the flag fired
+under one set of conditions and not another, and the vendor's stated preconditions do not
+exclude the failing set), `false-alarms`, `indicator-absent`, and `normal-while-wrong`.
+
+**Flag normal while wrong** (`flags::flag_normal_while_wrong`): episodes where the receiver called
+its output valid, every declared indicator read normal, and the position (against the scenario
+truth) or the time was wrong beyond the bar. The detector is generic; it is a candidate for the
+open engine.
+
+`kshana-pro scorecard flags-synth <dir>` writes a synthetic campaign (four synthetic models: one
+that flags well, one whose spoof flag never fires, one that flags only with several
+constellations, one whose CW indicator also fires under broadband jamming). Evidence:
+**MODELLED** (`tests/receiver_flag_scorecards.rs`); no real receiver has been scored.
+
+## Low-cost receiver, board and handset scorecards with firmware regression (B1302, E13)
+
+`kshana-pro scorecard units <request.toml> --out <dir> --signer <name> --key-file <file>`
+(licence: `pro-receiver-scorecard`; `src/scorecards/units.rs`; method
+`kshana-pro/unit-scorecard/v1`, published in every scorecard as `method_text`). Units are declared
+before scoring (`[[unit]]`: id, model, class `board`/`module`/`handset`/`timing-module`,
+firmware, serial, provenance); each `[[run]]` pairs a unit with a test-kit scenario and its log
+(PICS device log, or `.nmea`), scored by the test kit's own scorer (`kshana-pro/testkit/v1`).
+
+* Per model and firmware, per scenario criterion: median, minimum, maximum and spread over the
+  units, and how many met it. Units of one model and firmware that disagree on a verdict are
+  listed as unit-to-unit variability.
+* `[[compare]] model, from, to`: per criterion, the change of the median, signed so that
+  positive is worse, against `max(absolute floor, relative x |before|, spread_k x unit
+  spread)` (`[bars]`: `relative` 0.2, `spread_k` 1, `absolute` per metric). Above it:
+  `regression`; a fall in the share of units meeting the criterion: `verdict-regression`.
+  Alerts are written to `regression-alerts.md` for subscribers of that model.
+
+`kshana-pro scorecard units-synth <dir>` writes a synthetic board campaign in which firmware 1.1
+recovers from jamming about 50 s later than 1.0 (detected as a regression). Evidence:
+**MODELLED**. Not built here: the Android ADR capability table (open-engine work: it needs an
+Android raw-measurement reader in the open engine, which `kshana` 0.41.0 does not expose) and
+pseudorange agreement against reference receivers.

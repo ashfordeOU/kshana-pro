@@ -18,8 +18,143 @@ own bullet so parallel work merges cleanly.
   `regpack bid` (feature `pro-bid-attestation`, Pro): declared BOM export status plus a chain hash
   over the BOM and test evidence, rechecked by `regpack verify`. Pre-assessment wording only.
   MODELLED. Tier manifest regenerated; integration tests 85 -> 86.
+- **Ship bridge consistency, dead reckoning, drills and PNT dependency audits (research
+  2026-11-20 gaps, epic E08; docs/BRIDGE-AND-DEPENDENCY.md).** `kshana-pro bridge check`
+  (feature `pro-bridge-consistency`, Pro): cross-sensor consistency of a recorded bridge log
+  (NMEA 0183 or IEC 61162-450; GNSS, GNSS compass, gyro, log, echo-sounder, radar targets of
+  fixed marks, a second receiver, GNSS time against the bridge cadence), a score per epoch and
+  alerts that list the checks in the order they failed and name the implicated sensor by a
+  single-fault rule, saying when the data cannot separate candidates. `bridge dr` (free):
+  dead-reckoning error growth with a 95 % radius, time to a limit, bottom-track depth rule and a
+  Monte Carlo check. `bridge ep-vectors` (free) and `ep-check` (`pro-ecdis-ep-test`, Pro): ECDIS
+  estimated-position fallback vectors (loss, loss in a turn, frozen position, manual position)
+  and a checker of what the ECDIS showed. `bridge drills` (`pro-bridge-drills`, Pro for build
+  and score): six GNSS-denied drill packs with instructor log, rubric, scoring and a signed
+  training record. `kshana-pro dependency` (`pro-dependency-audit`, Pro): PNT dependency graph
+  and audit from a TOML/JSON inventory (GNSS denial with holdover, spoofing without
+  cross-check, single points of failure, isolation switches, autonomy), eight sector templates,
+  GraphML/JSON export, questionnaire kit; `dependency register` (`pro-dependency-register`,
+  Enterprise): pseudonymous per-operator status and per-sector aggregates with small groups
+  withheld. Tier manifest regenerated. Decision support only, never navigation. MODELLED;
+  tests `tests/bridge.rs`, `tests/dependency_audit.rs`.
+
+- **Power-grid and broadcast SFN timing evidence (backlog E31 B3101, B3102;
+  docs/GRID-SFN-TIMING.md).** `kshana-pro grid` (feature `pro-grid-timing`, Pro): `pmu` (clock
+  error as phase-angle and TVE evidence against the C37.118.1 1 % criterion, joined with the
+  PMU's own C37.118.2 sync flags and claimed time quality; per event window the
+  angle-difference error of every PMU pair), `drift` (gradual-spoof detection on a recorded
+  time-error series or a same-bus PMU angle pair: level CUSUM, rate and step tests, onset,
+  rate and warning before the budget is used up), `scada` (time-stamp integrity per device:
+  backwards, repeated, ahead, clock steps and drift of the latency floor, resolution),
+  `prc002` (measured time error against the ±2 ms PRC-002 criterion with monitoring gaps and
+  holdover resilience from the holdover evidence model, signed) and `event` (was timing
+  implicated in a grid event: per device error, drift look-back, sync flags, SCADA findings,
+  sequence-of-events orders re-checked after correcting each stamp by its device's error,
+  signed). `kshana-pro sfn` (feature `pro-sfn-timing`, Pro; `systems` free): DAB/DVB-T guard
+  intervals, recorded transmitter logs (UTC-level, transmitter and pair-margin events) and
+  scenarios (`svn23` 13 µs UTC step, GNSS loss with holdover, ramp) with each transmitter's
+  reaction (accept, holdover, mute), signed. Reuses the self-check log readers, the holdover
+  evidence model, signed dossiers and the open engine's C37.118 reader. MODELLED; evidence, not
+  a regulatory determination; tested on synthetic records (`tests/grid_sfn_timing.rs`).
+- **Exposure, route risk and briefings (research backlog E09, B0901-B0905;
+  docs/EXPOSURE-BRIEFINGS.md).** `kshana-pro briefing`: per-transit exposure records from AIS
+  tracks with listed-area records and a fleet view (`transits`); area and route briefings for
+  chokepoints, regions and listed areas with stated confidence, data window and input
+  provenance as JSON, HTML and PDF (`brief`); a per-tail exposure ledger over 90 days by
+  altitude band, a low-altitude cell map and OCC flight alerts with data latency (`tails`,
+  `lowalt`, `occ`/`preflight`); versioned regional datasets with pattern separation and
+  airport pattern libraries that rebuild byte-identically (`regional`); a road corridor
+  exposure index and heat map under the V22 privacy rule (`road`); a NOTAM-to-geometry
+  converter with harmonised start/end criteria (`notam`, free) and a modelled spillover
+  footprint of declared test areas with affected users and agreement against ADS-B layers
+  (`spillover`). Reuses the open engine's interference-map reader, route exposure and
+  clustering (kshana 0.41.0) and `exposure::voyage`. Features `pro-route-exposure`,
+  `pro-aviation-exposure`, `pro-regional-datasets`, `pro-road-exposure`,
+  `pro-spillover-footprint` (Pro); tier manifest regenerated. Outputs are named areas or cells
+  of at least 0.5 degrees; no emitter positions. All MODELLED, tested on synthetic fixtures
+  (`tests/exposure_briefings.rs`).
+- **Aviation operational analytics (research backlog E11, B1101-B1104;
+  docs/AVIATION-ANALYTICS.md).** `kshana-pro aviation approach` (feature
+  `pro-approach-availability`, Pro): terminal-area outage windows from ADS-B NIC/NACp, per-
+  procedure GNSS approach availability with the final segment's exposure on open interference
+  maps, GNSS-only fallback, go-around rates under degradation and otherwise (Wilson 95 %), a
+  stated-rate capacity-impact model and oceanic RNP support after spoofing. `aviation residual`
+  (`pro-residual-effects`, Pro): residual effects across consecutive flights on the FDM
+  detector (clock still wrong, degradation after leaving the area, degraded from flight start,
+  TAWS/clock alerts with no concurrent event) and a clean-or-reset recommendation (RESET
+  RECOMMENDED / LRU CHECK RECOMMENDED / NO RESIDUAL EFFECT FOUND). `aviation nuisance`
+  (`pro-nuisance-alerts`, Pro): nuisance-alert and alert-fatigue statistics per route, phase and
+  class (TAWS, clock, GNSS, bridge BNWAS/GNSS alarms), rates per crew-hour, workload estimate,
+  training extract. `aviation areas` (`pro-unpublished-areas`, Enterprise): interference areas
+  and short bursts in fleet ADS-B and FDM events with no covering NOTAM, at 0.5° cells and above
+  the open engine's publication minimum, with alerts for the alert policy engine and GeoJSON.
+  All signed, MODELLED and decision support only; synthetic fixtures
+  (`kshana-pro aviation synth`); tests in `tests/aviation_analytics.rs`.
+- **Timing networks (E19 B1902, B1904, B1905, B1907; docs/TIMING-ASSURANCE.md).** `kshana-pro
+  timing posture` (feature `pro-timing-posture`, Pro): appliance security posture from an
+  inventory (the time-bomb auditor's advisory table, now with an `unsigned-firmware` tag on
+  CVE-2025-47904; vendor SBOM components against an operator's component advisory table;
+  management reach; clear-text and amplifying services; firmware integrity), an out-of-band
+  firmware-image check (SHA-256, SHA256SUMS or Ed25519), CycloneDX 1.5 SBOMs of station
+  firmware, and a structural SBOM check (free). `timing chain` (`pro-timing-chain`, Pro): a
+  time-distribution chain from UTC(k) (Circular T rows) over White Rabbit (link model, α
+  estimated from a calibration), PTP, fibre and common-view hops, GUM budget, calibration
+  currency, an onboarding test for a national time service, signed traceability statement.
+  `timing crosscheck` (`pro-timing-crosscheck`, Pro): sources grouped by traceability root
+  (GNSS, long-wave DCF77/MSF/WWVB/JJY/BPC with ground-wave delay, BPS, eLoran, LEO, fibre,
+  NTS), single-source fault isolation, member faults, node-off, silent sources, triad monitor,
+  `wisp` and `timing-node` profiles. `timing station` (`pro-timing-station`, Pro): ground-station
+  pass-quality SLA per station, provider, customer and satellite with the station time error
+  during each pass against a limit derived from the antenna, signed. MODELLED or COMPUTED;
+  tested on synthetic inputs (`tests/timing_networks.rs`, demo in `examples/timing-networks/`).
+- **Receiver scorecards (research backlog E13, B1301-B1304; docs/RECEIVER-SCORECARDS.md,
+  docs/EVIDENCE-PRODUCTS.md, docs/TIMING-ASSURANCE.md).** `kshana-pro scorecard flags`
+  (`pro-receiver-scorecard`): spoof-, jamming- and integrity-flag efficacy per model and
+  firmware from logs under test-kit scenarios: detection rates with Wilson intervals, false
+  alarms, CW-vs-broadband indicator truth, precondition dependence checked against the vendor's
+  stated preconditions, never-fired flags, and a generic "flag normal while wrong" detector;
+  new test-kit pack `receiver-flags` (six scenarios, including a clean baseline). `scorecard
+  units`: board, module and handset scorecards per model and firmware with unit-to-unit
+  variability and firmware regression alerts whose tolerance includes the spread between units.
+  `exposure scheme` (`pro-insurer-scorecard`): discount-scheme device scorecard checking stated
+  claims (detection, no misleading output, recovery, A-PNT holdover) against signed evidence,
+  with a publication rule for maker-paid testing. `timing recovery` (`pro-timing-scorecard`,
+  T4): recovery time, residual offset and holdover-exit step from recorded time-error logs, with
+  a multi-receiver median comparison. `-synth` commands write fixtures. All MODELLED; tested on
+  synthetic fixtures (`tests/receiver_flag_scorecards.rs`). No new licence kind.
+- **Incident reconstruction, part 1 (research 2026-11-20 gaps E06: B0603, B0606;
+  docs/INCIDENT-EVIDENCE.md).** `kshana-pro forensics log-time` (feature
+  `pro-log-time-integrity`, Pro): time integrity of operational logs (documented CSV/JSON
+  schema, NMEA 0183 ZDA/RMC VDR/ECDIS exports split by talker with the recorder stamp as
+  reference, ACARS/CPDLC JSON lines with the ground receive time as reference): steps, backward
+  time, frozen clocks, drift rate, GPS week rollover / century / 32-bit wrap / GPS-as-UTC (the
+  time-bomb classifier), false and missed leap seconds, ordering, absolute epoch, cross-log
+  disagreement within a reference group (the clock self-check vote); corrected timeline with
+  uncertainty, integrity intervals, human text or `--json`, optional signed directory.
+  `kshana-pro forensics dispute` (feature `pro-dispute-evidence`, Pro): charter-party dispute
+  evidence from the maritime actor-vs-victim pack, the incident forensics bundle, the log check
+  and DP/operations status logs: periods of lost position or timing integrity with inner and
+  outer durations, agreeing sources, overlap with each claimed period, and five clause
+  templates (off-hire, delay-laycan, dp-downtime, deviation, safe-port) answered with pack and
+  finding IDs cited; signed. MODELLED, not a legal finding; synthetic tests only
+  (`tests/incident_evidence.rs`). Tier manifest regenerated.
 - **Tiers: one more hidden extension kind registered (20 Nov 2026).** `ARKSA_ENTRIES` gains one
   `kind` hash; the tier manifest is regenerated; Pro pack count 32 -> 33.
+- **Evidence infrastructure, part 1 (research 2026-11-20 gaps E25 B2501, B2503;
+  docs/EVIDENCE-INFRASTRUCTURE.md).** `kshana-pro obs-provenance` (signing: feature
+  `pro-obs-provenance`, Pro): an Ed25519 provenance sidecar per `kshana.obs/1` batch (feeder key,
+  feeder clock, position from the header or declared, batch hash and summary, sequence and
+  predecessor hash); `verify` against a feeder keyring with key validity and revocation, signed /
+  unsigned / rejected per batch and per-feeder sequence checks; batches stay readable by any
+  `kshana.obs/1` reader. `kshana-pro longterm` (feature `pro-longterm-signature`, Pro; request and
+  verify free): `longterm.json` beside a signed dossier with a key history (genesis and rotations
+  signed by both keys, hash-chained) and an RFC 3161 archive time-stamp chain (stamp 0 over
+  `signature.json`, each later stamp over the previous one), verified offline at any `--at` time;
+  holds across key rotation and across a change of authority, refuses a first stamp after key
+  retirement and an unrenewed expired chain. Optional network stamping via system curl.
+  `signed_dossier` and the Python verifier now leave `longterm.json` out of the signed file list.
+  MODELLED: test keys and self-made test authorities only.
+
 - **Timing assurance v2 (W1120 TA1-TA4; docs/TIMING-ASSURANCE.md).** `kshana-pro timing
   timebomb` (feature `pro-timing-timebomb`, Pro): future-epoch replay vectors (NMEA ZDA/RMC,
   UBX NAV-TIMEGPS/TIMEUTC/TIMELS, simulator sheet with the gps-sdr-sim command, expected

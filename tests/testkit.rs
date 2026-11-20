@@ -71,14 +71,26 @@ value = 5
 #[test]
 fn every_pack_scenario_is_valid_modelled_and_compiles_for_every_adapter() {
     let specs = all_pack_specs();
-    assert_eq!(specs.len(), 17);
-    for p in ["dp-vessel", "aviation", "uas", "timing", "rpcf"] {
+    assert_eq!(specs.len(), 23);
+    for p in [
+        "dp-vessel",
+        "aviation",
+        "uas",
+        "timing",
+        "rpcf",
+        "receiver-flags",
+    ] {
         assert!(packs::pack(p).is_ok(), "{p}");
     }
     for s in &specs {
         assert_eq!(s.evidence, "MODELLED", "{}", s.id);
         assert!(!s.modelled_on.is_empty(), "{}", s.id);
-        assert!(!s.criteria.is_empty() && !s.threats.is_empty(), "{}", s.id);
+        // The flag-efficacy pack's clean run is the false-alarm baseline: no threat.
+        assert!(
+            !s.criteria.is_empty() && (!s.threats.is_empty() || s.id == "flags-clean"),
+            "{}",
+            s.id
+        );
         for a in compile::ADAPTERS {
             let c = compile::compile(s, a).unwrap_or_else(|e| panic!("{} {a}: {e}", s.id));
             assert!(c.files.contains_key("scenario.toml"));
@@ -273,7 +285,13 @@ fn good_receivers_pass_and_bad_ones_fail_every_pack_scenario() {
             "pass"
         };
         assert_eq!(good.verdict, expect_good, "{}: {:#?}", s.id, good.criteria);
-        assert_eq!(bad.verdict, "fail", "{}: {:#?}", s.id, bad.criteria);
+        // The clean baseline has no threat for the silent receiver to miss.
+        let expect_bad = if s.id == "flags-clean" {
+            "pass"
+        } else {
+            "fail"
+        };
+        assert_eq!(bad.verdict, expect_bad, "{}: {:#?}", s.id, bad.criteria);
         assert!(good.label.starts_with("MODELLED"));
     }
     // levels: the flagging receiver supports level 2, the silent one none

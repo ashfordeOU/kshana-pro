@@ -1,0 +1,61 @@
+format = "kshana-testkit-scenario/1"
+id = "flags-spoof-time-push"
+version = 1
+title = "Static timing receiver: time push at 10 ns/s"
+description = "A counterfeit 3 dB above the genuine signals pushes time at 10 ns/s for five minutes; the position stays put."
+modelled_on = ["Receiver flag tests: spoofing, jamming and integrity indicator response (modelled on, representative parameters)"]
+tags = ["receiver-flags", "spoofing"]
+
+[scene]
+start_utc = "2026-06-01T10:00:00Z"
+duration_s = 600
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[[signal]]
+constellation = "galileo"
+signals = ["E1"]
+
+[trajectory]
+platform = "static"
+lat_deg = 59.43
+lon_deg = 24.75
+height_m = 40
+
+[[threat]]
+id = "push"
+type = "spoofing"
+technique = "time_push"
+start_s = 120
+duration_s = 300
+push_rate_ns_per_s = 10
+power_advantage_db = 3
+
+[expected]
+behaviour = "Spoofing flagged before the time error reaches 1 microsecond; back within 120 s of the end."
+withdraw_counts_as_detection = false
+misleading_time_error_ns = 1000
+recover_time_error_ns = 100
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 100
+level = 2
+
+[[criterion]]
+id = "no-misleading"
+metric = "misleading_epochs"
+op = "<="
+value = 0
+level = 2
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 120
+level = 1

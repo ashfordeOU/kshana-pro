@@ -13,6 +13,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-approach-availability",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-area-console",
       "type": "feature",
       "tier": "pro"
@@ -28,12 +33,42 @@
       "tier": "pro"
     },
     {
-      "kind": "pro-bid-attestation",
+      "kind": "pro-aviation-exposure",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-bridge-consistency",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-bridge-drills",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-dependency-audit",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-dependency-register",
       "type": "feature",
       "tier": "pro"
     },
     {
       "kind": "pro-desktop",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-dispute-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-ecdis-ep-test",
       "type": "feature",
       "tier": "pro"
     },
@@ -58,6 +93,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-grid-timing",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-incident-replay",
       "type": "feature",
       "tier": "pro"
@@ -68,17 +108,32 @@
       "tier": "pro"
     },
     {
-      "kind": "pro-interference-complaint",
-      "type": "feature",
-      "tier": "pro"
-    },
-    {
       "kind": "pro-interference-reports",
       "type": "feature",
       "tier": "pro"
     },
     {
-      "kind": "pro-regulator-pack",
+      "kind": "pro-log-time-integrity",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-longterm-signature",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-nuisance-alerts",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-obs-provenance",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-regional-datasets",
       "type": "feature",
       "tier": "pro"
     },
@@ -88,7 +143,22 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-residual-effects",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-retention",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-road-exposure",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-route-exposure",
       "type": "feature",
       "tier": "pro"
     },
@@ -108,12 +178,22 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-sfn-timing",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-signed-dossier",
       "type": "feature",
       "tier": "pro"
     },
     {
       "kind": "pro-signed-pack",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-spillover-footprint",
       "type": "feature",
       "tier": "pro"
     },
@@ -148,7 +228,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-timing-chain",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-timing-correlation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-timing-crosscheck",
       "type": "feature",
       "tier": "pro"
     },
@@ -163,7 +253,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-timing-posture",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-timing-selfcheck",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-timing-station",
       "type": "feature",
       "tier": "pro"
     },
@@ -174,6 +274,11 @@
     },
     {
       "kind": "pro-uncertainty",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-unpublished-areas",
       "type": "feature",
       "tier": "pro"
     },

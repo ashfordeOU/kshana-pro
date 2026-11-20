@@ -131,6 +131,17 @@ at start-up. Details, checks and what remains: [docs/PROTECTION.md](docs/PROTECT
 
 **Framework evidence packs (roadmap 0.42 E6; feature `pro-framework-pack`, `kshana-pro frameworks pack`)** and **insurer scorecard (E7; feature `pro-insurer-scorecard`, `kshana-pro exposure run`).** Seven framework templates (EASA SIB 2022-02R4, NIST IR 8323r1, DHS RPCF, IMO Circular Letter No. 5037 as a draft until its text is read, MiFID II RTS 25, the EU Space Act proposal, NIS 2) map signed Kshana Pro evidence to each duty, "mapped to" only, with the gap; the exposure summary counts signed forensics and integrity evidence for a fleet or route over a period, adds no detection, and is signed. Samples under `report-templates/samples/`. See [`docs/EVIDENCE-PRODUCTS.md`](docs/EVIDENCE-PRODUCTS.md).
 
+**Log time integrity and dispute evidence (research 2026-11-20 gaps E06; features
+`pro-log-time-integrity` and `pro-dispute-evidence`, `kshana-pro forensics log-time|dispute`).**
+The time stamps of VDR/ECDIS NMEA, ACARS/CPDLC message logs and CSV/JSON exports (FDM, SATCOM,
+GMDSS) checked against each record's reference and against the other clocks: steps, backward
+time, frozen clocks, drift, GPS week rollover, leap seconds, ordering and cross-log
+disagreement, with a corrected timeline. A charter-party dispute report (off-hire,
+delay/laycan, DP downtime, deviation, safe port) says when GNSS position or timing integrity
+was lost, for how long and which sources agree, citing the maritime pack, the forensics bundle
+and the log check; signed. MODELLED, synthetic tests only, not a legal finding. See
+[`docs/INCIDENT-EVIDENCE.md`](docs/INCIDENT-EVIDENCE.md).
+
 **Alert policy engine (roadmap 0.42 F5; feature `pro-alert-policy`, `kshana-pro alerts route`).**
 Routes decide who is told what, when and through which of the open engine's I5 outputs, with quiet
 hours (held into a digest), escalation when nobody acknowledges, and de-duplication that never
@@ -271,7 +282,7 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **eighty-six integration tests** in
+The suite is unit tests across every module plus **ninety-six integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,
