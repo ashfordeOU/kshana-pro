@@ -9,7 +9,7 @@
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-use crate::transport::{agnss, auto, ecall, nr, rail, telematics, tolerance, Table};
+use crate::transport::{agnss, auto, ecall, gnb_alarms, nr, rail, telematics, tolerance, Table};
 
 use super::grid_cmd::{gate, signing, Signing};
 
@@ -40,7 +40,8 @@ pub const NR_USAGE: &str = "usage: kshana-pro nr <command>\n\
     tolerance <request.toml> [--json <out>] [--license <token>] [--dev]   Shared-risk test tolerances and test requirements on user-transcribed TS 37.571-1 values, with placeholders (Pro)\n\
     agnss-scaffold [--out <file>]                                    A-GNSS vector-set skeleton, every value a placeholder (no licence needed)\n\
     agnss-status <set.json> [--json <out>]                           Which values are still placeholders; refuses values without a source (no licence needed)\n\
-    agnss-score <set.json> <results.csv> [--rule point|lower-bound] [--json <out>] [--license <token>] [--dev]   Score device trials against the transcribed limits and tolerances (Pro)";
+    agnss-score <set.json> <results.csv> [--rule point|lower-bound] [--json <out>] [--license <token>] [--dev]   Score device trials against the transcribed limits and tolerances (Pro)\n\
+    alarms <request.toml> [--utc <iso>] [--json <out>] [--license <token>] [--dev]   gNB timing-alarm adapter: vendor alarms through your map, holdover episodes against the TDD model, neighbour interference risk (Pro)";
 
 pub const RAIL_USAGE: &str = "usage: kshana-pro rail <command>\n\
     thr <request.toml> [--json <out>] [--out <dir> --signer <name> --key-file <file> [--utc <iso>]] [--license <token>] [--dev]   Position hazard rate including jamming and spoofing against the apportioned THR (Pro)\n\
@@ -422,6 +423,21 @@ pub fn nr(args: &[String]) -> ExitCode {
                 let r = tolerance::run(&req)?;
                 emit(args, &r)?;
                 Ok(format!("[nr tolerance] {}", r.verdict))
+            })())
+        }
+        Some("alarms") => {
+            let Some(path) = arg1(args) else {
+                return fail(NR_USAGE);
+            };
+            if let Err(e) = gate(args, nr::FEATURE) {
+                return fail(e);
+            }
+            finish((|| {
+                let (req, _): (gnb_alarms::Request, _) = parse(&path)?;
+                let utc = super::flag(args, "--utc").unwrap_or_else(super::utc_iso8601_now);
+                let r = gnb_alarms::run(&req, &base_of(&path), &utc)?;
+                emit(args, &r)?;
+                Ok(format!("[nr alarms] {}", r.verdict))
             })())
         }
         Some("agnss-scaffold") => {

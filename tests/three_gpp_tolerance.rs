@@ -1,5 +1,5 @@
 // PROPRIETARY — Kshana Pro. Not part of the open-source engine. See LICENSE.
-//! Shared-risk test-tolerance calculator and A-GNSS vector-set scaffold (research 2026-11-20
+//! Shared-risk test-tolerance calculator, A-GNSS vector-set scaffold and gNB timing-alarm adapter (research 2026-11-20
 //! gaps E30 B3004). Every number below is SYNTHETIC, chosen to exercise the arithmetic; none
 //! is a TS 37.571-1, TS 37.571-2 or TS 38.171 value (those were not read and Kshana ships none).
 
@@ -235,4 +235,73 @@ fn cli_scaffold_status_and_gated_commands() {
         "--dev",
     ]);
     assert!(ok && out.contains("not scored"), "{out}");
+}
+
+#[test]
+fn gnb_alarm_adapter_maps_and_checks_holdover() {
+    use kshana_pro::transport::gnb_alarms::{self, Class};
+    let d = tmp("alarms");
+    let tdd = r#"title = "SYNTHETIC gNB timing"
+numerology = 1
+guard_symbols = 2
+interferer_km = 10.0
+[holdover]
+site = "cluster"
+period_h = 24
+initial_te_s = 0.0
+u_initial_te_s = 5e-8
+[holdover.oscillator]
+class = "tcxo"
+"#;
+    let tr: kshana_pro::transport::nr::TddRequest = toml::from_str(tdd).unwrap();
+    let model = kshana_pro::transport::nr::tdd(&tr, "2026-11-20T00:00:00Z").unwrap();
+    let b = model.budget_exceeded_after_s.unwrap();
+    let i = model.interference_after_s.unwrap();
+    let t = |s: f64| {
+        let base = 1_780_272_000.0;
+        kshana_pro::forensics::inputs::iso(base + s)
+    };
+    // g1: GNSS lost for longer than the interference onset, its own phase alarm 60 s after the
+    // modelled crossing; g2 (g1's neighbour): lost over the same time; g3: a short loss.
+    // VENDOR_X_SYNC is not in the map.
+    let long = i + 600.0;
+    let csv = format!(
+        "timestamp,gnb_id,alarm,state\n\
+         {},g1,SYNTH_GNSS_LOST,raise\n{},g2,SYNTH_GNSS_LOST,raise\n\
+         {},g1,SYNTH_PHASE,raise\n{},g3,SYNTH_GNSS_LOST,raise\n{},g3,SYNTH_GNSS_LOST,clear\n\
+         {},g1,SYNTH_GNSS_LOST,clear\n{},g2,SYNTH_GNSS_LOST,clear\n{},g1,VENDOR_X_SYNC,raise\n",
+        t(0.0),
+        t(0.0),
+        t(b + 60.0),
+        t(10.0),
+        t(20.0),
+        t(long),
+        t(long),
+        t(long + 1.0),
+    );
+    std::fs::write(d.join("alarms.csv"), csv).unwrap();
+    let req = format!(
+        "title = \"SYNTHETIC\"\nalarms = \"alarms.csv\"\nneighbours = [[\"g1\", \"g2\"], [\"g1\", \"g3\"]]\n\
+         [map]\nSYNTH_GNSS_LOST = \"gnss-loss\"\nSYNTH_PHASE = \"phase-alarm\"\n{}",
+        tdd.replace("title = \"SYNTHETIC gNB timing\"\n", "[tdd]\ntitle = \"m\"\n")
+            .replace("[holdover]", "[tdd.holdover]")
+            .replace("[holdover.oscillator]", "[tdd.holdover.oscillator]")
+    );
+    let q: gnb_alarms::Request = toml::from_str(&req).unwrap();
+    let r = gnb_alarms::run(&q, &d, "2026-11-20T00:00:00Z").unwrap();
+    assert_eq!(r.unmapped.get("VENDOR_X_SYNC"), Some(&1));
+    assert_eq!(r.holdover.len(), 3);
+    let g1 = r.holdover.iter().find(|h| h.gnb == "g1").unwrap();
+    assert!((g1.beyond_budget_s - (long - b)).abs() < 0.2);
+    assert!((g1.own_alarm_minus_model_s.unwrap() - 60.0).abs() < 0.2);
+    let g3 = r.holdover.iter().find(|h| h.gnb == "g3").unwrap();
+    assert_eq!(g3.beyond_budget_s, 0.0);
+    let p12 = r.pairs.iter().find(|p| p.b == "g2").unwrap();
+    assert!(p12.at_risk, "{p12:?}");
+    let p13 = r.pairs.iter().find(|p| p.b == "g3").unwrap();
+    assert!(!p13.at_risk);
+    assert!(r
+        .episodes
+        .iter()
+        .any(|e| e.class == Class::PhaseAlarm && e.open));
 }

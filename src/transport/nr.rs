@@ -29,7 +29,7 @@
 //! The shared-risk test-tolerance calculator is [`super::tolerance`] and the A-GNSS vector-set
 //! scaffold (placeholders only; values transcribed by the user) is [`super::agnss`]. Not
 //! built: the vector values themselves (specification text not read), PRS carrier-phase and
-//! PRU calibration models, and a gNB timing-alarm adapter.
+//! PRU calibration models. The gNB timing-alarm adapter is [`super::gnb_alarms`].
 //!
 //! **Label: MODELLED.**
 
