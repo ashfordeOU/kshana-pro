@@ -63,6 +63,7 @@ pub mod frameworks;
 pub mod ievents;
 pub mod insurance;
 pub mod integrity;
+pub mod interface_drift;
 pub mod ireports;
 pub mod lab_campaign;
 pub mod license;
