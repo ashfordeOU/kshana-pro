@@ -33,11 +33,6 @@
       "tier": "pro"
     },
     {
-      "kind": "pro-dispute-evidence",
-      "type": "feature",
-      "tier": "pro"
-    },
-    {
       "kind": "pro-eloran",
       "type": "feature",
       "tier": "pro"
@@ -73,7 +68,12 @@
       "tier": "pro"
     },
     {
-      "kind": "pro-log-time-integrity",
+      "kind": "pro-longterm-signature",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-obs-provenance",
       "type": "feature",
       "tier": "pro"
     },
@@ -288,6 +288,11 @@
       "tier": "arksa"
     },
     {
+      "kind_sha256": "a06ac1042f0d90924a98605c15407bf8851a0a7b712d997951dd440576b37996",
+      "type": "feature",
+      "tier": "arksa"
+    },
+    {
       "kind_sha256": "e36e88f761e240e2d6a40ff582ff45121918e6bbf10cc7c342024e9fcbe9ed60",
       "type": "feature",
       "tier": "arksa"
@@ -333,12 +338,22 @@
       "tier": "arksa"
     },
     {
+      "kind_sha256": "a06ac1042f0d90924a98605c15407bf8851a0a7b712d997951dd440576b37996",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
       "kind_sha256": "a45f6206d4e4d8e74ed429220b926d0a9f874d0389c1343b0c42d2871d347609",
       "type": "kind",
       "tier": "arksa"
     },
     {
       "kind_sha256": "a849e2191cd7cf76f7d387b404547667f3f17a2f9f195a8bfa8deb3df15d2875",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "b895d2e0f7c6d3d3e4b669f75c958e2c94e34d182a790d9cbabdcf2b86553abb",
       "type": "kind",
       "tier": "arksa"
     },
