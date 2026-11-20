@@ -5,6 +5,19 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Regulator, type-approval and framework pre-assessment packs (E29 B2901-B2906;
+  docs/REGULATOR-PACKS.md).** `kshana-pro regpack`: eight requirement catalogues
+  (`report-templates/regpacks/`) and `regpack assess` (feature `pro-regulator-pack`, Pro), which
+  verifies signed evidence directories and an optional open-engine standards-pack report and
+  states per row evidence supplied, no evidence supplied or not assessed by Kshana; `regpack bam`
+  (alert map rules and replay over PNT-DP output), `regpack mass` (override independence over a
+  declared architecture, OE PNT template), `regpack links` (cleartext links, unauthenticated
+  command paths, the operator's no-encryption-no-fly policy); `regpack complaint` (feature
+  `pro-interference-complaint`, Pro): RR Appendix 10 shaped report annex from episodes and
+  observations, areas at 0.5 degrees or coarser, interfering-station particulars not determined;
+  `regpack bid` (feature `pro-bid-attestation`, Pro): declared BOM export status plus a chain hash
+  over the BOM and test evidence, rechecked by `regpack verify`. Pre-assessment wording only.
+  MODELLED. Tier manifest regenerated; integration tests 85 -> 86.
 - **Tiers: one more hidden extension kind registered (20 Nov 2026).** `ARKSA_ENTRIES` gains one
   `kind` hash; the tier manifest is regenerated; Pro pack count 32 -> 33.
 - **Timing assurance v2 (W1120 TA1-TA4; docs/TIMING-ASSURANCE.md).** `kshana-pro timing

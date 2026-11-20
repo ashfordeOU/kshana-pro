@@ -28,6 +28,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-bid-attestation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-desktop",
       "type": "feature",
       "tier": "pro"
@@ -63,7 +68,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-interference-complaint",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-interference-reports",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-regulator-pack",
       "type": "feature",
       "tier": "pro"
     },

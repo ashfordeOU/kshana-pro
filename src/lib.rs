@@ -73,6 +73,7 @@ pub mod premium;
 pub mod pro_study;
 pub mod propack;
 pub mod registry;
+pub mod regpacks;
 pub mod remote_verdict;
 pub mod report;
 pub mod report_brand;

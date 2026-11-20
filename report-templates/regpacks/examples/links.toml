@@ -1,0 +1,36 @@
+# Example declared link configuration (fictitious mission).
+mission = "Example LEO mission (fictitious)"
+propulsion = true
+
+[[link]]
+id = "tc-s"
+function = "telecommand"
+band = "S"
+encryption = "AES-256-GCM (as declared)"
+authentication = "CCSDS SDLS authenticated encryption (as declared)"
+crypto_can_be_disabled = false
+key_management = "keys loaded before launch, rotated by over-the-air rekeying (as declared)"
+
+[[link]]
+id = "tm-s"
+function = "telemetry"
+band = "S"
+encryption = "none"
+authentication = "none"
+
+[[link]]
+id = "payload-x"
+function = "payload-data"
+band = "X"
+encryption = "AES-256 (as declared)"
+authentication = "none"
+crypto_can_be_disabled = true
+key_management = ""
+
+[[link]]
+id = "gs-network"
+function = "ground-network"
+encryption = "none"
+authentication = "none"
+carries_commands = true
+notes = "Mission control to ground station over a leased line"

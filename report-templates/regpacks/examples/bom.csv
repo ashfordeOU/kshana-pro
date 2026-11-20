@@ -1,0 +1,5 @@
+part,description,maker,origin_country,export_regime,classification,declared_by
+EX-001,GNSS receiver module,Example Receivers (fictitious),DE,EU 2021/821,not listed,supplier declaration 2026-10-01
+EX-002,Oven-controlled oscillator,Example Oscillators (fictitious),CH,not listed,,supplier declaration 2026-09-12
+EX-003,Main board,Example Timing Ltd (fictitious),GB,UK Strategic Export Control Lists,not listed,bidder engineering
+EX-004,"Enclosure, machined",Example Mechanics (fictitious),EE,not listed,,bidder engineering

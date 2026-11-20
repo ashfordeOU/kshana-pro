@@ -1,0 +1,129 @@
+{
+  "format": "kshana-pro-regulator-catalogue/1",
+  "id": "nist-csf2-pnt",
+  "title": "NIST CSF 2.0 PNT profile (NIST IR 8323 Rev. 2, draft): evidence by category",
+  "kind": "framework",
+  "status": "Initial public draft (comments closed 6 Jul 2026; no final as of the research)",
+  "source": {
+    "title": "NIST IR 8323 Rev. 2: Cybersecurity Framework profile for the responsible use of PNT services (initial public draft), on NIST CSF 2.0",
+    "version": "IR 8323 Rev. 2 ipd, 6 May 2026; CSF 2.0, 26 Feb 2024",
+    "url": "https://csrc.nist.gov/pubs/ir/8323/r2/ipd",
+    "read": "CSF 2.0 categories as published; the draft profile's subcategory text was not read. Rows map at category level."
+  },
+  "rows": [
+    {
+      "id": "GV.SC",
+      "clause": "GV.SC (Cybersecurity Supply Chain Risk Management)",
+      "basis": "NIST CSF 2.0 (February 2024) category identifiers; the PNT profile text of NIST IR 8323 Rev. 2 (initial public draft, 6 May 2026) was not read in this work (research 12 #1769, R71)",
+      "topic": "Supply-chain risk of PNT equipment and services is managed",
+      "evidence": [
+        "kshana-pro-bid-attestation/1",
+        "kshana-pro-mass-override-check/1"
+      ],
+      "gap": "Supplier assessment is the organisation's."
+    },
+    {
+      "id": "ID.AM",
+      "clause": "ID.AM (Asset Management)",
+      "basis": "NIST CSF 2.0 (February 2024) category identifiers; the PNT profile text of NIST IR 8323 Rev. 2 (initial public draft, 6 May 2026) was not read in this work (research 12 #1769, R71)",
+      "topic": "PNT sources, receivers and every dependent system are inventoried",
+      "evidence": [
+        "kshana-pro-mass-override-check/1",
+        "kshana-pro-link-security/1"
+      ],
+      "gap": "From the organisation's declarations."
+    },
+    {
+      "id": "ID.RA",
+      "clause": "ID.RA (Risk Assessment)",
+      "basis": "NIST CSF 2.0 (February 2024) category identifiers; the PNT profile text of NIST IR 8323 Rev. 2 (initial public draft, 6 May 2026) was not read in this work (research 12 #1769, R71)",
+      "topic": "PNT threats (jamming, spoofing, outages) and their effects are assessed",
+      "evidence": [
+        "kshana-pro-exposure-summary/1",
+        "kshana-pro-area-picture/1",
+        "kshana-pro-interference-episodes/1"
+      ],
+      "gap": "The risk decision is the organisation's."
+    },
+    {
+      "id": "PR.IR",
+      "clause": "PR.IR (Technology Infrastructure Resilience)",
+      "basis": "NIST CSF 2.0 (February 2024) category identifiers; the PNT profile text of NIST IR 8323 Rev. 2 (initial public draft, 6 May 2026) was not read in this work (research 12 #1769, R71)",
+      "topic": "Resilience of PNT-dependent systems: alternative sources and holdover",
+      "evidence": [
+        "kshana-pro-timing-scorecard/1",
+        "kshana-pro-timing-audit/1",
+        "kshana-pro-trust-evidence/1",
+        "kshana-pro-receiver-scorecard/1"
+      ],
+      "gap": "Scenario parameters are representative."
+    },
+    {
+      "id": "DE.CM",
+      "clause": "DE.CM (Continuous Monitoring)",
+      "basis": "NIST CSF 2.0 (February 2024) category identifiers; the PNT profile text of NIST IR 8323 Rev. 2 (initial public draft, 6 May 2026) was not read in this work (research 12 #1769, R71)",
+      "topic": "PNT inputs are monitored for anomalies",
+      "evidence": [
+        "kshana-pro-trust-evidence/1",
+        "kshana-pro-area-picture/1",
+        "kshana-pro-ais-integrity/1"
+      ],
+      "gap": "Monitoring coverage depends on the sensors deployed."
+    },
+    {
+      "id": "DE.AE",
+      "clause": "DE.AE (Adverse Event Analysis)",
+      "basis": "NIST CSF 2.0 (February 2024) category identifiers; the PNT profile text of NIST IR 8323 Rev. 2 (initial public draft, 6 May 2026) was not read in this work (research 12 #1769, R71)",
+      "topic": "PNT anomalies are analysed and correlated",
+      "evidence": [
+        "kshana-pro-forensic-report/1",
+        "kshana-pro-maritime-evidence-pack/1",
+        "kshana-pro-report-verification/1",
+        "kshana-pro-interference-episodes/1"
+      ],
+      "gap": "MODELLED detectors unless validated on labelled data."
+    },
+    {
+      "id": "RS.AN",
+      "clause": "RS.AN (Incident Analysis)",
+      "basis": "NIST CSF 2.0 (February 2024) category identifiers; the PNT profile text of NIST IR 8323 Rev. 2 (initial public draft, 6 May 2026) was not read in this work (research 12 #1769, R71)",
+      "topic": "PNT incidents are investigated with preserved evidence",
+      "evidence": [
+        "kshana-pro-forensic-report/1",
+        "kshana-pro-maritime-evidence-pack/1"
+      ],
+      "gap": "Legal admissibility is for the organisation's counsel."
+    },
+    {
+      "id": "RS.CO",
+      "clause": "RS.CO (Incident Response Reporting and Communication)",
+      "basis": "NIST CSF 2.0 (February 2024) category identifiers; the PNT profile text of NIST IR 8323 Rev. 2 (initial public draft, 6 May 2026) was not read in this work (research 12 #1769, R71)",
+      "topic": "PNT incidents are reported to the authorities that collect them",
+      "evidence": [
+        "kshana-pro-interference-complaint/1",
+        "kshana-pro-interference-episodes/1"
+      ],
+      "gap": "The report is the organisation's act."
+    },
+    {
+      "id": "RC.RP",
+      "clause": "RC.RP (Incident Recovery Plan Execution)",
+      "basis": "NIST CSF 2.0 (February 2024) category identifiers; the PNT profile text of NIST IR 8323 Rev. 2 (initial public draft, 6 May 2026) was not read in this work (research 12 #1769, R71)",
+      "topic": "Recovery of PNT-dependent functions is executed and verified",
+      "evidence": [
+        "kshana-testkit-build/1",
+        "kshana-pro-timing-audit/1"
+      ],
+      "gap": "Recovery plans are the organisation's."
+    },
+    {
+      "id": "PR.AA",
+      "clause": "PR.AA (Identity Management, Authentication, and Access Control)",
+      "basis": "NIST CSF 2.0 (February 2024) category identifiers; the PNT profile text of NIST IR 8323 Rev. 2 (initial public draft, 6 May 2026) was not read in this work (research 12 #1769, R71)",
+      "topic": "Access to PNT equipment configuration is controlled",
+      "evidence": [],
+      "gap": "Not provided by Kshana."
+    }
+  ],
+  "wording": "Each row names a requirement of the document (paraphrased, never quoted at length, with its clause where the research read it), the Kshana evidence formats that speak to it and the gap Kshana does not cover. A pre-assessment is an aid for preparing a submission. It does not state, and must not be read as stating, that any product, ship or operator meets the document; that judgement belongs to the notified body, class society, administration or assessor."
+}

@@ -1,0 +1,70 @@
+{
+  "format": "kshana-pro-regulator-catalogue/1",
+  "id": "imo-circ-1575",
+  "title": "IMO MSC.1/Circ.1575: shipborne PNT data processing",
+  "kind": "type-approval",
+  "status": "Guidelines (Table C-2 technical levels labelled non-mandatory by the circular itself)",
+  "source": {
+    "title": "Guidelines for shipborne position, navigation and timing (PNT) data processing, MSC.1/Circ.1575",
+    "version": "16 June 2017",
+    "url": "https://wwwcdn.imo.org/localresources/en/OurWork/Safety/Documents/IMO%20Documents%20related%20to/MSC.1-Circ.1575.pdf",
+    "read": "Read in full by the open engine's imo-circ-1575 standards pack (2026-10-18); paragraph references as cited there."
+  },
+  "rows": [
+    {
+      "id": "PNTDP-ACC",
+      "clause": "annex paragraphs 44 to 46; appendix C, Table C-1",
+      "basis": "Open engine standards pack imo-circ-1575, which read the circular in full on 2026-10-18 (paraphrased there, never quoted)",
+      "topic": "Outputs specified by operational accuracy levels A to D at 95 % confidence",
+      "evidence": [
+        "kshana.standards-pack-report/1",
+        "kshana-testkit-build/1"
+      ],
+      "gap": "Protection-level availability for a representative sky; measured accuracy of the equipment needs its own log."
+    },
+    {
+      "id": "PNTDP-INPUT",
+      "clause": "annex paragraphs 53 to 57",
+      "basis": "Open engine standards pack imo-circ-1575, which read the circular in full on 2026-10-18 (paraphrased there, never quoted)",
+      "topic": "Incoming data checked for completeness, correctness, update rate, plausibility and consistency; failing data marked and excluded",
+      "evidence": [
+        "kshana-testkit-build/1",
+        "kshana-pics-scorecard/1",
+        "kshana-pro-trust-evidence/1"
+      ],
+      "gap": "Kshana scores the observable exclusion; the equipment's input handling is the maker's to document."
+    },
+    {
+      "id": "PNTDP-INT",
+      "clause": "annex paragraphs 47 and 84 to 88; appendix C section 2.2",
+      "basis": "Open engine standards pack imo-circ-1575, which read the circular in full on 2026-10-18 (paraphrased there, never quoted)",
+      "topic": "Integrity graded none, low, medium, high; consistency tests across sources",
+      "evidence": [
+        "kshana.standards-pack-report/1",
+        "kshana-testkit-build/1",
+        "kshana-pro-trust-evidence/1"
+      ],
+      "gap": "The circular assigns a level to the equipment's method, which a test run does not show."
+    },
+    {
+      "id": "PNTDP-STATUS",
+      "clause": "annex paragraphs 92 and 93",
+      "basis": "Open engine standards pack imo-circ-1575, which read the circular in full on 2026-10-18 (paraphrased there, never quoted)",
+      "topic": "Status data on usability; status raised when redundancy or accuracy is lost",
+      "evidence": [
+        "kshana-pro-bam-alert-check/1",
+        "kshana-testkit-build/1"
+      ],
+      "gap": "Output status is a property of the equipment interface; the BAM check replays the reference processor or the maker's own output."
+    },
+    {
+      "id": "PNTDP-DOC",
+      "clause": "clause to be confirmed",
+      "basis": "Not in the open engine's reading",
+      "topic": "Documentation of the processing method and its configuration for the type examination",
+      "evidence": [],
+      "gap": "The maker's documentation; not provided by Kshana."
+    }
+  ],
+  "wording": "Each row names a requirement of the document (paraphrased, never quoted at length, with its clause where the research read it), the Kshana evidence formats that speak to it and the gap Kshana does not cover. A pre-assessment is an aid for preparing a submission. It does not state, and must not be read as stating, that any product, ship or operator meets the document; that judgement belongs to the notified body, class society, administration or assessor."
+}

@@ -1,0 +1,5 @@
+# Example subject of a pre-assessment (fictitious). MODELLED example input.
+maker = "Example Marine Electronics (fictitious)"
+product = "Example multi-system PNT unit"
+version = "software 1.0.0"
+notes = "Example only: not a real product."
