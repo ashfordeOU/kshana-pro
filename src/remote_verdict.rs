@@ -46,6 +46,7 @@ pub const METHODS: &[(&str, &str)] = &[
     ("delay-calibration", "delay-calibration"),
     ("scorecard", "scorecard"),
     ("benchmark", "benchmark"),
+    ("ntrip-qos", "ntrip-qos"),
 ];
 
 /// A signed verdict as the service returns it.

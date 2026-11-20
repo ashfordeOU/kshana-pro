@@ -137,7 +137,8 @@ own bullet so parallel work merges cleanly.
   <request.json>`: five more methods in `remote_verdict::METHODS` (correlated timing drift across
   sites and operators; after-the-fact GNSS versus LEO arbitration, evidence only; timing-receiver
   delay calibration with an uncertainty budget; an insurer's summary of shared verdicts, never an
-  underwriting decision; a contributor's own population benchmark). No new feature gate.
+  underwriting decision; a contributor's own population benchmark; `ntrip-qos`, a contributor's NTRIP mountpoint
+  and caster scores). No new feature gate.
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference

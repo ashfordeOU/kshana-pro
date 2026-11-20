@@ -15,7 +15,7 @@ use crate::remote_verdict::{
 const USAGE: &str = "kshana-pro verdict — hosted methods, answered as signed verdicts\n\
 \n\
 USAGE:\n\
-    kshana-pro verdict <selfcal|survey|cause|calibrate|flight-integrity|rtk-quality|parametric-trigger|policy-wording|spaceweather|perception-eval|feeder-trust|archive-seal|archive-query|vision-claims/register|vision-claims|timing-correlation|gnss-leo-arbitration|delay-calibration|scorecard|benchmark> <request.json> [--url <base>] [--license <token>] [--trust <key>] [--out <verdict.json>]\n\
+    kshana-pro verdict <selfcal|survey|cause|calibrate|flight-integrity|rtk-quality|parametric-trigger|policy-wording|spaceweather|perception-eval|feeder-trust|archive-seal|archive-query|vision-claims/register|vision-claims|timing-correlation|gnss-leo-arbitration|delay-calibration|scorecard|benchmark|ntrip-qos> <request.json> [--url <base>] [--license <token>] [--trust <key>] [--out <verdict.json>]\n\
         Send the request to the verdict service, authorised by your licence, and verify the\n\
         signed verdict against the service's public key before printing or saving it.\n\
 \n\
@@ -62,6 +62,8 @@ USAGE:\n\
                never an underwriting decision\n\
       benchmark  where a contributor's own source stands in the population of an archive\n\
                domain (contributor licences only)\n\
+      ntrip-qos  a contributor's NTRIP mountpoint and caster scores against the population\n\
+               of contributed summaries (contributor licences only)\n\
 \n\
     kshana-pro verdict verify <verdict.json> [--trust <key>]\n\
         Check a saved verdict: intact, and signed by the trusted key.\n\
@@ -187,7 +189,7 @@ mod tests {
             );
         }
         assert!(USAGE.contains(
-            "<selfcal|survey|cause|calibrate|flight-integrity|rtk-quality|parametric-trigger|policy-wording|spaceweather|perception-eval|feeder-trust|archive-seal|archive-query|vision-claims/register|vision-claims|timing-correlation|gnss-leo-arbitration|delay-calibration|scorecard|benchmark>"
+            "<selfcal|survey|cause|calibrate|flight-integrity|rtk-quality|parametric-trigger|policy-wording|spaceweather|perception-eval|feeder-trust|archive-seal|archive-query|vision-claims/register|vision-claims|timing-correlation|gnss-leo-arbitration|delay-calibration|scorecard|benchmark|ntrip-qos>"
         ));
     }
 }
