@@ -67,6 +67,7 @@ pub mod ireports;
 pub mod lab_campaign;
 pub mod license;
 pub mod longterm;
+pub mod lunar_evidence;
 pub mod lunar_pro;
 pub mod multi_source;
 pub mod navaids;

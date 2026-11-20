@@ -282,6 +282,12 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // Remote ID checks and per-flight attestations (Pro); the USSP feed (Enterprise).
         "pro-utm-integrity" => Tier::Pro,
         "pro-ussp-feed" => Tier::Enterprise,
+        // Lunar and cislunar PNT evidence (research 2026-11-20 gaps E24): LNSP service
+        // verification (URA overbounding, time consistency, AFS receiver checks), lunar clock
+        // and tracking evidence, landing and surface evidence. All Pro.
+        "pro-lunar-service-verification" => Tier::Pro,
+        "pro-lunar-clock-evidence" => Tier::Pro,
+        "pro-lunar-surface-evidence" => Tier::Pro,
         // Road, rail, automotive, eCall and 3GPP evidence (research 2026-11-20 gaps E30):
         // telematics anti-spoof and the on-board-unit fraud evaluation, eCall GNSS test scoring
         // and emergency-location reliability, automotive PL validation, V2X checks and fault
@@ -395,6 +401,9 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-claims-triage",
     "pro-utm-integrity",
     "pro-ussp-feed",
+    "pro-lunar-service-verification",
+    "pro-lunar-clock-evidence",
+    "pro-lunar-surface-evidence",
     "pro-telematics-antispoof",
     "pro-obu-fraud-eval",
     "pro-ecall-tests",
