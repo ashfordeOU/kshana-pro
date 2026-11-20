@@ -8,7 +8,7 @@
 //! id = "sbas-udrei-do-not-use"
 //! version = 1
 //! title = "SBAS: a satellite set to 'do not use' is dropped within the alert time"
-//! kind = "sbas-sequence"                 # sbas-sequence | araim | gbas-events
+//! kind = "sbas-sequence"                 # sbas-sequence | araim | gbas-events | spoof-detection
 //! modelled_on = ["RTCA DO-229F, Appendix A (message content)"]
 //!
 //! [[parameter]]                          # a limit the applicant supplies
@@ -73,6 +73,8 @@ pub enum Kind {
     Araim,
     /// A GBAS event timeline ([`super::gbas`]).
     GbasEvents,
+    /// Spoofing-detection output verification ([`super::spoof_protocol`]).
+    SpoofDetection,
 }
 
 /// A limit the procedure needs.
@@ -118,6 +120,8 @@ pub struct Procedure {
     pub araim: Option<AraimSpec>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gbas: Option<super::gbas::GbasSpec>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub spoof: Option<super::spoof_protocol::SpoofSpec>,
 }
 
 // Built from parts so the source itself never spells the words.
@@ -215,6 +219,21 @@ impl Procedure {
                     return Err("kind araim takes no [sequence]".into());
                 }
                 a.validate()?;
+            }
+            Kind::SpoofDetection => {
+                let s = self
+                    .spoof
+                    .as_ref()
+                    .ok_or("kind spoof-detection needs [spoof]")?;
+                if self.sequence.is_some() || self.araim.is_some() || self.gbas.is_some() {
+                    return Err("kind spoof-detection takes only [spoof]".into());
+                }
+                s.validate()?;
+                for p in ["detection_time_s", "max_false_alert_s"] {
+                    if !names.contains(&p.to_string()) {
+                        return Err(format!("kind spoof-detection needs parameter '{p}'"));
+                    }
+                }
             }
             Kind::GbasEvents => {
                 let g = self.gbas.as_ref().ok_or("kind gbas-events needs [gbas]")?;
@@ -556,6 +575,11 @@ pub fn score(
             }
             (c, vec![], Some(stream.frames_sha256.clone()))
         }
+        Kind::SpoofDetection => (
+            super::spoof_protocol::checks(proc.spoof.as_ref().expect("validated"), params, log),
+            vec![],
+            None,
+        ),
     };
     let scored = checks.iter().filter(|c| c.kind != "reference");
     let met = scored.clone().filter(|c| c.verdict == Verdict::Met).count();
@@ -883,6 +907,10 @@ pub fn synth_log(proc: &Procedure, good: bool) -> Result<DutLog, String> {
                     alert: Some(false),
                 });
             }
+        }
+        Kind::SpoofDetection => {
+            log.epochs =
+                super::spoof_protocol::synth_epochs(proc.spoof.as_ref().expect("validated"), good);
         }
         Kind::GbasEvents => {
             let g = proc.gbas.as_ref().expect("validated");

@@ -346,6 +346,9 @@ fn demo_params() -> ParamsFile {
         ("vdb_loss_limit_s", 5.0),
         ("correction_timeout_s", 5.0),
         ("fas_alert_s", 5.0),
+        ("detection_time_s", 10.0),
+        ("clear_time_s", 10.0),
+        ("max_false_alert_s", 0.0),
     ] {
         values.insert(k.to_string(), v);
     }

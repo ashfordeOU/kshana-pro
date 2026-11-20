@@ -5,6 +5,12 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Spoofing-detection output verification protocol (research 2026-11-20 gaps B1208, test
+  protocol only; docs/AVIONICS-TEST-LIBRARY.md).** Avionics procedure kind `spoof-detection`:
+  detection latency, clearance and false-alert seconds in clean segments scored from the
+  equipment's alert flag against the applicant's limits; built-in `spoof-detection-output`; no
+  detection or mitigation algorithm, no signal generation. DFMC aided-inertial protocol not
+  built. `tests/spoof_detection_protocol.rs` (2 tests).
 - **GBAS airborne test automation (research 2026-11-20 gaps B1204;
   docs/AVIONICS-TEST-LIBRARY.md).** Avionics procedure kind `gbas-events`: a stimulus event
   timeline (VDB loss, stale corrections, invalid FAS data, protection over alert, station

@@ -1,0 +1,45 @@
+format = "kshana-avionics-procedure/1"
+id = "spoof-detection-output"
+version = 1
+title = "Spoofing detection: the equipment's alert is raised within the detection time, clears after the stimulus, and stays quiet otherwise"
+purpose = "Verifies the equipment's spoofing-alert output against a bench timeline; the stimulus scenarios come from the bench and the open environment library."
+kind = "spoof-detection"
+evidence = "MODELLED"
+modelled_on = ["Applicant's spoofing-detection requirements (document and revision to state)"]
+tags = ["spoofing", "detection-output"]
+
+[[parameter]]
+name = "detection_time_s"
+unit = "s"
+meaning = "stimulus start to the first alert"
+source = "applicant: from their requirement for the equipment under test"
+
+[[parameter]]
+name = "clear_time_s"
+unit = "s"
+meaning = "stimulus end to the alert cleared"
+source = "applicant"
+
+[[parameter]]
+name = "max_false_alert_s"
+unit = "s"
+meaning = "seconds of alert allowed in the clean segments"
+source = "applicant"
+
+[spoof]
+duration_s = 600
+settle_s = 30
+
+[[spoof.event]]
+id = "meacon"
+kind = "meaconing"
+t_s = 100
+duration_s = 60
+scenario = "bench scenario id (to state)"
+
+[[spoof.event]]
+id = "drag"
+kind = "position-drag"
+t_s = 300
+duration_s = 120
+scenario = "bench scenario id (to state)"

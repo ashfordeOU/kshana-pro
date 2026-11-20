@@ -48,6 +48,7 @@ pub mod procedure;
 pub mod recovery;
 pub mod sbas_msg;
 pub mod sbas_seq;
+pub mod spoof_protocol;
 
 /// The licence feature of procedure runs, the SBAS sequence generator and the ARAIM checks.
 pub const FEATURE: &str = "pro-avionics-tests";

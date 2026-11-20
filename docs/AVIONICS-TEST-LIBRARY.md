@@ -41,7 +41,7 @@ Examples: `avionics/examples/` (parameter, fleet and trace files; demonstration 
 
 
 - `kshana-avionics-procedure/1` (TOML): id, version, title, purpose, `kind`
-  (`sbas-sequence`, `araim` or `gbas-events`), `modelled_on`, `[[parameter]]` (name, unit, meaning, source;
+  (`sbas-sequence`, `araim`, `gbas-events` or `spoof-detection`), `modelled_on`, `[[parameter]]` (name, unit, meaning, source;
   `public_value` and `public_source` only for openly published values), then `[sequence]` or
   `[araim]`.
 - `kshana-avionics-params/1` (TOML): `supplied_by`, `[values]`, `[sources]` (per value: the
@@ -127,6 +127,20 @@ and the bench produces the signal. Built-in: `gbas-vdb-loss-and-fas`. The event 
 to confirm against the applicant's copy of DO-253 and the bench documentation. Tests:
 `tests/gbas_procedures.rs`; the tool kit's verification (F3) scores it with demonstration
 limits.
+
+## Spoofing-detection output verification (B1208, test protocol only)
+
+Procedures of kind `spoof-detection` (`src/avionics/spoof_protocol.rs`) state the stimulus
+timeline the bench plays (labels: meaconing, time push, position drag, matched-power takeover,
+jamming then spoofing, other; the scenario content is the bench's and the open environment
+library's) and score the equipment log's `alert` flag: no alert before the first stimulus;
+the first alert within `detection_time_s` of each stimulus; the alert cleared within
+`clear_time_s` after it (not assessed when that limit is not supplied); and at most
+`max_false_alert_s` seconds of alert in the clean segments (outside every stimulus and its
+`settle_s`). The limits are the applicant's. The protocol contains no detection or mitigation
+algorithm and generates no signal. Built-in: `spoof-detection-output`. Not built: the DFMC
+aided-inertial MOPS test protocol (the MOPS was not read). Tests:
+`tests/spoof_detection_protocol.rs`.
 
 ## Recovery-time scorecard (B1205)
 

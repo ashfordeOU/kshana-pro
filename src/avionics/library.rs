@@ -29,6 +29,10 @@ pub const PROCEDURES: &[(&str, &str)] = &[
         include_str!("../../avionics/procedures/gbas-vdb-loss-and-fas.toml"),
     ),
     (
+        "spoof-detection-output",
+        include_str!("../../avionics/procedures/spoof-detection-output.toml"),
+    ),
+    (
         "sbas-fast-correction-step",
         include_str!("../../avionics/procedures/sbas-fast-correction-step.toml"),
     ),
