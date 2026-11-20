@@ -138,6 +138,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-leo-timing-scorecard",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-log-time-integrity",
       "type": "feature",
       "tier": "pro"

@@ -62,6 +62,7 @@ pub mod ievents;
 pub mod integrity;
 pub mod ireports;
 pub mod lab_campaign;
+pub mod leo_timing;
 pub mod license;
 pub mod longterm;
 pub mod lunar_pro;

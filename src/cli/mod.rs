@@ -19,6 +19,7 @@ mod evidence_infra_cmd;
 mod forensics_cmd;
 mod grid_cmd;
 mod incident_cmd;
+mod leo_timing_cmd;
 mod license_cmd;
 mod lunar_cmd;
 mod packs_cmd;
@@ -97,6 +98,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro reports <normalise|validate|episodes|verify|reset-check|ledger|check|params|regimes|synth> ...   Interference reports: normalise crew/ATC/mariner reports, validate per regime, episodes, signed verification, exposure ledger and reset check (Pro; ledger Enterprise; check, params, regimes, synth free)\n\
        kshana-pro aviation <approach|residual|nuisance|areas|check|synth> ...   Aviation operational analytics: approach availability and go-around exposure, residual effects and clean-or-reset, nuisance-alert statistics, unpublished interference areas (Pro; areas Enterprise; check, synth free; decision support only)\n\
        kshana-pro utm <sora|feed|rid-check|attest|check|synth> ...   UTM / U-space positioning integrity: SORA-ready interference input, USSP integrity feed, Remote ID position authenticity, per-flight signed attestation (Pro; feed Enterprise; check, synth free; decision support only)\n\
+       kshana-pro leo-timing <hash|score|check|synth> ...   LEO timing verification: pre-registered scorecard from field logs (availability, time error, MTIE/TDEV, PRTC-A limit comparison, vendor claims, replay window; score Pro; hash, check, synth free)\n\
        kshana-pro obs-provenance <keygen|sign|verify|keyring-add> ...   Signed feeder provenance on kshana.obs/1 batches: feeder key, time, position, sequence, in a sidecar (sign Pro; the rest free)\n\
        kshana-pro longterm <key-genesis|key-rotate|request|add-token|stamp|history|verify> ...   Long-term signatures: key history and RFC 3161 archive time-stamp chain over a signed directory, verified offline (Pro; request and verify free)\n\
        kshana-pro exposure <run|verify> ...   Insurer scorecard: periodic signed exposure summary of a fleet or route (E7, Pro); verify free\n\
@@ -178,6 +180,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "sfn",
     "aviation",
     "utm",
+    "leo-timing",
     "obs-provenance",
     "longterm",
 ];
@@ -326,6 +329,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("sfn") => grid_cmd::run_sfn(&args[1..]),
         Some("aviation") => aviation_cmd::run(&args[1..]),
         Some("utm") => utm_cmd::run(&args[1..]),
+        Some("leo-timing") => leo_timing_cmd::run(&args[1..]),
         Some("obs-provenance") => evidence_infra_cmd::provenance(&args[1..]),
         Some("longterm") => evidence_infra_cmd::longterm(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
