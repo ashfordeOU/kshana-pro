@@ -26,9 +26,10 @@
 //!   independent of any test-system vendor; they are **not** the 3GPP conformance cases of
 //!   TS 37.571-5 or TS 38.171, which this work did not read.
 //!
-//! Not in this slice: the TS 38.171 / 37.571-5 A-GNSS vector sets themselves, the
-//! shared-risk test-tolerance calculator of TS 37.571-1, PRS carrier-phase and PRU
-//! calibration models, and a gNB timing-alarm adapter.
+//! The shared-risk test-tolerance calculator is [`super::tolerance`] and the A-GNSS vector-set
+//! scaffold (placeholders only; values transcribed by the user) is [`super::agnss`]. Not
+//! built: the vector values themselves (specification text not read), PRS carrier-phase and
+//! PRU calibration models, and a gNB timing-alarm adapter.
 //!
 //! **Label: MODELLED.**
 

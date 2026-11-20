@@ -5,6 +5,15 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **3GPP test tolerances and A-GNSS vector scaffold (research 2026-11-20 gaps E30 B3004,
+  remaining; docs/ROAD-RAIL-AUTO.md).** `kshana-pro nr tolerance` (`pro-3gpp-tolerance`, Pro):
+  shared-risk test tolerances (transcribed, or derived from an RSS test-system uncertainty
+  budget), test requirements, measured-value and success-rate decisions, on values the user
+  transcribes with their sources; `nr agnss-scaffold` and `nr agnss-status` (free): an A-GNSS
+  vector-set skeleton whose every value is a placeholder, with placeholder tracking and refusal
+  of unsourced values; `nr agnss-score` (Pro): device trials against the transcribed limits
+  and tolerances. Kshana ships no TS 37.571-1/-2 or TS 38.171 value. Tier manifest
+  regenerated; `tests/three_gpp_tolerance.rs` (5 tests).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
