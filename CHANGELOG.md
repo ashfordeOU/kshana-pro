@@ -56,6 +56,23 @@ own bullet so parallel work merges cleanly.
   own decision; not advice, an underwriting or claims decision. MODELLED. Not built here: the
   hosted trigger oracle and policy-wording verdicts (B2804). Tier manifest regenerated;
   integration tests 98 -> 99 (`tests/insurance_analytics.rs`).
+- **KS-Inside OEM SDK and programme licences (backlog E39 B3901, B3902; docs/KS-INSIDE.md,
+  docs/PROGRAMME-LICENCES.md).** KS-Inside: a Rust facade and a stable C ABI
+  (`sdk/ks-inside/include/ks_inside.h`, ABI version 1, example `sdk/ks-inside/examples/minimal.c`)
+  over three Pro functions (`scenario.run` for any `pro-` kind, `timing.drift`,
+  `timing.timebomb-analyse`). Opens only under a token naming the new `sdk` product (never in a
+  default token) with the explicit grant `pro-ks-inside` (Enterprise); every call is checked again
+  and metered per unit in a hash-chained meter log (`src/license/meter.rs`) before its answer is
+  returned, and fails when the line cannot be written. `kshana-pro ks-inside methods|call|meter
+  verify|meter summary`. Programme licences: v3 tokens with a `programme` block (`feeder`, `host`,
+  `teaching`, `bench`), each kind with an explicit highest tier, products, life and seat rule
+  (`programme::POLICIES`), checked at issue and at every verification; older builds refuse v3.
+  Feeder and host tokens grant Evaluation until a signed feed receipt shows the station fed within
+  48 hours; bench tokens until the bound key signs a challenge (software key binder, marked weaker;
+  TPM binder interface with P-256, no TPM binder in this build). `telemetry_opt_in` claim with an
+  anonymised outcome record written to a local outbox only. `license issue --programme ...`,
+  `license feed-receipt issue|install`, `license bench-key init|show`, `license programme`.
+  No binary is built or published. Tier manifest regenerated; tests/oem_licensing.rs.
 - **UTM / U-space positioning integrity (backlog E18 B1804; docs/UTM-INTEGRITY.md).**
   `kshana-pro utm` (feature `pro-utm-integrity`, Pro; `feed` `pro-ussp-feed`, Enterprise):
   `sora` (SORA-ready GNSS-interference input for one operation: route exposure on each day

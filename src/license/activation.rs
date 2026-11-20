@@ -524,12 +524,14 @@ fn write_private(path: &Path, text: &str) -> Result<(), KshanaError> {
     std::fs::rename(&tmp, path).map_err(err)
 }
 
-/// The products a status reports as covered.
+/// The products a status reports as covered. The OEM SDK only when named (a v1 token's
+/// "every product" does not open it, crate::ks_inside).
 pub fn products_covered(lic: &Licence) -> Vec<&'static str> {
     Product::ALL
         .iter()
         .filter(|p| {
-            lic.claims.products.is_empty() || lic.claims.products.iter().any(|c| c == p.as_str())
+            let named = lic.claims.products.iter().any(|c| c == p.as_str());
+            named || (lic.claims.products.is_empty() && **p != Product::Sdk)
         })
         .map(|p| p.as_str())
         .collect()

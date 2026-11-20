@@ -25,11 +25,17 @@ const USAGE: &str = "usage: kshana-pro license <command>\n\
     machine-id                              This machine's hash, for a machine-bound token\n\
     revocations install <file>              Install a signed revocation list (from an update)\n\
     refresh                                 Opt-in online refresh (off unless refresh.toml enables it)\n\
+    feed-receipt install <file>             Store a signed feed receipt (feeder and host licences)\n\
+    bench-key init | show                   This bench's software key (bench licences; weaker than a TPM)\n\
+    programme [--json]                      The stored licence's programme and whether its gate holds\n\
   vendor:\n\
     keygen | pubkey                         New key pair | public key and key ID of the signer\n\
                                             (KSHANA_PRO_SIGNER=seed with $KSHANA_PRO_SIGNING_KEY, or =kms, S7-a)\n\
     issue --tier <t> --licensee <n> [--days <n>] [--product <p,..>] [--seats <n>] [--stations <n>]\n\
           [--machine <hash>] [--not-before <unix>] [--feature <kind,..>] [--vetted-buyer] [--register <file>] [--note <s>] [--v1]\n\
+          [--programme feeder|host|teaching|bench [--programme-station <id,..>] [--institution <n> --course <n>]\n\
+           [--bench-key <alg:hex> --bench-class tpm|software]] [--telemetry-opt-in]   Programme licence (v3, docs/PROGRAMME-LICENCES.md)\n\
+    feed-receipt issue --licence <token id> --station <id> --last-obs <unix>   Signed feed receipt (the ingest service)\n\
     issue-invoice --licensee <n> --tier <t> --invoice <ref> --data <dir> (--term-days <n> | --until <unix>)\n\
           [--product <p,..>] [--seats <n>] [--stations <n>] [--feature <kind,..>] [--offline]\n\
                                             Licence for an invoiced customer (C7): online 35-day tokens renewed\n\
@@ -42,7 +48,7 @@ const USAGE: &str = "usage: kshana-pro license <command>\n\
     reminders --register <file> [--within <days>] [--json]\n\
     register verify <file>\n\
   The store is $KSHANA_PRO_HOME or the per-user configuration directory; --store <dir> overrides.\n\
-  Products: cli, desktop, station, service.";
+  Products: cli, desktop, station, service, sdk (sdk only when named).";
 
 /// The keyring this build verifies against: the keys compiled in, or in a debug build
 /// without any, the demo key.
@@ -109,7 +115,7 @@ pub fn verify_token_for(
             if let Some(w) = &st.warning {
                 eprintln!("[licence] {w}");
             }
-            Ok(st.entitlement)
+            Ok(apply_programme(&ring, &st, now))
         }
         _ => Err(KshanaError::InvalidInput(
             st.warning.unwrap_or_else(|| st.state.as_str().into()),
@@ -169,7 +175,57 @@ pub fn stored_or_evaluation(now: i64, product: Product) -> Entitlement {
     if let Some(w) = &st.warning {
         eprintln!("[licence] {w}");
     }
-    st.entitlement
+    apply_programme(&ring, &st, now)
+}
+
+/// The software bench key of the licence store (bench licences, docs/PROGRAMME-LICENCES.md).
+const BENCH_KEY_FILE: &str = "bench-key.seed";
+/// Feed receipts installed in the licence store, one per line.
+const FEED_RECEIPTS_FILE: &str = "feed-receipts.txt";
+
+/// The entitlement of a programme licence once its gate is applied (backlog E39 B3902):
+/// a feeder or host licence needs a fresh feed receipt in the store, a bench licence the
+/// bound key. Verification alone grants a gated programme licence Evaluation only; this is
+/// the one place the CLI lifts it, and only when the gate holds. Any other licence passes
+/// through unchanged.
+fn apply_programme(ring: &Keyring, st: &activation::Status, now: i64) -> Entitlement {
+    use crate::license::programme::{self, Gate};
+    let ent = st.entitlement.clone();
+    let Some(lic) = st
+        .licence
+        .as_ref()
+        .filter(|l| programme::is_gated(&l.claims))
+    else {
+        return ent;
+    };
+    // Only a licence whose state allows Pro is lifted (not expired, in grace or revoked).
+    if !matches!(st.state, State::Active | State::Expiring { .. }) || ent.is_expired(now) {
+        return ent;
+    }
+    let dir = store(&[]).map(|s| s.dir().to_path_buf());
+    let kind = programme::kind_of(lic).expect("a gated licence has a programme");
+    let r = match kind.policy().gate {
+        Gate::Feed => {
+            let text = dir
+                .as_ref()
+                .and_then(|d| std::fs::read_to_string(d.join(FEED_RECEIPTS_FILE)).ok())
+                .unwrap_or_default();
+            let receipts: Vec<&str> = text.lines().filter(|l| !l.trim().is_empty()).collect();
+            programme::feed_entitlement(ring, lic, &receipts, now).map(|g| g.entitlement)
+        }
+        Gate::Bench => dir
+            .ok_or_else(|| KshanaError::InvalidInput("no licence store for the bench key".into()))
+            .and_then(|d| programme::SoftwareBinder::load(&d.join(BENCH_KEY_FILE)))
+            .and_then(|b| programme::bench_entitlement(lic, &b, now)),
+        Gate::None => Ok(ent.clone()),
+    };
+    match r {
+        Ok(e) => e,
+        Err(e) => {
+            eprintln!("[licence] {e}");
+            ent
+        }
+    }
 }
 
 fn store(args: &[String]) -> Option<Store> {
@@ -251,6 +307,9 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("renew") => renew(rest),
         Some("revoke") => revoke(rest),
         Some("reminders") => reminders(rest),
+        Some("feed-receipt") => feed_receipt(rest),
+        Some("bench-key") => bench_key(rest),
+        Some("programme") => programme_status(rest),
         Some("register") if rest.first().map(String::as_str) == Some("verify") => {
             match rest.get(1) {
                 Some(p) => Register::open(p).verify().map(|n| {
@@ -288,7 +347,7 @@ fn issue(args: &[String]) -> Result<(), KshanaError> {
     let v1 = has_flag(args, "--v1");
     let mut products = list_arg(args, "--product");
     if products.is_empty() && !v1 {
-        products = Product::ALL
+        products = Product::DEFAULT
             .iter()
             .map(|p| p.as_str().to_string())
             .collect();
@@ -304,8 +363,15 @@ fn issue(args: &[String]) -> Result<(), KshanaError> {
         stations: num_arg(args, "--stations")?.unwrap_or(0),
         machine: flag(args, "--machine"),
         not_before_unix: num_arg(args, "--not-before")?.unwrap_or(0),
+        programme: programme_arg(args)?,
+        telemetry_opt_in: has_flag(args, "--telemetry-opt-in"),
         ..Default::default()
     };
+    if v1 && (claims.programme.is_some() || claims.telemetry_opt_in) {
+        return Err(KshanaError::InvalidInput(
+            "a programme or telemetry opt-in needs a v2/v3 token (drop --v1)".into(),
+        ));
+    }
     let tok = if v1 {
         license::issue(&seed, &claims)?
     } else if let Some(reg) = flag(args, "--register") {
@@ -329,6 +395,137 @@ fn issue(args: &[String]) -> Result<(), KshanaError> {
         },
     );
     println!("{tok}");
+    Ok(())
+}
+
+/// The `--programme` block of `license issue`, validated against its policy when issued.
+fn programme_arg(args: &[String]) -> Result<Option<license::programme::Programme>, KshanaError> {
+    use crate::license::programme::{Kind, Programme};
+    let Some(kind) = flag(args, "--programme") else {
+        return Ok(None);
+    };
+    Ok(Some(Programme {
+        kind: Kind::parse(&kind)?.as_str().into(),
+        stations: list_arg(args, "--programme-station"),
+        institution: flag(args, "--institution").unwrap_or_default(),
+        course: flag(args, "--course").unwrap_or_default(),
+        bench_key: flag(args, "--bench-key").unwrap_or_default(),
+        bench_class: flag(args, "--bench-class").unwrap_or_default(),
+    }))
+}
+
+/// `license feed-receipt issue|install`.
+fn feed_receipt(args: &[String]) -> Result<(), KshanaError> {
+    use crate::license::programme;
+    match args.first().map(String::as_str) {
+        Some("issue") => {
+            let need = |n: &str| {
+                flag(args, n).ok_or_else(|| {
+                    KshanaError::InvalidInput(format!("feed-receipt issue needs {n}"))
+                })
+            };
+            let last: i64 = num_arg(args, "--last-obs")?.ok_or_else(|| {
+                KshanaError::InvalidInput("feed-receipt issue needs --last-obs <unix>".into())
+            })?;
+            let r = programme::issue_receipt(
+                &signer()?,
+                &need("--licence")?,
+                &need("--station")?,
+                last,
+                now_unix(),
+            )?;
+            println!("{r}");
+            Ok(())
+        }
+        Some("install") => {
+            let p = args.get(1).ok_or_else(|| {
+                KshanaError::InvalidInput("feed-receipt install needs <file>".into())
+            })?;
+            let text = std::fs::read_to_string(p)
+                .map_err(|e| KshanaError::InvalidInput(format!("{p}: {e}")))?;
+            let r = programme::verify_receipt(&keyring()?, text.trim())?;
+            let store = need_store(args)?;
+            std::fs::create_dir_all(store.dir())
+                .map_err(|e| KshanaError::InvalidInput(e.to_string()))?;
+            let path = store.dir().join(FEED_RECEIPTS_FILE);
+            // Keep only the newest receipt per licence and station.
+            let ring = keyring()?;
+            let old = std::fs::read_to_string(&path).unwrap_or_default();
+            let mut keep: Vec<String> = old
+                .lines()
+                .filter(|l| {
+                    programme::verify_receipt(&ring, l)
+                        .map(|o| o.licence != r.licence || o.station != r.station)
+                        .unwrap_or(false)
+                })
+                .map(str::to_string)
+                .collect();
+            keep.push(text.trim().to_string());
+            std::fs::write(&path, keep.join("\n") + "\n")
+                .map_err(|e| KshanaError::InvalidInput(format!("{}: {e}", path.display())))?;
+            println!(
+                "feed receipt installed: station {} last observation {} ({})",
+                r.station,
+                super::utc_from_unix(r.last_obs_unix),
+                path.display()
+            );
+            Ok(())
+        }
+        _ => Err(KshanaError::InvalidInput(
+            "usage: license feed-receipt issue --licence <id> --station <id> --last-obs <unix> | install <file>".into(),
+        )),
+    }
+}
+
+/// `license bench-key init|show`: the software bench key (weaker than a TPM-held key).
+fn bench_key(args: &[String]) -> Result<(), KshanaError> {
+    use crate::license::programme::SoftwareBinder;
+    let path = need_store(args)?.dir().join(BENCH_KEY_FILE);
+    let b = match args.first().map(String::as_str) {
+        Some("init") => SoftwareBinder::load_or_create(&path)?,
+        Some("show") => SoftwareBinder::load(&path)?,
+        _ => {
+            return Err(KshanaError::InvalidInput(
+                "usage: license bench-key init | show".into(),
+            ))
+        }
+    };
+    println!("{}", b.key_id());
+    eprintln!(
+        "[bench key: class software, held in {} — weaker than a TPM: the file can be copied; no TPM binder is part of this build]",
+        path.display()
+    );
+    Ok(())
+}
+
+/// `license programme`: the stored licence's programme and whether its gate holds now.
+fn programme_status(args: &[String]) -> Result<(), KshanaError> {
+    use crate::license::programme;
+    let store = need_store(args)?;
+    let ring = keyring()?;
+    let now = now_unix();
+    let product = product_arg(args, Product::Cli)?;
+    let (st, _) = store.status_guarded(&ring, &[], &opts(now, product));
+    let lic = st.licence.as_ref();
+    let prog = lic.and_then(|l| l.claims.programme.clone());
+    let ent = apply_programme(&ring, &st, now);
+    let v = serde_json::json!({
+        "state": st.state.as_str(),
+        "programme": prog.as_ref().map(|p| p.kind.clone()),
+        "gated": lic.is_some_and(|l| programme::is_gated(&l.claims)),
+        "stations": prog.as_ref().map(|p| p.stations.clone()).unwrap_or_default(),
+        "tier_now": ent.tier.as_str(),
+        "telemetry_opt_in": lic.is_some_and(|l| l.claims.telemetry_opt_in),
+    });
+    if has_flag(args, "--json") {
+        println!("{v}");
+    } else {
+        println!(
+            "programme: {}",
+            prog.map(|p| p.kind).unwrap_or_else(|| "none".into())
+        );
+        println!("tier now:  {}", ent.tier.as_str());
+    }
     Ok(())
 }
 
