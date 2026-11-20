@@ -13,6 +13,7 @@ use crate::aviation::write_result;
 use crate::utm;
 
 use super::evidence_cmd::{producing, sign};
+use super::flag;
 
 pub const USAGE: &str = "usage: kshana-pro utm <command>\n\
     sora <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]\n\
@@ -21,8 +22,10 @@ pub const USAGE: &str = "usage: kshana-pro utm <command>\n\
         USSP integrity feed: per map cell in an area, latest state, degraded days, advisory class and validity, as JSON Lines; signed (Enterprise)\n\
     rid-check <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]\n\
         Remote ID position authenticity from the broadcasts alone: speed consistency, implied speed and climb, time order, clones, operator distance; signed (Pro)\n\
-    attest <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]\n\
-        Per-flight positioning-integrity attestation from telemetry, the day map and Remote ID; signed (Pro)\n\
+    attest <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev] [--verdict-request <file.json>]\n\
+        Per-flight positioning-integrity attestation from telemetry, the day map and Remote ID; signed (Pro).\n\
+        --verdict-request also writes the request for the hosted per-flight verdict\n\
+        (`kshana-pro verdict flight-integrity <file.json>`), outside the signed directory\n\
     check <dir> --trust <signer public key hex>[,...]\n\
         Check a signed result directory, offline (free)\n\
     synth <dir>\n\
@@ -104,6 +107,11 @@ fn produce(args: &[String], gate: &str) -> Result<String, String> {
         }
         _ => {
             let r = utm::attest(&l)?;
+            if let Some(p) = flag(args, "--verdict-request") {
+                let v = utm::verdict_request(&l, &r)?;
+                let j = serde_json::to_string_pretty(&v).map_err(|e| e.to_string())?;
+                std::fs::write(&p, j + "\n").map_err(|e| format!("{p}: {e}"))?;
+            }
             let h = format!("{}: {}", r.operation, r.statement);
             write_result(
                 dir,

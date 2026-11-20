@@ -66,6 +66,22 @@ own bullet so parallel work merges cleanly.
   harmonic match to declared on-board sources, time correlation with an activity log, in-band
   C/N0 loss) (`pro-lunar-rf-forensics`). All Pro; tier manifest regenerated. MODELLED
   (SYNTHETIC inputs, `tests/lunar_surface.rs`, 5 tests).
+- **Hosted per-flight verdict client (research 2026-11-20 gaps E18, the client side of the
+  hosted per-flight verdict).** `kshana-pro verdict flight-integrity <request.json>`: a new
+  remote-verdict method (`remote_verdict::METHODS`) for a signed per-flight positioning-integrity
+  verdict from the verdict service (telemetry checks recomputed, the local attestation's hash bound
+  and compared, area or aircraft attribution from other flights nearby and regional reports).
+  `kshana-pro utm attest ... --verdict-request <file.json>` writes the request
+  (`utm::verdict_request`) outside the signed directory. No new feature; decision support only;
+  `tests/utm_integrity.rs` gains one test.
+- **Client entries for further hosted verdicts.** `kshana-pro verdict rtk-quality | parametric-trigger |
+  policy-wording | spaceweather <request.json>`: four more methods in `remote_verdict::METHODS`
+  (RTK correction-service quality, neutral parametric-trigger evaluation, policy-wording facts on
+  synthetic clauses, space-weather advisory), and `perception-eval`, `feeder-trust` and
+  `archive-seal` (evaluation of perception-aided positioning outputs, crowd-feeder trust,
+  chained archive seals), and `archive-query`, `vision-claims/register` and `vision-claims`
+  (aggregate archive statistics; pre-registered vision-navigation claims tests). Decision support
+  only; no new feature gate.
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
