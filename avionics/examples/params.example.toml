@@ -1,0 +1,16 @@
+# Example parameter file. The values below are DEMONSTRATION values for trying the tool; they
+# are not taken from any standard. Replace each with the value from your own copy of the
+# document the procedure names, and record where you took it in [sources].
+format = "kshana-avionics-params/1"
+supplied_by = "Example applicant (demonstration values)"
+
+[values]
+alert_time_s = 10
+return_time_s = 30
+fast_timeout_s = 30
+message_loss_s = 10
+hal_m = 40
+val_m = 35
+
+[sources]
+alert_time_s = "demonstration value: replace with the document, revision and section of your copy"

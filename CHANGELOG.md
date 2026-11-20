@@ -5,6 +5,22 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Avionics test library (research 2026-11-20 gaps E12: B1201, B1203, B1205, B1206 part 1;
+  docs/AVIONICS-TEST-LIBRARY.md).** `kshana-pro avionics`: SBAS L1 framing (MT 0, 1, 2-5, 6,
+  7, 26, 63; CRC-24Q) and a deterministic message-sequence generator for failure tests (UDREI
+  not monitored / do not use with IODF-3 alarm, fast-correction withholding, MT0, message
+  loss, fast-correction step, GIVEI, IODP change) with the expected-behaviour timeline; the
+  procedure format `kshana-avionics-procedure/1` (procedures modelled on RTCA DO-229F and the
+  WG-C ARAIM documents, cited by section only; limits are named parameters the applicant
+  supplies, not-assessed when missing) and ten built-in procedures; scoring of an equipment log
+  into a signed verdict (method `kshana-pro/avionics/v1`); ARAIM checks on the open engine's
+  reference algorithm (published WG-C vectors, equipment agreement within TOL_PL,
+  constellation-declared-unusable cases, LEO-added comparison, availability under the
+  applicant's alert limits); a per-avionics-type recovery-time scorecard from test-kit
+  verdicts; a requirement-to-run evidence pack and a tool-qualification support kit (material
+  for the applicant's own DO-330 work, not a qualification). Features `pro-avionics-tests`,
+  `pro-avionics-recovery` (Pro), `pro-avionics-kit` (Enterprise); tier manifest regenerated.
+  All MODELLED (synthetic equipment logs, `tests/avionics.rs`).
 - **Tiers: one more hidden extension kind registered (20 Nov 2026).** `ARKSA_ENTRIES` gains one
   `kind` hash; the tier manifest is regenerated; Pro pack count 32 -> 33.
 - **Timing assurance v2 (W1120 TA1-TA4; docs/TIMING-ASSURANCE.md).** `kshana-pro timing

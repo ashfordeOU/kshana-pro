@@ -8,6 +8,7 @@
 mod alerts_cmd;
 mod area_cmd;
 mod attack_iq_cmd;
+mod avionics_cmd;
 mod dossier_cmd;
 mod eloran_cmd;
 mod evidence_cmd;
@@ -74,6 +75,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro frameworks <list|show|pack|verify> ...   Framework evidence packs: signed evidence mapped to EASA, NIST, DHS, IMO, RTS 25, EU Space Act, NIS 2 duties (E6, Pro; list, show, verify free)\n\
        kshana-pro pics <list|show|mapping|score|export|sample|verify> ...   PICS: PNT Interference Conformance Suite, versioned jamming/spoofing scenarios with pre-registered bars, clause mapping and signed scorecards (score Pro; the rest free)\n\
        kshana-pro testkit <validate|compile|run|diff|from-incident|from-library|fidelity|packs|show|sample|verify> ...   Test-as-code kit: neutral scenarios compiled for lab simulators, CI runner with signed verdicts per build, regression diff, incident-to-regression, replay fidelity, scenario packs (`kshana-pro testkit` for details; validate, packs, sample, verify free)\n\
+       kshana-pro avionics <list|show|validate|generate|run|sample|recovery|evidence|kit|verify> ...   Avionics test library: SBAS failure-test procedures with a message-sequence generator, ARAIM checks, per-avionics-type recovery-time scorecard, evidence pack and tool-qualification support kit (`kshana-pro avionics` for details; list, show, validate, sample, verify free)\n\
        kshana-pro pntdp <run|vectors|check> ...   PNT data processing reference (MSC.1/Circ.1575): multi-source plausibility, consistency, selected solution and integrity level (Pro; vectors and check free)\n\
        kshana-pro verdict <selfcal|survey|cause|verify> ...   Hosted methods answered as signed verdicts, verified against the service key (`kshana-pro verdict` for details)\n\
        kshana-pro reports <normalise|validate|episodes|verify|reset-check|ledger|check|params|regimes|synth> ...   Interference reports: normalise crew/ATC/mariner reports, validate per regime, episodes, signed verification, exposure ledger and reset check (Pro; ledger Enterprise; check, params, regimes, synth free)\n\
@@ -146,6 +148,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "verdict",
     "reports",
     "testkit",
+    "avionics",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -283,6 +286,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("verdict") => verdict_cmd::run(&args[1..]),
         Some("reports") => reports_cmd::run(&args[1..]),
         Some("testkit") => testkit_cmd::run(&args[1..]),
+        Some("avionics") => avionics_cmd::run(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
         Some(name) if crate::extension::commands().iter().any(|c| c.name == name) => {
             let c = crate::extension::commands()

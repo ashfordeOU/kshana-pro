@@ -1,0 +1,36 @@
+format = "kshana-avionics-procedure/1"
+id = "sbas-fast-correction-timeout"
+version = 1
+title = "SBAS: satellites whose fast corrections stop are dropped when the corrections time out"
+purpose = "The MT2 block is withheld for 120 s while every other message continues. Every satellite of the block leaves the SBAS-corrected solution once its fast corrections time out, counted from the block's last message, and returns when the block is sent again."
+kind = "sbas-sequence"
+modelled_on = ["RTCA DO-229F, Appendix A (fast corrections, time-out intervals; values supplied by the applicant)"]
+tags = ["sbas", "time-out"]
+
+[[parameter]]
+name = "fast_timeout_s"
+unit = "s"
+meaning = "from the block's last fast-correction message to its satellites no longer used"
+source = "applicant: the fast-correction time-out for the operation under test (and the degradation parameters broadcast), from their copy of RTCA DO-229F"
+
+[[parameter]]
+name = "return_time_s"
+unit = "s"
+meaning = "from the block being sent again to its satellites being used again"
+source = "applicant: a test-design limit"
+
+[sequence]
+duration_s = 300
+prns = [1, 3, 6, 9, 12, 14, 17, 19, 22]
+iodp = 0
+
+[sequence.nominal]
+ai = 4
+t_lat_s = 1
+
+[[sequence.event]]
+id = "withhold-mt2"
+kind = "withhold_fast"
+t_s = 90
+duration_s = 120
+prn = 3

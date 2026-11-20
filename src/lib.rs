@@ -33,6 +33,7 @@ pub use kshana;
 pub mod alerts;
 pub mod area;
 pub mod attack_iq;
+pub mod avionics;
 pub mod batch;
 pub mod benefits;
 pub mod brand_pdf;

@@ -28,6 +28,21 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-avionics-kit",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-avionics-recovery",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-avionics-tests",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-desktop",
       "type": "feature",
       "tier": "pro"
