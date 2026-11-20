@@ -197,6 +197,14 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // replay fidelity (Pro); the build-to-build regression diff (Enterprise).
         "pro-test-kit" => Tier::Pro,
         "pro-test-kit-regression" => Tier::Enterprise,
+        // Ship bridge and PNT dependency (research 2026-11-20 gaps, epic E08): the bridge
+        // consistency aid, the ECDIS EP fallback tester, drill packs and the dependency audit
+        // with its questionnaire (Pro); the national register across operators (Enterprise).
+        "pro-bridge-consistency" => Tier::Pro,
+        "pro-ecdis-ep-test" => Tier::Pro,
+        "pro-bridge-drills" => Tier::Pro,
+        "pro-dependency-audit" => Tier::Pro,
+        "pro-dependency-register" => Tier::Enterprise,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -238,6 +246,11 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-interference-reports",
     "pro-report-verification",
     "pro-exposure-ledger",
+    "pro-bridge-consistency",
+    "pro-ecdis-ep-test",
+    "pro-bridge-drills",
+    "pro-dependency-audit",
+    "pro-dependency-register",
     "pro-test-kit",
     "pro-test-kit-regression",
 ];

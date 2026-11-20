@@ -8,6 +8,7 @@
 mod alerts_cmd;
 mod area_cmd;
 mod attack_iq_cmd;
+mod bridge_cmd;
 mod dossier_cmd;
 mod eloran_cmd;
 mod evidence_cmd;
@@ -72,6 +73,8 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro integrity <score|verify> ...   AIS and position integrity scoring at fleet and area scale (E5, Pro); verify free\n\
        kshana-pro verify-service <run|template|verify> ...   Pre-registered user-side verification study of a new PNT service (E4, Pro); template and verify free\n\
        kshana-pro frameworks <list|show|pack|verify> ...   Framework evidence packs: signed evidence mapped to EASA, NIST, DHS, IMO, RTS 25, EU Space Act, NIS 2 duties (E6, Pro; list, show, verify free)\n\
+       kshana-pro bridge <check|dr|ep-vectors|ep-check|drills|verify> ...   Ship bridge: cross-sensor consistency aid naming the disagreeing sensor, dead-reckoning quality, ECDIS EP fallback tester, GNSS-denied drill packs; decision support, never navigation (check, ep-check, drills build/score Pro; the rest free)\n\
+       kshana-pro dependency <templates|template|audit|questionnaire|register|verify> ...   PNT dependency graph and audit with sector templates (ship, port, aircraft, water, pipeline, emergency calls, TETRA, rescue), GraphML/JSON export, questionnaire kit (Pro), national register (Enterprise); templates and verify free\n\
        kshana-pro pics <list|show|mapping|score|export|sample|verify> ...   PICS: PNT Interference Conformance Suite, versioned jamming/spoofing scenarios with pre-registered bars, clause mapping and signed scorecards (score Pro; the rest free)\n\
        kshana-pro testkit <validate|compile|run|diff|from-incident|from-library|fidelity|packs|show|sample|verify> ...   Test-as-code kit: neutral scenarios compiled for lab simulators, CI runner with signed verdicts per build, regression diff, incident-to-regression, replay fidelity, scenario packs (`kshana-pro testkit` for details; validate, packs, sample, verify free)\n\
        kshana-pro pntdp <run|vectors|check> ...   PNT data processing reference (MSC.1/Circ.1575): multi-source plausibility, consistency, selected solution and integrity level (Pro; vectors and check free)\n\
@@ -141,6 +144,8 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "verify-service",
     "frameworks",
     "exposure",
+    "bridge",
+    "dependency",
     "pics",
     "pntdp",
     "verdict",
@@ -278,6 +283,8 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("verify-service") => evidence_cmd::verify_service(&args[1..]),
         Some("frameworks") => evidence_cmd::frameworks(&args[1..]),
         Some("exposure") => evidence_cmd::exposure(&args[1..]),
+        Some("bridge") => bridge_cmd::bridge(&args[1..]),
+        Some("dependency") => bridge_cmd::dependency(&args[1..]),
         Some("pics") => pics_cmd::run(&args[1..]),
         Some("pntdp") => pntdp_cmd::run(&args[1..]),
         Some("verdict") => verdict_cmd::run(&args[1..]),

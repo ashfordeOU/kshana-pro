@@ -5,6 +5,26 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Ship bridge consistency, dead reckoning, drills and PNT dependency audits (research
+  2026-11-20 gaps, epic E08; docs/BRIDGE-AND-DEPENDENCY.md).** `kshana-pro bridge check`
+  (feature `pro-bridge-consistency`, Pro): cross-sensor consistency of a recorded bridge log
+  (NMEA 0183 or IEC 61162-450; GNSS, GNSS compass, gyro, log, echo-sounder, radar targets of
+  fixed marks, a second receiver, GNSS time against the bridge cadence), a score per epoch and
+  alerts that list the checks in the order they failed and name the implicated sensor by a
+  single-fault rule, saying when the data cannot separate candidates. `bridge dr` (free):
+  dead-reckoning error growth with a 95 % radius, time to a limit, bottom-track depth rule and a
+  Monte Carlo check. `bridge ep-vectors` (free) and `ep-check` (`pro-ecdis-ep-test`, Pro): ECDIS
+  estimated-position fallback vectors (loss, loss in a turn, frozen position, manual position)
+  and a checker of what the ECDIS showed. `bridge drills` (`pro-bridge-drills`, Pro for build
+  and score): six GNSS-denied drill packs with instructor log, rubric, scoring and a signed
+  training record. `kshana-pro dependency` (`pro-dependency-audit`, Pro): PNT dependency graph
+  and audit from a TOML/JSON inventory (GNSS denial with holdover, spoofing without
+  cross-check, single points of failure, isolation switches, autonomy), eight sector templates,
+  GraphML/JSON export, questionnaire kit; `dependency register` (`pro-dependency-register`,
+  Enterprise): pseudonymous per-operator status and per-sector aggregates with small groups
+  withheld. Tier manifest regenerated. Decision support only, never navigation. MODELLED;
+  tests `tests/bridge.rs`, `tests/dependency_audit.rs`.
+
 - **Tiers: one more hidden extension kind registered (20 Nov 2026).** `ARKSA_ENTRIES` gains one
   `kind` hash; the tier manifest is regenerated; Pro pack count 32 -> 33.
 - **Timing assurance v2 (W1120 TA1-TA4; docs/TIMING-ASSURANCE.md).** `kshana-pro timing

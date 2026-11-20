@@ -36,9 +36,11 @@ pub mod attack_iq;
 pub mod batch;
 pub mod benefits;
 pub mod brand_pdf;
+pub mod bridge;
 pub mod cli;
 pub mod connectors;
 pub mod criterion;
+pub mod dependency;
 pub mod desktop;
 #[cfg(feature = "unfiled-methods")]
 pub mod eloran_attrib;
