@@ -31,6 +31,10 @@ pub const METHODS: &[(&str, &str)] = &[
     ("cause", "cause"),
     ("calibrate", "calibrate"),
     ("flight-integrity", "flight-integrity"),
+    ("rtk-quality", "rtk-quality"),
+    ("parametric-trigger", "parametric-trigger"),
+    ("policy-wording", "policy-wording"),
+    ("spaceweather", "spaceweather"),
 ];
 
 /// A signed verdict as the service returns it.

@@ -13,6 +13,10 @@ own bullet so parallel work merges cleanly.
   `kshana-pro utm attest ... --verdict-request <file.json>` writes the request
   (`utm::verdict_request`) outside the signed directory. No new feature; decision support only;
   `tests/utm_integrity.rs` gains one test.
+- **Client entries for further hosted verdicts.** `kshana-pro verdict rtk-quality | parametric-trigger |
+  policy-wording | spaceweather <request.json>`: four more methods in `remote_verdict::METHODS`
+  (RTK correction-service quality, neutral parametric-trigger evaluation, policy-wording facts on
+  synthetic clauses, space-weather advisory). Decision support only; no new feature gate.
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference

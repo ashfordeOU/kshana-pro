@@ -15,7 +15,7 @@ use crate::remote_verdict::{
 const USAGE: &str = "kshana-pro verdict — hosted methods, answered as signed verdicts\n\
 \n\
 USAGE:\n\
-    kshana-pro verdict <selfcal|survey|cause|calibrate|flight-integrity> <request.json> [--url <base>] [--license <token>] [--trust <key>] [--out <verdict.json>]\n\
+    kshana-pro verdict <selfcal|survey|cause|calibrate|flight-integrity|rtk-quality|parametric-trigger|policy-wording|spaceweather> <request.json> [--url <base>] [--license <token>] [--trust <key>] [--out <verdict.json>]\n\
         Send the request to the verdict service, authorised by your licence, and verify the\n\
         signed verdict against the service's public key before printing or saving it.\n\
 \n\
@@ -35,6 +35,14 @@ USAGE:\n\
                compared, and whether a degradation was shared by other flights nearby or\n\
                regional reports (area) or specific to the aircraft. Build the request with\n\
                `kshana-pro utm attest ... --verdict-request <file>`. Decision support only\n\
+      rtk-quality  RTK correction-service quality per mountpoint from monitoring receivers on\n\
+               surveyed marks: availability, wrong-fix rate, accuracy, time to fix, outage scope\n\
+      parametric-trigger  a neutral evaluation of a parametric GNSS-outage trigger definition:\n\
+               fired / not fired / insufficient data, events and outage index; no payout figures\n\
+      policy-wording  factual answers on synthetic, structured policy clauses from the\n\
+               service's own signed verdicts; never a coverage position, not advice\n\
+      spaceweather  space-weather advisory per location and service (RTK, PPP, single\n\
+               frequency): go / caution / no-go, not a forecast\n\
 \n\
     kshana-pro verdict verify <verdict.json> [--trust <key>]\n\
         Check a saved verdict: intact, and signed by the trusted key.\n\
@@ -159,6 +167,8 @@ mod tests {
                 "{m} missing from usage"
             );
         }
-        assert!(USAGE.contains("<selfcal|survey|cause|calibrate|flight-integrity>"));
+        assert!(USAGE.contains(
+            "<selfcal|survey|cause|calibrate|flight-integrity|rtk-quality|parametric-trigger|policy-wording|spaceweather>"
+        ));
     }
 }
