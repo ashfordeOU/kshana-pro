@@ -8,6 +8,11 @@
       "tier": "open-seam"
     },
     {
+      "kind": "pro-accumulation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-alert-policy",
       "type": "feature",
       "tier": "pro"
@@ -53,6 +58,16 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-basis-risk",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-bi-quantification",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-bid-attestation",
       "type": "feature",
       "tier": "pro"
@@ -64,6 +79,11 @@
     },
     {
       "kind": "pro-bridge-drills",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-claims-triage",
       "type": "feature",
       "tier": "pro"
     },
@@ -154,6 +174,11 @@
     },
     {
       "kind": "pro-obs-provenance",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-parametric-trigger",
       "type": "feature",
       "tier": "pro"
     },
@@ -304,6 +329,11 @@
     },
     {
       "kind": "pro-uncertainty",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-underwriting-feed",
       "type": "feature",
       "tier": "pro"
     },

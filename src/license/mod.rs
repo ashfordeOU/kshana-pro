@@ -250,6 +250,16 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // time-stamp chains (B2503). Verifying both stays free.
         "pro-obs-provenance" => Tier::Pro,
         "pro-longterm-signature" => Tier::Pro,
+        // Insurance and finance analytics (research 2026-11-20 gaps E28): the parametric
+        // trigger on the user's station data, basis risk, business-interruption quantification,
+        // the underwriting feed and the claims triage aid (Pro); portfolio accumulation
+        // (Enterprise).
+        "pro-parametric-trigger" => Tier::Pro,
+        "pro-basis-risk" => Tier::Pro,
+        "pro-accumulation" => Tier::Enterprise,
+        "pro-bi-quantification" => Tier::Pro,
+        "pro-underwriting-feed" => Tier::Pro,
+        "pro-claims-triage" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -323,6 +333,12 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-dispute-evidence",
     "pro-obs-provenance",
     "pro-longterm-signature",
+    "pro-parametric-trigger",
+    "pro-basis-risk",
+    "pro-accumulation",
+    "pro-bi-quantification",
+    "pro-underwriting-feed",
+    "pro-claims-triage",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

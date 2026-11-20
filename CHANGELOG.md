@@ -5,6 +5,30 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Insurance and finance analytics (research 2026-11-20 gaps E28: B2801 local part, B2802,
+  B2803, B2805; docs/INSURANCE-ANALYTICS.md).** `kshana-pro insurance`: `trigger`
+  (`pro-parametric-trigger`, Pro): a parametric PNT-outage trigger evaluated on the user's own
+  station C/N0 series (CSV or `kshana.obs/1`): per-site baselines, episodes, the k-of-n site
+  rule, duration threshold, outage index in dB·h, modelled payouts under a stated (or synthetic,
+  labelled) tier schedule with per-event and aggregate limits, backtest against archived events
+  with their documented basis; missing data never counts as degraded. `basis`
+  (`pro-basis-risk`, Pro): payouts against the insureds' loss records: shortfall, excess,
+  basis-risk ratio with a seeded bootstrap 90 % interval, hit rate, payout-loss correlation,
+  duration basis and location basis. `accumulation` (`pro-accumulation`, Enterprise): a
+  portfolio under historical event footprints and deterministic scenarios: per footprint, per
+  cell with Herfindahl index, largest event, period and annualised aggregate, empirical
+  exceedance. `bi` (`pro-bi-quantification`, Pro): timing (telecom/finance, SVN-23 preset or a
+  time-error log), farm yield, port delay, grounding severity and fleet cascade (beta-binomial)
+  models, each with assumptions and a one-at-a-time sensitivity table; `bi models` free.
+  `feed` (`pro-underwriting-feed`, Pro): per vessel or aircraft RFI exposure, position-jump
+  statistics, listed-area hours (user-supplied areas), a cyber exposure indicator and data
+  quality as a JSON Lines feed `kshana-pro-underwriting-feed/1` with its JSON Schema
+  (`schema`, free) and a synthetic sample (`sample`, free). `triage` (`pro-claims-triage`,
+  Pro): a claimed interference loss set against events, signed evidence and a signed hosted
+  cause verdict, with a handler checklist. Evidence, indicators and calculations for the user's
+  own decision; not advice, an underwriting or claims decision. MODELLED. Not built here: the
+  hosted trigger oracle and policy-wording verdicts (B2804). Tier manifest regenerated;
+  integration tests 97 -> 98 (`tests/insurance_analytics.rs`).
 - **Avionics test library (research 2026-11-20 gaps E12: B1201, B1203, B1205, B1206 part 1;
   docs/AVIONICS-TEST-LIBRARY.md).** `kshana-pro avionics`: SBAS L1 framing (MT 0, 1, 2-5, 6,
   7, 26, 63; CRC-24Q) and a deterministic message-sequence generator for failure tests (UDREI
