@@ -46,6 +46,7 @@ pub mod briefings;
 pub mod cli;
 pub mod connectors;
 pub mod criterion;
+pub mod custody;
 pub mod dependency;
 pub mod desktop;
 #[cfg(feature = "unfiled-methods")]

@@ -101,6 +101,13 @@ own bullet so parallel work merges cleanly.
   output families with common exclusions; `kshana-pro envelope <format|dir>` (free).
   `tests/operating_envelope.rs` (4 tests) checks that every format tag in the source has a
   family and that envelopes follow the schema.
+- **Sealed incident capture and chain of custody (research 2026-11-20 gaps B0604;
+  docs/CUSTODY.md).** `kshana-pro custody capture` (`pro-custody-capture`, Pro): ring-buffer
+  freeze around a sample or block-power trigger in a SigMF recording, bytes copied as they are;
+  sealed SigMF metadata (calibration ID, source and capture hashes, Ed25519 seal in the
+  `kshana_custody` namespace); custody form bound to the hashes. `custody handover|verify|export`
+  (free): signed, hash-chained handover log; any changed byte or re-ordered handover fails; chain
+  export as JSON. Tier manifest regenerated; `tests/custody.rs` (4 tests).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
