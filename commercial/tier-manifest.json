@@ -228,6 +228,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-navic-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-nr-timing",
       "type": "feature",
       "tier": "pro"
