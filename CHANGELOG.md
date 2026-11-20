@@ -5,6 +5,13 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **GBAS airborne test automation (research 2026-11-20 gaps B1204;
+  docs/AVIONICS-TEST-LIBRARY.md).** Avionics procedure kind `gbas-events`: a stimulus event
+  timeline (VDB loss, stale corrections, invalid FAS data, protection over alert, station
+  identifier change) turned into expected behaviour and scored from the equipment log with the
+  applicant's DO-253 limits (not assessed without them); mode `gbas-gls`; built-in procedure
+  `gbas-vdb-loss-and-fas`; no VDB encoding or decoding (the decoder belongs in the open engine).
+  `tests/gbas_procedures.rs` (2 tests).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference

@@ -25,6 +25,10 @@ pub const PROCEDURES: &[(&str, &str)] = &[
         include_str!("../../avionics/procedures/araim-published-vectors.toml"),
     ),
     (
+        "gbas-vdb-loss-and-fas",
+        include_str!("../../avionics/procedures/gbas-vdb-loss-and-fas.toml"),
+    ),
+    (
         "sbas-fast-correction-step",
         include_str!("../../avionics/procedures/sbas-fast-correction-step.toml"),
     ),

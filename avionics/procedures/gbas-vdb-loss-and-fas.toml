@@ -1,0 +1,48 @@
+format = "kshana-avionics-procedure/1"
+id = "gbas-vdb-loss-and-fas"
+version = 1
+title = "GBAS: the approach is left when the VDB is lost, corrections go stale or the FAS data turn invalid"
+purpose = "Automates the bench timeline and scores the equipment log against the applicant's limits; the bench produces the VDB signal."
+kind = "gbas-events"
+evidence = "MODELLED"
+modelled_on = ["RTCA DO-253 (revision in use; section references to confirm against the applicant's copy)", "RTCA DO-246 (VDB message content, to confirm)"]
+tags = ["gbas", "vdb"]
+
+[[parameter]]
+name = "vdb_loss_limit_s"
+unit = "s"
+meaning = "loss of the VDB to the GBAS approach no longer offered"
+source = "applicant: from their copy of the MOPS, for the approach service type under test"
+
+[[parameter]]
+name = "correction_timeout_s"
+unit = "s"
+meaning = "last fresh correction message to the GBAS approach no longer offered"
+source = "applicant: from their copy of the MOPS"
+
+[[parameter]]
+name = "fas_alert_s"
+unit = "s"
+meaning = "first broadcast of invalid final-approach-segment data to the GBAS approach no longer offered"
+source = "applicant: from their copy of the MOPS"
+
+[gbas]
+duration_s = 300
+
+[[gbas.event]]
+id = "vdb"
+kind = "vdb-loss"
+t_s = 60
+duration_s = 40
+
+[[gbas.event]]
+id = "stale"
+kind = "correction-stale"
+t_s = 140
+duration_s = 40
+
+[[gbas.event]]
+id = "fas"
+kind = "fas-data-invalid"
+t_s = 220
+duration_s = 40

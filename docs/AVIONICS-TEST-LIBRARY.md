@@ -41,7 +41,7 @@ Examples: `avionics/examples/` (parameter, fleet and trace files; demonstration 
 
 
 - `kshana-avionics-procedure/1` (TOML): id, version, title, purpose, `kind`
-  (`sbas-sequence` or `araim`), `modelled_on`, `[[parameter]]` (name, unit, meaning, source;
+  (`sbas-sequence`, `araim` or `gbas-events`), `modelled_on`, `[[parameter]]` (name, unit, meaning, source;
   `public_value` and `public_source` only for openly published values), then `[sequence]` or
   `[araim]`.
 - `kshana-avionics-params/1` (TOML): `supplied_by`, `[values]`, `[sources]` (per value: the
@@ -111,6 +111,22 @@ On the open engine's reference airborne algorithm (`kshana::araim_reference`, op
   reference reports the change in VPL and HPL with and without them.
 
 Vertical results are V-ARAIM readiness evidence only (no V-ARAIM equipment standard is issued).
+
+## GBAS test automation (B1204)
+
+Procedures of kind `gbas-events` (`src/avionics/gbas.rs`) state a timeline of stimulus events
+as the GBAS VDB test bench produces them (`vdb-loss`, `correction-stale`, `fas-data-invalid`,
+`protection-over-alert`, and an informational `ssid-mismatch`). Each scored event expects the
+equipment to leave the GBAS approach (mode at most `gnss-only`; the log's mode `gbas-gls` ranks
+above the SBAS modes) within a named limit after the event starts and while it lasts; what
+happens after it ends is recorded, not scored. The precondition is the GBAS approach in use
+before the first event. The limits (`vdb_loss_limit_s`, `correction_timeout_s`, `fas_alert_s`,
+`alert_time_s`) come from the applicant's copy of RTCA DO-253; without them a check is not
+assessed. No VDB message is encoded or decoded here: the VDB decoder belongs in the open engine
+and the bench produces the signal. Built-in: `gbas-vdb-loss-and-fas`. The event semantics are
+to confirm against the applicant's copy of DO-253 and the bench documentation. Tests:
+`tests/gbas_procedures.rs`; the tool kit's verification (F3) scores it with demonstration
+limits.
 
 ## Recovery-time scorecard (B1205)
 

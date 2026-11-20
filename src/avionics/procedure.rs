@@ -8,7 +8,7 @@
 //! id = "sbas-udrei-do-not-use"
 //! version = 1
 //! title = "SBAS: a satellite set to 'do not use' is dropped within the alert time"
-//! kind = "sbas-sequence"                 # sbas-sequence | araim
+//! kind = "sbas-sequence"                 # sbas-sequence | araim | gbas-events
 //! modelled_on = ["RTCA DO-229F, Appendix A (message content)"]
 //!
 //! [[parameter]]                          # a limit the applicant supplies
@@ -71,6 +71,8 @@ fn modelled() -> String {
 pub enum Kind {
     SbasSequence,
     Araim,
+    /// A GBAS event timeline ([`super::gbas`]).
+    GbasEvents,
 }
 
 /// A limit the procedure needs.
@@ -114,6 +116,8 @@ pub struct Procedure {
     pub sequence: Option<SequenceSpec>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub araim: Option<AraimSpec>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gbas: Option<super::gbas::GbasSpec>,
 }
 
 // Built from parts so the source itself never spells the words.
@@ -211,6 +215,20 @@ impl Procedure {
                     return Err("kind araim takes no [sequence]".into());
                 }
                 a.validate()?;
+            }
+            Kind::GbasEvents => {
+                let g = self.gbas.as_ref().ok_or("kind gbas-events needs [gbas]")?;
+                if self.sequence.is_some() || self.araim.is_some() {
+                    return Err("kind gbas-events takes no [sequence] or [araim]".into());
+                }
+                for e in super::gbas::generate(g)?.expectations {
+                    if !e.limit_param.is_empty() && !names.contains(&e.limit_param) {
+                        return Err(format!(
+                            "expectation '{}' needs parameter '{}', not declared",
+                            e.id, e.limit_param
+                        ));
+                    }
+                }
             }
         }
         Ok(())
@@ -326,7 +344,16 @@ impl Params {
 }
 
 /// The equipment's operating mode, ordered from least to most SBAS-dependent.
-pub const MODES: [&str; 5] = ["none", "gnss-only", "sbas-npa", "sbas-apv", "sbas-pa"];
+/// Equipment modes in rank order; `gbas-gls` (a GBAS approach) ranks above the SBAS modes so
+/// that "at most `gnss-only`" means neither augmentation is in use.
+pub const MODES: [&str; 6] = [
+    "none",
+    "gnss-only",
+    "sbas-npa",
+    "sbas-apv",
+    "sbas-pa",
+    "gbas-gls",
+];
 
 /// The rank of a mode in [`MODES`].
 pub fn mode_rank(m: &str) -> Option<usize> {
@@ -492,6 +519,42 @@ pub fn score(
         Kind::Araim => {
             let (c, r) = araim::checks(proc.araim.as_ref().expect("validated"), params, log)?;
             (c, r, None)
+        }
+        Kind::GbasEvents => {
+            let stream = super::gbas::generate(proc.gbas.as_ref().expect("validated"))?;
+            let mut c = sbas_checks(&stream, params, log);
+            // The satellite precondition is SBAS's; GBAS needs the approach mode before the
+            // first event instead.
+            c.retain(|x| x.id != "precondition-satellites-used");
+            if let Some(l) = log {
+                let first = stream
+                    .expectations
+                    .iter()
+                    .map(|x| x.t_ref_s)
+                    .fold(f64::INFINITY, f64::min);
+                let pre: Vec<&DutEpoch> = l.epochs.iter().filter(|e| e.t_s < first).collect();
+                let ok = (!pre.is_empty() && pre.iter().any(|e| e.mode.is_some()))
+                    .then(|| pre.iter().any(|e| e.mode.as_deref() == Some("gbas-gls")));
+                c.insert(
+                    0,
+                    Check {
+                        id: "precondition-gbas-approach".into(),
+                        kind: "precondition".into(),
+                        subject: "mode gbas-gls before the first event".into(),
+                        limit_param: String::new(),
+                        limit: None,
+                        limit_source: String::new(),
+                        measured: None,
+                        verdict: Verdict::from_bool(ok),
+                        detail: match ok {
+                            None => "no mode logged before the first event".into(),
+                            Some(true) => "the GBAS approach was in use before the events".into(),
+                            Some(false) => "the GBAS approach was never in use before the events; the test cannot show it being left".into(),
+                        },
+                    },
+                );
+            }
+            (c, vec![], Some(stream.frames_sha256.clone()))
         }
     };
     let scored = checks.iter().filter(|c| c.kind != "reference");
@@ -817,6 +880,30 @@ pub fn synth_log(proc: &Procedure, good: bool) -> Result<DutLog, String> {
                     used_prns: Some(used),
                     hpl_m: Some(12.0),
                     vpl_m: Some(if mode == "sbas-pa" { 15.0 } else { 0.0 }),
+                    alert: Some(false),
+                });
+            }
+        }
+        Kind::GbasEvents => {
+            let g = proc.gbas.as_ref().expect("validated");
+            let stream = super::gbas::generate(g)?;
+            for t in 0..g.duration_s {
+                let t = t as f64;
+                let mut mode = "gbas-gls";
+                if good {
+                    for x in &stream.expectations {
+                        let until = x.until_s.unwrap_or(f64::INFINITY);
+                        if x.kind == ExpectKind::ModeAtMost && t >= x.t_ref_s + 1.0 && t < until {
+                            mode = "gnss-only";
+                        }
+                    }
+                }
+                log.epochs.push(DutEpoch {
+                    t_s: t,
+                    mode: Some(mode.into()),
+                    used_prns: None,
+                    hpl_m: Some(8.0),
+                    vpl_m: Some(if mode == "gbas-gls" { 10.0 } else { 0.0 }),
                     alert: Some(false),
                 });
             }

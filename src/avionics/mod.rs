@@ -41,6 +41,7 @@
 //! build; the procedures and examples are representative.
 
 pub mod araim;
+pub mod gbas;
 pub mod kit;
 pub mod library;
 pub mod procedure;
