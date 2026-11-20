@@ -38,6 +38,9 @@ pub const METHODS: &[(&str, &str)] = &[
     ("perception-eval", "perception-eval"),
     ("feeder-trust", "feeder-trust"),
     ("archive-seal", "archive-seal"),
+    ("archive-query", "archive-query"),
+    ("vision-claims/register", "claims-protocol"),
+    ("vision-claims", "vision-claims"),
 ];
 
 /// A signed verdict as the service returns it.

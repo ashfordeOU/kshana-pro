@@ -18,7 +18,9 @@ own bullet so parallel work merges cleanly.
   (RTK correction-service quality, neutral parametric-trigger evaluation, policy-wording facts on
   synthetic clauses, space-weather advisory), and `perception-eval`, `feeder-trust` and
   `archive-seal` (evaluation of perception-aided positioning outputs, crowd-feeder trust,
-  chained archive seals). Decision support only; no new feature gate.
+  chained archive seals), and `archive-query`, `vision-claims/register` and `vision-claims`
+  (aggregate archive statistics; pre-registered vision-navigation claims tests). Decision support
+  only; no new feature gate.
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
