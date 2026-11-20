@@ -8,6 +8,11 @@
       "tier": "open-seam"
     },
     {
+      "kind": "pro-agnss-integrity",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-alert-policy",
       "type": "feature",
       "tier": "pro"
@@ -29,6 +34,11 @@
     },
     {
       "kind": "pro-audit-export",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-automotive-pl",
       "type": "feature",
       "tier": "pro"
     },
@@ -88,6 +98,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-ecall-tests",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-ecdis-ep-test",
       "type": "feature",
       "tier": "pro"
@@ -103,7 +118,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-emergency-location",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-exposure-ledger",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-fault-injection",
       "type": "feature",
       "tier": "pro"
     },
@@ -148,12 +173,27 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-nr-timing",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-nuisance-alerts",
       "type": "feature",
       "tier": "pro"
     },
     {
       "kind": "pro-obs-provenance",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-obu-fraud-eval",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-rail-evidence",
       "type": "feature",
       "tier": "pro"
     },
@@ -238,6 +278,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-telematics-antispoof",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-test-kit",
       "type": "feature",
       "tier": "pro"
@@ -309,6 +354,11 @@
     },
     {
       "kind": "pro-unpublished-areas",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-v2x-checks",
       "type": "feature",
       "tier": "pro"
     },

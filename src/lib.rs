@@ -108,6 +108,7 @@ pub mod watermark;
 pub mod resilience;
 pub mod suite;
 pub mod timing;
+pub mod transport;
 pub mod twin;
 
 /// The version of this Pro overlay crate (distinct from the embedded open engine).

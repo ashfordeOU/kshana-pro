@@ -34,6 +34,7 @@ mod testkit_cmd;
 mod threats_cmd;
 mod timing_cmd;
 mod timing_net_cmd;
+mod transport_cmd;
 mod trust_cmd;
 mod verdict_cmd;
 
@@ -76,6 +77,11 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro timing <assess|console|metrics|history|audit|compliance|timebomb|selfcheck|holdover-evidence> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit and evidence packs, time-bomb vectors and fleet audit, clock self-check, holdover evidence (Pro; `kshana-pro timing` for details)\n\
        kshana-pro grid <pmu|drift|scada|prc002|event> ...   Power-grid timing evidence: PMU phase-angle error, gradual-spoof detection, SCADA time stamps, PRC-002 ±2 ms evidence with holdover resilience, event forensics (Pro; `kshana-pro grid` for details)\n\
        kshana-pro sfn <assess|systems> ...   Broadcast SFN (DAB/DVB-T) timing: pair guard margins and UTC-level scenarios such as SVN-23 (Pro; systems free)\n\
+       kshana-pro road <check|obu-eval|library> ...   Telematics and road-charging GNSS anti-spoof: indicators, episodes, jammer fingerprint class, trip trust (pseudonymised), signed on-board-unit fraud evaluation (Pro; library free)\n\
+       kshana-pro ecall <suite|mapping|score|location|duty|battery> ...   eCall GNSS tests of 2017/79 Annex VI with signed scoring, AML/E112 and PSAP location reliability (Pro); suite, mapping, duty-cycle detection and battery model free\n\
+       kshana-pro auto <catalogue|pl|v2x|inject> ...   Automotive GNSS: SOTIF triggering-condition catalogue, PL validation by condition, V2X ellipse and time checks, data-level fault injection (Pro; catalogue free)\n\
+       kshana-pro nr <tdd|prs|vectors|check> ...   5G: TDD frame timing under GNSS loss, PRS accuracy model, GNSS integrity reference vectors and device check (Pro; vectors free)\n\
+       kshana-pro rail <thr|balise> ...   Rail GNSS: position hazard rate with jamming and spoofing against the apportioned THR, virtual-balise passage test (Pro); EN 50129 template via regpack assess\n\
        kshana-pro timing <assess|console|metrics|history|audit|compliance|timebomb|selfcheck|holdover-evidence|posture|chain|crosscheck|station> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit and evidence packs, time-bomb vectors and fleet audit, clock self-check, holdover evidence, appliance security posture and SBOMs, distribution-chain traceability, multi-source cross-check, ground-station pass assurance (Pro; `kshana-pro timing` for details)\n\
        kshana-pro trust <run|verify> ...   Multi-source trust (F3): choose epoch by epoch among GNSS, OSNMA, LEO, eLoran, PTP and holdover, with hash-chained evidence (Pro; verify free)\n\
        kshana-pro eloran <run|validate|example> ...   eLoran/GNSS signal simulator: multi-chain, multi-time-reference eLoran signals with propagation, interference and truth, to SigMF files or LF hardware (Enterprise; validate and example free)
@@ -173,6 +179,11 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "avionics",
     "regpack",
     "grid",
+    "road",
+    "ecall",
+    "auto",
+    "nr",
+    "rail",
     "sfn",
     "aviation",
     "obs-provenance",
@@ -320,6 +331,11 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("avionics") => avionics_cmd::run(&args[1..]),
         Some("regpack") => regpack_cmd::run(&args[1..]),
         Some("grid") => grid_cmd::run_grid(&args[1..]),
+        Some("road") => transport_cmd::road(&args[1..]),
+        Some("ecall") => transport_cmd::ecall(&args[1..]),
+        Some("auto") => transport_cmd::auto(&args[1..]),
+        Some("nr") => transport_cmd::nr(&args[1..]),
+        Some("rail") => transport_cmd::rail(&args[1..]),
         Some("sfn") => grid_cmd::run_sfn(&args[1..]),
         Some("aviation") => aviation_cmd::run(&args[1..]),
         Some("obs-provenance") => evidence_infra_cmd::provenance(&args[1..]),
