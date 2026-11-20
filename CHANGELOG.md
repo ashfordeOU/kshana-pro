@@ -32,6 +32,16 @@ own bullet so parallel work merges cleanly.
   (MODELLED, recommendation only). Features `pro-interference-reports` and
   `pro-report-verification` (Pro), `pro-exposure-ledger` (Enterprise); tier manifest
   regenerated. All evidence MODELLED (synthetic data, `tests/interference_reports.rs`).
+- **Test-as-code kit, part 2 (docs/TEST-KIT.md).** `kshana-pro testkit
+  run|diff|from-incident|fidelity|sample|verify`: CI runner (offline recorded/replayed logs, or
+  a live lab simulator with the receiver's NMEA over TCP) scoring each scenario's criteria
+  (method `kshana-pro/testkit/v1`, not-assessed never met) into an Ed25519-signed verdict per
+  scenario per build; regression diff between builds (exit 1 on a regression); incident-to-
+  regression converter (field log + incident description → scenario + aligned log); replay
+  fidelity statement (quantisation and jamming headroom, saturation/AGC, LO phase-noise
+  doubling, missing synchronised sensors, reference oscillator) attached to replay verdicts.
+  Feature `pro-test-kit-regression` (Enterprise) for the diff. MODELLED: synthetic logs and a
+  loopback simulator only.
 - **Test-as-code kit, part 1 (research 2026-11-20 gaps 07, 08, 08b, 11, 12; docs/TEST-KIT.md).**
   `kshana-pro testkit validate|compile|from-library|packs|show`: neutral scenario spec
   `kshana-testkit-scenario/1` (signals, trajectory, environment, signal-parameter threats or
