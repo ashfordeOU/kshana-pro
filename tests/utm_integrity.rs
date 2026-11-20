@@ -184,6 +184,48 @@ fn attestations_of_a_clean_and_a_faulty_flight_verify_with_the_pro_client() {
 }
 
 #[test]
+fn the_hosted_verdict_request_carries_the_telemetry_and_the_attestation() {
+    let d = fixture("verdict-request");
+    let l = utm::load(&d.join("attest-faulty.toml")).unwrap();
+    let a = utm::attest(&l).unwrap();
+    let v = utm::verdict_request(&l, &a).unwrap();
+    assert_eq!(v["telemetry"].as_array().unwrap().len(), a.epochs);
+    assert_eq!(v["attestation"]["statement"], "INTEGRITY-SUSPECT");
+    assert_eq!(v["operation"]["id"], a.operation.as_str());
+    let g = v["operation"]["dr_growth_m_per_s"].as_f64().unwrap();
+    assert!((g * a.longest_gap_s - a.gap_dr_error_m).abs() < 1e-6);
+    // The CLI writes it next to the signed directory, never inside it.
+    let out = d.join("out-vr");
+    let req = d.join("verdict-request.json");
+    std::fs::write(d.join("key.hex"), hex::encode(SEED)).unwrap();
+    let (ok, text) = run(&[
+        "utm",
+        "attest",
+        d.join("attest-faulty.toml").to_str().unwrap(),
+        "--out",
+        out.to_str().unwrap(),
+        "--signer",
+        "test",
+        "--key-file",
+        d.join("key.hex").to_str().unwrap(),
+        "--utc",
+        UTC,
+        "--dev",
+        "--verdict-request",
+        req.to_str().unwrap(),
+    ]);
+    assert!(ok, "{text}");
+    let w: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(&req).unwrap()).unwrap();
+    assert_eq!(w["telemetry"], v["telemetry"]);
+    assert!(!out.join("verdict-request.json").exists());
+    // The verdict client knows the method.
+    assert!(kshana_pro::remote_verdict::METHODS
+        .iter()
+        .any(|(m, v)| *m == "flight-integrity" && *v == "flight-integrity"));
+}
+
+#[test]
 fn features_are_tiered_and_gated() {
     assert_eq!(license::explicit_tier(utm::FEATURE), Some(Tier::Pro));
     assert_eq!(

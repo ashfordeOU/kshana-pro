@@ -5,6 +5,14 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Hosted per-flight verdict client (research 2026-11-20 gaps E18, the client side of the
+  hosted per-flight verdict).** `kshana-pro verdict flight-integrity <request.json>`: a new
+  remote-verdict method (`remote_verdict::METHODS`) for a signed per-flight positioning-integrity
+  verdict from the verdict service (telemetry checks recomputed, the local attestation's hash bound
+  and compared, area or aircraft attribution from other flights nearby and regional reports).
+  `kshana-pro utm attest ... --verdict-request <file.json>` writes the request
+  (`utm::verdict_request`) outside the signed directory. No new feature; decision support only;
+  `tests/utm_integrity.rs` gains one test.
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
