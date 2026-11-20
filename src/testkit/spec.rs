@@ -103,7 +103,7 @@ pub struct Spec {
     pub expected: Expected,
     #[serde(default, rename = "criterion")]
     pub criteria: Vec<Criterion>,
-    /// Where an incident-derived scenario came from (set by the incident converter).
+    /// Set by the incident converter: where the scenario came from.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub incident: Option<IncidentRef>,
 }
@@ -531,7 +531,7 @@ impl Default for Expected {
     }
 }
 
-/// What a criterion measures (the scoring method defines each).
+/// What a criterion measures. See [`super::score`] for the definitions.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Metric {
@@ -657,7 +657,7 @@ pub struct Criterion {
     pub note: String,
 }
 
-/// Where an incident-derived scenario came from.
+/// Where an incident-derived scenario came from ([`super::incident`]).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct IncidentRef {

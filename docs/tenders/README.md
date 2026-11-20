@@ -17,6 +17,14 @@ Internal bid-pursuit material for ESA (and other) tenders involving Kshana / Ash
 | **AO/1-13494/26/NL/RR** | AI &amp; Digital Payload Technologies PNT Demonstrator (FutureNAV, Phases 0/A/B1), €3.5M study, deadline **9 Jul 2026** | Pursue **as consortium SME** — two fundable WPs (NAV-DT performance layer + AI-evaluation testbed); hard gate is securing a seat | [`13494-ai-payload-pnt/`](13494-ai-payload-pnt/) |
 | **AO/1-13503/26/NL/RR** | Quantum-Enabled PNT Demonstrator (FutureNAV C3, Phases 0/A/B1), €3.5M study, deadline **17 Aug 2026** (extended from 9 Jul per Clar 2) | Pursue **as consortium SME** — hard gate is securing a seat (T7); see [`13503-quantum-pnt/CLARIFICATIONS-AUDIT.md`](13503-quantum-pnt/CLARIFICATIONS-AUDIT.md) | [`13503-quantum-pnt/`](13503-quantum-pnt/) |
 
+**December 2026 bids (added 19 Nov 2026):**
+
+| Tender | What | Status | Folder |
+|--------|------|--------|--------|
+| **AO/1-13695 (NAVISP EL1-132)** | Development and validation of a flexible eLoran/GNSS signal simulator, >500 k€ (Work Plan €800k, 24 months), closes **4 Jan 2027 13:00**, clarifications by 28 Dec. Open to DE, **not EE** | **Conditional GO** as prime via Ashforde UG with an RF/eLoran hardware partner; gate review 7 Dec, hard stop 14 Dec (UG validated in esa-star, German NAVISP delegate letter, partner LOI). Decision memo, compliance matrix, proposal draft, WP/cost skeleton (DRAFT ≈ €604k at €750/day), risks, clarification + helpdesk questions | [`13695-eloran-simulator/`](13695-eloran-simulator/) |
+| **UK Dstl RFI 2026/S 000-107427** | Resilient timing and positioning system for degraded GNSS (±30 ns, <5 m, 12 h holdover, jam/spoof incl. acquisition, TRL 9, no ITAR/fibre); RFI closes **9 Dec 2026 17:00 UK** | **GO (capability response only).** Kshana is the test-and-evidence layer, not a TRL 9 system; includes the non-UK-SME eligibility question | [`dstl-rtps-rfi-2026/`](dstl-rtps-rfi-2026/) |
+| **AO/1-13705 (S3-SD-08)** | Debris-sensor operational software (OD, scheduling, track correlation), 200–500 k€, closes **1 Dec 2026**, clarifications 24 Nov; EE eligible | **NO-GO as prime** (core functions not built, no sensor partner, 12 days); partner-only if invited by 24 Nov | [`13705-debris-sensor-sw/`](13705-debris-sensor-sw/) |
+
 **Adjacent program-area positioning (not a current AO):**
 
 | Area | What | Status | Folder |

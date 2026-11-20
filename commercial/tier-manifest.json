@@ -118,6 +118,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-test-kit-regression",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-threat-library",
       "type": "feature",
       "tier": "pro"

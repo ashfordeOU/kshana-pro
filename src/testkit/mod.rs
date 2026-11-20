@@ -11,13 +11,20 @@
 //! * [`compile`]: the scenario in each existing simulator adapter's native form (Skydel,
 //!   Spirent, R&S SMBV, LabSat, gps-sdr-sim, through `kshana-eloran::sync`) and a validator
 //!   that reports what each adapter cannot express.
-//! * Next part (separate change): the CI runner with signed verdicts per build, the
-//!   regression diff, incident-to-regression and the replay fidelity statement.
+//! * [`run`] and [`score`]: a **CI runner** that scores a receiver's output (live from a lab
+//!   simulator, or recorded/replayed offline) against the criteria and stores an
+//!   Ed25519-signed verdict per scenario per build ([`crate::signed_dossier`]); [`diff`]
+//!   compares two builds; [`incident`] turns a field log and an incident description into a
+//!   reproducible regression scenario.
+//! * [`fidelity`]: a **replay fidelity** statement (quantisation, saturation/AGC, LO phase
+//!   noise doubling, missing synchronised sensors, reference oscillator) attached to each
+//!   verdict made on replayed data.
 //! * [`packs`]: scenario packs (DP vessels after the IMCA IN 1730 themes, aviation post-spoof
 //!   recovery, UAS, timing, resilience levels modelled on the DHS RPCF).
 //!
-//! Licence: [`FEATURE`] (`pro`) for compile, from-library and pack export. Validate and pack
-//! listing are free.
+//! Licence: [`FEATURE`] (`pro`) for compile, run, from-incident, from-library, fidelity and
+//! pack export; [`FEATURE_REGRESSION`] (`enterprise`) for the build-to-build regression diff.
+//! Validate, pack listing and verdict verification are free.
 //!
 //! **Evidence label: MODELLED.** No receiver has been scored with the kit in this build; the
 //! pack parameters are representative; the simulator profiles are unconfirmed templates
@@ -26,12 +33,19 @@
 //! simulators' own controls (conducted or shielded use) and writes no signal of its own.
 
 pub mod compile;
+pub mod diff;
+pub mod fidelity;
+pub mod incident;
 pub mod library;
 pub mod packs;
+pub mod run;
+pub mod score;
 pub mod spec;
 
-/// The licence feature of compile, from-library and pack export.
+/// The licence feature of compile, run, from-incident, from-library, fidelity, pack export.
 pub const FEATURE: &str = "pro-test-kit";
+/// The licence feature of the build-to-build regression diff.
+pub const FEATURE_REGRESSION: &str = "pro-test-kit-regression";
 
 /// The evidence label of every kit output.
 pub const LABEL: &str = "MODELLED: verdicts computed from the receiver output supplied, \
