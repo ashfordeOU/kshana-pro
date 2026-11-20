@@ -1,6 +1,6 @@
 // PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
-//! `kshana-pro scorecard <run|verify|osnma>` (roadmap 0.42, E3; W1119 C6). `run` needs a licence tier that
+//! `kshana-pro scorecard <run|verify|osnma|flags|units>` (roadmap 0.42, E3; W1119 C6; E13). `run` needs a licence tier that
 //! unlocks `pro-receiver-scorecard`; `verify` needs none.
 
 use std::path::Path;
@@ -18,7 +18,11 @@ pub const USAGE: &str = "usage: kshana-pro scorecard <command>\n\
     verify <dir> --trust <signer public key hex>[,...]\n\
         Check a report's signature and every file, offline (no licence needed)\n\
     osnma <receiver-log.json> --out <dir> --signer <name> --key-file <file> [--bars <bars.toml>] [--dev]\n\
-        OSNMA receiver conformance scorecard against pre-registered bars (`kshana-pro scorecard osnma` for details)";
+        OSNMA receiver conformance scorecard against pre-registered bars (`kshana-pro scorecard osnma` for details)\n\
+    flags <request.toml> --out <dir> --signer <name> --key-file <file> [--dev] | flags-synth <dir>\n\
+        Spoof-, jamming- and integrity-flag efficacy per model and firmware (Pro; `kshana-pro scorecard flags` for details)\n\
+    units <request.toml> --out <dir> --signer <name> --key-file <file> [--dev] | units-synth <dir>\n\
+        Low-cost receiver, board and handset scorecards with firmware regression alerts (Pro; `kshana-pro scorecard units` for details)";
 
 fn fail(msg: impl std::fmt::Display) -> ExitCode {
     eprintln!("error: {msg}");
@@ -133,6 +137,10 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("verify") => verify_dir(args),
         Some("osnma") => super::pnt_cmd::osnma(args),
         Some("osnma-synth") => super::pnt_cmd::osnma_synth(args),
+        Some("flags") => super::receiver_cmd::flags(args),
+        Some("flags-synth") => super::receiver_cmd::flags_synth(args),
+        Some("units") => super::receiver_cmd::units(args),
+        Some("units-synth") => super::receiver_cmd::units_synth(args),
         _ => fail(USAGE),
     }
 }

@@ -1,7 +1,7 @@
 // PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
-//! `kshana-pro timing <assess|console|metrics|history|scorecard|compliance|audit|attack|timebomb|selfcheck|holdover-evidence>`
-//! (roadmap 0.42 T1-T3; W1119 C4, C8; W1120 TA1-TA4).
+//! `kshana-pro timing <assess|console|metrics|history|scorecard|compliance|audit|attack|timebomb|selfcheck|holdover-evidence|posture|chain|crosscheck|station>`
+//! (roadmap 0.42 T1-T3; W1119 C4, C8; W1120 TA1-TA4; E19 in `timing_net_cmd`).
 //! `assess` needs `pro-timing-holdover`; `console`, `metrics` and `history` need
 //! `pro-timing-fleet`; `audit` needs `pro-timing-audit`. Verifying an audit report needs no
 //! licence: `kshana-pro dossier verify <dir> --trust <key>`.
@@ -22,6 +22,7 @@ pub const USAGE: &str = "usage: kshana-pro timing <command>\n\
     scorecard <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Timing scorecard under threat library spoofing scenarios, signed (Pro, T4); verify with `kshana-pro dossier verify` (free)\n\
     compliance list | compliance <mifid2-rts25|dora-rts-2024-1774|eu-cer|india-ist-draft|itu-g8271-1> <inputs.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Signed annual timing evidence pack, requirement -> evidence -> verdict (Pro); verify with `kshana-pro dossier verify` (free)\n\
     audit <fleet.toml> --profile <rts25-traceability|nist-ir-8323-profile> --out <dir> --signer <name> --key-file <file> [--evidence <dir>] [--operator <operator.toml>] [--utc <iso>] [--license <token>] [--dev]   Signed audit report mapped to the profile (Pro); verify with `kshana-pro dossier verify` (free)\n\
+    recovery <request.toml> --out <dir> --signer <name> --key-file <file> [--dev] | recovery-synth <dir>   Timing-module attack recovery from time-error logs: recovery time, residual, holdover exit step, multi-receiver comparison, signed (Pro, T4)\n\
     attack <scenario.toml|prtc|eprtc|substation> --out <dir> --signer <name> --key-file <file> [--dev]   Holdover under a GNSS drag-and-step spoof: detector, fallback, time error against masks, signed (Pro; `kshana-pro timing attack` for details)\n\
     timebomb vectors --out <dir> [--only <id,id>] [--leap-date <YYYY-MM-DD>] [--pivot <YYYY-MM-DD>]... [--at <iso>]... [--pre <s>] [--post <s>] [--lat <deg> --lon <deg> --h <m>] [--utc <iso>] [--license <token>] [--dev]   Future-epoch replay vectors (NMEA, UBX, simulator sheet, expected output) for receivers and grandmasters (Pro)\n\
     timebomb analyse <vector-dir> <capture> --format <nmea|ubx|csv> [--start-index <k>] [--replay-start <lab unix>] [--json <out>] [--strict] [--license <token>] [--dev]   Faults in a device's output during a replay: time jumps, week rollover, century, 32-bit wrap, leap-second handling, stuck time (Pro)\n\
@@ -29,9 +30,16 @@ pub const USAGE: &str = "usage: kshana-pro timing <command>\n\
     timebomb advisories                                                       Print the seed advisory table (no licence needed)\n\
     selfcheck node <node.toml> [--json <out>] [--csv <bins.csv>] [--license <token>] [--dev]   Vote a node's time against its independent sources: wrong time while GNSS looks healthy (Pro)\n\
     selfcheck sites <sites.toml> [--json <out>] [--license <token>] [--dev]   One site or operator diverging from the others; common-mode shifts (Enterprise)\n\
-    holdover-evidence <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Holdover time-error growth with a GUM budget against a limit for a period (e.g. Finland's two weeks), signed (Pro) | holdover-evidence presets";
+    holdover-evidence <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Holdover time-error growth with a GUM budget against a limit for a period (e.g. Finland's two weeks), signed (Pro) | holdover-evidence presets\n\
+    posture check <inventory.toml> [--advisories <table.toml>]... [--components <table.toml>]... [--no-seed] [--utc <iso>] [--json <out>] [--csv <out>] [--license <token>] [--dev]   Appliance security posture: advisories, vendor SBOM components, management reach, services, firmware integrity (Pro)\n\
+    posture firmware <image> (--sha256 <hex> | --sums <SHA256SUMS> | --sig <file> --pubkey <hex>) [--vendor <v>] [--model <m>] [--version <v>] [--json <out>] [--utc <iso>] [--license <token>] [--dev]   Check a firmware image against the vendor's digest or Ed25519 signature (Pro)\n\
+    posture sbom station <components.toml> [--out <bom.cdx.json>] [--utc <iso>] [--license <token>] [--dev]   CycloneDX 1.5 SBOM of a station's firmware (Pro)\n\
+    posture sbom check <bom.json>                                              Structural check of a CycloneDX JSON SBOM (no licence needed)\n\
+    chain <chain.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Time-distribution chain from UTC(k) over WR/PTP/fibre/common-view hops: GUM budget, calibration currency, onboarding test, signed traceability statement (Pro) | chain template\n\
+    crosscheck <request.toml> [--json <out>] [--csv <bins.csv>] [--license <token>] [--dev]   Multi-source cross-check grouped by traceability root (GNSS, long-wave, BPS, eLoran, LEO, fibre, NTS): single-source fault isolation, node-off, silent sources, triad monitor (Pro) | crosscheck profile <wisp|timing-node>\n\
+    station <station.toml> [--json <out>] [--csv <passes.csv>] [--out <dir> --signer <name> --key-file <file>] [--utc <iso>] [--license <token>] [--dev]   Ground-station pass-quality SLA and station timing during passes, optionally signed (Pro)";
 
-fn fail(msg: impl std::fmt::Display) -> ExitCode {
+pub(super) fn fail(msg: impl std::fmt::Display) -> ExitCode {
     eprintln!("error: {msg}");
     ExitCode::FAILURE
 }
@@ -53,7 +61,7 @@ fn entitlement(args: &[String], now: i64) -> Result<Entitlement, String> {
     }
 }
 
-fn gate(args: &[String], feature: &str) -> Result<(), String> {
+pub(super) fn gate(args: &[String], feature: &str) -> Result<(), String> {
     let now = now_unix();
     let ent = entitlement(args, now)?;
     license::check(&ent, feature, now).map_err(|e| e.to_string())
@@ -98,6 +106,8 @@ pub fn run(args: &[String]) -> ExitCode {
     match (sub, file) {
         (Some("attack"), _) => super::pnt_cmd::attack(args),
         (Some("attack-template"), _) => super::pnt_cmd::attack_template(args),
+        (Some("recovery"), _) => super::receiver_cmd::recovery(args),
+        (Some("recovery-synth"), _) => super::receiver_cmd::recovery_synth(args),
         (Some("history"), Some(v)) if v == "verify" => {
             let Some(dir) = args.get(2) else {
                 return fail(USAGE);
@@ -141,6 +151,10 @@ pub fn run(args: &[String]) -> ExitCode {
         (Some("timebomb"), Some(x)) => timebomb_cmd(args, &x),
         (Some("selfcheck"), Some(x)) => selfcheck_cmd(args, &x),
         (Some("holdover-evidence"), Some(x)) => holdover_evidence_cmd(args, &x),
+        (Some("posture"), Some(x)) => super::timing_net_cmd::posture(args, &x),
+        (Some("chain"), Some(x)) => super::timing_net_cmd::chain(args, &x),
+        (Some("crosscheck"), Some(x)) => super::timing_net_cmd::crosscheck(args, &x),
+        (Some("station"), Some(x)) => super::timing_net_cmd::station(args, &x),
         (Some(cmd @ ("assess" | "console" | "metrics" | "audit")), Some(path)) => {
             let feature = match cmd {
                 "assess" => timing::KIND,
@@ -399,14 +413,14 @@ fn compliance_cmd(args: &[String], fw: &str) -> ExitCode {
 }
 
 /// Every value of a repeated `--flag value`.
-fn flags_all(args: &[String], name: &str) -> Vec<String> {
+pub(super) fn flags_all(args: &[String], name: &str) -> Vec<String> {
     args.windows(2)
         .filter(|w| w[0] == name)
         .map(|w| w[1].clone())
         .collect()
 }
 
-fn write_or_print(out: Option<String>, text: &str) -> Result<(), String> {
+pub(super) fn write_or_print(out: Option<String>, text: &str) -> Result<(), String> {
     match out {
         Some(o) => std::fs::write(&o, text).map_err(|e| format!("{o}: {e}")),
         None => {
@@ -416,7 +430,7 @@ fn write_or_print(out: Option<String>, text: &str) -> Result<(), String> {
     }
 }
 
-fn utc_unix(args: &[String]) -> Result<(i64, String), String> {
+pub(super) fn utc_unix(args: &[String]) -> Result<(i64, String), String> {
     use crate::timing::timebomb::Label;
     match flag(args, "--utc") {
         Some(u) => Ok((Label::parse_iso(&u)?.seconds(), u)),
