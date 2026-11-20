@@ -52,6 +52,7 @@ pub mod holdover_evidence;
 pub mod metrics;
 pub mod model;
 pub mod posture;
+pub mod recovery;
 pub mod scorecard;
 pub mod selfcheck;
 pub mod station;

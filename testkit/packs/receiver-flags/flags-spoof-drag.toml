@@ -1,0 +1,60 @@
+format = "kshana-testkit-scenario/1"
+id = "flags-spoof-drag"
+version = 1
+title = "Static receiver: position drag at 1 m/s"
+description = "A counterfeit 3 dB above the genuine signals walks the position north at 1 m/s for five minutes."
+modelled_on = ["Receiver flag tests: spoofing, jamming and integrity indicator response (modelled on, representative parameters)"]
+tags = ["receiver-flags", "spoofing"]
+
+[scene]
+start_utc = "2026-06-01T10:00:00Z"
+duration_s = 600
+
+[[signal]]
+constellation = "gps"
+signals = ["L1CA"]
+
+[[signal]]
+constellation = "galileo"
+signals = ["E1"]
+
+[trajectory]
+platform = "static"
+lat_deg = 59.43
+lon_deg = 24.75
+height_m = 40
+
+[[threat]]
+id = "drag"
+type = "spoofing"
+technique = "position_drag"
+start_s = 120
+duration_s = 300
+drag_rate_mps = 1
+drag_bearing_deg = 0
+power_advantage_db = 3
+
+[expected]
+behaviour = "Spoofing flagged before the position is 50 m off; back within 60 s of the end."
+withdraw_counts_as_detection = false
+
+[[criterion]]
+id = "detect"
+metric = "detection_latency_s"
+op = "<="
+value = 50
+level = 2
+
+[[criterion]]
+id = "no-misleading"
+metric = "misleading_epochs"
+op = "<="
+value = 0
+level = 2
+
+[[criterion]]
+id = "recover"
+metric = "recovery_s"
+op = "<="
+value = 60
+level = 1

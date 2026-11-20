@@ -90,7 +90,12 @@ fn rel(root: &Path, p: &Path) -> String {
         .join("/")
 }
 
-/// Every regular file under `dir` (sorted, `/`-separated), except the signature file.
+/// The long-term record ([`crate::longterm`]) beside the signature: not covered by it, since
+/// it is added to after signing; it protects itself (time-stamps over the signature).
+pub const LONGTERM_FILE: &str = "longterm.json";
+
+/// Every regular file under `dir` (sorted, `/`-separated), except the signature file and the
+/// long-term record.
 /// Symbolic links are refused: a signature covers bytes in the directory only.
 pub fn list_files(dir: &Path) -> Result<Vec<SignedFile>, KshanaError> {
     fn walk(root: &Path, d: &Path, out: &mut Vec<PathBuf>) -> Result<(), KshanaError> {
@@ -120,7 +125,7 @@ pub fn list_files(dir: &Path) -> Result<Vec<SignedFile>, KshanaError> {
     let mut files = Vec::new();
     for p in paths {
         let r = rel(dir, &p);
-        if r == SIGNATURE_FILE {
+        if r == SIGNATURE_FILE || r == LONGTERM_FILE {
             continue;
         }
         let bytes =

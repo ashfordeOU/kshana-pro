@@ -152,6 +152,7 @@ calibration of the bench.
 | `uas` | hover drag-off, jamming in transit, meaconing | published UAS spoofing and jamming events |
 | `timing` | matched-power time push (threat library, TEXBAT ds3 profile), holdover under jamming, meaconing delay | threat library; ITU-T G.8272 holdover theme |
 | `rpcf` | resilience test procedures for levels 1 to 4 | DHS Resilient PNT Conformance Framework levels; IEEE P1952 draft topics by subject |
+| `receiver-flags` | clean baseline (no threat), CW jamming, broadband jamming, simplistic spoofing, position drag, time push | receiver flag tests for the flag-efficacy scorecard (docs/RECEIVER-SCORECARDS.md, E13) |
 
 `kshana-pro testkit packs` lists them; `show <pack/id>` prints one; `packs export <pack> --out <dir>`
 writes them as files to edit. `sample <scenario> --behaviour good|bad` writes a SYNTHETIC

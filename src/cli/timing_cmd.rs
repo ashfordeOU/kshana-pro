@@ -22,6 +22,7 @@ pub const USAGE: &str = "usage: kshana-pro timing <command>\n\
     scorecard <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Timing scorecard under threat library spoofing scenarios, signed (Pro, T4); verify with `kshana-pro dossier verify` (free)\n\
     compliance list | compliance <mifid2-rts25|dora-rts-2024-1774|eu-cer|india-ist-draft|itu-g8271-1> <inputs.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Signed annual timing evidence pack, requirement -> evidence -> verdict (Pro); verify with `kshana-pro dossier verify` (free)\n\
     audit <fleet.toml> --profile <rts25-traceability|nist-ir-8323-profile> --out <dir> --signer <name> --key-file <file> [--evidence <dir>] [--operator <operator.toml>] [--utc <iso>] [--license <token>] [--dev]   Signed audit report mapped to the profile (Pro); verify with `kshana-pro dossier verify` (free)\n\
+    recovery <request.toml> --out <dir> --signer <name> --key-file <file> [--dev] | recovery-synth <dir>   Timing-module attack recovery from time-error logs: recovery time, residual, holdover exit step, multi-receiver comparison, signed (Pro, T4)\n\
     attack <scenario.toml|prtc|eprtc|substation> --out <dir> --signer <name> --key-file <file> [--dev]   Holdover under a GNSS drag-and-step spoof: detector, fallback, time error against masks, signed (Pro; `kshana-pro timing attack` for details)\n\
     timebomb vectors --out <dir> [--only <id,id>] [--leap-date <YYYY-MM-DD>] [--pivot <YYYY-MM-DD>]... [--at <iso>]... [--pre <s>] [--post <s>] [--lat <deg> --lon <deg> --h <m>] [--utc <iso>] [--license <token>] [--dev]   Future-epoch replay vectors (NMEA, UBX, simulator sheet, expected output) for receivers and grandmasters (Pro)\n\
     timebomb analyse <vector-dir> <capture> --format <nmea|ubx|csv> [--start-index <k>] [--replay-start <lab unix>] [--json <out>] [--strict] [--license <token>] [--dev]   Faults in a device's output during a replay: time jumps, week rollover, century, 32-bit wrap, leap-second handling, stuck time (Pro)\n\
@@ -105,6 +106,8 @@ pub fn run(args: &[String]) -> ExitCode {
     match (sub, file) {
         (Some("attack"), _) => super::pnt_cmd::attack(args),
         (Some("attack-template"), _) => super::pnt_cmd::attack_template(args),
+        (Some("recovery"), _) => super::receiver_cmd::recovery(args),
+        (Some("recovery-synth"), _) => super::receiver_cmd::recovery_synth(args),
         (Some("history"), Some(v)) if v == "verify" => {
             let Some(dir) = args.get(2) else {
                 return fail(USAGE);

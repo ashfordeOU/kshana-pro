@@ -188,3 +188,9 @@ as summarised in Kshana research and are illustrative until confirmed against th
 
 Evidence: **MODELLED** (synthetic flights, `tests/fdm_detector.rs`); not validated on labelled
 operator FDM data.
+
+## Log time integrity and dispute evidence (research 2026-11-20 gaps E06)
+
+`kshana-pro forensics log-time` checks the clocks of the logs an incident rests on, and
+`kshana-pro forensics dispute` turns this bundle, the maritime pack and the log check into
+charter-party dispute evidence. See [INCIDENT-EVIDENCE.md](INCIDENT-EVIDENCE.md).

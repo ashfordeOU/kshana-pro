@@ -33,6 +33,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-dispute-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-eloran",
       "type": "feature",
       "tier": "pro"
@@ -64,6 +69,21 @@
     },
     {
       "kind": "pro-interference-reports",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-log-time-integrity",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-longterm-signature",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-obs-provenance",
       "type": "feature",
       "tier": "pro"
     },
@@ -359,6 +379,11 @@
     },
     {
       "kind_sha256": "a849e2191cd7cf76f7d387b404547667f3f17a2f9f195a8bfa8deb3df15d2875",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "b895d2e0f7c6d3d3e4b669f75c958e2c94e34d182a790d9cbabdcf2b86553abb",
       "type": "kind",
       "tier": "arksa"
     },

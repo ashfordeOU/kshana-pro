@@ -158,6 +158,26 @@ the levels of the E3 scoring. Public sample: `examples/timing-scorecard/request.
 pre-registered (`docs/evidence/t4-timing-scorecard/`), all three claim bars met; signed sample
 `report-templates/samples/timing-scorecard-public/`. It inherits T1's unvalidated holdover model.
 
+### T4 recovery metric: timing modules after an attack (research backlog B1304, E13)
+
+`kshana-pro timing recovery <request.toml> --out <dir> --signer <name> --key-file <file>`
+(licence: `pro-timing-scorecard`; `src/timing/recovery.rs`; method
+`kshana-pro/timing-recovery/v1`). Unlike the modelled T4 scorecard above, it reads **recorded**
+time-error logs of one or more modules' 1PPS against an independent reference (CSV
+`t_s,te_ns[,state]`, or TICC, TimeLab and RINEX clock through the open engine's `clock_log`)
+and a stated `[attack]` window. Per module: baseline (median TE before onset), the largest
+deviation during the attack, the **recovery time** (end of attack to the first sample from
+which every sample for `hold_s` stays within `recovered_within_ns` of baseline; `not observed`
+when the log ends too early), the **residual offset** after recovery, and holdover behaviour
+when the log carries states (entry latency, exit time and the phase step across the exit; without
+states, the largest step after the attack). Bars (defaults 100 ns, 60 s hold, 600 s recovery,
+50 ns residual, 100 ns step) are hashed into the report. Several modules or configurations of
+one site are ranked; with `ensemble_median = true` and three or more, the per-sample median of
+the modules is scored too, so a multi-receiver hardening claim is checked on the logs.
+`kshana-pro timing recovery-synth <dir>` writes the three fixtures of the tests (fast slew,
+slow slew, holdover with a 250 ns exit step). Evidence: **MODELLED** (closed-form fixtures in
+`tests/receiver_flag_scorecards.rs`; no real module has been logged).
+
 ## C4: timing evidence packs for regulation (W1119)
 
 `kshana-pro timing compliance <framework> inputs.toml --out <dir> --signer <name> --key-file <key>`

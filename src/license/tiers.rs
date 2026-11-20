@@ -175,6 +175,11 @@ pub const ARKSA_ENTRIES: &[(&str, &str)] = &[
         "a06ac1042f0d90924a98605c15407bf8851a0a7b712d997951dd440576b37996",
         "feature",
     ),
+    // Registered 20 Nov 2026 (kind).
+    (
+        "b895d2e0f7c6d3d3e4b669f75c958e2c94e34d182a790d9cbabdcf2b86553abb",
+        "kind",
+    ),
 ];
 
 /// Pro kinds this build knows but registers only when a verified Pro pack that provides them

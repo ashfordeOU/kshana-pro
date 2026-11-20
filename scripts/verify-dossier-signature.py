@@ -22,7 +22,7 @@ def files_under(root):
             if os.path.islink(p):
                 raise SystemExit(f"symbolic link: {p}")
             rel = os.path.relpath(p, root).replace(os.sep, "/")
-            if rel == "signature.json":
+            if rel in ("signature.json", "longterm.json"):  # longterm.json: the long-term record, self-protecting
                 continue
             with open(p, "rb") as f:
                 out[rel] = hashlib.sha256(f.read()).hexdigest()

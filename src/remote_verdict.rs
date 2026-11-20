@@ -10,9 +10,11 @@
 //! is trusted only after its signature verifies against a pinned public key.
 //!
 //! Methods served today: `selfcal` (self-calibrating simulator loop), `survey`
-//! (integrity-driven ASF survey planner) and `cause` (what caused a vessel or aircraft
+//! (integrity-driven ASF survey planner), `cause` (what caused a vessel or aircraft
 //! position episode: jamming, spoofing, self-reported track falsification, equipment fault,
-//! or insufficient evidence).
+//! or insufficient evidence) and `calibrate` (general parametric calibration of any
+//! simulator against telemetry: named parameters with priors and bounds, a closed-form or
+//! design-of-runs model; the `selfcal` verdict shape).
 
 use ed25519_dalek::{Signature, Verifier, VerifyingKey};
 use serde::{Deserialize, Serialize};
@@ -24,6 +26,7 @@ pub const METHODS: &[(&str, &str)] = &[
     ("selfcal", "selfcal"),
     ("survey", "survey-plan"),
     ("cause", "cause"),
+    ("calibrate", "calibrate"),
 ];
 
 /// A signed verdict as the service returns it.
@@ -317,12 +320,38 @@ mod tests {
     }
 
     #[test]
+    fn calibrate_round_trip_verifies() {
+        let v = signed(
+            "calibrate",
+            json!({
+                "converged": true,
+                "stop_reason": "converged",
+                "passes": 7,
+                "fidelity_first": 40.0,
+                "fidelity_last": 96.0,
+                "posterior": [{"name": "tau", "value": 1800.0, "std_err": 12.0}],
+                "lineage": {"head": "ab".repeat(32), "entries": 2},
+            }),
+        );
+        let t = fake(Ok(serde_json::to_string(&v).unwrap()));
+        let got = request(&t, "calibrate", "tok", r#"{"parameters":[]}"#).unwrap();
+        assert_eq!(got, v);
+        assert!(verify(&got, &pk()).is_empty());
+        assert_eq!(t.seen.borrow()[0].0, "/verdict/calibrate");
+        // A selfcal verdict is not accepted as a calibrate verdict.
+        let other = serde_json::to_string(&signed("selfcal", json!({}))).unwrap();
+        assert!(request(&fake(Ok(other)), "calibrate", "tok", "{}")
+            .unwrap_err()
+            .contains("not 'calibrate'"));
+    }
+
+    #[test]
     fn methods_are_unique() {
         let mut names: Vec<_> = METHODS.iter().map(|(m, _)| *m).collect();
         names.sort();
         names.dedup();
         assert_eq!(names.len(), METHODS.len());
-        assert!(names.contains(&"cause"));
+        assert!(names.contains(&"cause") && names.contains(&"calibrate"));
     }
 
     #[test]
