@@ -65,14 +65,44 @@ fn word_to_number(w: &str) -> Option<usize> {
 fn claims_in(doc: &str, phrase: &str) -> Vec<usize> {
     let mut out = Vec::new();
     for (i, _) in doc.match_indices(phrase) {
-        let before = &doc[..i];
-        if let Some(tok) = before.split_whitespace().last() {
-            if let Some(n) = word_to_number(tok) {
-                out.push(n);
-            }
+        if let Some(n) = number_before(&doc[..i]) {
+            out.push(n);
         }
     }
     out
+}
+
+/// The number written at the end of `before`: one word or numeral, or a count of a hundred
+/// or more spelled out ("one hundred", "one hundred and five", "two hundred twelve").
+fn number_before(before: &str) -> Option<usize> {
+    let toks: Vec<&str> = before.split_whitespace().rev().take(4).collect();
+    let word = |i: usize| {
+        toks.get(i).map(|t| {
+            t.trim_matches(|c: char| !c.is_alphanumeric())
+                .to_ascii_lowercase()
+        })
+    };
+    let hundreds = |i: usize| match toks.get(i).and_then(|t| word_to_number(t)) {
+        Some(h) if (1..10).contains(&h) => Some(h * 100),
+        _ => None,
+    };
+    if word(0).as_deref() == Some("hundred") {
+        return hundreds(1);
+    }
+    let n = word_to_number(toks.first()?)?;
+    if n < 100 {
+        if word(1).as_deref() == Some("hundred") {
+            if let Some(h) = hundreds(2) {
+                return Some(h + n);
+            }
+        }
+        if word(1).as_deref() == Some("and") && word(2).as_deref() == Some("hundred") {
+            if let Some(h) = hundreds(3) {
+                return Some(h + n);
+            }
+        }
+    }
+    Some(n)
 }
 
 fn claims(phrase: &str) -> Vec<usize> {
@@ -166,4 +196,8 @@ fn number_words_parse() {
     assert_eq!(word_to_number("**Sixteen"), Some(16));
     assert_eq!(word_to_number("thirty-zero"), None);
     assert_eq!(word_to_number("word"), None);
+    assert_eq!(number_before("plus **one hundred and five"), Some(105));
+    assert_eq!(number_before("plus one hundred"), Some(100));
+    assert_eq!(number_before("plus two hundred twelve"), Some(212));
+    assert_eq!(number_before("plus **ninety-nine"), Some(99));
 }
