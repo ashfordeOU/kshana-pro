@@ -29,6 +29,32 @@ own bullet so parallel work merges cleanly.
   free `check` and `synth`. MODELLED, decision support only, never a flight authorisation or a
   SORA approval. The hosted per-flight verdict is not part of this change.
   Tier manifest regenerated; tests/utm_integrity.rs on synthetic inputs.
+- **Road, rail, automotive, eCall and 3GPP evidence (research 2026-11-20 gaps E30: B3002,
+  B3003; first slices of B3001, B3004, B3005; docs/ROAD-RAIL-AUTO.md).** `kshana-pro road`:
+  telematics and on-board-unit GNSS anti-spoof indicators (position jump, GNSS against wheel
+  speed, frozen position, outage while moving, C/N0 drop and rise, AGC, receiver time, network
+  position), episodes with a verdict, a jammer fingerprint library on receiver-side features
+  (`report-templates/transport/jammer-fingerprints.json`), per-trip trust; vehicles salted and
+  pseudonymised, positions as 0.1-degree cells (`pro-telematics-antispoof`); a signed on-board
+  unit fraud evaluation over runs with recorded attack windows: detection with Wilson interval,
+  time to detect, false episodes per hour, unreported distance (`pro-obu-fraud-eval`).
+  `kshana-pro ecall`: the GNSS tests of Delegated Regulation (EU) 2017/79 Annex VI (limits read
+  on legislation.gov.uk, 20 Nov 2026), every Annex VI requirement mapped to its tests with the
+  UN R144 and ERA-GLONASS notes, signed scoring of laboratory results (`pro-ecall-tests`), two
+  interference extensions marked as not in the regulation; AML/E112 and PSAP reliability
+  against the declared confidence (`pro-emergency-location`); duty-cycle detection and an IoT
+  tracker battery model (free). `kshana-pro auto`: SOTIF triggering-condition catalogue (free),
+  PL validation per condition with Stanford counts, exact MI-rate bounds on an effective sample
+  size and coverage (`pro-automotive-pl`), V2X confidence-ellipse, time, detection and
+  false-flag checks (`pro-v2x-checks`), data-level fault injection (`pro-fault-injection`).
+  `kshana-pro nr`: 5G TDD phase budget and guard-period interference onset under GNSS loss from
+  the holdover evidence model, PRS DL-TDOA accuracy (`pro-nr-timing`); GNSS integrity reference
+  vectors (free, not 3GPP conformance cases) and a device check (`pro-agnss-integrity`).
+  `kshana-pro rail`: position hazard rate with jamming and spoofing against the apportioned THR,
+  virtual-balise passage test with GUM uncertainty and a Gaussian overbound check
+  (`pro-rail-evidence`). Three regpack catalogues: `rail-gnss-sil4` (EN 50129 headings),
+  `iso26262-gnss-seooc`, `eu-2017-79-ecall-gnss`. All Pro tier; tier manifest regenerated.
+  MODELLED; tests `tests/road_rail_auto.rs`; integration tests 97 -> 98.
 - **Avionics test library (research 2026-11-20 gaps E12: B1201, B1203, B1205, B1206 part 1;
   docs/AVIONICS-TEST-LIBRARY.md).** `kshana-pro avionics`: SBAS L1 framing (MT 0, 1, 2-5, 6,
   7, 26, 63; CRC-24Q) and a deterministic message-sequence generator for failure tests (UDREI

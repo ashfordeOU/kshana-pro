@@ -46,7 +46,7 @@ fn entitlement(args: &[String], now: i64) -> Result<Entitlement, String> {
     }
 }
 
-fn gate(args: &[String], feature: &str) -> Result<(), String> {
+pub(super) fn gate(args: &[String], feature: &str) -> Result<(), String> {
     let now = now_unix();
     let ent = entitlement(args, now)?;
     license::check(&ent, feature, now).map_err(|e| e.to_string())
@@ -75,14 +75,14 @@ fn parse<T: serde::de::DeserializeOwned>(path: &str) -> Result<(T, String), Stri
     Ok((v, src))
 }
 
-struct Signing {
-    out: String,
-    signer: String,
-    seed: [u8; 32],
-    utc: String,
+pub(super) struct Signing {
+    pub(super) out: String,
+    pub(super) signer: String,
+    pub(super) seed: [u8; 32],
+    pub(super) utc: String,
 }
 
-fn signing(args: &[String], cmd: &str) -> Result<Signing, String> {
+pub(super) fn signing(args: &[String], cmd: &str) -> Result<Signing, String> {
     let (Some(out), Some(signer), Some(kf)) = (
         flag(args, "--out"),
         flag(args, "--signer"),

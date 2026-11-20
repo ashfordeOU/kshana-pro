@@ -256,6 +256,21 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // Remote ID checks and per-flight attestations (Pro); the USSP feed (Enterprise).
         "pro-utm-integrity" => Tier::Pro,
         "pro-ussp-feed" => Tier::Enterprise,
+        // Road, rail, automotive, eCall and 3GPP evidence (research 2026-11-20 gaps E30):
+        // telematics anti-spoof and the on-board-unit fraud evaluation, eCall GNSS test scoring
+        // and emergency-location reliability, automotive PL validation, V2X checks and fault
+        // injection, 5G TDD timing and PRS accuracy, integrity-vector checks, rail THR and
+        // virtual-balise evidence.
+        "pro-telematics-antispoof" => Tier::Pro,
+        "pro-obu-fraud-eval" => Tier::Pro,
+        "pro-ecall-tests" => Tier::Pro,
+        "pro-emergency-location" => Tier::Pro,
+        "pro-automotive-pl" => Tier::Pro,
+        "pro-v2x-checks" => Tier::Pro,
+        "pro-fault-injection" => Tier::Pro,
+        "pro-nr-timing" => Tier::Pro,
+        "pro-agnss-integrity" => Tier::Pro,
+        "pro-rail-evidence" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -332,6 +347,16 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-longterm-signature",
     "pro-utm-integrity",
     "pro-ussp-feed",
+    "pro-telematics-antispoof",
+    "pro-obu-fraud-eval",
+    "pro-ecall-tests",
+    "pro-emergency-location",
+    "pro-automotive-pl",
+    "pro-v2x-checks",
+    "pro-fault-injection",
+    "pro-nr-timing",
+    "pro-agnss-integrity",
+    "pro-rail-evidence",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

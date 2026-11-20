@@ -1,0 +1,84 @@
+{
+  "format": "kshana-pro-regulator-catalogue/1",
+  "id": "iso26262-gnss-seooc",
+  "title": "Automotive GNSS positioning element: ISO 26262 safety element out of context and ISO 21448 (SOTIF) evidence",
+  "kind": "framework",
+  "status": "No accepted method shows that a GNSS protection level bounds the error under SOTIF triggering conditions (research 07 G11)",
+  "source": {
+    "title": "ISO 26262 (road vehicles, functional safety) and ISO 21448 (safety of the intended functionality)",
+    "version": "ISO 26262:2018 and ISO 21448:2022 assumed; to be confirmed",
+    "url": "https://www.iso.org/",
+    "read": "Not read in this work; rows at topic level."
+  },
+  "rows": [
+    {
+      "id": "SEOOC-ASM",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:I01, I02, I09, I12 and 08:D11 to D13, E1 to E3 (sources S104 to S108, [10] to [14])",
+      "topic": "Assumed safety requirements and operating context of the positioning element developed out of context",
+      "evidence": [],
+      "gap": "The supplier's assumptions; Kshana has no evidence product for them."
+    },
+    {
+      "id": "SOTIF-TC",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:I01, I02, I09, I12 and 08:D11 to D13, E1 to E3 (sources S104 to S108, [10] to [14])",
+      "topic": "Triggering conditions identified, with data for each",
+      "evidence": [
+        "kshana-pro-pl-validation/1"
+      ],
+      "gap": "The catalogue is Kshana's own; the OEM's hazard analysis decides which conditions matter."
+    },
+    {
+      "id": "SOTIF-VAL",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:I01, I02, I09, I12 and 08:D11 to D13, E1 to E3 (sources S104 to S108, [10] to [14])",
+      "topic": "Validation that residual risk is acceptable: misleading-information rate bounded by the data per condition",
+      "evidence": [
+        "kshana-pro-pl-validation/1"
+      ],
+      "gap": "Statistical scenario-coverage sampling is not built."
+    },
+    {
+      "id": "FI-TEST",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:I01, I02, I09, I12 and 08:D11 to D13, E1 to E3 (sources S104 to S108, [10] to [14])",
+      "topic": "Fault-injection testing of the integrity monitor",
+      "evidence": [
+        "kshana-pro-pl-validation/1"
+      ],
+      "gap": "The injected files are unsigned inputs; the validation run on them is the evidence."
+    },
+    {
+      "id": "V2X-POS",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:I01, I02, I09, I12 and 08:D11 to D13, E1 to E3 (sources S104 to S108, [10] to [14])",
+      "topic": "V2X position and time behaviour under spoofing: confidence honesty, detection and false flags",
+      "evidence": [
+        "kshana-pro-v2x-checks/1"
+      ],
+      "gap": "Message decoding and the attack runs are the applicant's (conducted or shielded)."
+    },
+    {
+      "id": "INTF",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:I01, I02, I09, I12 and 08:D11 to D13, E1 to E3 (sources S104 to S108, [10] to [14])",
+      "topic": "Robustness to interference and spoofing of the receiver",
+      "evidence": [
+        "kshana-pro-v2x-checks/1",
+        "kshana-pics-scorecard/1",
+        "kshana-pro-receiver-scorecard/1"
+      ],
+      "gap": "Scenario level only."
+    },
+    {
+      "id": "CORR",
+      "clause": "clause to be confirmed",
+      "basis": "research 2026-11-20 gaps 07:I01, I02, I09, I12 and 08:D11 to D13, E1 to E3 (sources S104 to S108, [10] to [14])",
+      "topic": "Integrity of the correction service the element relies on",
+      "evidence": [],
+      "gap": "Correction-service integrity models are not built."
+    }
+  ],
+  "wording": "Each row names a requirement of the document (paraphrased, never quoted at length, with its clause where the research read it), the Kshana evidence formats that speak to it and the gap Kshana does not cover. A pre-assessment is an aid for preparing a submission. It does not state, and must not be read as stating, that any product, ship or operator meets the document; that judgement belongs to the notified body, class society, administration or assessor."
+}
