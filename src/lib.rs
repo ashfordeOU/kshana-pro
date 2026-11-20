@@ -93,6 +93,7 @@ pub mod results_only;
 pub mod scorecards;
 pub mod serve;
 pub mod signed_dossier;
+pub mod space_rx;
 pub mod study_dossier;
 pub mod study_ledger;
 pub mod testkit;

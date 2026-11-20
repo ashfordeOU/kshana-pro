@@ -5,6 +5,23 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Space-segment GNSS receiver evidence (research 2026-11-20 gaps E20: B2001, B2002,
+  B2003; docs/SPACE-RECEIVER.md).** `kshana-pro space-rx`: the ground-interference envelope
+  a spacecraft receiver meets (TLE on the open engine's SGP4, declared areas or degraded cells
+  of an open-engine interference map, antenna pattern; per-pass J/S and effective C/N0 per
+  assumed EIRP, time beyond the receiver's tested J/S, Doppler offset and rate of a ground
+  transmitter seen from orbit; per-revolution exposure and simulator test points, signal
+  parameters only); the campaign format `kshana-space-rx-campaign/1` (TID steps with
+  navigation outputs, SEE, vibration, thermal, tracking and interference runs), signed
+  scorecards against a `kshana-space-rx-mission/1` profile, the selection database
+  `kshana-space-rx-db/1` with its JSON Schema and a qualification process template populated
+  from a campaign; radiation-fault signatures in a receiver output trace (latch-up suspect,
+  reset, functional interrupt, frozen output, one-epoch upsets with a bit-flip test, time-tag
+  and clock upsets; persistent steps and millisecond clock jumps reported as not radiation),
+  an injector for fixtures with ground truth, NMEA receiver-to-OBC corrupt-data vectors with a
+  reference parser and OBC log scoring, and a Weibull/LET SEE rate forecast. Features
+  `pro-space-rx-exposure`, `pro-space-rx-qual`, `pro-space-rx-see` (Pro); tier manifest
+  regenerated. All MODELLED (SYNTHETIC samples, `tests/space_rx.rs`).
 - **Avionics test library (research 2026-11-20 gaps E12: B1201, B1203, B1205, B1206 part 1;
   docs/AVIONICS-TEST-LIBRARY.md).** `kshana-pro avionics`: SBAS L1 framing (MT 0, 1, 2-5, 6,
   7, 26, 63; CRC-24Q) and a deterministic message-sequence generator for failure tests (UDREI

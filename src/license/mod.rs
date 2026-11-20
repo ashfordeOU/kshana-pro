@@ -250,6 +250,13 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // time-stamp chains (B2503). Verifying both stays free.
         "pro-obs-provenance" => Tier::Pro,
         "pro-longterm-signature" => Tier::Pro,
+        // Space-segment GNSS receiver evidence (research 2026-11-20 gaps E20): the
+        // ground-interference envelope from orbit (B2001), qualification scorecards, selection
+        // database and template (B2002), radiation-fault signatures, OBC interface vectors and
+        // SEE rate forecast (B2003).
+        "pro-space-rx-exposure" => Tier::Pro,
+        "pro-space-rx-qual" => Tier::Pro,
+        "pro-space-rx-see" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -323,6 +330,9 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-dispute-evidence",
     "pro-obs-provenance",
     "pro-longterm-signature",
+    "pro-space-rx-exposure",
+    "pro-space-rx-qual",
+    "pro-space-rx-see",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

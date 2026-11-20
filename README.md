@@ -129,6 +129,8 @@ at start-up. Details, checks and what remains: [docs/PROTECTION.md](docs/PROTECT
 
 **Regulator, type-approval and framework pre-assessment packs (research 2026-11-20 gaps E29; features `pro-regulator-pack`, `pro-interference-complaint`, `pro-bid-attestation`, `kshana-pro regpack`).** Eight requirement catalogues (IMO MSC.401(95)/MSC.432(98), MSC.1/Circ.1575, bridge alert management of PNT alerts, IACS UR E27, ETSI EN 303 413, the MASS Code, the NIST CSF 2.0 PNT profile draft, EU Space Act cybersecurity) state per requirement which signed Kshana evidence speaks to it and what is missing, with clauses cited only where the research read them. Checks behind them: a BAM alert-map check replayed over PNT data processing output, MASS override independence over a declared architecture, link-security evidence from a declared link configuration. Also an interference report annex under the headings of ITU RR Appendix 10 (effects and 0.5-degree areas only, never an emitter position) and a signed bill-of-materials export-status attestation with its test evidence chain for bids. Pre-assessment only: no pack states that a product or operator meets a document. See [`docs/REGULATOR-PACKS.md`](docs/REGULATOR-PACKS.md).
 
+**Space-segment GNSS receiver evidence (research 2026-11-20 gaps E20; features `pro-space-rx-exposure`, `pro-space-rx-qual`, `pro-space-rx-see`, `kshana-pro space-rx`).** The receiver-side view of a GNSS receiver on a spacecraft: the ground-interference envelope it meets in orbit (TLE on the open engine's SGP4 over declared areas or degraded map cells; J/S, effective C/N0, time beyond the J/S it was tested to, Doppler offsets of ground transmitters seen from orbit, simulator test points at signal-parameter level), campaign scorecards against a mission profile with a selection database and a qualification process template, radiation-fault signatures in its output trace with injected fixtures, receiver-to-OBC corrupt-data vectors with OBC log scoring, and a SEE rate forecast. MODELLED; scorecards are evidence for a selection or review, not a statement that a part is fit for flight. See [`docs/SPACE-RECEIVER.md`](docs/SPACE-RECEIVER.md).
+
 **Framework evidence packs (roadmap 0.42 E6; feature `pro-framework-pack`, `kshana-pro frameworks pack`)** and **insurer scorecard (E7; feature `pro-insurer-scorecard`, `kshana-pro exposure run`).** Seven framework templates (EASA SIB 2022-02R4, NIST IR 8323r1, DHS RPCF, IMO Circular Letter No. 5037 as a draft until its text is read, MiFID II RTS 25, the EU Space Act proposal, NIS 2) map signed Kshana Pro evidence to each duty, "mapped to" only, with the gap; the exposure summary counts signed forensics and integrity evidence for a fleet or route over a period, adds no detection, and is signed. Samples under `report-templates/samples/`. See [`docs/EVIDENCE-PRODUCTS.md`](docs/EVIDENCE-PRODUCTS.md).
 
 **Log time integrity and dispute evidence (research 2026-11-20 gaps E06; features
@@ -282,7 +284,7 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **ninety-seven integration tests** in
+The suite is unit tests across every module plus **ninety-eight integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,
