@@ -38,6 +38,9 @@
 //!   cross-check with non-GNSS sources grouped by traceability root ([`crosscheck`],
 //!   `pro-timing-crosscheck`), and ground-station timing and pass-quality assurance
 //!   ([`station`], `pro-timing-station`).
+//! * **E33 clock benchmarks** ([`clock_bench`], `pro-timing-clock-bench`): several clocks on the
+//!   same stated metrics from their own logs under a protocol hashed before the data, with the
+//!   reference floor flagged and no ranking.
 //!
 //! The prediction method is pre-registered and scored as evidence row V5, and its successor
 //! (used by the fleet assessment) as V5b (`docs/evidence/v5-holdover-time-to-breach/`);
@@ -47,6 +50,7 @@
 pub mod attack;
 pub mod audit;
 pub mod chain;
+pub mod clock_bench;
 pub mod compliance;
 pub mod console;
 pub mod crosscheck;

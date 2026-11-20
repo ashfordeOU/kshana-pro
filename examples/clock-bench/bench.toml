@@ -1,0 +1,50 @@
+# SYNTHETIC demo of `kshana-pro timing clock-bench` (docs/TIMING-ASSURANCE.md, E33).
+# The logs are made up by generate.py; the unit ids are not products.
+protocol_sha256 = "f4bd255e3459df7bec4d18a131b24c706d41a36b5b3f6d0112adb21cbab9fe36"
+
+[protocol]
+id = "demo-clock-bench"
+title = "SYNTHETIC three-clock benchmark"
+registered_utc = "2026-11-01T00:00:00Z"
+reference = "SYNTHETIC reference with the stated stability"
+reference_adev = [[1.0, 1e-13], [1000.0, 1e-15]]
+taus = [1.0, 10.0, 100.0]
+confidence = 0.95
+floor_factor = 3.0
+holdover_train_s = 1500.0
+holdover_window_s = 1000.0
+holdover_threshold_s = 1e-7
+phases = ["baseline", "temperature"]
+metrics = ["adev", "tdev", "mtie", "holdover", "sensitivity", "datasheet"]
+
+[[clock]]
+id = "unit-a"
+technology = "csac"
+datasheet = "SYNTHETIC claim sheet"
+datasheet_adev = [[1.0, 3e-10], [10.0, 1e-10]]
+collected_from_utc = "2026-11-02T00:00:00Z"
+[[clock.segment]]
+phase = "baseline"
+log = { format = "timelab", path = "unit-a-baseline.txt" }
+[[clock.segment]]
+phase = "temperature"
+log = { format = "timelab", path = "unit-a-temperature.txt" }
+
+[[clock]]
+id = "unit-b"
+technology = "rubidium"
+collected_from_utc = "2026-11-02T00:00:00Z"
+[[clock.segment]]
+phase = "baseline"
+log = { format = "timelab", path = "unit-b-baseline.txt" }
+[[clock.segment]]
+phase = "temperature"
+log = { format = "timelab", path = "unit-b-temperature.txt" }
+
+[[clock]]
+id = "unit-c"
+technology = "optical"
+collected_from_utc = "2026-11-02T00:00:00Z"
+[[clock.segment]]
+phase = "baseline"
+log = { format = "timelab", path = "unit-c-baseline.txt" }

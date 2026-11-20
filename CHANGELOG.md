@@ -5,6 +5,16 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
+  "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
+  Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
+  and its stability, holdover test, environmental phases); scoring refuses a protocol changed
+  after registration; per clock and phase, overlapping ADEV with chi-squared intervals, TDEV,
+  MTIE, a holdover prediction test, frequency shift and stability ratio to the baseline phase,
+  datasheet claims as measured/claimed ratios; points below the reference floor flagged and
+  withheld; side-by-side table in input order with no ranking; signed evidence directory.
+  Tier manifest regenerated; synthetic demo in `examples/clock-bench/`; `tests/clock_bench.rs`
+  (9 tests).
 - **Avionics test library (research 2026-11-20 gaps E12: B1201, B1203, B1205, B1206 part 1;
   docs/AVIONICS-TEST-LIBRARY.md).** `kshana-pro avionics`: SBAS L1 framing (MT 0, 1, 2-5, 6,
   7, 26, 63; CRC-24Q) and a deterministic message-sequence generator for failure tests (UDREI

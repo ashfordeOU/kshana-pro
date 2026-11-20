@@ -12,6 +12,7 @@ mod aviation_cmd;
 mod avionics_cmd;
 mod bridge_cmd;
 mod briefing_cmd;
+mod clock_bench_cmd;
 mod dossier_cmd;
 mod eloran_cmd;
 mod evidence_cmd;

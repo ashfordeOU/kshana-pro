@@ -1,6 +1,6 @@
 // PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
-//! `kshana-pro timing <assess|console|metrics|history|scorecard|compliance|audit|attack|timebomb|selfcheck|holdover-evidence|posture|chain|crosscheck|station>`
+//! `kshana-pro timing <assess|console|metrics|history|scorecard|compliance|audit|attack|timebomb|selfcheck|holdover-evidence|posture|chain|crosscheck|station|clock-bench>`
 //! (roadmap 0.42 T1-T3; W1119 C4, C8; W1120 TA1-TA4; E19 in `timing_net_cmd`).
 //! `assess` needs `pro-timing-holdover`; `console`, `metrics` and `history` need
 //! `pro-timing-fleet`; `audit` needs `pro-timing-audit`. Verifying an audit report needs no
@@ -37,7 +37,8 @@ pub const USAGE: &str = "usage: kshana-pro timing <command>\n\
     posture sbom check <bom.json>                                              Structural check of a CycloneDX JSON SBOM (no licence needed)\n\
     chain <chain.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Time-distribution chain from UTC(k) over WR/PTP/fibre/common-view hops: GUM budget, calibration currency, onboarding test, signed traceability statement (Pro) | chain template\n\
     crosscheck <request.toml> [--json <out>] [--csv <bins.csv>] [--license <token>] [--dev]   Multi-source cross-check grouped by traceability root (GNSS, long-wave, BPS, eLoran, LEO, fibre, NTS): single-source fault isolation, node-off, silent sources, triad monitor (Pro) | crosscheck profile <wisp|timing-node>\n\
-    station <station.toml> [--json <out>] [--csv <passes.csv>] [--out <dir> --signer <name> --key-file <file>] [--utc <iso>] [--license <token>] [--dev]   Ground-station pass-quality SLA and station timing during passes, optionally signed (Pro)";
+    station <station.toml> [--json <out>] [--csv <passes.csv>] [--out <dir> --signer <name> --key-file <file>] [--utc <iso>] [--license <token>] [--dev]   Ground-station pass-quality SLA and station timing during passes, optionally signed (Pro)\n\
+    clock-bench register <bench.toml> [--json <protocol.json>] | clock-bench score <bench.toml> [--json <out>] [--csv <out>] [--out <dir> --signer <name> --key-file <file>] [--utc <iso>] [--license <token>] [--dev]   Neutral clock benchmark under a pre-registered protocol: ADEV with intervals, TDEV, MTIE, holdover test, environmental sensitivity, datasheet claims, reference floor; no ranking (Pro; register is free)";
 
 pub(super) fn fail(msg: impl std::fmt::Display) -> ExitCode {
     eprintln!("error: {msg}");
@@ -155,6 +156,7 @@ pub fn run(args: &[String]) -> ExitCode {
         (Some("chain"), Some(x)) => super::timing_net_cmd::chain(args, &x),
         (Some("crosscheck"), Some(x)) => super::timing_net_cmd::crosscheck(args, &x),
         (Some("station"), Some(x)) => super::timing_net_cmd::station(args, &x),
+        (Some("clock-bench"), Some(x)) => super::clock_bench_cmd::clock_bench(args, &x),
         (Some(cmd @ ("assess" | "console" | "metrics" | "audit")), Some(path)) => {
             let feature = match cmd {
                 "assess" => timing::KIND,
