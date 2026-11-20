@@ -3,7 +3,7 @@ name: eLoran engine
 # the full test suite on every push and pull request, and a nightly hardware-in-the-loop
 # style run on the virtual bench (A3) plus the software acceptance tests (A5).
 #
-# Self-hosted for the same reason as ci.yml (hosted minutes are billing-blocked). To run
+# GitHub-hosted (public repository). To run
 # the nightly job against real LF hardware, give a lab runner the extra label
 # `eloran-hil` and set the repository variable ELORAN_HIL=1: the job then also runs the
 # `--features soapy` build and the bench acceptance command with the lab's device and
@@ -27,7 +27,7 @@ defaults:
     working-directory: crates/kshana-eloran
 jobs:
   engine:
-    runs-on: [self-hosted, macos, arm64, kshana-pro]
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -47,7 +47,7 @@ jobs:
         run: cargo test --locked --features unfiled-methods
   nightly-bench:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: [self-hosted, macos, arm64, kshana-pro]
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
