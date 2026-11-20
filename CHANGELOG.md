@@ -5,6 +5,16 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
+  "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
+  Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
+  and its stability, holdover test, environmental phases); scoring refuses a protocol changed
+  after registration; per clock and phase, overlapping ADEV with chi-squared intervals, TDEV,
+  MTIE, a holdover prediction test, frequency shift and stability ratio to the baseline phase,
+  datasheet claims as measured/claimed ratios; points below the reference floor flagged and
+  withheld; side-by-side table in input order with no ranking; signed evidence directory.
+  Tier manifest regenerated; synthetic demo in `examples/clock-bench/`; `tests/clock_bench.rs`
+  (9 tests).
 - **UTM / U-space positioning integrity (backlog E18 B1804; docs/UTM-INTEGRITY.md).**
   `kshana-pro utm` (feature `pro-utm-integrity`, Pro; `feed` `pro-ussp-feed`, Enterprise):
   `sora` (SORA-ready GNSS-interference input for one operation: route exposure on each day

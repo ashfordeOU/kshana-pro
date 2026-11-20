@@ -621,3 +621,71 @@ limit. Tested on a synthetic station.
 PMU phase-angle evidence, gradual-spoof detection, SCADA time stamps, PRC-002 evidence with
 holdover resilience, grid event forensics and DAB/DVB-T SFN timing build on this layer: see
 [`GRID-SFN-TIMING.md`](GRID-SFN-TIMING.md).
+
+## Clock benchmarks (E33: B3302)
+
+Several clocks scored on the same stated metrics, from their own logs, under a protocol fixed
+before the data: optical against caesium, rubidium and chip-scale atomic clocks, MEMS against
+quartz, a clock at sea or in a temperature chamber against its own baseline. Code:
+`src/timing/clock_bench.rs`, CLI `src/cli/clock_bench_cmd.rs`. Demo (all SYNTHETIC, written by
+`examples/clock-bench/generate.py`): `examples/clock-bench/`. Tests: `tests/clock_bench.rs`.
+
+| Command | Licence feature | Tier |
+|---|---|---|
+| `timing clock-bench register` | none | free |
+| `timing clock-bench score` | `pro-timing-clock-bench` | Pro |
+
+```sh
+kshana-pro timing clock-bench register examples/clock-bench/bench.toml --json protocol.json
+kshana-pro timing clock-bench score examples/clock-bench/bench.toml --csv table.csv \
+    --out bench-evidence --signer lab --key-file lab.key
+```
+
+**Pre-registration.** The `[protocol]` table names the metrics (`adev`, `tdev`, `mtie`,
+`holdover`, `sensitivity`, `datasheet`), the averaging times, the confidence level, the
+measurement reference and its stated Allan deviation, the floor factor, the holdover test
+(training span, window, threshold) and the phases data will be taken in (`baseline` and any of
+temperature, vibration, shock, at sea, ...). `register` prints the SHA-256 of its canonical JSON
+(`protocol.json` with `--json`). Publish or sign that text before any data is taken. The request
+records the hash as `protocol_sha256`, and `score` refuses a protocol that no longer hashes to it.
+So the protocol cannot be changed once the results are seen. A clock may state
+`collected_from_utc`. The report says whether that is after `registered_utc`, as stated by the
+operator. The logs themselves are not checked for it.
+
+**Metrics.** Each clock gives one log per phase (`[[clock.segment]]`), read by the open engine's
+clock-log readers (TimeLab, TICC, RINEX clock and the other formats of
+`docs/CLOCK-LOG-FORMATS.md` in the open repository). Per phase and averaging time the report gives:
+
+* the overlapping Allan deviation with a chi-squared interval (conservative degrees of freedom);
+* the TDEV and the MTIE;
+* a holdover test: the frequency is fitted on the training span, and the report gives the largest
+  prediction error over the window and the first time it reaches the threshold;
+* for each phase other than the baseline, the mean frequency shift from the baseline and the
+  Allan deviation ratio to it.
+
+Datasheet Allan deviation claims, when a clock states them, are reported as the measured/claimed
+ratio on the baseline, at the protocol's averaging times.
+
+**Reference floor.** A point below `floor_factor` times the reference's stated Allan deviation is
+flagged `reference_limited`. It is left blank in the side-by-side table, because it measures the
+reference as much as the clock. In the demo the synthetic optical unit is reference-limited at
+every averaging time, which is the correct result against that reference.
+
+**Neutrality.** Clocks are listed in input order. The side-by-side table (`table.csv`, and the
+HTML scorecard) puts the same metric for every clock on one row. Nothing is ranked or summed into
+a score, and there is no winner. A maker appears only as the document a clock's claims come from.
+With `--out`, a signed directory (`scorecard.json`, `scorecard.html`, `table.csv`,
+`protocol.json`, `inputs/bench.toml`); verify with `kshana-pro dossier verify` (free).
+
+Label: COMPUTED from the logs as supplied under the registered protocol; the holdover test is a
+linear-frequency prediction (MODELLED). Tested on synthetic logs only. Not a type approval or an
+endorsement.
+
+### Not built in E33
+
+* No run on real clocks: the demo and the tests use synthetic white-FM logs.
+* The holdover test is not flagged against the reference floor (only the Allan deviation is).
+* The environmental phases are compared as whole logs. There is no per-event analysis inside a
+  phase (a shock's step is seen only in the phase's mean frequency and stability).
+* The open engine's oscillator models (`kshana oscillator`, open B3301) are not called from here.
+  This crate pins the published engine (0.41.0), which does not carry them yet.

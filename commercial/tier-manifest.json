@@ -263,6 +263,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-timing-clock-bench",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-timing-correlation",
       "type": "feature",
       "tier": "pro"

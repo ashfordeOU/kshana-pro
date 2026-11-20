@@ -160,6 +160,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-timing-chain" => Tier::Pro,
         "pro-timing-crosscheck" => Tier::Pro,
         "pro-timing-station" => Tier::Pro,
+        // Neutral clock benchmarks under a pre-registered protocol (E33 B3302).
+        "pro-timing-clock-bench" => Tier::Pro,
         // Synthetic attack IQ files (roadmap 0.42 F7, owner gate K6): Pro edition, but never
         // by tier below Enterprise: the vendor names the feature on a vetted buyer's licence
         // (with `vetted_buyer`), and crate::attack_iq checks both.
@@ -284,6 +286,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-timing-chain",
     "pro-timing-crosscheck",
     "pro-timing-station",
+    "pro-timing-clock-bench",
     "pro-threat-library",
     "pro-attack-iq",
     "pro-area-console",
