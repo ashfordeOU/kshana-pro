@@ -41,6 +41,11 @@ pub const METHODS: &[(&str, &str)] = &[
     ("archive-query", "archive-query"),
     ("vision-claims/register", "claims-protocol"),
     ("vision-claims", "vision-claims"),
+    ("timing-correlation", "timing-correlation"),
+    ("gnss-leo-arbitration", "gnss-leo-arbitration"),
+    ("delay-calibration", "delay-calibration"),
+    ("scorecard", "scorecard"),
+    ("benchmark", "benchmark"),
 ];
 
 /// A signed verdict as the service returns it.
