@@ -9,10 +9,13 @@ mod alerts_cmd;
 mod area_cmd;
 mod attack_iq_cmd;
 mod briefing_cmd;
+mod aviation_cmd;
 mod dossier_cmd;
 mod eloran_cmd;
 mod evidence_cmd;
+mod evidence_infra_cmd;
 mod forensics_cmd;
+mod incident_cmd;
 mod license_cmd;
 mod lunar_cmd;
 mod packs_cmd;
@@ -20,11 +23,13 @@ mod payments_cmd;
 mod pics_cmd;
 mod pnt_cmd;
 mod pntdp_cmd;
+mod receiver_cmd;
 mod reports_cmd;
 mod scorecard_cmd;
 mod testkit_cmd;
 mod threats_cmd;
 mod timing_cmd;
+mod timing_net_cmd;
 mod trust_cmd;
 mod verdict_cmd;
 
@@ -58,13 +63,13 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro license <verify|activate|status|deactivate|machine-id|revocations|refresh> ...   Licence on this machine (offline; `kshana-pro license` for details)\n\
        kshana-pro backup <create --data-dir <dir> --out <backup-dir> | verify <backup-dir>>   Back up a service data directory while it runs; check a backup offline\n\
        kshana-pro dossier <keygen|sign|verify> ...   Sign a dossier or any delivery directory (Pro); verify one offline (free; `kshana-pro dossier` for details)\n\
-       kshana-pro forensics <run|review|verify|pack-payload> ...   Incident forensics (E1, Pro pack): signed, reproducible forensic report; review and verify (free; `kshana-pro forensics` for details)\n\
-       kshana-pro scorecard <run|verify> ...   Receiver resilience scorecard and signed test report (E3, Pro); verify (free; `kshana-pro scorecard` for details)\n\
+       kshana-pro forensics <run|review|verify|maritime|fdm|reports|log-time|dispute|pack-payload> ...   Incident forensics (E1, Pro pack): signed, reproducible forensic report; review and verify (free); maritime and FDM evidence, log time integrity, dispute evidence (`kshana-pro forensics` for details)\n\
+       kshana-pro scorecard <run|verify|osnma|flags|units> ...   Receiver resilience, OSNMA, flag-efficacy and unit scorecards, signed (E3, E13, Pro); verify (free; `kshana-pro scorecard` for details)\n\
        kshana-pro attack-iq <generate|attestation-template|trace> ...   Synthetic attack IQ files for shielded labs and authorised ranges (F7): vetted buyers only, attestation first, files only, watermarked and logged\n\
        kshana-pro threats <list|show|export|feed> ...   Threat scenario library (E2): provenance, analogue, test-bench exports, signed monthly feed (Pro; list and feed verify free)\n\
        kshana-pro payments <check|checkout|stripe-checkout|serve> [--config <payments.toml>] ...   Payments and paywall; inert while payments.enabled and payments.stripe.enabled are false (vendor side)\n\
        kshana-pro packs <build|issue|serve|trace|install|status> ...   Pro pack delivery (C10; `kshana-pro packs` for details)\n\
-       kshana-pro timing <assess|console|metrics|history|audit|compliance|timebomb|selfcheck|holdover-evidence> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit and evidence packs, time-bomb vectors and fleet audit, clock self-check, holdover evidence (Pro; `kshana-pro timing` for details)\n\
+       kshana-pro timing <assess|console|metrics|history|audit|compliance|timebomb|selfcheck|holdover-evidence|posture|chain|crosscheck|station> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit and evidence packs, time-bomb vectors and fleet audit, clock self-check, holdover evidence, appliance security posture and SBOMs, distribution-chain traceability, multi-source cross-check, ground-station pass assurance (Pro; `kshana-pro timing` for details)\n\
        kshana-pro trust <run|verify> ...   Multi-source trust (F3): choose epoch by epoch among GNSS, OSNMA, LEO, eLoran, PTP and holdover, with hash-chained evidence (Pro; verify free)\n\
        kshana-pro eloran <run|validate|example> ...   eLoran/GNSS signal simulator: multi-chain, multi-time-reference eLoran signals with propagation, interference and truth, to SigMF files or LF hardware (Enterprise; validate and example free)
        kshana-pro lunar <time|rates|w0|circular|holdover|offset|lunex> ...   Lunar time with GUM uncertainty (TCL or TL), W0_L sensitivity, Circular T for the Moon, Earth-Moon TWTT holdover, KLTO-1 offset codec proposal, LUNEX prototype (Pro; decode, vectors, example and validate free; `kshana-pro lunar` for details)\n\
@@ -78,6 +83,9 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro pntdp <run|vectors|check> ...   PNT data processing reference (MSC.1/Circ.1575): multi-source plausibility, consistency, selected solution and integrity level (Pro; vectors and check free)\n\
        kshana-pro verdict <selfcal|survey|cause|verify> ...   Hosted methods answered as signed verdicts, verified against the service key (`kshana-pro verdict` for details)\n\
        kshana-pro reports <normalise|validate|episodes|verify|reset-check|ledger|check|params|regimes|synth> ...   Interference reports: normalise crew/ATC/mariner reports, validate per regime, episodes, signed verification, exposure ledger and reset check (Pro; ledger Enterprise; check, params, regimes, synth free)\n\
+       kshana-pro aviation <approach|residual|nuisance|areas|check|synth> ...   Aviation operational analytics: approach availability and go-around exposure, residual effects and clean-or-reset, nuisance-alert statistics, unpublished interference areas (Pro; areas Enterprise; check, synth free; decision support only)\n\
+       kshana-pro obs-provenance <keygen|sign|verify|keyring-add> ...   Signed feeder provenance on kshana.obs/1 batches: feeder key, time, position, sequence, in a sidecar (sign Pro; the rest free)\n\
+       kshana-pro longterm <key-genesis|key-rotate|request|add-token|stamp|history|verify> ...   Long-term signatures: key history and RFC 3161 archive time-stamp chain over a signed directory, verified offline (Pro; request and verify free)\n\
        kshana-pro exposure <run|verify> ...   Insurer scorecard: periodic signed exposure summary of a fleet or route (E7, Pro); verify free\n\
        kshana-pro briefing <transits|brief|tails|lowalt|occ|regional|road|spillover|notam|areas|verify> ...   Exposure history, route risk and briefings with stated confidence: transits, chokepoint and route briefings, per-tail ledger, OCC alerts, regional datasets, road index, spillover footprints (Pro; notam, areas, verify free)\n\
        kshana-pro license <keygen|pubkey|issue|issue-invoice|extend-invoice|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
@@ -149,6 +157,9 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "verdict",
     "reports",
     "testkit",
+    "aviation",
+    "obs-provenance",
+    "longterm",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -287,6 +298,9 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("verdict") => verdict_cmd::run(&args[1..]),
         Some("reports") => reports_cmd::run(&args[1..]),
         Some("testkit") => testkit_cmd::run(&args[1..]),
+        Some("aviation") => aviation_cmd::run(&args[1..]),
+        Some("obs-provenance") => evidence_infra_cmd::provenance(&args[1..]),
+        Some("longterm") => evidence_infra_cmd::longterm(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
         Some(name) if crate::extension::commands().iter().any(|c| c.name == name) => {
             let c = crate::extension::commands()

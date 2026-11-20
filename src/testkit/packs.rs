@@ -109,6 +109,36 @@ pub const PACKS: &[(&str, &str, PackItems)] = &[
             ),
         ],
     ),
+    (
+        "receiver-flags",
+        "Receiver flags: CW and broadband jamming, simplistic, drag and time-push spoofing, clean baseline (flag-efficacy scorecards)",
+        &[
+            (
+                "flags-clean",
+                include_str!("../../testkit/packs/receiver-flags/flags-clean.toml"),
+            ),
+            (
+                "flags-jam-broadband",
+                include_str!("../../testkit/packs/receiver-flags/flags-jam-broadband.toml"),
+            ),
+            (
+                "flags-jam-cw",
+                include_str!("../../testkit/packs/receiver-flags/flags-jam-cw.toml"),
+            ),
+            (
+                "flags-spoof-drag",
+                include_str!("../../testkit/packs/receiver-flags/flags-spoof-drag.toml"),
+            ),
+            (
+                "flags-spoof-simplistic",
+                include_str!("../../testkit/packs/receiver-flags/flags-spoof-simplistic.toml"),
+            ),
+            (
+                "flags-spoof-time-push",
+                include_str!("../../testkit/packs/receiver-flags/flags-spoof-time-push.toml"),
+            ),
+        ],
+    ),
 ];
 
 /// The scenarios of one pack.

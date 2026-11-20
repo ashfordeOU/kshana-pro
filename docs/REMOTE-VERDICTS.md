@@ -22,7 +22,8 @@ kshana-pro verdict verify verdict.json
    during a key rotation. A saved verdict can be re-verified any time, offline.
 
 Methods served: `selfcal` (self-calibrating simulator loop), `survey` (integrity-driven ASF
-survey planner), `cause` (what caused a vessel or aircraft position episode; below). Endpoint:
+survey planner), `cause` (what caused a vessel or aircraft position episode; below),
+`calibrate` (general parametric calibration of a simulator against telemetry; below). Endpoint:
 `--url` or `KSHANA_VERDICT_URL`; HTTPS only (a loopback `http://` address is allowed for a
 local test service).
 
@@ -58,6 +59,32 @@ time window) and `limits`. When the data cannot separate the causes the answer i
 `insufficient_evidence` with the leading hypothesis, not a guess. It is an engineering
 reconstruction of the data supplied, not a legal finding, and does not assess intent. The
 method has been checked on synthetic episodes only; it is not validated on real incidents.
+
+## `calibrate`: a simulator recalibrated against telemetry
+
+```
+kshana-pro verdict calibrate request.json --url https://<service> --out verdict.json
+```
+
+`selfcal` serves one model family (radio timing reference simulators). `calibrate` returns
+the same kind of verdict for any simulator whose behaviour depends on named parameters (power,
+thermal, clock, attitude, propulsion, a mission performance simulator). The request:
+
+| Field | Meaning |
+|---|---|
+| `parameters` | `[{name, prior?, prior_sigma?, lower?, upper?, initial?}]` (at most 32; no `prior_sigma` is a flat prior) |
+| `model` | `{"kind": "expression", "observables": {"<observable>": "<arithmetic in t, pi and the parameters>"}}`, or `{"kind": "design", "runs": [{"params": {...}, "predictions": {"<observable>": [[t_s, value], ...]}}]}`: runs of your own simulator over a design of parameter sets |
+| `observations` | the telemetry `[{observable, t_s, value, sigma}]` |
+| `tolerances` | optional per-observable fidelity tolerance (default 2 sigma) |
+| `options` | optional `{max_iter}` |
+
+The verdict (`method` `calibrate`, evidence class MODELLED) carries `converged`,
+`stop_reason`, `passes`, `fidelity_first`, `fidelity_last` (0–100, the share of observations
+within tolerance before and after), `posterior` (`{name, value, std_err}`), `correlation`,
+`at_bound`, `not_constrained`, the reduced chi-square before and after, for a design the
+response surface used (kind, runs, leave-one-out error) and `lineage.head`. With a design the
+parameters stay inside the design's range. Calibrated parameters are what best explains the
+telemetry supplied under the model supplied; they are not a validation.
 
 The client (`src/remote_verdict.rs`) holds no method code and names no service. The service
 lives in a separate private repository and is never linked into this crate (X3); its

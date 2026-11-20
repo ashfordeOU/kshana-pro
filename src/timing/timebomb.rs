@@ -1355,6 +1355,10 @@ pub struct Advisory {
     pub source: String,
     /// How the entry was checked.
     pub verification: String,
+    /// Hazard classes read by other checks (`unsigned-firmware`: the device does not verify
+    /// its upgrade images; read by the appliance posture report).
+    #[serde(default)]
+    pub tags: Vec<String>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]

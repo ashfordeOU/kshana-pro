@@ -17,6 +17,7 @@
 //! underwriter, not an underwriting recommendation, a rating, a premium advice or a finding of
 //! fact.
 
+pub mod scheme;
 pub mod voyage;
 
 use std::path::{Path, PathBuf};

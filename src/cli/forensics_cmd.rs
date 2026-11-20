@@ -1,6 +1,7 @@
 // PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
-//! `kshana-pro forensics <run|review|verify|pack-payload>` (roadmap 0.42, E1).
+//! `kshana-pro forensics <run|review|verify|maritime|fdm|reports|log-time|dispute|pack-payload>`
+//! (roadmap 0.42, E1; W1119 C3, C5; research 2026-11-20 gaps E06).
 //!
 //! `run` needs a licence tier that unlocks `pro-incident-forensics` and the forensics Pro pack
 //! loaded (from the Desktop app data folder with `--app-data`, or already loaded by the
@@ -26,6 +27,10 @@ const USAGE: &str = "usage: kshana-pro forensics <command>\n\
         Signed maritime incident evidence pack: actor vs victim from NMEA, AIS and Station events (`kshana-pro forensics maritime` for details)\n\
     fdm <flight.csv> --flight <id> --out <dir> --signer <name> --key-file <file> [--dev]\n\
         GNSS jamming/spoofing events in flight data with an EASA SIB 2022-02R4-oriented summary (`kshana-pro forensics fdm` for details)\n\
+    log-time <request.toml> [--json] [--timeline <csv>] [--out <dir> [--signer <name> --key-file <file>]] [--dev]\n\
+        Time integrity of operational logs (VDR/ECDIS, ACARS/CPDLC, FDM, SATCOM, GMDSS): steps, frozen clocks, drift, rollover, leap seconds, cross-log disagreement, corrected timeline (`kshana-pro forensics log-time` for details)\n\
+    dispute <request.toml> --out <dir> --signer <name> --key-file <file> [--trust <hex>] [--dev] | dispute templates\n\
+        Commercial dispute evidence (off-hire, delay, DP downtime, deviation, safe port) from GNSS-integrity findings, MODELLED, signed (`kshana-pro forensics dispute` for details)\n\
     reports <command> ...\n\
         Interference reports: normalise, validate, episodes, verify, reset-check, ledger (same as `kshana-pro reports`)\n\
     pack-payload <dir>\n\
@@ -282,6 +287,10 @@ pub fn run(rest: &[String]) -> ExitCode {
         Some("fdm") => super::pnt_cmd::fdm(rest),
         Some("fdm-synth") => super::pnt_cmd::fdm_synth(rest),
         Some("reports") => super::reports_cmd::run(&rest[1..]),
+        Some("log-time") => super::incident_cmd::log_time(rest),
+        Some("log-time-synth") => super::incident_cmd::log_time_synth(rest),
+        Some("dispute") => super::incident_cmd::dispute(rest),
+        Some("dispute-synth") => super::incident_cmd::dispute_synth(rest),
         Some("pack-payload") => {
             let Some(dir) = rest.get(1) else {
                 return fail(USAGE);

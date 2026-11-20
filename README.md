@@ -21,7 +21,7 @@ construction*; Pro adds the value that must stay closed.
         │  │ L1 twin          │      │ docs/tenders/  13503·13494·   │    │
         │  │ L2 resilience 🔒 │      │   lunar  (bid evidence, decks)│    │
         │  │ L3 suite (gated) │      │ papers/        (arXiv-track)  │    │
-        │  │ + 32 Pro packs   │      │ docs/gtm · docs/strategy      │    │
+        │  │ + 33 Pro packs   │      │ docs/gtm · docs/strategy      │    │
         │  │   via ExternalPack│     │ legal/  (licence·NDA·export·  │    │
         │  │   / ErrorModel   │      │   BIPR·trademark)             │    │
         │  └────────┬─────────┘      │ docs/kshana-architecture.html │    │
@@ -81,7 +81,7 @@ won tenders and revenue. The map:
 
 ## Status — what is built vs gated
 
-The overlay is well past its P0 seam: **thirty-two Pro packs** (plus the **Pack C**
+The overlay is well past its P0 seam: **thirty-three Pro packs** (plus the **Pack C**
 scenario-CI subscription product) are built and tested on public data across the
 P0 / L1 / L3 value layers, plus the deliverable and deployment modules listed below. What stays **gated** is never a *framework* — it is the
 *instance* that needs private data, export clearance, or a signed customer: a real
@@ -93,13 +93,13 @@ on spec)**.
 
 Each runs on public data; the tier shown is the licence required to *run* it (see
 [Licensing](#build--run)). The table covers the framework packs; the full list of the
-thirty-two registered in the signed tier manifest (`commercial/tier-manifest.json`): the seventeen
+thirty-three registered in the signed tier manifest (`commercial/tier-manifest.json`): the seventeen
 this crate contains are in [`src/registry.rs`](src/registry.rs), incident forensics
 (`pro-incident-forensics`, roadmap 0.42 E1) arrives as a Pro pack, all listed with their tiers by
 `cargo run -- kinds`. `tests/readme_counts.rs` fails the build if the pack count written
 here stops matching the registry.
 
-**Editions (roadmap 0.42, section 1a; X3 done).** Fourteen of the thirty-two are
+**Editions (roadmap 0.42, section 1a; X3 done).** Fifteen of the thirty-three are
 **Arksa-exclusive**, and so are the `mbse`, `design`, `coexist`, `mission`, `navdt`,
 `spacestream` and `mrd` commands: their code is no longer in this repository. It moved to the
 private server-side crate (Arksa servers only), which depends on this one and registers
@@ -128,6 +128,17 @@ at start-up. Details, checks and what remains: [docs/PROTECTION.md](docs/PROTECT
 | `pro-uncertainty` | scale | **Uncertainty and sensitivity** (`kshana-pro uncertainty`): stated input distributions over any open scenario; per output the mean, spread, percentiles with a bootstrap interval, the probability of meeting a limit (Wilson interval), time-series bands, and Sobol' or standardised-regression sensitivity; seeded, thread-count independent, stop and resume. See [`docs/UNCERTAINTY.md`](docs/UNCERTAINTY.md) | Enterprise | ✅ built + tested |
 
 **Framework evidence packs (roadmap 0.42 E6; feature `pro-framework-pack`, `kshana-pro frameworks pack`)** and **insurer scorecard (E7; feature `pro-insurer-scorecard`, `kshana-pro exposure run`).** Seven framework templates (EASA SIB 2022-02R4, NIST IR 8323r1, DHS RPCF, IMO Circular Letter No. 5037 as a draft until its text is read, MiFID II RTS 25, the EU Space Act proposal, NIS 2) map signed Kshana Pro evidence to each duty, "mapped to" only, with the gap; the exposure summary counts signed forensics and integrity evidence for a fleet or route over a period, adds no detection, and is signed. Samples under `report-templates/samples/`. See [`docs/EVIDENCE-PRODUCTS.md`](docs/EVIDENCE-PRODUCTS.md).
+
+**Log time integrity and dispute evidence (research 2026-11-20 gaps E06; features
+`pro-log-time-integrity` and `pro-dispute-evidence`, `kshana-pro forensics log-time|dispute`).**
+The time stamps of VDR/ECDIS NMEA, ACARS/CPDLC message logs and CSV/JSON exports (FDM, SATCOM,
+GMDSS) checked against each record's reference and against the other clocks: steps, backward
+time, frozen clocks, drift, GPS week rollover, leap seconds, ordering and cross-log
+disagreement, with a corrected timeline. A charter-party dispute report (off-hire,
+delay/laycan, DP downtime, deviation, safe port) says when GNSS position or timing integrity
+was lost, for how long and which sources agree, citing the maritime pack, the forensics bundle
+and the log check; signed. MODELLED, synthetic tests only, not a legal finding. See
+[`docs/INCIDENT-EVIDENCE.md`](docs/INCIDENT-EVIDENCE.md).
 
 **Alert policy engine (roadmap 0.42 F5; feature `pro-alert-policy`, `kshana-pro alerts route`).**
 Routes decide who is told what, when and through which of the open engine's I5 outputs, with quiet
@@ -269,7 +280,7 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **eighty-six integration tests** in
+The suite is unit tests across every module plus **ninety-two integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,
