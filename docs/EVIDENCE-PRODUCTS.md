@@ -117,3 +117,26 @@ underwriting recommendation, premium advice, a forecast or a certification.
 
 Evidence: **MODELLED** (weights are stated engineering choices, tested for bounded and
 monotonic behaviour in `tests/insurer_voyage.rs`; not fitted to claims or loss data).
+
+## Discount-scheme device scorecard and A-PNT verification (research backlog B1303, E13)
+
+`kshana-pro exposure scheme <request.toml> --out <dir> --signer <name> --key-file <file> [--trust <hex>]`
+(licence: `pro-insurer-scorecard`; `src/exposure/scheme.rs`; method
+`kshana-pro/scheme-device-scorecard/v1`, format `kshana-pro-scheme-device-scorecard/1`). Where an
+insurer's discount scheme rests on fitted anti-spoofing or alternative-PNT equipment, each claim
+(as the scheme or the vendor words it) is checked against signed evidence:
+
+| Claim kind | Evidence | Supported when |
+|---|---|---|
+| `spoof_detection`, `jam_detection` | flag-efficacy scorecard (B1301) | pooled detection rate ≥ `min_rate` (default 0.9) over ≥ `min_runs` (5) runs; Wilson 95 % interval reported |
+| `no_misleading_output` | flag-efficacy (flag normal while wrong), unit scorecard (`misleading_epochs`), receiver scorecard | at least one source judged and none shows wrong output without warning |
+| `recovery_within_s`, `residual_within_ns` | timing recovery (B1304), unit scorecard (`recovery_s`) | every matching receiver within the value |
+| `apnt_holdover` | timing recovery: the named alternative source | its deviation from baseline stayed within the value throughout the attack |
+
+Otherwise `not supported`, or `insufficient evidence` (no matching evidence, too few runs, or
+only unsigned evidence). Evidence directories are verified with the `--trust` keys; one whose
+signature fails is set aside. **Publication rule**: `[funding] paid_by` (`independent`,
+`insurer`, `operator`, `subject`, `seller`); a scorecard of testing paid for by the device's
+maker or seller, or resting on unsigned or set-aside evidence, is marked not publishable as a
+neutral scorecard. A check of stated claims, not underwriting advice, a premium
+recommendation or a certification. Evidence: **MODELLED** (`tests/receiver_flag_scorecards.rs`).

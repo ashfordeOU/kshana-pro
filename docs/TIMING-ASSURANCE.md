@@ -158,6 +158,26 @@ the levels of the E3 scoring. Public sample: `examples/timing-scorecard/request.
 pre-registered (`docs/evidence/t4-timing-scorecard/`), all three claim bars met; signed sample
 `report-templates/samples/timing-scorecard-public/`. It inherits T1's unvalidated holdover model.
 
+### T4 recovery metric: timing modules after an attack (research backlog B1304, E13)
+
+`kshana-pro timing recovery <request.toml> --out <dir> --signer <name> --key-file <file>`
+(licence: `pro-timing-scorecard`; `src/timing/recovery.rs`; method
+`kshana-pro/timing-recovery/v1`). Unlike the modelled T4 scorecard above, it reads **recorded**
+time-error logs of one or more modules' 1PPS against an independent reference (CSV
+`t_s,te_ns[,state]`, or TICC, TimeLab and RINEX clock through the open engine's `clock_log`)
+and a stated `[attack]` window. Per module: baseline (median TE before onset), the largest
+deviation during the attack, the **recovery time** (end of attack to the first sample from
+which every sample for `hold_s` stays within `recovered_within_ns` of baseline; `not observed`
+when the log ends too early), the **residual offset** after recovery, and holdover behaviour
+when the log carries states (entry latency, exit time and the phase step across the exit; without
+states, the largest step after the attack). Bars (defaults 100 ns, 60 s hold, 600 s recovery,
+50 ns residual, 100 ns step) are hashed into the report. Several modules or configurations of
+one site are ranked; with `ensemble_median = true` and three or more, the per-sample median of
+the modules is scored too, so a multi-receiver hardening claim is checked on the logs.
+`kshana-pro timing recovery-synth <dir>` writes the three fixtures of the tests (fast slew,
+slow slew, holdover with a 250 ns exit step). Evidence: **MODELLED** (closed-form fixtures in
+`tests/receiver_flag_scorecards.rs`; no real module has been logged).
+
 ## C4: timing evidence packs for regulation (W1119)
 
 `kshana-pro timing compliance <framework> inputs.toml --out <dir> --signer <name> --key-file <key>`
@@ -411,6 +431,190 @@ Every pack keeps the C4 verdicts and the wording rule (tested on every framework
   reports name, and several vendor pages behind them were not read directly.
 * No PTP management-plane (`pmc`) or SNMP reader for the self-check; logs only.
 * None of TA1 to TA4 has been run against a real device, network or operator record.
+
+## Timing networks (E19: B1902, B1904, B1905, B1907)
+
+Research 05, 06, 06b, 07b, 08b, 09b and 12 (20 Nov 2026) found four more gaps around the
+networks that carry time: the security posture of the appliances themselves (six CVEs for one
+grandmaster line in 2024-2026, one of them upgrade images that are not signed,
+CVE-2025-47904; most 2025 fixes of one time-server line were bundled OpenSSH, curl and
+libxml2), one statement of a distribution chain from UTC(k) to an end point, a cross-check
+against sources that do not share GNSS's failure modes, and timing and pass-quality evidence
+for ground stations and teleports. Code: `src/timing/posture.rs`, `chain.rs`, `crosscheck.rs`,
+`station.rs`, CLI `src/cli/timing_net_cmd.rs`. Demo inputs (all SYNTHETIC, written by
+`examples/timing-networks/generate.py`): `examples/timing-networks/`. Tests:
+`tests/timing_networks.rs`.
+
+| Command | Licence feature | Tier |
+|---|---|---|
+| `timing posture check / firmware / sbom station` | `pro-timing-posture` | Pro |
+| `timing posture sbom check` | none | free |
+| `timing chain` | `pro-timing-chain` | Pro |
+| `timing chain template` | none | free |
+| `timing crosscheck` | `pro-timing-crosscheck` | Pro |
+| `timing crosscheck profile` | none | free |
+| `timing station` | `pro-timing-station` | Pro |
+
+All four features are at the `pro` edition in the signed tier manifest.
+
+### B1902: appliance security posture
+
+```sh
+kshana-pro timing posture firmware posture/firmware.img --sha256 <vendor digest> --version 2.5 --json posture/gm-2.fwcheck.json
+kshana-pro timing posture check posture/inventory.toml --components posture/components.toml --json p.json --csv p.csv
+kshana-pro timing posture sbom station posture/station-firmware.toml --out station.cdx.json
+kshana-pro timing posture sbom check station.cdx.json
+```
+
+**Exposure report.** An inventory (`[[appliances]]`: id, site, vendor, model, firmware, role,
+`management` = isolated | internal | internet | unknown, `services`, `upgrade_signing` =
+device-verifies | unsigned | unknown, `firmware_check` (a record from `posture firmware`),
+`sbom` (the vendor's CycloneDX JSON)) is checked against:
+
+* the **appliance advisory table** of the time-bomb auditor (the same seed and `--advisories`
+  files, matched by the same code: `affected`, `not-affected`, `review`); a `review` on an
+  appliance whose management is reachable from the internet becomes `act`;
+* **firmware integrity**: an advisory tagged `unsigned-firmware` (the seed tags
+  CVE-2025-47904) or `upgrade_signing = "unsigned"` needs an out-of-band check of the installed
+  image; without a matching record it is `exposed` (`act`), with one whose version matches the
+  installed firmware it is `mitigated`; an unknown signing practice is `review`;
+* **management reach and services**: management from the internet is `act`; clear-text or
+  amplifying services (telnet, http, ftp, tftp, SNMPv1/v2c, NTP mode 6 and 7) are `plan`, or
+  `act` from the internet;
+* the **vendor SBOM's components** (nested ones included) against a component advisory table
+  (`[[component_advisory]]`: id, component, `affected_from`, `fixed_in`, hazard, source,
+  verification; `--components`, repeatable). No component table ships: the operator brings its
+  own (the demo's entries are labelled EXAMPLE-).
+
+**Firmware check.** The SHA-256 of an image against the vendor's published digest
+(`--sha256`), a `SHA256SUMS` file looked up by file name (`--sums`), or an Ed25519 detached
+signature (raw, hex or base64) with the vendor's public key (`--sig`, `--pubkey`). The record
+(`kshana-pro-firmware-check/1`) carries the digest, method, reference and verdict (`match`,
+`mismatch`, `not-listed`, `signature-valid`, `signature-invalid`); the command fails on
+anything but a match. It is the operator's control for appliances that do not verify their own
+images; it does not show that the vendor's digest or key is genuine.
+
+**SBOM.** `sbom station` writes a CycloneDX 1.5 JSON BOM of a station's firmware from a
+component list (name, version, type, purl, supplier, SPDX licences, SHA-256 or a file to hash,
+`depends_on`), with a reproducible `urn:uuid` serial. The Pro release's own BOM is
+`sbom.cdx.json` of the offline bundle (`scripts/sbom.py`, unchanged). `sbom check` checks any
+CycloneDX JSON (1.4 to 1.6) for the required fields, the component-type and hash-algorithm
+enumerations, hash lengths, unique `bom-ref`s, purl form and dependency references; it is a
+structural check, not a full JSON-schema validation.
+
+Label: COMPUTED from the inventory and tables as supplied; a match is a prompt to read the
+advisory, not a finding that the appliance is exploitable.
+
+### B1904: time-distribution chain verifier
+
+```sh
+kshana-pro timing chain examples/timing-networks/chain/chain.toml --out stmt/ --signer "Example operator" --key-file signer.key
+kshana-pro timing chain template
+```
+
+A request gives the date, the reference laboratory with **UTC − UTC(k)** (the operator's
+transcription of BIPM Circular T rows `mjd,value_ns,u_ns`, interpolated to the date; after the
+last row it is held for at most `max_extrapolation_days` (45) with `extrapolation_u_s_per_day`
+(0.5 ns) added in quadrature, and marked provisional; or a stated value), and the hops:
+
+* `wr`: the White Rabbit link model, round trip `δMM = Δtxm + Δrxm + Δtxs + Δrxs + δms + δsm`,
+  fibre asymmetry `α = δms/δsm − 1`, so `δms = (1+α)/(2+α)·(δMM − ΣΔ)`. `α` is stated or
+  **estimated from a calibration measurement** (`[hops.alpha_calibration]`: the time interval
+  from the master's PPS to the slave's over a spool, with the `α` configured during the
+  measurement; GUM by finite differences over the round trip, the four fixed delays and the
+  PPS reading). A configured `α` that differs from the calibrated one is a bias (the slave reads
+  behind by the delay it underestimates). Components: `α`, the fixed delays and the round trip.
+  The spool's `α` applies to the deployed fibre only if it is the same fibre type and
+  wavelength pair;
+* `ptp`: a stated asymmetry (bias) with its uncertainty and the cTE of the equipment class as a
+  rectangular bound (class A 50 ns, B 20 ns, C 10 ns, as transcribed from ITU-T G.8273.2);
+* `fibre-twtt`, `gnss-cv` (a common-view comparison, type A) and `stated`.
+
+Every hop needs a calibration record (`id`, `date`, `valid_days`, `by`); the chain is
+`unbroken`, `provisional` (Circular T extrapolated) or `broken` (an expired, missing or
+not-yet-valid calibration, or a reference too old), naming the break. The end point's offset
+from UTC is the laboratory's offset plus every hop's bias, with the combined and expanded (`k`)
+uncertainty, against an optional `limit_s`. An **onboarding test** (`[onboarding]`) for a
+national time service compares the delivered time against the operator's reference over a
+window: its mean must agree with the chain's predicted offset within
+`k·sqrt(u_c² + u_ref² + s²/n)` (`consistent`, `inconsistent`, or `wander-exceeded` against
+`max_wander_s`). The directory (`statement.json`, `statement.html`, `budget.csv`, `inputs/`
+with the Circular T and onboarding files) is signed; verify with `kshana-pro dossier verify`
+(free). The tests recover a synthetic `α` within its uncertainty and the deployed link's
+asymmetry within its budget.
+
+Label: MODELLED: the arithmetic of the stated measurements and records; a traceability
+statement for the operator's own records, to be reviewed with the laboratory that calibrated
+the chain.
+
+### B1905: multi-source cross-check with non-GNSS sources
+
+```sh
+kshana-pro timing crosscheck examples/timing-networks/crosscheck/pop.toml --json cc.json --csv bins.csv
+kshana-pro timing crosscheck profile wisp
+```
+
+Sources as in the self-check (any of its log formats), each with a class (`gnss`,
+`radio-time`, `bps`, `eloran`, `leo`, `fibre`, `ptp`, `ntp`, `nts`, `holdover`, `local`,
+`other`) and a **traceability root**: GNSS receivers share `gnss`; a long-wave signal is its
+transmitter (`dcf77`, `msf`, `wwvb`, `jjy40`, `jjy60`, `bpc`); `depends_on` gives a derived
+source its upstream's root (a PTP grandmaster disciplined by the same GNSS is not
+independent); other classes are their own root unless `root` says otherwise, and are listed as
+`unstated_independence`. Long-wave offsets are corrected for the ground-wave delay
+(great-circle distance from the transmitter over `c`; approximate sites; `delay_s` overrides).
+
+Per bin: a member beyond `k·u + floor` of its root group's median is a `member-fault`; the
+groups' values give `consistent`, **`isolated`** (exactly one root inconsistent with every
+other while the rest agree: a single-source fault isolated), `detected-not-isolated` (two roots
+disagree), `ambiguous`, `multiple-faults` or `no-independent-check`; the consensus beyond
+`node_limit_s` is `node-off`. A source silent for `stale_s` is a `silent` event (alarm time =
+last reading + `stale_s`). A **triad monitor** (three-cornered hat over every trio of roots,
+leaving out bins where a root was isolated) estimates each root's own noise and flags one
+noisier than twice its stated uncertainty. Profiles: `wisp` (GNSS PPS, a long-wave receiver,
+NTS servers of two operators: a low-cost multi-source appliance for a wireless ISP) and
+`timing-node` (GNSS, PTP disciplined by it, fibre from UTC(k), eLoran). The default
+uncertainties per class are typical orders of magnitude for the operator to replace.
+
+Label: MODELLED: a vote across independent sources on the logs as supplied; a fault is isolated
+only as far as the sources are truly independent, and a fault common to every root is
+invisible. Tested on synthetic logs.
+
+### B1907: ground-station timing and pass-quality assurance
+
+```sh
+kshana-pro timing station examples/timing-networks/station/station.toml --json st.json --csv passes.csv \
+    --out st/ --signer "Example teleport" --key-file signer.key
+```
+
+A pass log (CSV with a header: `pass_id, satellite, scheduled_aos, scheduled_los` and
+optionally `antenna, provider, customer, actual_aos, actual_los, bytes_planned,
+bytes_delivered, frames_bad, frames_total, status`; ISO 8601 or Unix times) and the station's
+clock log (station minus UTC, any self-check format). Per pass: `delivered`, `degraded` (the
+criteria missed: contact fraction, AOS delay, data delivered, frame error rate, station time
+error), `missed` (no contact, `failed` or `cancelled-station`) or `excluded`
+(`cancelled-customer`). The station time error is the largest |offset| of the clock log in the
+pass window, against a stated `limit_s` or a limit derived from the antenna (MODELLED:
+`pointing_fraction × beamwidth / ω`, `ω = v/h` the zenith angular rate of a circular orbit at
+`altitude_km`, Earth rotation neglected; 2° and 10 % at 500 km give about 0.23 s). Aggregates
+per station, provider (federated booking), customer, satellite and antenna, with the success
+rate against `target_success_rate`. With `--out`, a signed directory (`report.json`,
+`report.html`, `passes.csv`, `inputs/`) for customer reports and the operator's periodic
+reporting; it follows no regulator's template.
+
+Label: COMPUTED for the SLA figures from the logs as supplied; MODELLED for the derived timing
+limit. Tested on a synthetic station.
+
+### Not built in E19
+
+* B1903 (cross-grandmaster and cross-operator correlation as a hosted verdict) and B1908 (hosted
+  delay-calibration verdict) belong to the hosted service; the in-crate cross-site check stays
+  `timing selfcheck sites`.
+* No CVE or SBOM feed: the advisory and component tables are curated by the operator; the
+  seed carries only what the research reports name.
+* The firmware check verifies an image file before an upgrade; it does not read firmware back
+  from a device.
+* None of B1902, B1904, B1905 or B1907 has been run against a real appliance, link, node or
+  station.
 
 ## Power grid and broadcast SFN (E31)
 

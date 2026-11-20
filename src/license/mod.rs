@@ -153,6 +153,13 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // Power-grid and broadcast SFN timing evidence (backlog E31).
         "pro-grid-timing" => Tier::Pro,
         "pro-sfn-timing" => Tier::Pro,
+        // Timing networks (E19 B1902, B1904, B1905, B1907): appliance security posture,
+        // time-distribution chain verifier, multi-source cross-check with non-GNSS sources,
+        // ground-station timing and pass-quality assurance.
+        "pro-timing-posture" => Tier::Pro,
+        "pro-timing-chain" => Tier::Pro,
+        "pro-timing-crosscheck" => Tier::Pro,
+        "pro-timing-station" => Tier::Pro,
         // Synthetic attack IQ files (roadmap 0.42 F7, owner gate K6): Pro edition, but never
         // by tier below Enterprise: the vendor names the feature on a vetted buyer's licence
         // (with `vetted_buyer`), and crate::attack_iq checks both.
@@ -200,6 +207,29 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // replay fidelity (Pro); the build-to-build regression diff (Enterprise).
         "pro-test-kit" => Tier::Pro,
         "pro-test-kit-regression" => Tier::Enterprise,
+        // Exposure, route risk and briefings (research 2026-11-20 gaps, E09): transit history
+        // and briefings, aviation exposure, regional datasets, road index, spillover footprints.
+        "pro-route-exposure" => Tier::Pro,
+        "pro-aviation-exposure" => Tier::Pro,
+        "pro-regional-datasets" => Tier::Pro,
+        "pro-road-exposure" => Tier::Pro,
+        "pro-spillover-footprint" => Tier::Pro,
+        // Aviation operational analytics (research 2026-11-20 gaps E11): approach availability,
+        // residual effects and nuisance-alert statistics (Pro); fleet-wide unpublished
+        // interference areas (Enterprise).
+        "pro-approach-availability" => Tier::Pro,
+        "pro-residual-effects" => Tier::Pro,
+        "pro-nuisance-alerts" => Tier::Pro,
+        "pro-unpublished-areas" => Tier::Enterprise,
+        // Incident reconstruction and dispute evidence (research 2026-11-20 gaps E06): the log
+        // time-integrity checker (B0603) and the commercial dispute evidence report (B0606).
+        "pro-log-time-integrity" => Tier::Pro,
+        "pro-dispute-evidence" => Tier::Pro,
+        // Evidence infrastructure (research 2026-11-20 gaps E25): signing observation batches
+        // with feeder provenance (B2501), and long-term records with key histories and archive
+        // time-stamp chains (B2503). Verifying both stays free.
+        "pro-obs-provenance" => Tier::Pro,
+        "pro-longterm-signature" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -226,6 +256,10 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-timing-correlation",
     "pro-grid-timing",
     "pro-sfn-timing",
+    "pro-timing-posture",
+    "pro-timing-chain",
+    "pro-timing-crosscheck",
+    "pro-timing-station",
     "pro-threat-library",
     "pro-attack-iq",
     "pro-area-console",
@@ -245,6 +279,19 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-exposure-ledger",
     "pro-test-kit",
     "pro-test-kit-regression",
+    "pro-route-exposure",
+    "pro-aviation-exposure",
+    "pro-regional-datasets",
+    "pro-road-exposure",
+    "pro-spillover-footprint",
+    "pro-approach-availability",
+    "pro-residual-effects",
+    "pro-nuisance-alerts",
+    "pro-unpublished-areas",
+    "pro-log-time-integrity",
+    "pro-dispute-evidence",
+    "pro-obs-provenance",
+    "pro-longterm-signature",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

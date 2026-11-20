@@ -1,0 +1,16 @@
+# EXAMPLE component advisories (illustrative ids; not real advisories).
+[[component_advisory]]
+id = "EXAMPLE-OPENSSH-1"
+component = "openssh"
+fixed_in = "9.8p1"
+hazard = "ILLUSTRATIVE: a bundled OpenSSH below the fixed version"
+source = "example only"
+verification = "example"
+
+[[component_advisory]]
+id = "EXAMPLE-LIBXML2-1"
+component = "libxml2"
+fixed_in = "2.12.7"
+hazard = "ILLUSTRATIVE: a bundled libxml2 below the fixed version"
+source = "example only"
+verification = "example"

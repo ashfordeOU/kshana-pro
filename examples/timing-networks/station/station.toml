@@ -1,0 +1,21 @@
+station = "GS-1"
+operator = "Example teleport (SYNTHETIC)"
+passes = "passes.csv"
+from = "2026-10-01"
+to = "2026-11-01"
+
+[clock]
+format = "csv"
+path = "clock.csv"
+
+[antenna]
+beamwidth_deg = 2.0
+pointing_fraction = 0.1
+altitude_km = 500
+
+[sla]
+min_contact_fraction = 0.95
+max_aos_delay_s = 30
+min_data_fraction = 0.99
+max_frame_error_rate = 1e-4
+target_success_rate = 0.95

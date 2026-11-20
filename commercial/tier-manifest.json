@@ -13,6 +13,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-approach-availability",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-area-console",
       "type": "feature",
       "tier": "pro"
@@ -28,7 +33,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-aviation-exposure",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-desktop",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-dispute-evidence",
       "type": "feature",
       "tier": "pro"
     },
@@ -73,12 +88,52 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-log-time-integrity",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-longterm-signature",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-nuisance-alerts",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-obs-provenance",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-regional-datasets",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-report-verification",
       "type": "feature",
       "tier": "pro"
     },
     {
+      "kind": "pro-residual-effects",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-retention",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-road-exposure",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-route-exposure",
       "type": "feature",
       "tier": "pro"
     },
@@ -113,6 +168,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-spillover-footprint",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-station-fleet",
       "type": "feature",
       "tier": "pro"
@@ -143,7 +203,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-timing-chain",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-timing-correlation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-timing-crosscheck",
       "type": "feature",
       "tier": "pro"
     },
@@ -158,7 +228,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-timing-posture",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-timing-selfcheck",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-timing-station",
       "type": "feature",
       "tier": "pro"
     },
@@ -169,6 +249,11 @@
     },
     {
       "kind": "pro-uncertainty",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-unpublished-areas",
       "type": "feature",
       "tier": "pro"
     },
@@ -349,6 +434,11 @@
     },
     {
       "kind_sha256": "a849e2191cd7cf76f7d387b404547667f3f17a2f9f195a8bfa8deb3df15d2875",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "b895d2e0f7c6d3d3e4b669f75c958e2c94e34d182a790d9cbabdcf2b86553abb",
       "type": "kind",
       "tier": "arksa"
     },

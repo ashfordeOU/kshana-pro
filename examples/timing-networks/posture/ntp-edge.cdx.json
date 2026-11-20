@@ -1,0 +1,12 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "version": 1,
+  "metadata": {"component": {"type": "firmware", "bom-ref": "fw", "name": "NTP-1 firmware", "version": "1.0"}},
+  "components": [
+    {"type": "application", "bom-ref": "openssh", "name": "OpenSSH", "version": "9.6p1"},
+    {"type": "library", "bom-ref": "curl", "name": "curl", "version": "8.10.0"},
+    {"type": "library", "bom-ref": "libxml2", "name": "libxml2", "version": "2.11.4"}
+  ],
+  "dependencies": [{"ref": "fw", "dependsOn": ["openssh", "curl", "libxml2"]}]
+}
