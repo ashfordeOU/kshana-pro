@@ -20,7 +20,7 @@ core and the private overlay**, behind one honesty firewall. What landed:
   - `kshana::assurance` — `provenance` (W3C-PROV + Merkle root), `uncertainty`
     (Greenhall EDF + χ² CIs), `oracle` (the honesty-gate harness).
 - **Superset attachment (Phase 0b).** `pro_registry()` = `PackRegistry::with_builtins()`
-  ∪ all 31 Pro packs via each pack's `register_into` (seven when Phase 0b landed) —
+  ∪ all 32 Pro packs via each pack's `register_into` (seven when Phase 0b landed) —
   open ∪ Pro is one table, proven additive (open + Pro, no collision).
 - **L1 clock twin (deepened).** Public `kshana::allan` gained **ThéoH/TOTVAR**
   (Theo1 + total deviation **Validated** vs allantools on NIST SP 1065, <1e-9) and
