@@ -38,6 +38,18 @@ own bullet so parallel work merges cleanly.
   `synth` free. All MODELLED, signed. Not built: dust plume, LTV/EVA, RF self-interference,
   CAPSTONE reproduction, ephemeris exchange format; B2402 and B2403 proper are open-engine items.
   Tier manifest regenerated; tests/lunar_evidence.rs on synthetic inputs.
+- **Maritime AIS integrity evidence (research 2026-11-20 gaps E07, Pro parts;
+  docs/AIS-EVIDENCE.md).** `kshana-pro ais consistency|sanctions|iuu|subsea|synth` over the
+  user's decoded AIS: cross-source consistency against radar, VTS, LRIT, satellite AIS or
+  imagery detections with declared accuracies (gate, episodes, unconfirmed vessels inside a
+  source's coverage, targets without AIS) (`pro-ais-consistency`); a sanctions-review pack for
+  named vessels with gaps, encounter candidates, identity changes, shared IMO, jumps and one
+  MMSI on two transmitters, no list bundled and no determination (`pro-ais-sanctions-pack`);
+  an IUU-review pack against declared zones (`pro-ais-iuu-pack`); a subsea-asset pack for
+  declared cable and pipeline corridors with anchor-status-while-moving and vessels around a
+  reported fault, presence not attribution (`pro-ais-subsea-pack`). Signed evidence
+  directories; all Pro; tier manifest regenerated. MODELLED (SYNTHETIC scenario,
+  `tests/ais_evidence.rs`, 8 tests).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference

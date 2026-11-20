@@ -31,6 +31,7 @@
 pub use kshana;
 
 pub mod agri;
+pub mod ais_evidence;
 pub mod alerts;
 pub mod altpnt;
 pub mod area;

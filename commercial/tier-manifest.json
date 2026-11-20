@@ -38,6 +38,26 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-ais-consistency",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-ais-iuu-pack",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-ais-sanctions-pack",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-ais-subsea-pack",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-alert-policy",
       "type": "feature",
       "tier": "pro"
