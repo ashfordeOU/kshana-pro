@@ -3,7 +3,7 @@
 Research 2026-11-20 gaps, backlog B2604 (partly built before: the service's multi-station
 registry, `src/serve/fleet.rs`). This adds module `src/station_fleet.rs` and command
 `kshana-pro fleet` (`src/cli/fleet_cmd.rs`) under the same feature `pro-station-fleet` (Pro);
-`fleet config-verify` is free. Tests `tests/station_fleet.rs` (SYNTHETIC records).
+`fleet config-verify` is free. Tests `tests/fleet_records.rs` (SYNTHETIC records).
 
 * **Configuration history** (`fleet config-add`, `config-verify`): one JSON line per change
   (receiver, antenna, cable, firmware, position, clock, site, other) with
