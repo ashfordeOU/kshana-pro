@@ -25,8 +25,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   leak-gate:
-    # Self-hosted for the same reason as CI (hosted minutes are billing-blocked; ci.yml).
-    runs-on: [self-hosted, macos, arm64, kshana-pro]
+    # GitHub-hosted (public repository).
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4

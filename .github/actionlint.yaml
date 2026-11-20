@@ -1,9 +1,8 @@
 # Custom runner labels actionlint cannot know about.
 #
-# GitHub-hosted Actions minutes on this account are billing-blocked, so this repository's
-# CI runs on a self-hosted runner instead. The `kshana-pro` label is registered on that
-# runner (macmini-kshana-pro) and pins jobs to it explicitly, rather than relying on the
-# generic self-hosted/macos/arm64 trio matching only one machine.
+# Historical: until 20 Nov 2026 this repository was private and its CI ran on a self-hosted
+# runner (hosted minutes were billing-blocked). Workflows now use GitHub-hosted runners; the
+# `kshana-pro` label is kept here only so old references still lint.
 self-hosted-runner:
   labels:
     - kshana-pro

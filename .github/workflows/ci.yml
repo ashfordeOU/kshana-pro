@@ -10,16 +10,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  check:
-    # Self-hosted, not ubuntu-latest. GitHub-hosted Actions minutes on this account are
-    # billing-blocked: a hosted job never starts at all — steps: [], failure in ~3s, with
-    # the annotation "recent account payments have failed". Every push here failed that way
-    # from 2026-09-18 onward, which is a billing state and not a defect in this crate.
-    # Self-hosted runners schedule normally under that block; it was proven on the
-    # ci/runner-probe branch with a hosted control job dispatched in the same second.
-    # Runner: macmini-kshana-pro (macOS arm64). Label declared in .github/actionlint.yaml.
-    # When a payment method is restored this is a one-line revert to ubuntu-latest.
-    runs-on: [self-hosted, macos, arm64, kshana-pro]
+  lint:
+    # GitHub-hosted (the repository is public, 20 Nov 2026; hosted minutes are free for public
+    # repositories). Three jobs in parallel: lint and guards, the test suite, the release checks.
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
@@ -59,11 +53,35 @@ jobs:
         run: |
           python3 commercial/tools/prices.py build --check
           python3 commercial/tools/prices.py scan-public site-next commercial/editions
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      # Pinned to the exact version in rust-toolchain.toml (== the open core's) for a
+      # reproducible build of the overlay and the kshana engine it embeds.
+      - uses: dtolnay/rust-toolchain@1.93.0
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
       # Cargo.lock pins the exact kshana (public open-core) rev, so the git
       # dependency resolves reproducibly. --locked fails the build if the lockfile
       # is out of date rather than silently updating it.
       - name: Test
         run: cargo test --all --locked --features unfiled-methods
+
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      # Pinned to the exact version in rust-toolchain.toml (== the open core's) for a
+      # reproducible build of the overlay and the kshana engine it embeds.
+      - uses: dtolnay/rust-toolchain@1.93.0
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
       # PRO-14: a release build and a signed licence token, which the debug tests above never
       # exercise. Builds with a CI-only key, issues a Pro token, runs one Pro pack with the
       # debug and the release binary and requires identical reports (scripts/release-smoke.sh).

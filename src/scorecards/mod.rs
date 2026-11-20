@@ -26,8 +26,10 @@
 //! **Wording.** Results are test evidence **mapped to** a framework; a scorecard never says a
 //! receiver is compliant, conformant or certified.
 
+pub mod flags;
 pub mod levels;
 pub mod report;
+pub mod units;
 
 use std::path::{Path, PathBuf};
 

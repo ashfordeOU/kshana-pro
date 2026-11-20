@@ -1,0 +1,102 @@
+{
+  "bomFormat": "CycloneDX",
+  "components": [
+    {
+      "bom-ref": "linux@6.6.30",
+      "licenses": [
+        {
+          "license": {
+            "id": "GPL-2.0-only"
+          }
+        }
+      ],
+      "name": "linux",
+      "type": "operating-system",
+      "version": "6.6.30"
+    },
+    {
+      "bom-ref": "chrony@4.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "GPL-2.0-only"
+          }
+        }
+      ],
+      "name": "chrony",
+      "purl": "pkg:generic/chrony@4.6",
+      "type": "application",
+      "version": "4.6"
+    },
+    {
+      "bom-ref": "linuxptp@4.4",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "98def16559db2d3a582216771d24097ebbedb95280a9abfc949984e0124fd49e"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "GPL-2.0-or-later"
+          }
+        }
+      ],
+      "name": "linuxptp",
+      "purl": "pkg:generic/linuxptp@4.4",
+      "type": "application",
+      "version": "4.4"
+    }
+  ],
+  "dependencies": [
+    {
+      "dependsOn": [
+        "linux@6.6.30",
+        "chrony@4.6",
+        "linuxptp@4.4"
+      ],
+      "ref": "SYNTHETIC station firmware@0.9.0"
+    },
+    {
+      "dependsOn": [],
+      "ref": "linux@6.6.30"
+    },
+    {
+      "dependsOn": [
+        "linux@6.6.30"
+      ],
+      "ref": "chrony@4.6"
+    },
+    {
+      "dependsOn": [
+        "linux@6.6.30"
+      ],
+      "ref": "linuxptp@4.4"
+    }
+  ],
+  "metadata": {
+    "component": {
+      "bom-ref": "SYNTHETIC station firmware@0.9.0",
+      "name": "SYNTHETIC station firmware",
+      "type": "firmware",
+      "version": "0.9.0"
+    },
+    "supplier": {
+      "name": "Example operator"
+    },
+    "timestamp": "2026-11-20T12:00:00Z",
+    "tools": {
+      "components": [
+        {
+          "name": "kshana-pro",
+          "type": "application",
+          "version": "0.2.0"
+        }
+      ]
+    }
+  },
+  "serialNumber": "urn:uuid:02693dc5-a297-585e-9e0c-276a44229ba2",
+  "specVersion": "1.5",
+  "version": 1
+}

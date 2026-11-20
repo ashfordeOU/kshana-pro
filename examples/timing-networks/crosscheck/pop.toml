@@ -1,0 +1,39 @@
+node = "pop-1"
+profile = "wisp"
+bin_s = 60
+k = 3
+node_limit_s = 0.010
+stale_s = 30
+[location]
+lat_deg = 48.8566
+lon_deg = 2.3522
+
+[[sources]]
+name = "gnss"
+class = "gnss"
+format = "csv"
+path = "gnss.csv"
+u_s = 1e-6
+
+[[sources]]
+name = "dcf77"
+class = "radio-time"
+transmitter = "dcf77"
+format = "csv"
+path = "dcf77.csv"
+u_s = 1e-3
+
+[[sources]]
+name = "nts-a"
+class = "nts"
+root = "operator-a"
+format = "csv"
+path = "nts-a.csv"
+u_s = 3e-3
+
+[[sources]]
+name = "eloran"
+class = "eloran"
+format = "csv"
+path = "eloran.csv"
+u_s = 1e-6

@@ -1,5 +1,5 @@
 name: Mac probe
-# Run one cargo command against a public ashfordeOU/kshana ref on the self-hosted macOS arm64
+# Run one cargo command against a public ashfordeOU/kshana ref on a GitHub-hosted macOS arm64
 # runner, for answers only a Mac gives (a macOS-only pinned value, macOS-local oracle failures).
 # Manual only. It checks out nothing from this repository and builds into its own target dir
 # under the runner temp, so it never touches this repository's CI checkout or cache.
@@ -24,7 +24,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   probe:
-    runs-on: [self-hosted, macos, arm64, kshana-pro]
+    runs-on: macos-latest
     timeout-minutes: 180
     env:
       REF: ${{ inputs.ref }}
