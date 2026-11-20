@@ -5,6 +5,12 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Re-scoring schedule and per-test uncertainty budgets (research 2026-11-20 gaps B2505, Pro
+  part; docs/METHOD-UNCERTAINTY.md).** `kshana-pro method schedule|budget`
+  (`pro-method-uncertainty`, Pro): next re-scoring date per product and method with overdue and
+  due-soon status; per-test GUM budgets (Type A from runs, Type B with sources, Welch-Satterthwaite
+  degrees of freedom, Student t coverage factor, bias and E_n) and a signed method report worded
+  "scored under method X". Tier manifest regenerated; `tests/method_uncertainty.rs` (4 tests).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference

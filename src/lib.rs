@@ -68,6 +68,7 @@ pub mod lab_campaign;
 pub mod license;
 pub mod longterm;
 pub mod lunar_pro;
+pub mod method_uncertainty;
 pub mod multi_source;
 pub mod navaids;
 pub mod obs_provenance;

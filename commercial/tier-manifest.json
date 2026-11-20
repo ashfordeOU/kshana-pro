@@ -223,6 +223,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-method-uncertainty",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-navaids",
       "type": "feature",
       "tier": "pro"
