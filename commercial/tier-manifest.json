@@ -304,6 +304,7 @@
     },
     {
       "kind": "pro-lunar-traverse-safety",
+      "kind": "pro-method-uncertainty",
       "type": "feature",
       "tier": "pro"
     },
