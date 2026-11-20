@@ -5,6 +5,25 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **eLoran, R-Mode and terrestrial navaids (research 2026-11-20 gaps E37: B3701, B3702 first
+  slice, B3703; docs/ELORAN-RMODE-NAVAIDS.md).** `kshana-pro eloran rmode-perf` (feature
+  `pro-rmode-perf`, Pro): draft R-Mode receiver performance tests RMP-01..08 on receiver logs or
+  on the MF R-Mode simulator repeated per epoch with a night skywave period; order-statistic,
+  Wilson and Poisson bounds, sample-size checks, limits only from a user profile with its source
+  and status (no NCSR 13 limit built in). `eloran wwrns-trust` (`pro-wwrns-trust`, Pro): the F3
+  vote rule in the position domain over GNSS, R-Mode and eLoran fixes, GNSS-suspect epochs, the
+  chosen source's own fix (never a blend). `eloran claim` and `eloran interop`
+  (`pro-eloran-claims`, Pro): timing-claim verification with a GUM budget, Circular T
+  interpolation and guard-banded mean and 95 % instantaneous decisions; E_n per station pair
+  with shared laboratory terms cancelled, Birge ratio. `eloran sol-evidence`
+  (`pro-eloran-sol-evidence`, Enterprise): signed safety-of-life evidence index over Kshana's
+  own categories. `eloran ldc-fde` (unfiled-methods, machine-bound on-prem licence): LDC/ASF
+  fault detection and exclusion on TOA residuals separating correction faults from signal
+  faults, slope HPL. `kshana-pro navaids` (`pro-navaids`, Pro; `ssv` free): DME/VOR coverage
+  twin with critical DMEs, multi-sensor RNP scenarios with inertial coast and the e-conspicuity
+  NACp backup test, flight-inspection truth assurance. Shared statistics moved to
+  `kshana_eloran::stats`. Tier manifest regenerated; integration tests 97 -> 99. All MODELLED
+  (`tests/rmode_eloran_claims.rs`, `tests/navaids.rs`).
 - **Avionics test library (research 2026-11-20 gaps E12: B1201, B1203, B1205, B1206 part 1;
   docs/AVIONICS-TEST-LIBRARY.md).** `kshana-pro avionics`: SBAS L1 framing (MT 0, 1, 2-5, 6,
   7, 26, 63; CRC-24Q) and a deterministic message-sequence generator for failure tests (UDREI

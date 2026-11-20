@@ -47,6 +47,7 @@ pub mod dependency;
 pub mod desktop;
 #[cfg(feature = "unfiled-methods")]
 pub mod eloran_attrib;
+pub mod eloran_claims;
 pub mod eloran_fusion;
 pub mod eloran_gnss;
 pub mod eloran_gnss_sdr;
@@ -66,6 +67,7 @@ pub mod license;
 pub mod longterm;
 pub mod lunar_pro;
 pub mod multi_source;
+pub mod navaids;
 pub mod obs_provenance;
 pub mod osnma_conformance;
 pub mod pack_c;

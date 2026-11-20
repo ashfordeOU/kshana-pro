@@ -168,6 +168,15 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // pro-eloran-hw, driving LF hardware into cables or antenna simulators (never over the air).
         "pro-eloran" => Tier::Enterprise,
         "pro-eloran-hw" => Tier::Enterprise,
+        // eLoran, R-Mode and terrestrial navaids (research 2026-11-20 gaps, E37): draft R-Mode
+        // receiver performance tests, WWRNS multi-source trust, timing-claim and
+        // interoperability checks, the DME/VOR twin with RNP and inspection checks (Pro); the
+        // signed safety-of-life evidence index (Enterprise).
+        "pro-rmode-perf" => Tier::Pro,
+        "pro-wwrns-trust" => Tier::Pro,
+        "pro-eloran-claims" => Tier::Pro,
+        "pro-eloran-sol-evidence" => Tier::Enterprise,
+        "pro-navaids" => Tier::Pro,
         // Multi-source trust (roadmap 0.42 F3): the selector kind and `kshana-pro trust run`.
         "pro-multi-source-trust" => Tier::Pro,
         // Area console (roadmap 0.42 F1, F2): the picture kind and the console command and
@@ -294,6 +303,11 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-watch-wall",
     "pro-eloran",
     "pro-eloran-hw",
+    "pro-rmode-perf",
+    "pro-wwrns-trust",
+    "pro-eloran-claims",
+    "pro-eloran-sol-evidence",
+    "pro-navaids",
     "pro-interference-reports",
     "pro-report-verification",
     "pro-exposure-ledger",
