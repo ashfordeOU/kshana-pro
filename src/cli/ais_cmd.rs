@@ -13,10 +13,10 @@ use crate::ais_evidence::{consistency, packs, synth};
 use super::grid_cmd::{gate, signing};
 
 pub const AIS_USAGE: &str = "usage: kshana-pro ais <command>\n\
-    consistency <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Cross-source consistency of AIS against radar, VTS, LRIT, satellite AIS or imagery detections with declared accuracy; signed (Pro)\n\
-    sanctions <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Dark-activity review of named vessels: gaps, encounters, identity changes, jumps, shared MMSI; no list bundled, no determination; signed (Pro)\n\
-    iuu <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Fishing-activity review against declared zones: time inside, fishing-like speed and status, gaps near zones, encounters at sea; signed (Pro)\n\
-    subsea <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Cable and pipeline corridor activity, anchor-status-while-moving, vessels around a reported fault (presence, not attribution); signed (Pro)\n\
+    consistency <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Cross-source consistency of AIS against radar, VTS, LRIT, ECDIS EP, satellite AIS or imagery detections with declared accuracy; discrepancy alarms as JSON and CAP 1.2 under alerts/; signed (Pro)\n\
+    sanctions <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Due-diligence review of named vessels: position-trust score per period, gaps, encounters, dark-STS and concealed port-call candidates, identity changes, jumps, shared MMSI; no list bundled, no determination; signed (Pro)\n\
+    iuu <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Fishing-activity review against declared zones with VMS integrity indicators and AIS-off vs interference gap causes; signed (Pro)\n\
+    subsea <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Cable and pipeline corridor activity, anchor-drag likelihood with alert timing, position trust, vessels around a reported fault (presence, not attribution); signed (Pro)\n\
     synth <dir>                                                      Write a SYNTHETIC scenario with requests for all four (no licence needed)";
 
 fn fail(msg: impl std::fmt::Display) -> ExitCode {
@@ -67,10 +67,12 @@ pub fn run(args: &[String]) -> ExitCode {
     let r = (|| -> Result<String, String> {
         let s = signing(args, &format!("ais {}", sub.unwrap_or_default()))?;
         let base = base_of(&path);
+        let mut cap: Vec<(String, String)> = Vec::new();
         let (json_html, verdict, req) = match sub {
             Some("consistency") => {
                 let (q, src): (consistency::Request, _) = parse(&path)?;
                 let rep = consistency::run(&q, &base)?;
+                cap = consistency::cap_alerts(&rep, &s.utc);
                 (
                     (
                         crate::transport::rounded_json(&rep),
@@ -120,6 +122,12 @@ pub fn run(args: &[String]) -> ExitCode {
         std::fs::write(out.join("report.json"), json_html.0).map_err(io)?;
         std::fs::write(out.join("report.html"), json_html.1).map_err(io)?;
         std::fs::write(out.join("inputs").join("request.toml"), req).map_err(io)?;
+        if !cap.is_empty() {
+            std::fs::create_dir_all(out.join("alerts")).map_err(io)?;
+            for (n, x) in &cap {
+                std::fs::write(out.join("alerts").join(n), x).map_err(io)?;
+            }
+        }
         crate::signed_dossier::sign(out, &s.seed, &s.signer, &s.utc).map_err(|e| e.to_string())?;
         Ok(format!(
             "[ais] {verdict}\n[ais] signed evidence directory in {}",

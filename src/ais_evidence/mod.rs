@@ -39,6 +39,8 @@
 pub mod consistency;
 pub mod packs;
 pub mod synth;
+pub mod trust;
+pub mod vms;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
@@ -79,6 +81,8 @@ pub struct Report {
     pub sog_kn: Option<f64>,
     /// Course over ground (deg).
     pub cog_deg: Option<f64>,
+    /// True heading (deg); `None` when absent or 511 "not available".
+    pub heading_deg: Option<f64>,
     /// Navigational status code as broadcast (0 under way using engine, 1 at anchor,
     /// 5 moored, 7 engaged in fishing, ...); `None` when absent or 15 "not defined".
     pub nav_status: Option<u8>,
@@ -105,6 +109,9 @@ pub struct Tracks {
     pub statics: BTreeMap<String, Vec<StaticRecord>>,
     pub rows: usize,
     pub refused: usize,
+    /// Times of reports received with the "position not available" values (91, 181): the
+    /// transponder was transmitting without a position fix.
+    pub unavailable: BTreeMap<String, Vec<f64>>,
 }
 
 fn time_of(s: &str) -> Option<f64> {
@@ -127,6 +134,7 @@ impl Tracks {
             t.col("nav_status"),
             t.col("source"),
         );
+        let chdg = t.col("heading_deg");
         let mut out = Tracks {
             rows: t.rows.len(),
             ..Tracks::default()
@@ -141,12 +149,15 @@ impl Tracks {
                 continue;
             };
             // 91 / 181 are the AIS "not available" position values.
-            if !(-90.0..=90.0).contains(&lat) || !(-180.0..=180.0).contains(&lon) {
+            let mmsi = t.text(i, Some(cm)).to_string();
+            if mmsi.is_empty() {
                 out.refused += 1;
                 continue;
             }
-            let mmsi = t.text(i, Some(cm)).to_string();
-            if mmsi.is_empty() {
+            if !(-90.0..=90.0).contains(&lat) || !(-180.0..=180.0).contains(&lon) {
+                if lat == 91.0 || lon == 181.0 {
+                    out.unavailable.entry(mmsi).or_default().push(ts);
+                }
                 out.refused += 1;
                 continue;
             }
@@ -157,6 +168,11 @@ impl Tracks {
                 .filter(|v| (0.0..102.25).contains(v));
             let cog = t
                 .num(i, ccog)
+                .ok()
+                .flatten()
+                .filter(|v| (0.0..360.0).contains(v));
+            let hdg = t
+                .num(i, chdg)
                 .ok()
                 .flatten()
                 .filter(|v| (0.0..360.0).contains(v));
@@ -176,12 +192,16 @@ impl Tracks {
                 lon,
                 sog_kn: sog,
                 cog_deg: cog,
+                heading_deg: hdg,
                 nav_status: nav,
                 source,
             });
         }
         for v in out.by_mmsi.values_mut() {
             v.sort_by(|a, b| a.t.total_cmp(&b.t));
+        }
+        for v in out.unavailable.values_mut() {
+            v.sort_by(f64::total_cmp);
         }
         Ok(out)
     }
