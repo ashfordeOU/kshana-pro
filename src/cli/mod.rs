@@ -11,7 +11,9 @@ mod attack_iq_cmd;
 mod dossier_cmd;
 mod eloran_cmd;
 mod evidence_cmd;
+mod evidence_infra_cmd;
 mod forensics_cmd;
+mod incident_cmd;
 mod license_cmd;
 mod lunar_cmd;
 mod packs_cmd;
@@ -58,7 +60,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro license <verify|activate|status|deactivate|machine-id|revocations|refresh> ...   Licence on this machine (offline; `kshana-pro license` for details)\n\
        kshana-pro backup <create --data-dir <dir> --out <backup-dir> | verify <backup-dir>>   Back up a service data directory while it runs; check a backup offline\n\
        kshana-pro dossier <keygen|sign|verify> ...   Sign a dossier or any delivery directory (Pro); verify one offline (free; `kshana-pro dossier` for details)\n\
-       kshana-pro forensics <run|review|verify|pack-payload> ...   Incident forensics (E1, Pro pack): signed, reproducible forensic report; review and verify (free; `kshana-pro forensics` for details)\n\
+       kshana-pro forensics <run|review|verify|maritime|fdm|reports|log-time|dispute|pack-payload> ...   Incident forensics (E1, Pro pack): signed, reproducible forensic report; review and verify (free); maritime and FDM evidence, log time integrity, dispute evidence (`kshana-pro forensics` for details)\n\
        kshana-pro scorecard <run|verify|osnma|flags|units> ...   Receiver resilience, OSNMA, flag-efficacy and unit scorecards, signed (E3, E13, Pro); verify (free; `kshana-pro scorecard` for details)\n\
        kshana-pro attack-iq <generate|attestation-template|trace> ...   Synthetic attack IQ files for shielded labs and authorised ranges (F7): vetted buyers only, attestation first, files only, watermarked and logged\n\
        kshana-pro threats <list|show|export|feed> ...   Threat scenario library (E2): provenance, analogue, test-bench exports, signed monthly feed (Pro; list and feed verify free)\n\
@@ -78,6 +80,8 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro pntdp <run|vectors|check> ...   PNT data processing reference (MSC.1/Circ.1575): multi-source plausibility, consistency, selected solution and integrity level (Pro; vectors and check free)\n\
        kshana-pro verdict <selfcal|survey|cause|verify> ...   Hosted methods answered as signed verdicts, verified against the service key (`kshana-pro verdict` for details)\n\
        kshana-pro reports <normalise|validate|episodes|verify|reset-check|ledger|check|params|regimes|synth> ...   Interference reports: normalise crew/ATC/mariner reports, validate per regime, episodes, signed verification, exposure ledger and reset check (Pro; ledger Enterprise; check, params, regimes, synth free)\n\
+       kshana-pro obs-provenance <keygen|sign|verify|keyring-add> ...   Signed feeder provenance on kshana.obs/1 batches: feeder key, time, position, sequence, in a sidecar (sign Pro; the rest free)\n\
+       kshana-pro longterm <key-genesis|key-rotate|request|add-token|stamp|history|verify> ...   Long-term signatures: key history and RFC 3161 archive time-stamp chain over a signed directory, verified offline (Pro; request and verify free)\n\
        kshana-pro exposure <run|verify> ...   Insurer scorecard: periodic signed exposure summary of a fleet or route (E7, Pro); verify free\n\
        kshana-pro license <keygen|pubkey|issue|issue-invoice|extend-invoice|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
      \n\
@@ -147,6 +151,8 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "verdict",
     "reports",
     "testkit",
+    "obs-provenance",
+    "longterm",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -284,6 +290,8 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("verdict") => verdict_cmd::run(&args[1..]),
         Some("reports") => reports_cmd::run(&args[1..]),
         Some("testkit") => testkit_cmd::run(&args[1..]),
+        Some("obs-provenance") => evidence_infra_cmd::provenance(&args[1..]),
+        Some("longterm") => evidence_infra_cmd::longterm(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
         Some(name) if crate::extension::commands().iter().any(|c| c.name == name) => {
             let c = crate::extension::commands()

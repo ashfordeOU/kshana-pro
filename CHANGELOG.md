@@ -20,6 +20,39 @@ own bullet so parallel work merges cleanly.
   T4): recovery time, residual offset and holdover-exit step from recorded time-error logs, with
   a multi-receiver median comparison. `-synth` commands write fixtures. All MODELLED; tested on
   synthetic fixtures (`tests/receiver_flag_scorecards.rs`). No new licence kind.
+- **Incident reconstruction, part 1 (research 2026-11-20 gaps E06: B0603, B0606;
+  docs/INCIDENT-EVIDENCE.md).** `kshana-pro forensics log-time` (feature
+  `pro-log-time-integrity`, Pro): time integrity of operational logs (documented CSV/JSON
+  schema, NMEA 0183 ZDA/RMC VDR/ECDIS exports split by talker with the recorder stamp as
+  reference, ACARS/CPDLC JSON lines with the ground receive time as reference): steps, backward
+  time, frozen clocks, drift rate, GPS week rollover / century / 32-bit wrap / GPS-as-UTC (the
+  time-bomb classifier), false and missed leap seconds, ordering, absolute epoch, cross-log
+  disagreement within a reference group (the clock self-check vote); corrected timeline with
+  uncertainty, integrity intervals, human text or `--json`, optional signed directory.
+  `kshana-pro forensics dispute` (feature `pro-dispute-evidence`, Pro): charter-party dispute
+  evidence from the maritime actor-vs-victim pack, the incident forensics bundle, the log check
+  and DP/operations status logs: periods of lost position or timing integrity with inner and
+  outer durations, agreeing sources, overlap with each claimed period, and five clause
+  templates (off-hire, delay-laycan, dp-downtime, deviation, safe-port) answered with pack and
+  finding IDs cited; signed. MODELLED, not a legal finding; synthetic tests only
+  (`tests/incident_evidence.rs`). Tier manifest regenerated.
+- **Tiers: one more hidden extension kind registered (20 Nov 2026).** `ARKSA_ENTRIES` gains one
+  `kind` hash; the tier manifest is regenerated; Pro pack count 32 -> 33.
+- **Evidence infrastructure, part 1 (research 2026-11-20 gaps E25 B2501, B2503;
+  docs/EVIDENCE-INFRASTRUCTURE.md).** `kshana-pro obs-provenance` (signing: feature
+  `pro-obs-provenance`, Pro): an Ed25519 provenance sidecar per `kshana.obs/1` batch (feeder key,
+  feeder clock, position from the header or declared, batch hash and summary, sequence and
+  predecessor hash); `verify` against a feeder keyring with key validity and revocation, signed /
+  unsigned / rejected per batch and per-feeder sequence checks; batches stay readable by any
+  `kshana.obs/1` reader. `kshana-pro longterm` (feature `pro-longterm-signature`, Pro; request and
+  verify free): `longterm.json` beside a signed dossier with a key history (genesis and rotations
+  signed by both keys, hash-chained) and an RFC 3161 archive time-stamp chain (stamp 0 over
+  `signature.json`, each later stamp over the previous one), verified offline at any `--at` time;
+  holds across key rotation and across a change of authority, refuses a first stamp after key
+  retirement and an unrenewed expired chain. Optional network stamping via system curl.
+  `signed_dossier` and the Python verifier now leave `longterm.json` out of the signed file list.
+  MODELLED: test keys and self-made test authorities only.
+
 - **Timing assurance v2 (W1120 TA1-TA4; docs/TIMING-ASSURANCE.md).** `kshana-pro timing
   timebomb` (feature `pro-timing-timebomb`, Pro): future-epoch replay vectors (NMEA ZDA/RMC,
   UBX NAV-TIMEGPS/TIMEUTC/TIMELS, simulator sheet with the gps-sdr-sim command, expected
