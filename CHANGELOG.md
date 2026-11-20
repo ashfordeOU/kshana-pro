@@ -5,6 +5,12 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Customer evidence vault, first slice (research 2026-11-20 gaps B2504;
+  docs/EVIDENCE-VAULT.md).** `kshana-pro vault` (`pro-evidence-vault`, Enterprise; `import`
+  free): ingest of signed evidence directories after signature checks, legal hold and retention
+  that block deletion, a hash-chained action ledger, monthly trends by family with an HTML page,
+  an obligation calendar, submission skeletons citing pack ids, and a full open export that
+  imports back byte for byte. Tier manifest regenerated; `tests/evidence_vault.rs` (2 tests).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference

@@ -173,6 +173,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-evidence-vault",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-exposure-ledger",
       "type": "feature",
       "tier": "pro"

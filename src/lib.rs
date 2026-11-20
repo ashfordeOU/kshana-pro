@@ -103,6 +103,7 @@ pub mod study_ledger;
 pub mod testkit;
 pub mod threat_library;
 pub mod units;
+pub mod vault;
 // Shared helpers; public so a server-side extension crate can reuse them (not a stable API).
 #[doc(hidden)]
 pub mod util;

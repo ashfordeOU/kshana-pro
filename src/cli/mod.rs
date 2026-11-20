@@ -42,6 +42,7 @@ mod timing_net_cmd;
 mod transport_cmd;
 mod trust_cmd;
 mod utm_cmd;
+mod vault_cmd;
 mod verdict_cmd;
 
 use std::process::ExitCode;
@@ -82,6 +83,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro packs <build|issue|serve|trace|install|status> ...   Pro pack delivery (C10; `kshana-pro packs` for details)\n\
        kshana-pro timing <assess|console|metrics|history|audit|compliance|timebomb|selfcheck|holdover-evidence> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit and evidence packs, time-bomb vectors and fleet audit, clock self-check, holdover evidence (Pro; `kshana-pro timing` for details)\n\
        kshana-pro grid <pmu|drift|scada|prc002|event> ...   Power-grid timing evidence: PMU phase-angle error, gradual-spoof detection, SCADA time stamps, PRC-002 ±2 ms evidence with holdover resilience, event forensics (Pro; `kshana-pro grid` for details)\n\
+       kshana-pro vault <init|ingest|list|hold|release|delete|trend|calendar|submission|verify|export|import> ...   Customer evidence vault: signed packs with legal hold, retention, hash-chained ledger, trends, obligation calendar, submission skeletons, open export (Enterprise; import free)\n\
        kshana-pro sfn <assess|systems> ...   Broadcast SFN (DAB/DVB-T) timing: pair guard margins and UTC-level scenarios such as SVN-23 (Pro; systems free)\n\
        kshana-pro road <check|obu-eval|library> ...   Telematics and road-charging GNSS anti-spoof: indicators, episodes, jammer fingerprint class, trip trust (pseudonymised), signed on-board-unit fraud evaluation (Pro; library free)\n\
        kshana-pro ecall <suite|mapping|score|location|duty|battery> ...   eCall GNSS tests of 2017/79 Annex VI with signed scoring, AML/E112 and PSAP location reliability (Pro); suite, mapping, duty-cycle detection and battery model free\n\
@@ -204,6 +206,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "longterm",
     "agri",
     "space-rx",
+    "vault",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -348,6 +351,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("avionics") => avionics_cmd::run(&args[1..]),
         Some("agri") => agri_cmd::run(&args[1..]),
         Some("space-rx") => space_rx_cmd::run(&args[1..]),
+        Some("vault") => vault_cmd::run(&args[1..]),
         Some("regpack") => regpack_cmd::run(&args[1..]),
         Some("navaids") => navaids_cmd::run(&args[1..]),
         Some("grid") => grid_cmd::run_grid(&args[1..]),
