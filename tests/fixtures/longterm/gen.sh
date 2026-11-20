@@ -117,6 +117,6 @@ stamp renewal1.txt "$OUT/tokens/stamp1-b.tsr" tsa-b.pem tsa-b.key
 printf 'other data\n' > other.txt
 stamp other.txt "$OUT/tokens/other-b.tsr" tsa-b.pem tsa-b.key
 
-cp root-a.pem root-b.pem "$OUT/certs/"
+cp root-a.pem "$OUT/certs/root-a.crt"; cp root-b.pem "$OUT/certs/root-b.crt"   # .crt: *.pem is git-ignored
 (cd "$OUT" && sha256sum certs/* tokens/* dossier/* > SHA256SUMS)
 echo "fixtures written to $OUT"

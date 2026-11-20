@@ -91,7 +91,7 @@ fn stamped(tag: &str, renew: bool) -> PathBuf {
         "--token",
         &fix("tokens/stamp0-a.tsr"),
         "--tsa-anchor",
-        &fix("certs/root-a.pem"),
+        &fix("certs/root-a.crt"),
         "--tsa-name",
         "Test TSA A",
         "--history",
@@ -107,7 +107,7 @@ fn stamped(tag: &str, renew: bool) -> PathBuf {
             "--token",
             &fix("tokens/stamp1-b.tsr"),
             "--tsa-anchor",
-            &fix("certs/root-b.pem"),
+            &fix("certs/root-b.crt"),
             "--tsa-name",
             "Test TSA B",
             "--dev",
@@ -126,7 +126,7 @@ fn der(pem: &str) -> Vec<u8> {
 fn opts(trust: [u8; 32], at: &str) -> VerifyOptions {
     VerifyOptions {
         trust_keys: vec![public_key_for(&trust)],
-        tsa_anchors: vec![der("certs/root-a.pem"), der("certs/root-b.pem")],
+        tsa_anchors: vec![der("certs/root-a.crt"), der("certs/root-b.crt")],
         tsa_fingerprints: vec![],
         at_unix: kshana_pro::forensics::inputs::parse_utc(at).unwrap() as i64,
     }
@@ -160,7 +160,7 @@ fn renewed_chain_verifies_decades_later_across_an_authority_change() {
         "--trust",
         &hex::encode(public_key_for(&K1)),
         "--tsa-fingerprint",
-        &format!("{},{}", fp("certs/root-a.pem"), fp("certs/root-b.pem")),
+        &format!("{},{}", fp("certs/root-a.crt"), fp("certs/root-b.crt")),
         "--at",
         "2045-01-01T00:00:00Z",
     ]);
@@ -273,7 +273,7 @@ fn tampering_and_wrong_tokens_are_caught() {
         Some(h.clone()),
         &std::fs::read(fix("tokens/other-b.tsr")).unwrap(),
         &[],
-        &der("certs/root-b.pem"),
+        &der("certs/root-b.crt"),
         "B",
     )
     .unwrap_err();
@@ -284,7 +284,7 @@ fn tampering_and_wrong_tokens_are_caught() {
         Some(h.clone()),
         &std::fs::read(fix("tokens/stamp0-a.tsr")).unwrap(),
         &[],
-        &der("certs/root-b.pem"),
+        &der("certs/root-b.crt"),
         "A",
     )
     .is_err());
@@ -294,7 +294,7 @@ fn tampering_and_wrong_tokens_are_caught() {
         Some(h),
         &std::fs::read(fix("tokens/stamp1-b.tsr")).unwrap(),
         &[],
-        &der("certs/root-b.pem"),
+        &der("certs/root-b.crt"),
         "B",
     )
     .is_err());
@@ -364,7 +364,7 @@ fn adding_stamps_needs_the_licence_feature_and_request_does_not() {
         "--token",
         &fix("tokens/stamp0-a.tsr"),
         "--tsa-anchor",
-        &fix("certs/root-a.pem"),
+        &fix("certs/root-a.crt"),
     ]);
     assert!(!ok && out.contains("pro-longterm-signature"), "{out}");
 }
@@ -430,7 +430,7 @@ fn stamp_asks_an_authority_over_http_with_curl() {
         "--tsa-url",
         &format!("http://127.0.0.1:{port}/tsa"),
         "--tsa-anchor",
-        &fix("certs/root-a.pem"),
+        &fix("certs/root-a.crt"),
         "--tsa-name",
         "Test TSA A",
         "--history",
