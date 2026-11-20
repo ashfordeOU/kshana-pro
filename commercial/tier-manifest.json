@@ -213,6 +213,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-leo-evaluation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-log-time-integrity",
       "type": "feature",
       "tier": "pro"

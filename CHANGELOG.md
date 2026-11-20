@@ -5,6 +5,14 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **LEO-PNT evaluation (research 2026-11-20 gaps E21: B2101, B2107 evaluation only, B2108;
+  docs/LEO-EVALUATION.md).** `kshana-pro leo-eval` (`pro-leo-evaluation`, Pro): neutral
+  multi-simulator procedures with registered hashes and scorecards in input order (never
+  ranked) marking simulators that differ from the others; SISRE with numeric line-of-sight
+  weights for the stated altitude (checked against the published GPS weights), sigma overbound,
+  DCB stability and jumps, PPP dependency ratings; constellation-claim datasets that refuse
+  uncited values, templates for Celeste, CentiSpace and Geespace with placeholders only, and
+  claim-versus-measured comparison. Tier manifest regenerated; `tests/leo_evaluation.rs` (4 tests).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
