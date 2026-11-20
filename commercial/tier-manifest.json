@@ -118,6 +118,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-custody-capture",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-dependency-audit",
       "type": "feature",
       "tier": "pro"
