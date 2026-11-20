@@ -5,6 +5,8 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Tiers: one more hidden extension kind registered (20 Nov 2026).** `ARKSA_ENTRIES` gains one
+  `kind` hash; the tier manifest is regenerated; Pro pack count 32 -> 33.
 - **Evidence infrastructure, part 1 (research 2026-11-20 gaps E25 B2501, B2503;
   docs/EVIDENCE-INFRASTRUCTURE.md).** `kshana-pro obs-provenance` (signing: feature
   `pro-obs-provenance`, Pro): an Ed25519 provenance sidecar per `kshana.obs/1` batch (feeder key,
