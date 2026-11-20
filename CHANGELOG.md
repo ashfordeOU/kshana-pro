@@ -5,6 +5,18 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Lunar surface operations evidence, second slice (research 2026-11-20 gaps E24 B2404;
+  docs/LUNAR-SURFACE.md).** `kshana-pro lunar-surface plume|traverse|rf-forensics|synth`:
+  dust-plume visibility as a MODELLED parametric ejecta-sheet model with every assumption
+  stated and no defaults for physical parameters (optical and Rayleigh-limit RF extinction
+  along declared lines of sight, obscuration onset height and duration)
+  (`pro-lunar-plume-visibility`); LTV/EVA navigation safety evidence from a traverse log
+  (Stanford regions and per-axis overbound of the reported sigma, hazard keep-out margins with
+  the PL, walk-back margin against declared consumables) (`pro-lunar-traverse-safety`); RF
+  self-interference forensics from a SigMF recording, analysis only (spurs at a stated Pfa,
+  harmonic match to declared on-board sources, time correlation with an activity log, in-band
+  C/N0 loss) (`pro-lunar-rf-forensics`). All Pro; tier manifest regenerated. MODELLED
+  (SYNTHETIC inputs, `tests/lunar_surface.rs`, 5 tests).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
