@@ -271,6 +271,14 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-nr-timing" => Tier::Pro,
         "pro-agnss-integrity" => Tier::Pro,
         "pro-rail-evidence" => Tier::Pro,
+        // Agriculture, construction and survey operations (research 2026-11-20 gaps, E35):
+        // pass-to-pass drift, guidance-line realignment and the field planner; the autosteer
+        // resilience score and outage diagnosis; the scintillation and PPP-versus-RTK
+        // advisors (Pro); geotagged-photo checks over a parcel set (Enterprise).
+        "pro-agri-guidance" => Tier::Pro,
+        "pro-agri-resilience" => Tier::Pro,
+        "pro-agri-advisor" => Tier::Pro,
+        "pro-agri-photo" => Tier::Enterprise,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -357,6 +365,10 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-nr-timing",
     "pro-agnss-integrity",
     "pro-rail-evidence",
+    "pro-agri-guidance",
+    "pro-agri-resilience",
+    "pro-agri-advisor",
+    "pro-agri-photo",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

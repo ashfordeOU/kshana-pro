@@ -8,6 +8,26 @@
       "tier": "open-seam"
     },
     {
+      "kind": "pro-agri-advisor",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-agri-guidance",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-agri-photo",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-agri-resilience",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-alert-policy",
       "type": "feature",
       "tier": "pro"
