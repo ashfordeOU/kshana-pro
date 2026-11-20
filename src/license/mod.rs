@@ -335,6 +335,12 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-ais-sanctions-pack" => Tier::Pro,
         "pro-ais-iuu-pack" => Tier::Pro,
         "pro-ais-subsea-pack" => Tier::Pro,
+        // Lunar surface operations evidence, second slice (research 2026-11-20 gaps, E24
+        // B2404): parametric dust-plume visibility, LTV/EVA navigation safety evidence, RF
+        // self-interference forensics from I/Q.
+        "pro-lunar-plume-visibility" => Tier::Pro,
+        "pro-lunar-traverse-safety" => Tier::Pro,
+        "pro-lunar-rf-forensics" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -453,6 +459,9 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-ais-sanctions-pack",
     "pro-ais-iuu-pack",
     "pro-ais-subsea-pack",
+    "pro-lunar-plume-visibility",
+    "pro-lunar-traverse-safety",
+    "pro-lunar-rf-forensics",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

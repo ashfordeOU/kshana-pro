@@ -73,6 +73,7 @@ pub mod license;
 pub mod longterm;
 pub mod lunar_evidence;
 pub mod lunar_pro;
+pub mod lunar_surface;
 pub mod multi_source;
 pub mod navaids;
 pub mod obs_provenance;
