@@ -32,6 +32,30 @@ own bullet so parallel work merges cleanly.
   reference parser and OBC log scoring, and a Weibull/LET SEE rate forecast. Features
   `pro-space-rx-exposure`, `pro-space-rx-qual`, `pro-space-rx-see` (Pro); tier manifest
   regenerated. All MODELLED (SYNTHETIC samples, `tests/space_rx.rs`).
+- **Insurance and finance analytics (research 2026-11-20 gaps E28: B2801 local part, B2802,
+  B2803, B2805; docs/INSURANCE-ANALYTICS.md).** `kshana-pro insurance`: `trigger`
+  (`pro-parametric-trigger`, Pro): a parametric PNT-outage trigger evaluated on the user's own
+  station C/N0 series (CSV or `kshana.obs/1`): per-site baselines, episodes, the k-of-n site
+  rule, duration threshold, outage index in dB·h, modelled payouts under a stated (or synthetic,
+  labelled) tier schedule with per-event and aggregate limits, backtest against archived events
+  with their documented basis; missing data never counts as degraded. `basis`
+  (`pro-basis-risk`, Pro): payouts against the insureds' loss records: shortfall, excess,
+  basis-risk ratio with a seeded bootstrap 90 % interval, hit rate, payout-loss correlation,
+  duration basis and location basis. `accumulation` (`pro-accumulation`, Enterprise): a
+  portfolio under historical event footprints and deterministic scenarios: per footprint, per
+  cell with Herfindahl index, largest event, period and annualised aggregate, empirical
+  exceedance. `bi` (`pro-bi-quantification`, Pro): timing (telecom/finance, SVN-23 preset or a
+  time-error log), farm yield, port delay, grounding severity and fleet cascade (beta-binomial)
+  models, each with assumptions and a one-at-a-time sensitivity table; `bi models` free.
+  `feed` (`pro-underwriting-feed`, Pro): per vessel or aircraft RFI exposure, position-jump
+  statistics, listed-area hours (user-supplied areas), a cyber exposure indicator and data
+  quality as a JSON Lines feed `kshana-pro-underwriting-feed/1` with its JSON Schema
+  (`schema`, free) and a synthetic sample (`sample`, free). `triage` (`pro-claims-triage`,
+  Pro): a claimed interference loss set against events, signed evidence and a signed hosted
+  cause verdict, with a handler checklist. Evidence, indicators and calculations for the user's
+  own decision; not advice, an underwriting or claims decision. MODELLED. Not built here: the
+  hosted trigger oracle and policy-wording verdicts (B2804). Tier manifest regenerated;
+  integration tests 98 -> 99 (`tests/insurance_analytics.rs`).
 - **UTM / U-space positioning integrity (backlog E18 B1804; docs/UTM-INTEGRITY.md).**
   `kshana-pro utm` (feature `pro-utm-integrity`, Pro; `feed` `pro-ussp-feed`, Enterprise):
   `sora` (SORA-ready GNSS-interference input for one operation: route exposure on each day

@@ -1,0 +1,15 @@
+# SYNTHETIC example: timing-outage business interruption for a mobile network's TDD cells
+# under an SVN-23-class UTC-level step. Every figure is illustrative; use your own.
+title = "Timing outage BI, SVN-23 class step (SYNTHETIC figures)"
+model = "timing"
+currency = "EUR"
+preset = "svn23"
+step_pct = 20
+
+[params]
+tolerance_ns = 1500          # the operator's own phase budget at the radio (example)
+revenue_per_hour = 4000.0    # margin of the affected cells per hour (illustrative)
+affected_fraction = 0.3
+penalty_per_breach = 25000.0
+recovery_h = 2.0
+recovery_cost_per_hour = 800.0

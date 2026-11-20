@@ -21,6 +21,7 @@ mod evidence_infra_cmd;
 mod forensics_cmd;
 mod grid_cmd;
 mod incident_cmd;
+mod insurance_cmd;
 mod license_cmd;
 mod lunar_cmd;
 mod navaids_cmd;
@@ -114,6 +115,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro longterm <key-genesis|key-rotate|request|add-token|stamp|history|verify> ...   Long-term signatures: key history and RFC 3161 archive time-stamp chain over a signed directory, verified offline (Pro; request and verify free)\n\
        kshana-pro exposure <run|verify> ...   Insurer scorecard: periodic signed exposure summary of a fleet or route (E7, Pro); verify free\n\
        kshana-pro briefing <transits|brief|tails|lowalt|occ|regional|road|spillover|notam|areas|verify> ...   Exposure history, route risk and briefings with stated confidence: transits, chokepoint and route briefings, per-tail ledger, OCC alerts, regional datasets, road index, spillover footprints (Pro; notam, areas, verify free)\n\
+       kshana-pro insurance <trigger|basis|accumulation|bi|feed|triage|schema|sample|verify> ...   Insurance and finance analytics: parametric outage trigger on your station data, basis risk, portfolio accumulation, business-interruption quantification with sensitivity, underwriting feed, claims triage aid (Pro; accumulation Enterprise; schema, sample, bi models, verify free; evidence and calculations, not advice or decisions)\n\
        kshana-pro license <keygen|pubkey|issue|issue-invoice|extend-invoice|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
      \n\
      --sample (any command): every page of every document written also carries the mark\n\
@@ -180,6 +182,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "bridge",
     "dependency",
     "briefing",
+    "insurance",
     "pics",
     "pntdp",
     "verdict",
@@ -336,6 +339,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("bridge") => bridge_cmd::bridge(&args[1..]),
         Some("dependency") => bridge_cmd::dependency(&args[1..]),
         Some("briefing") => briefing_cmd::run(&args[1..]),
+        Some("insurance") => insurance_cmd::run(&args[1..]),
         Some("pics") => pics_cmd::run(&args[1..]),
         Some("pntdp") => pntdp_cmd::run(&args[1..]),
         Some("verdict") => verdict_cmd::run(&args[1..]),

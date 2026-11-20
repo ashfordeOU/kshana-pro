@@ -268,6 +268,16 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-space-rx-exposure" => Tier::Pro,
         "pro-space-rx-qual" => Tier::Pro,
         "pro-space-rx-see" => Tier::Pro,
+        // Insurance and finance analytics (research 2026-11-20 gaps E28): the parametric
+        // trigger on the user's station data, basis risk, business-interruption quantification,
+        // the underwriting feed and the claims triage aid (Pro); portfolio accumulation
+        // (Enterprise).
+        "pro-parametric-trigger" => Tier::Pro,
+        "pro-basis-risk" => Tier::Pro,
+        "pro-accumulation" => Tier::Enterprise,
+        "pro-bi-quantification" => Tier::Pro,
+        "pro-underwriting-feed" => Tier::Pro,
+        "pro-claims-triage" => Tier::Pro,
         // UTM / U-space positioning integrity (research 2026-11-20 gaps E18 B1804): SORA input,
         // Remote ID checks and per-flight attestations (Pro); the USSP feed (Enterprise).
         "pro-utm-integrity" => Tier::Pro,
@@ -377,6 +387,12 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-space-rx-exposure",
     "pro-space-rx-qual",
     "pro-space-rx-see",
+    "pro-parametric-trigger",
+    "pro-basis-risk",
+    "pro-accumulation",
+    "pro-bi-quantification",
+    "pro-underwriting-feed",
+    "pro-claims-triage",
     "pro-utm-integrity",
     "pro-ussp-feed",
     "pro-telematics-antispoof",
