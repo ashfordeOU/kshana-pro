@@ -282,6 +282,17 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // Remote ID checks and per-flight attestations (Pro); the USSP feed (Enterprise).
         "pro-utm-integrity" => Tier::Pro,
         "pro-ussp-feed" => Tier::Enterprise,
+        // Alternative-PNT evaluation and civil test-campaign evidence (research 2026-11-20
+        // gaps E40 B4004): failure-mode packs, twin-vs-flight labels, resilient-time interface
+        // tests, and campaign scoring against truth. Test evidence only.
+        "pro-altpnt-evidence" => Tier::Pro,
+        "pro-altpnt-campaign" => Tier::Pro,
+        // Lunar and cislunar PNT evidence (research 2026-11-20 gaps E24): LNSP service
+        // verification (URA overbounding, time consistency, AFS receiver checks), lunar clock
+        // and tracking evidence, landing and surface evidence. All Pro.
+        "pro-lunar-service-verification" => Tier::Pro,
+        "pro-lunar-clock-evidence" => Tier::Pro,
+        "pro-lunar-surface-evidence" => Tier::Pro,
         // Road, rail, automotive, eCall and 3GPP evidence (research 2026-11-20 gaps E30):
         // telematics anti-spoof and the on-board-unit fraud evaluation, eCall GNSS test scoring
         // and emergency-location reliability, automotive PL validation, V2X checks and fault
@@ -305,6 +316,31 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-agri-resilience" => Tier::Pro,
         "pro-agri-advisor" => Tier::Pro,
         "pro-agri-photo" => Tier::Enterprise,
+        // KS-Inside OEM SDK (research 2026-11-20 gaps E39 B3901, docs/KS-INSIDE.md): the
+        // embedded facade and C ABI. Enterprise, and in addition only under an explicit
+        // grant on a token naming the `sdk` product (crate::ks_inside); every call is metered.
+        "pro-ks-inside" => Tier::Enterprise,
+        // Simulation fidelity and lab tooling (research 2026-11-20 gaps E32): recorder-chain
+        // register and multi-sensor replay check, simulator self-test and replay-rig check,
+        // comparable lab test reports. The TCO calculator stays free.
+        "pro-simlab-replay" => Tier::Pro,
+        "pro-simlab-selftest" => Tier::Pro,
+        "pro-simlab-report" => Tier::Pro,
+        // LEO timing verification (research 2026-11-20 gaps E21 B2102): the pre-registered
+        // scorecard from field logs (Pro). Hashing a plan and checking a result stay free.
+        "pro-leo-timing-scorecard" => Tier::Pro,
+        // Maritime AIS evidence (research 2026-11-20 gaps, E07 Pro parts): cross-source
+        // consistency and the sanctions-review, IUU-review and subsea-asset packs.
+        "pro-ais-consistency" => Tier::Pro,
+        "pro-ais-sanctions-pack" => Tier::Pro,
+        "pro-ais-iuu-pack" => Tier::Pro,
+        "pro-ais-subsea-pack" => Tier::Pro,
+        // Lunar surface operations evidence, second slice (research 2026-11-20 gaps, E24
+        // B2404): parametric dust-plume visibility, LTV/EVA navigation safety evidence, RF
+        // self-interference forensics from I/Q.
+        "pro-lunar-plume-visibility" => Tier::Pro,
+        "pro-lunar-traverse-safety" => Tier::Pro,
+        "pro-lunar-rf-forensics" => Tier::Pro,
         // LEO-PNT evaluation (research 2026-11-20 gaps, E21: B2101, B2107, B2108).
         "pro-leo-evaluation" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
@@ -397,6 +433,9 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-claims-triage",
     "pro-utm-integrity",
     "pro-ussp-feed",
+    "pro-lunar-service-verification",
+    "pro-lunar-clock-evidence",
+    "pro-lunar-surface-evidence",
     "pro-telematics-antispoof",
     "pro-obu-fraud-eval",
     "pro-ecall-tests",
@@ -411,6 +450,20 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-agri-resilience",
     "pro-agri-advisor",
     "pro-agri-photo",
+    "pro-ks-inside",
+    "pro-simlab-replay",
+    "pro-simlab-selftest",
+    "pro-simlab-report",
+    "pro-altpnt-evidence",
+    "pro-altpnt-campaign",
+    "pro-leo-timing-scorecard",
+    "pro-ais-consistency",
+    "pro-ais-sanctions-pack",
+    "pro-ais-iuu-pack",
+    "pro-ais-subsea-pack",
+    "pro-lunar-plume-visibility",
+    "pro-lunar-traverse-safety",
+    "pro-lunar-rf-forensics",
     "pro-leo-evaluation",
 ];
 
@@ -545,6 +598,14 @@ pub struct LicenseClaims {
     /// with the `pro-attack-iq` feature, before synthetic attack IQ can be generated.
     #[serde(default, skip_serializing_if = "is_false")]
     pub vetted_buyer: bool,
+    /// A programme licence (backlog E39 B3902, [`programme`]): feeder, host, teaching or
+    /// bench. Carried only by v3 tokens, which builds that read v2 refuse.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub programme: Option<programme::Programme>,
+    /// The holder opted in to sharing anonymised scenario outcomes
+    /// ([`programme::telemetry_record`]). Only permits; nothing is sent automatically.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub telemetry_opt_in: bool,
 }
 
 /// The longest a trial token may last, in days (roadmap S6).
@@ -658,11 +719,23 @@ pub enum Product {
     Station,
     /// The hosted or on-premises Pro service (`kshana-pro serve`).
     Service,
+    /// The KS-Inside OEM SDK ([`crate::ks_inside`]). Never part of a default token
+    /// ([`Product::DEFAULT`]); the vendor names it on an OEM licence.
+    Sdk,
 }
 
 impl Product {
     /// Every product, in a fixed order.
-    pub const ALL: [Product; 4] = [
+    pub const ALL: [Product; 5] = [
+        Product::Cli,
+        Product::Desktop,
+        Product::Station,
+        Product::Service,
+        Product::Sdk,
+    ];
+    /// The products a token covers when the vendor names none (`license issue`): every
+    /// product but the OEM SDK.
+    pub const DEFAULT: [Product; 4] = [
         Product::Cli,
         Product::Desktop,
         Product::Station,
@@ -674,6 +747,7 @@ impl Product {
             Product::Desktop => "desktop",
             Product::Station => "station",
             Product::Service => "service",
+            Product::Sdk => "sdk",
         }
     }
     pub fn parse(s: &str) -> Result<Product, KshanaError> {
@@ -682,8 +756,9 @@ impl Product {
             "desktop" => Ok(Product::Desktop),
             "station" => Ok(Product::Station),
             "service" => Ok(Product::Service),
+            "sdk" => Ok(Product::Sdk),
             other => Err(KshanaError::InvalidInput(format!(
-                "unknown product '{other}' (expected cli|desktop|station|service)"
+                "unknown product '{other}' (expected cli|desktop|station|service|sdk)"
             ))),
         }
     }
@@ -1018,11 +1093,23 @@ pub fn verify_with(
             )));
         }
     }
-    if claims.v > 2 {
+    if claims.v > programme::PROGRAMME_CLAIMS_VERSION {
         return Err(KshanaError::InvalidInput(format!(
-            "license claims version {} is newer than this build reads (2)",
-            claims.v
+            "license claims version {} is newer than this build reads ({})",
+            claims.v,
+            programme::PROGRAMME_CLAIMS_VERSION
         )));
+    }
+    // A programme licence (v3) is checked against its kind's policy; a v3 token without a
+    // programme, or a programme in an older token, is refused.
+    if (claims.v == programme::PROGRAMME_CLAIMS_VERSION) != claims.programme.is_some() {
+        return Err(KshanaError::InvalidInput(
+            "programme licence: a programme is carried by v3 tokens only, and every v3 token carries one"
+                .into(),
+        ));
+    }
+    if claims.programme.is_some() {
+        programme::validate(&claims)?;
     }
     if let Some(p) = opts.product {
         if !claims.products.is_empty() && !claims.products.iter().any(|c| c == p.as_str()) {
@@ -1048,12 +1135,18 @@ pub fn verify_with(
             ));
         }
     }
-    let entitlement = Entitlement {
-        licensee: claims.licensee.clone(),
-        tier,
-        expires_unix: claims.expires_unix,
-        features: claims.features.clone(),
-        arksa: claims.arksa,
+    // Fail closed: a feed- or key-gated programme token grants Evaluation here; only
+    // programme::feed_entitlement or programme::bench_entitlement returns what it names.
+    let entitlement = if programme::is_gated(&claims) {
+        programme::pending_entitlement(&claims)
+    } else {
+        Entitlement {
+            licensee: claims.licensee.clone(),
+            tier,
+            expires_unix: claims.expires_unix,
+            features: claims.features.clone(),
+            arksa: claims.arksa,
+        }
     };
     if !opts.allow_expired && entitlement.is_expired(opts.now_unix) {
         return Err(KshanaError::InvalidInput(format!(
@@ -1077,7 +1170,7 @@ pub fn issue_v2(seed: &dyn LicenceSigner, claims: &LicenseClaims) -> Result<Stri
     Tier::parse(&c.tier)?;
     if c.products.is_empty() {
         return Err(KshanaError::InvalidInput(
-            "a v2 token names at least one product (cli, desktop, station, service)".into(),
+            "a v2 token names at least one product (cli, desktop, station, service, sdk)".into(),
         ));
     }
     for p in &c.products {
@@ -1090,7 +1183,12 @@ pub fn issue_v2(seed: &dyn LicenceSigner, claims: &LicenseClaims) -> Result<Stri
             ));
         }
     }
-    c.v = 2;
+    if c.programme.is_some() {
+        c.v = programme::PROGRAMME_CLAIMS_VERSION;
+        programme::validate(&c)?;
+    } else {
+        c.v = 2;
+    }
     c.kid = Some(seed.kid()?);
     if c.id.is_empty() {
         c.id = new_token_id();
@@ -1131,7 +1229,9 @@ pub mod clock;
 pub mod kms;
 pub mod lifecycle;
 pub mod machine;
+pub mod meter;
 pub mod online;
+pub mod programme;
 pub mod register;
 pub mod revocation;
 pub mod signer;

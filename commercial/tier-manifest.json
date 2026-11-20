@@ -38,7 +38,37 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-ais-consistency",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-ais-iuu-pack",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-ais-sanctions-pack",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-ais-subsea-pack",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-alert-policy",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-altpnt-campaign",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-altpnt-evidence",
       "type": "feature",
       "tier": "pro"
     },
@@ -213,7 +243,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-ks-inside",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-leo-evaluation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-leo-timing-scorecard",
       "type": "feature",
       "tier": "pro"
     },
@@ -224,6 +264,36 @@
     },
     {
       "kind": "pro-longterm-signature",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-lunar-clock-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-lunar-plume-visibility",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-lunar-rf-forensics",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-lunar-service-verification",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-lunar-surface-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-lunar-traverse-safety",
       "type": "feature",
       "tier": "pro"
     },
@@ -329,6 +399,21 @@
     },
     {
       "kind": "pro-signed-pack",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-simlab-replay",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-simlab-report",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-simlab-selftest",
       "type": "feature",
       "tier": "pro"
     },
