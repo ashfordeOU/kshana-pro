@@ -223,6 +223,21 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-simlab-replay",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-simlab-report",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-simlab-selftest",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-spillover-footprint",
       "type": "feature",
       "tier": "pro"

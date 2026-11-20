@@ -254,6 +254,12 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // Remote ID checks and per-flight attestations (Pro); the USSP feed (Enterprise).
         "pro-utm-integrity" => Tier::Pro,
         "pro-ussp-feed" => Tier::Enterprise,
+        // Simulation fidelity and lab tooling (research 2026-11-20 gaps E32): recorder-chain
+        // register and multi-sensor replay check, simulator self-test and replay-rig check,
+        // comparable lab test reports. The TCO calculator stays free.
+        "pro-simlab-replay" => Tier::Pro,
+        "pro-simlab-selftest" => Tier::Pro,
+        "pro-simlab-report" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -329,6 +335,9 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-longterm-signature",
     "pro-utm-integrity",
     "pro-ussp-feed",
+    "pro-simlab-replay",
+    "pro-simlab-selftest",
+    "pro-simlab-report",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered
