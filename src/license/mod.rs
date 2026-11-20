@@ -150,6 +150,13 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-timing-selfcheck" => Tier::Pro,
         "pro-timing-holdover-evidence" => Tier::Pro,
         "pro-timing-correlation" => Tier::Enterprise,
+        // Timing networks (E19 B1902, B1904, B1905, B1907): appliance security posture,
+        // time-distribution chain verifier, multi-source cross-check with non-GNSS sources,
+        // ground-station timing and pass-quality assurance.
+        "pro-timing-posture" => Tier::Pro,
+        "pro-timing-chain" => Tier::Pro,
+        "pro-timing-crosscheck" => Tier::Pro,
+        "pro-timing-station" => Tier::Pro,
         // Synthetic attack IQ files (roadmap 0.42 F7, owner gate K6): Pro edition, but never
         // by tier below Enterprise: the vendor names the feature on a vetted buyer's licence
         // (with `vetted_buyer`), and crate::attack_iq checks both.
@@ -221,6 +228,10 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-timing-selfcheck",
     "pro-timing-holdover-evidence",
     "pro-timing-correlation",
+    "pro-timing-posture",
+    "pro-timing-chain",
+    "pro-timing-crosscheck",
+    "pro-timing-station",
     "pro-threat-library",
     "pro-attack-iq",
     "pro-area-console",

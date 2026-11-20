@@ -133,7 +133,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-timing-chain",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-timing-correlation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-timing-crosscheck",
       "type": "feature",
       "tier": "pro"
     },
@@ -148,7 +158,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-timing-posture",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-timing-selfcheck",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-timing-station",
       "type": "feature",
       "tier": "pro"
     },

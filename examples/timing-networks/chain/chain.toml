@@ -1,0 +1,39 @@
+title = "SYNTHETIC exchange time feed"
+end_point = "PoP-1 PTP output"
+date = "2026-10-28"
+coverage_k = 2
+limit_s = 100e-9
+
+[reference]
+lab = "UTC(k)"
+circular_t = "circular-t.csv"
+
+[[hops]]
+name = "lab to PoP White Rabbit"
+type = "wr"
+round_trip_s = 0.00049112
+u_round_trip_s = 5e-12
+fixed_delays_s = { tx_m = 300e-9, rx_m = 250e-9, tx_s = 310e-9, rx_s = 260e-9 }
+u_fixed_s = 2e-12
+alpha_configured = 0.0
+calibration = { id = "CAL-WR-01", date = "2026-07-01", valid_days = 365, by = "example laboratory" }
+[hops.alpha_calibration]
+round_trip_s = 5.012e-05
+u_round_trip_s = 5e-12
+fixed_delays_s = { tx_m = 300e-9, rx_m = 250e-9, tx_s = 310e-9, rx_s = 260e-9 }
+u_fixed_s = 2e-12
+pps_offset_s = 3.184586003816749e-09
+u_pps_offset_s = 20e-12
+
+[[hops]]
+name = "PoP boundary clock"
+type = "ptp"
+te_class = "class-b"
+asymmetry_s = 2e-9
+u_asymmetry_s = 1e-9
+calibration = { id = "CAL-BC-01", date = "2026-09-01", valid_days = 365 }
+
+[onboarding]
+format = "csv"
+path = "onboarding.csv"
+u_ref_s = 5e-9

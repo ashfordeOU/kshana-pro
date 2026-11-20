@@ -5,6 +5,23 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Timing networks (E19 B1902, B1904, B1905, B1907; docs/TIMING-ASSURANCE.md).** `kshana-pro
+  timing posture` (feature `pro-timing-posture`, Pro): appliance security posture from an
+  inventory (the time-bomb auditor's advisory table, now with an `unsigned-firmware` tag on
+  CVE-2025-47904; vendor SBOM components against an operator's component advisory table;
+  management reach; clear-text and amplifying services; firmware integrity), an out-of-band
+  firmware-image check (SHA-256, SHA256SUMS or Ed25519), CycloneDX 1.5 SBOMs of station
+  firmware, and a structural SBOM check (free). `timing chain` (`pro-timing-chain`, Pro): a
+  time-distribution chain from UTC(k) (Circular T rows) over White Rabbit (link model, α
+  estimated from a calibration), PTP, fibre and common-view hops, GUM budget, calibration
+  currency, an onboarding test for a national time service, signed traceability statement.
+  `timing crosscheck` (`pro-timing-crosscheck`, Pro): sources grouped by traceability root
+  (GNSS, long-wave DCF77/MSF/WWVB/JJY/BPC with ground-wave delay, BPS, eLoran, LEO, fibre,
+  NTS), single-source fault isolation, member faults, node-off, silent sources, triad monitor,
+  `wisp` and `timing-node` profiles. `timing station` (`pro-timing-station`, Pro): ground-station
+  pass-quality SLA per station, provider, customer and satellite with the station time error
+  during each pass against a limit derived from the antenna, signed. MODELLED or COMPUTED;
+  tested on synthetic inputs (`tests/timing_networks.rs`, demo in `examples/timing-networks/`).
 - **Timing assurance v2 (W1120 TA1-TA4; docs/TIMING-ASSURANCE.md).** `kshana-pro timing
   timebomb` (feature `pro-timing-timebomb`, Pro): future-epoch replay vectors (NMEA ZDA/RMC,
   UBX NAV-TIMEGPS/TIMEUTC/TIMELS, simulator sheet with the gps-sdr-sim command, expected

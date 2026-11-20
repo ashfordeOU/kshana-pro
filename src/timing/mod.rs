@@ -26,6 +26,14 @@
 //!   two-week rule), signed. Feature `pro-timing-holdover-evidence`.
 //! * **TA4** ([`compliance`]): the RTS 25 pack's cable-delay and holdover items and the ITU-T
 //!   G.8271.1 network-limit pack, under the audit feature.
+//! * **E19 timing networks**: the appliance security posture (advisories, vendor SBOM
+//!   components, management reach, firmware-image checks, CycloneDX SBOMs; [`posture`],
+//!   feature `pro-timing-posture`), the time-distribution chain verifier (White Rabbit, PTP,
+//!   fibre and common-view hops to UTC(k), GUM budget, calibration currency, onboarding test,
+//!   signed traceability statement; [`chain`], `pro-timing-chain`), the multi-source
+//!   cross-check with non-GNSS sources grouped by traceability root ([`crosscheck`],
+//!   `pro-timing-crosscheck`), and ground-station timing and pass-quality assurance
+//!   ([`station`], `pro-timing-station`).
 //!
 //! The prediction method is pre-registered and scored as evidence row V5, and its successor
 //! (used by the fleet assessment) as V5b (`docs/evidence/v5-holdover-time-to-breach/`);
@@ -34,15 +42,19 @@
 
 pub mod attack;
 pub mod audit;
+pub mod chain;
 pub mod compliance;
 pub mod console;
+pub mod crosscheck;
 pub mod evidence;
 pub mod fleet;
 pub mod holdover_evidence;
 pub mod metrics;
 pub mod model;
+pub mod posture;
 pub mod scorecard;
 pub mod selfcheck;
+pub mod station;
 pub mod timebomb;
 
 /// The scenario kind of a fleet assessment.
@@ -82,4 +94,12 @@ pub fn label() -> String {
         "MODELLED - holdover predictions from each clock's own record (or a stated prior for a servo record) under a three-term clock noise model; {}.",
         v5_status()
     )
+}
+
+/// `x` rounded to nine significant digits (values that feed a hash or a signature).
+pub fn sig9(x: f64) -> f64 {
+    if x == 0.0 || !x.is_finite() {
+        return x;
+    }
+    format!("{x:.8e}").parse().unwrap_or(x)
 }
