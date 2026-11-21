@@ -5,6 +5,15 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Co-existence and compatibility interference catalogue for civil links (docs/COEXISTENCE.md).**
+  `kshana-pro coexistence catalogue` (free) and `coexistence scenarios` (`pro-coexistence-catalogue`,
+  Pro): co-channel I/N criteria (ITU-R F.758-8 Table 5), RNSS C-band thresholds (ITU-R M.2031),
+  adjacent-band blocking test points (ETSI EN 303 413 Tables 4-2/4-3, EN 300 328 Tables 6-8), the
+  out-of-band / spurious boundary (ITU-R SM.1539-2) and spurious limits (ITU-R SM.329-13 Table 2,
+  EN 300 328 Table 4), each cited to its clause, intermodulation to confirm; a signed scenario pack
+  for a victim receiver and its neighbours with derived levels. Unintentional interference only;
+  no hostile-interference model, no waveform synthesis. Tier manifest regenerated; 2 tests in
+  `tests/threat_library.rs`.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from

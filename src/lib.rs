@@ -45,6 +45,7 @@ pub mod brand_pdf;
 pub mod bridge;
 pub mod briefings;
 pub mod cli;
+pub mod coexistence;
 pub mod connectors;
 pub mod criterion;
 pub mod custody;
