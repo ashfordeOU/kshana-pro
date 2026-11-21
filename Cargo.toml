@@ -119,6 +119,9 @@ windows-service = "0.8"
 # Reads the PDFs back in the branding tests (tests/ashforde_brand.rs). Already in the
 # graph as printpdf's own PDF layer, with the same features, so nothing new is built.
 lopdf = { version = "0.39", default-features = false, features = ["time"] }
+# erf for the mirrored open encounter-plane Pc in tests/space_ops_evidence.rs (pro/pc-dedupe).
+# Already in the graph through the open engine, same version, so nothing new is built.
+libm = "0.2"
 
 # The embedded open engine is compiled optimised even in development and test builds.
 # The overlay's tests run real engine scenarios (tests/open_engine_reachable.rs runs
