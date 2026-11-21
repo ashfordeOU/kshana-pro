@@ -146,6 +146,7 @@ pub mod tacho_osnma;
 pub mod timing;
 pub mod transport;
 pub mod twin;
+pub mod twin_recal;
 
 /// The version of this Pro overlay crate (distinct from the embedded open engine).
 pub fn version() -> &'static str {

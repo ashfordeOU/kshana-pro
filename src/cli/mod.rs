@@ -70,6 +70,7 @@ mod timing_cmd;
 mod timing_net_cmd;
 mod transport_cmd;
 mod trust_cmd;
+mod twin_recal_cmd;
 mod utm_cmd;
 mod vault_cmd;
 mod verdict_cmd;
@@ -127,6 +128,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro debris-obs <plan|synth> ...   Observation scheduling for a space-debris sensor: visibility windows, priority schedule, expected orbit-covariance improvement per pass; planning only (Pro; synth free)\n\
        kshana-pro cislunar-catalogue <run|synth> ...   Cislunar catalogue build-up: angles-only tracklet association and initial orbit determination with covariance in the CR3BP; planning and evidence only (Pro; synth free)\n\
        kshana-pro coexistence <catalogue|scenarios|synth> ...   Co-existence and compatibility interference catalogue for civil links (co-channel, adjacent-band blocking, out-of-band and spurious emissions), every value cited; signed scenario pack for a victim receiver (scenarios Pro; catalogue and synth free)\n\
+       kshana-pro twin-recal <run|synth> ...   Digital-twin recalibration evidence pack: window-by-window hosted calibrate verdicts (verified), local before/after residuals and parameter drift (Pro; synth free)\n\
        kshana-pro survey-qc <run|synth> ...   Marine survey and construction positioning QC under interference: per-line flags, signed QC annex, site risk plan (Pro; synth free)\n\
        kshana-pro vault <init|ingest|list|hold|release|delete|trend|calendar|submission|verify|export|import> ...   Customer evidence vault: signed packs with legal hold, retention, hash-chained ledger, trends, obligation calendar, submission skeletons, open export (Enterprise; import free)\n\
        kshana-pro method <schedule|budget> ...   Yearly re-scoring schedule and per-test GUM uncertainty budgets with a method report (Pro)\n\
@@ -284,6 +286,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "debris-obs",
     "cislunar-catalogue",
     "coexistence",
+    "twin-recal",
     "casualty",
     "aviation-recon",
     "enforcement",
@@ -454,6 +457,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("debris-obs") => debris_cmd::run(&args[1..]),
         Some("cislunar-catalogue") => cislunar_cmd::run(&args[1..]),
         Some("coexistence") => coexistence_cmd::run(&args[1..]),
+        Some("twin-recal") => twin_recal_cmd::run(&args[1..]),
         Some("casualty") => casualty_cmd::run(&args[1..]),
         Some("aviation-recon") => aviation_recon_cmd::run(&args[1..]),
         Some("enforcement") => enforcement_cmd::run(&args[1..]),

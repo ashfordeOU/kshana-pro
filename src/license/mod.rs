@@ -397,6 +397,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-cislunar-catalogue" => Tier::Pro,
         // Co-existence and compatibility interference catalogue, scenario pack.
         "pro-coexistence-catalogue" => Tier::Pro,
+        // Digital-twin recalibration evidence pack on the hosted calibrate verdict.
+        "pro-twin-recalibration" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -538,6 +540,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-disposal-sensitivity",
     "pro-cislunar-catalogue",
     "pro-coexistence-catalogue",
+    "pro-twin-recalibration",
     "pro-casualty-reconstruction",
     "pro-method-validation",
     "pro-aviation-event-recon",

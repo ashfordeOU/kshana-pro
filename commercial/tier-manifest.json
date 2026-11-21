@@ -653,6 +653,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-twin-recalibration",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-uncertainty",
       "type": "feature",
       "tier": "pro"
