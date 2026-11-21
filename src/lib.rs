@@ -53,6 +53,7 @@ pub mod criterion;
 pub mod custody;
 pub mod debris_obs;
 pub mod dependency;
+pub mod deploy_attest;
 pub mod desktop;
 pub mod disposal_sensitivity;
 #[cfg(feature = "unfiled-methods")]

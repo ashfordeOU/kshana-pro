@@ -213,6 +213,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-deploy-attestation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-desktop",
       "type": "feature",
       "tier": "pro"

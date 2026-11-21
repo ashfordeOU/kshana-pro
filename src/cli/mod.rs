@@ -25,6 +25,7 @@ mod coexistence_cmd;
 mod crisis_cmd;
 mod custody_cmd;
 mod debris_cmd;
+mod deploy_attest_cmd;
 mod dossier_cmd;
 mod eloran_cmd;
 mod enforcement_cmd;
@@ -131,6 +132,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro coexistence <catalogue|scenarios|synth> ...   Co-existence and compatibility interference catalogue for civil links (co-channel, adjacent-band blocking, out-of-band and spurious emissions), every value cited; signed scenario pack for a victim receiver (scenarios Pro; catalogue and synth free)\n\
        kshana-pro twin-recal <run|synth> ...   Digital-twin recalibration evidence pack: window-by-window hosted calibrate verdicts (verified), local before/after residuals and parameter drift (Pro; synth free)\n\
        kshana-pro isvv <run|synth> ...   Requirements coverage and verification status from test results, requirements and trace map: signed report, orphan tests, change since baseline (Pro; synth free)
+       kshana-pro deploy-attest <baseline|check|synth> ...   Ground software deployment integrity: signed baseline of artefact hashes, host snapshots against it, drift timeline, signed report (Pro; synth free)
        kshana-pro survey-qc <run|synth> ...   Marine survey and construction positioning QC under interference: per-line flags, signed QC annex, site risk plan (Pro; synth free)\n\
        kshana-pro vault <init|ingest|list|hold|release|delete|trend|calendar|submission|verify|export|import> ...   Customer evidence vault: signed packs with legal hold, retention, hash-chained ledger, trends, obligation calendar, submission skeletons, open export (Enterprise; import free)\n\
        kshana-pro method <schedule|budget> ...   Yearly re-scoring schedule and per-test GUM uncertainty budgets with a method report (Pro)\n\
@@ -290,6 +292,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "coexistence",
     "twin-recal",
     "isvv",
+    "deploy-attest",
     "casualty",
     "aviation-recon",
     "enforcement",
@@ -462,6 +465,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("coexistence") => coexistence_cmd::run(&args[1..]),
         Some("twin-recal") => twin_recal_cmd::run(&args[1..]),
         Some("isvv") => isvv_cmd::run(&args[1..]),
+        Some("deploy-attest") => deploy_attest_cmd::run(&args[1..]),
         Some("casualty") => casualty_cmd::run(&args[1..]),
         Some("aviation-recon") => aviation_recon_cmd::run(&args[1..]),
         Some("enforcement") => enforcement_cmd::run(&args[1..]),
