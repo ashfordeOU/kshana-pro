@@ -504,8 +504,8 @@ fn wr_asymmetry_of_the_deployed_link_is_estimated_within_budget() {
     // Reference interpolated between MJD 61339 (2 ns) and 61344 (3 ns): 2.4 ns.
     assert_eq!(r.reference_status, "published");
     assert!((r.utc_minus_utck_s - 2.4e-9).abs() < 1e-15);
-    // Offset = reference + WR bias + PTP asymmetry.
-    let expect = 2.4e-9 - truth / 2.0 + 2e-9;
+    // End − UTC = WR bias + PTP asymmetry − (UTC − UTC(k)): the lab is 2.4 ns behind UTC.
+    let expect = -2.4e-9 - truth / 2.0 + 2e-9;
     assert!((r.offset_from_utc_s - expect).abs() < 1e-14);
     // u_c is the root sum of squares of the budget; the class-B cTE is 20 ns/√3.
     let rss = r.budget.iter().map(|c| c.u_s * c.u_s).sum::<f64>().sqrt();
@@ -998,4 +998,36 @@ fn station_inputs_are_validated() {
     .unwrap();
     assert_eq!(p[0].status, "ok");
     assert_eq!(p[0].scheduled_los - p[0].scheduled_aos, 600.0);
+}
+
+/// Sign of the laboratory's offset, by hand: Circular T says UTC − UTC(k) = +5 ns (the lab is
+/// 5 ns behind UTC) and one stated hop adds +10 ns (output minus input). The end point is
+/// therefore 10 − 5 = +5 ns from UTC, not 15 ns.
+#[test]
+fn chain_offset_subtracts_utc_minus_utck() {
+    let d = tmp("chain-sign");
+    let src = r#"title = "Sign check"
+end_point = "E"
+date = "2026-11-15"
+coverage_k = 2
+[reference]
+lab = "UTC(k)"
+utc_minus_utck_s = 5e-9
+u_s = 1e-9
+
+[[hops]]
+name = "stated"
+type = "stated"
+offset_s = 10e-9
+u_s = 1e-9
+calibration = { id = "CAL-S", date = "2026-09-01", valid_days = 365 }
+"#;
+    let r = ch::assess(&ChainSpec::parse(src).unwrap(), &d, UTC).unwrap();
+    assert!((r.utc_minus_utck_s - 5e-9).abs() < 1e-18);
+    assert!((r.hops[0].bias_s - 10e-9).abs() < 1e-18);
+    assert!(
+        (r.offset_from_utc_s - 5e-9).abs() < 1e-15,
+        "{}",
+        r.offset_from_utc_s
+    );
 }
