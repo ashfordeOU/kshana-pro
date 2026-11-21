@@ -165,7 +165,7 @@ pub fn acquire_chain(
             .map(|t| cs.iter().map(|c| c[t].norm_sqr()).sum())
             .collect();
         let mut s = metric.clone();
-        s.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        s.sort_by(f64::total_cmp);
         let median = s[s.len() / 2].max(1e-300);
         (cs, metric, median, terms.len())
     };

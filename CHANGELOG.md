@@ -152,6 +152,14 @@ own bullet so parallel work merges cleanly.
   from CSVs holding such cells before this fix.** `nan` in any sign is now the missing marker;
   an infinite value is an error with its row and column. Test:
   `num_treats_nan_as_missing_and_refuses_infinity`.
+- **Fix: malformed SigMF recordings panicked `eloran rx` and the capset tools.**
+  `kshana_eloran::io::read_sigmf` took `core:num_channels` and `core:sample_rate` as given, so
+  `num_channels: 0` divided by zero and a huge count tried to allocate that many channels. It
+  did not check rf32 samples either: one NaN (an SDR glitch) reached the impulse-mitigation
+  median and the acquisition metric sort, which used `partial_cmp().unwrap()` and panicked. The
+  reader now requires 1 to 64 channels and a positive, finite sample rate, and refuses a
+  non-finite sample with its index. The two sorts use a total order. Test:
+  `sigmf_headers_and_samples_are_checked`, which panicked on the old code.
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
