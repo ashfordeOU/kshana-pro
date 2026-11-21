@@ -433,6 +433,8 @@ pub struct Report {
     pub events: Vec<Event>,
     pub triad: Vec<TriadEstimate>,
     pub verdict: String,
+    /// Rows of the source logs that could not be read.
+    pub skipped_rows: Vec<selfcheck::SkippedRows>,
 }
 
 fn median(v: &mut [f64]) -> Option<f64> {
@@ -459,6 +461,7 @@ pub fn check(spec: &Spec, base: &Path) -> Result<Report, String> {
     }
     let res = resolve(spec)?;
     let mut series: Vec<Vec<Reading>> = Vec::new();
+    let mut skipped = Vec::new();
     for s in &spec.sources {
         let p = base.join(&s.path);
         let text = std::fs::read_to_string(&p).map_err(|e| format!("{}: {e}", p.display()))?;
@@ -473,7 +476,9 @@ pub fn check(spec: &Spec, base: &Path) -> Result<Report, String> {
             time_offset_s: s.time_offset_s,
             select: s.select.clone(),
         };
-        series.push(selfcheck::read_source(&ss, &text)?);
+        let (r, sk) = selfcheck::read_source_counted(&ss, &text)?;
+        series.push(r);
+        skipped.extend(sk.nonzero());
     }
     let roots: Vec<String> = res.iter().map(|r| r.root.clone()).collect();
     let names: Vec<String> = res.iter().map(|r| r.name.clone()).collect();
@@ -812,7 +817,8 @@ pub fn check(spec: &Spec, base: &Path) -> Result<Report, String> {
         counts,
         events,
         triad,
-        verdict,
+        verdict: format!("{verdict}{}", selfcheck::skipped_note(&skipped)),
+        skipped_rows: skipped,
     })
 }
 

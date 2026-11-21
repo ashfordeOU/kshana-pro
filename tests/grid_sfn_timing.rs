@@ -905,3 +905,85 @@ fn clock_logs_with_non_finite_values_are_refused() {
         assert!(e.contains("not a finite number"), "{bad}: {e}");
     }
 }
+
+/// Skipped-row counts: unreadable rows of a clock log, an angle pair, a receiver CSV and simlab
+/// observations are counted with their first reasons (a header line is not a skip), and the
+/// count reaches the report's verdict, so a reader sees "N row(s) skipped".
+#[test]
+fn unreadable_rows_are_counted_and_shown() {
+    use kshana_pro::timing::selfcheck::{read_source_counted, SourceSpec};
+    let spec = SourceSpec {
+        name: "pmu-1".into(),
+        format: "csv".into(),
+        path: "x.csv".into(),
+        u_s: 1e-6,
+        ..Default::default()
+    };
+    let (r, sk) = read_source_counted(
+        &spec,
+        "unix_time,offset_s\n1767225600,1e-6\nbad row\n1767225601,2e-6\n1767225602,x\n",
+    )
+    .unwrap();
+    assert_eq!((r.len(), sk.rows), (2, 2));
+    assert_eq!(sk.first[0], "line 3: time or offset not a number");
+    assert_eq!(sk.first[1], "line 5: time or offset not a number");
+    let (_, clean) = read_source_counted(&spec, "unix_time,offset_s\n1,1e-6\n").unwrap();
+    assert_eq!(clean.rows, 0);
+
+    let (v, sk) =
+        grid::read_angle_pair_counted("t,a,b\n0,10,5\n1,10,inf\n2,11,5\n?\n", 50.0).unwrap();
+    assert_eq!((v.len(), sk.rows), (2, 2));
+
+    let (ep, sk) = kshana_pro::ireports::verify::load_csv_positions_counted(
+        "timestamp,lat,lon\n2026-11-21T00:00:00Z,54,25\nyesterday,54,25\n2026-11-21T00:00:01Z,54,25\n",
+    )
+    .unwrap();
+    assert_eq!((ep.len(), sk.rows), (2, 1));
+    assert!(sk.first[0].contains("timestamp not readable"));
+
+    let (m, sk) = kshana_pro::simlab::selftest::parse_obs_counted(
+        "t,prn,cn0\n0,G01,45\nx,G01,47\n1,G01,NaN\n2,G01,46\n",
+        "obs",
+    );
+    assert_eq!((m["G01"].len(), sk.rows), (2, 2));
+
+    // Report level: a drift request over a clock log with two bad rows says so.
+    let d = std::env::temp_dir().join(format!("kshana-skipped-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&d);
+    std::fs::create_dir_all(&d).unwrap();
+    let mut log = String::from("unix_time,offset_s\n");
+    for k in 0..400 {
+        log.push_str(&format!(
+            "{},{:e}\n",
+            1_767_225_600 + k,
+            1e-9 * (k % 3) as f64
+        ));
+        if k == 100 || k == 200 {
+            log.push_str("garbage,line\n");
+        }
+    }
+    std::fs::write(d.join("clock.csv"), log).unwrap();
+    let req = grid::DriftRequest {
+        name: None,
+        nominal_hz: Some(50.0),
+        budget_s: None,
+        clock: Some(grid::ClockLogSpec {
+            format: "csv".into(),
+            path: "clock.csv".into(),
+            sign: None,
+            time_offset_s: 0.0,
+            select: None,
+        }),
+        angle_pair: None,
+        detector: DriftParams::default(),
+    };
+    let r = grid::run_drift(&req, &d).unwrap();
+    assert_eq!(r.skipped_rows.len(), 1);
+    assert_eq!(r.skipped_rows[0].rows, 2);
+    assert!(
+        r.verdict.contains("2 row(s) skipped (clock 2)"),
+        "{}",
+        r.verdict
+    );
+    std::fs::remove_dir_all(&d).ok();
+}

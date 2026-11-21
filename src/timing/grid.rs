@@ -46,7 +46,7 @@ use std::path::Path;
 use serde::{Deserialize, Serialize};
 
 use super::holdover_evidence::{self, HoldoverSpec, OscillatorSpec};
-use super::selfcheck::{read_source, Reading, SourceSpec};
+use super::selfcheck::{read_source_counted, skipped_note, Reading, SkippedRows, SourceSpec};
 
 /// The command feature of every `grid` analysis.
 pub const FEATURE: &str = "pro-grid-timing";
@@ -252,8 +252,13 @@ pub struct ClockLogSpec {
     pub select: Option<String>,
 }
 
-/// Read a clock log (path relative to `base`) into readings, device minus reference.
-pub fn read_clock(name: &str, c: &ClockLogSpec, base: &Path) -> Result<Vec<Reading>, String> {
+/// Read a clock log (path relative to `base`) into readings, device minus reference, with the
+/// rows that could not be read.
+pub fn read_clock(
+    name: &str,
+    c: &ClockLogSpec,
+    base: &Path,
+) -> Result<(Vec<Reading>, SkippedRows), String> {
     let s = SourceSpec {
         name: name.into(),
         kind: None,
@@ -265,7 +270,7 @@ pub fn read_clock(name: &str, c: &ClockLogSpec, base: &Path) -> Result<Vec<Readi
         time_offset_s: c.time_offset_s,
         select: c.select.clone(),
     };
-    read_source(&s, &read_text(base, &c.path)?)
+    read_source_counted(&s, &read_text(base, &c.path)?)
 }
 
 /// A run of consecutive readings beyond a limit.
@@ -480,6 +485,8 @@ pub struct PmuReport {
     pub events: Vec<EventAngles>,
     pub counts: BTreeMap<String, usize>,
     pub verdict: String,
+    /// Rows of the clock logs that could not be read.
+    pub skipped_rows: Vec<SkippedRows>,
 }
 
 /// The default timing budget: the time error that alone uses `tve · share` of TVE.
@@ -495,6 +502,7 @@ pub fn timing_budget(f0: f64, tve: f64, share: f64) -> Result<f64, String> {
 
 pub(crate) struct LoadedPmu {
     pub readings: Vec<Reading>,
+    pub skipped: Option<SkippedRows>,
     pub reports: Vec<kshana::c37118::TimeReport>,
     pub capture: Option<CaptureSummary>,
 }
@@ -506,9 +514,12 @@ pub(crate) fn load_pmu(
     clock: Option<&ClockLogSpec>,
     base: &Path,
 ) -> Result<LoadedPmu, String> {
-    let readings = match clock {
-        Some(c) => read_clock(name, c, base)?,
-        None => Vec::new(),
+    let (readings, skipped) = match clock {
+        Some(c) => {
+            let (r, sk) = read_clock(name, c, base)?;
+            (r, sk.nonzero())
+        }
+        None => (Vec::new(), None),
     };
     let (reports, capture) = match capture {
         None => (Vec::new(), None),
@@ -565,6 +576,7 @@ pub(crate) fn load_pmu(
     }
     Ok(LoadedPmu {
         readings,
+        skipped,
         reports,
         capture,
     })
@@ -761,6 +773,7 @@ pub fn assess_pmus(req: &PmuRequest, base: &Path) -> Result<PmuReport, String> {
             }
         )
     };
+    let skipped: Vec<SkippedRows> = loaded.iter().filter_map(|l| l.skipped.clone()).collect();
     Ok(PmuReport {
         format: PMU_FORMAT,
         label: LABEL,
@@ -776,7 +789,8 @@ pub fn assess_pmus(req: &PmuRequest, base: &Path) -> Result<PmuReport, String> {
         pmus,
         events,
         counts,
-        verdict,
+        verdict: format!("{verdict}{}", skipped_note(&skipped)),
+        skipped_rows: skipped,
     })
 }
 
@@ -947,20 +961,41 @@ pub struct DriftReport {
     pub warning_s: Option<f64>,
     pub max_abs_te_s: f64,
     pub verdict: String,
+    /// Rows of the clock log or angle pair that could not be read.
+    pub skipped_rows: Vec<SkippedRows>,
     #[serde(skip)]
     pub trace: Vec<[f64; 6]>,
 }
 
 /// Read an angle-pair CSV into (t, time error of a against b).
 pub fn read_angle_pair(text: &str, f0: f64) -> Result<Vec<(f64, f64)>, String> {
+    read_angle_pair_counted(text, f0).map(|(v, _)| v)
+}
+
+/// [`read_angle_pair`] with the rows that could not be read (the first unreadable line is the
+/// header) and non-finite values counted as skipped.
+pub fn read_angle_pair_counted(
+    text: &str,
+    f0: f64,
+) -> Result<(Vec<(f64, f64)>, SkippedRows), String> {
+    let mut skipped = SkippedRows::new("angle pair");
     let mut v = Vec::new();
-    for l in text.lines() {
+    let mut first = true;
+    for (n, l) in text.lines().enumerate() {
+        if l.trim().is_empty() || l.trim_start().starts_with('#') {
+            continue;
+        }
+        let header = std::mem::replace(&mut first, false);
         let c: Vec<&str> = l.split([',', ';']).map(str::trim).collect();
-        let (Some(t), Some(a), Some(b)) = (
-            c.first().and_then(|x| x.parse::<f64>().ok()),
-            c.get(1).and_then(|x| x.parse::<f64>().ok()),
-            c.get(2).and_then(|x| x.parse::<f64>().ok()),
-        ) else {
+        let num = |i: usize| {
+            c.get(i)
+                .and_then(|x| x.parse::<f64>().ok())
+                .filter(|x| x.is_finite())
+        };
+        let (Some(t), Some(a), Some(b)) = (num(0), num(1), num(2)) else {
+            if !header {
+                skipped.add(n + 1, "time or angle not a finite number");
+            }
             continue;
         };
         let mut d = (a - b) % 360.0;
@@ -990,7 +1025,7 @@ pub fn read_angle_pair(text: &str, f0: f64) -> Result<Vec<(f64, f64)>, String> {
         prev = d;
         out.push((t, acc / (360.0 * f0)));
     }
-    Ok(out)
+    Ok((out, skipped))
 }
 
 /// Least-squares slope of `(t, x)` points (`None` below three points).
@@ -1173,6 +1208,7 @@ pub fn detect_drift(series: &[(f64, f64)], p: &DriftParams, budget: Option<f64>)
         warning_s: warning,
         max_abs_te_s: max_te,
         verdict,
+        skipped_rows: Vec::new(),
         trace,
     }
 }
@@ -1180,20 +1216,23 @@ pub fn detect_drift(series: &[(f64, f64)], p: &DriftParams, budget: Option<f64>)
 /// Run a drift request (paths relative to `base`).
 pub fn run_drift(req: &DriftRequest, base: &Path) -> Result<DriftReport, String> {
     req.detector.check()?;
+    let mut skipped = Vec::new();
     let (series, input) = match (&req.clock, &req.angle_pair) {
-        (Some(c), None) => (
-            read_clock("clock", c, base)?
-                .into_iter()
-                .map(|r| (r.t, r.offset))
-                .collect::<Vec<_>>(),
-            "clock",
-        ),
+        (Some(c), None) => {
+            let (r, sk) = read_clock("clock", c, base)?;
+            skipped.extend(sk.nonzero());
+            (
+                r.into_iter().map(|r| (r.t, r.offset)).collect::<Vec<_>>(),
+                "clock",
+            )
+        }
         (None, Some(a)) => {
             let f0 = req
                 .nominal_hz
                 .ok_or("an angle pair needs nominal_hz to turn degrees into time")?;
             // The standing angle difference is the grid's, not the clocks': remove it.
-            let mut v = read_angle_pair(&read_text(base, &a.path)?, f0)?;
+            let (mut v, sk) = read_angle_pair_counted(&read_text(base, &a.path)?, f0)?;
+            skipped.extend(sk.nonzero());
             let t0 = v[0].0;
             let mut b: Vec<f64> = v
                 .iter()
@@ -1214,6 +1253,8 @@ pub fn run_drift(req: &DriftRequest, base: &Path) -> Result<DriftReport, String>
     let mut r = detect_drift(&series, &req.detector, budget);
     r.name = req.name.clone();
     r.input = input.into();
+    r.verdict = format!("{}{}", r.verdict, skipped_note(&skipped));
+    r.skipped_rows = skipped;
     if let (Some(f), Some(te)) = (req.nominal_hz, r.te_at_alarm_s) {
         r.phase_at_alarm_deg = Some(phase_error_deg(te, f));
     }
@@ -1576,6 +1617,8 @@ pub struct Prc002Report {
     pub devices: Vec<Prc002Evidence>,
     pub counts: BTreeMap<String, usize>,
     pub verdict: String,
+    /// Rows of the device clock logs that could not be read.
+    pub skipped_rows: Vec<SkippedRows>,
 }
 
 /// Assess the request (paths relative to `base`).
@@ -1588,8 +1631,11 @@ pub fn assess_prc002(req: &Prc002Request, base: &Path, utc: &str) -> Result<Prc0
         return Err("limit_s and gap_s must be > 0".into());
     }
     let mut logs = Vec::new();
+    let mut skipped = Vec::new();
     for d in &req.device {
-        logs.push(read_clock(&d.name, &d.clock, base)?);
+        let (r, sk) = read_clock(&d.name, &d.clock, base)?;
+        logs.push(r);
+        skipped.extend(sk.nonzero());
     }
     let ps = req.period_start_unix.unwrap_or_else(|| {
         logs.iter()
@@ -1772,7 +1818,8 @@ pub fn assess_prc002(req: &Prc002Request, base: &Path, utc: &str) -> Result<Prc0
         period_end_unix: pe,
         devices,
         counts,
-        verdict,
+        verdict: format!("{verdict}{}", skipped_note(&skipped)),
+        skipped_rows: skipped,
     })
 }
 
@@ -1979,6 +2026,7 @@ pub fn assess_event(req: &EventRequest, base: &Path, utc: &str) -> Result<EventR
                 if d.capture.is_none() && d.clock.is_none() {
                     Ok(LoadedPmu {
                         readings: vec![],
+                        skipped: None,
                         reports: vec![],
                         capture: None,
                     })

@@ -5,6 +5,23 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Skipped-row counts in reports.** Several readers dropped unreadable rows without saying so.
+  Those readers now count them and keep the first five reasons. Each report that uses them
+  carries a `skipped_rows` list, and its verdict ends with "N row(s) skipped (source n), see
+  skipped_rows":
+  - the clock-log reader (`timing::selfcheck::read_source_counted`, `csv` and
+    `ntp-peerstats` logs; a CSV header is not a skip; daemon logs mix in other messages and are
+    not counted), behind the node and multi-site self-checks, the grid PMU, drift and PRC-002
+    evidence, the SFN monitor, the time-source cross-check, the chain onboarding test and the
+    ground-station clock;
+  - the grid angle-pair reader (`read_angle_pair_counted`, non-finite values counted too);
+  - the incident-report receiver CSV (`load_csv_positions_counted`, `load_receiver_counted`),
+    in the report-verification document and the reset check;
+  - the simlab self-test observations, fixes and PPS logs (`numeric_csv` counted before, but
+    its count was discarded).
+
+  Test: `unreadable_rows_are_counted_and_shown`. Builds on the clock-log NaN fix.
+
 - **Fix: NaN in a clock log passed as "within" (timing self-check, grid PMU, cross-check, chain
   onboarding, station clock).** `timing::selfcheck::read_source`, the clock-log reader all of
   these share, accepted `nan`, `NaN`, `inf` and `-inf`, which `str::parse::<f64>` reads. A NaN

@@ -252,6 +252,8 @@ pub struct OnboardingResult {
     pub bound_s: f64,
     /// `consistent`, `inconsistent`, `wander-exceeded`.
     pub status: String,
+    /// Rows of the onboarding log that could not be read.
+    pub skipped_rows: Option<selfcheck::SkippedRows>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
@@ -650,7 +652,7 @@ pub fn assess(spec: &ChainSpec, base: &Path, utc: &str) -> Result<ChainStatement
         Some(o) => {
             let p = base.join(&o.path);
             let text = std::fs::read_to_string(&p).map_err(|e| format!("{}: {e}", p.display()))?;
-            let rs = selfcheck::read_source(
+            let (rs, skipped_rows) = selfcheck::read_source_counted(
                 &SourceSpec {
                     name: "onboarding".into(),
                     kind: None,
@@ -694,6 +696,7 @@ pub fn assess(spec: &ChainSpec, base: &Path, utc: &str) -> Result<ChainStatement
                 predicted_s: sig9(offset),
                 bound_s: sig9(bound),
                 status: status.into(),
+                skipped_rows: skipped_rows.nonzero(),
             })
         }
     };
@@ -722,6 +725,9 @@ pub fn assess(spec: &ChainSpec, base: &Path, utc: &str) -> Result<ChainStatement
     }
     if let Some(o) = &onboarding {
         verdict.push_str(&format!("; onboarding test {}", o.status));
+        if let Some(sk) = &o.skipped_rows {
+            verdict.push_str(&selfcheck::skipped_note(std::slice::from_ref(sk)));
+        }
     }
     Ok(ChainStatement {
         format: FORMAT,
