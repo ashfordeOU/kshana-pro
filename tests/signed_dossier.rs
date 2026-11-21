@@ -130,244 +130,282 @@ fn sign_and_verify_a_dossier_offline() {
     }
 }
 
-/// Product certificates against a signed revocation list, and the revalidation calendar
-/// (`kshana-pro cert`, docs/CERT-STATUS.md). The list signer here is a test fixture only: lists
-/// are issued by the hosted service, never by Pro.
-mod cert_status {
+/// Fleet revalidation plan over open product registers (`kshana-pro revalidation plan`,
+/// docs/REVALIDATION-PLAN.md). Registers and lists are signed here by test fixtures only: the
+/// publisher signs registers with the open `kshana register sign`, the issuer signs lists.
+mod revalidation_plan {
     use ed25519_dalek::{Signer, SigningKey};
-    use kshana_pro::cert_status::{self as cs, RevocationList, Revoked};
-    use kshana_pro::license::{key_id, public_key_for};
+    use kshana_pro::revalidation::{self as rv, Crl, Entry, Lead, Register, Request, Revoked};
+    use sha2::{Digest, Sha256};
 
-    const LAB: [u8; 32] = [31; 32];
-    const ISSUER: [u8; 32] = [32; 32];
+    const PUB: [u8; 32] = [41; 32];
+    const ISS: [u8; 32] = [42; 32];
 
-    /// Test fixture: sign a list as the hosted issuer would (`payload_hex.signature_hex`).
-    fn sign_list(seed: &[u8; 32], revoked: Vec<Revoked>, next_update: &str) -> String {
-        let l = RevocationList {
-            format: cs::LIST_FORMAT.into(),
+    fn pk(seed: &[u8; 32]) -> String {
+        hex::encode(SigningKey::from_bytes(seed).verifying_key().to_bytes())
+    }
+
+    fn sign_register(mut r: Register, seed: &[u8; 32]) -> String {
+        r.signer = pk(seed);
+        r.signature.clear();
+        let sig = SigningKey::from_bytes(seed).sign(&rv::signing_bytes(rv::REGISTER_SCHEMA, &r));
+        r.signature = hex::encode(sig.to_bytes());
+        serde_json::to_string_pretty(&r).unwrap()
+    }
+
+    fn sign_crl(mut c: Crl, seed: &[u8; 32]) -> String {
+        c.signer = pk(seed);
+        c.signature.clear();
+        let sig = SigningKey::from_bytes(seed).sign(&rv::signing_bytes(rv::CRL_SCHEMA, &c));
+        c.signature = hex::encode(sig.to_bytes());
+        serde_json::to_string(&c).unwrap()
+    }
+
+    fn entry(id: &str, maker: &str, scored: &str, by: &str) -> Entry {
+        Entry {
+            id: id.into(),
+            product: format!("SYNTHETIC {id}"),
+            maker: maker.into(),
+            version: "1.0".into(),
+            method: "leo-acquisition".into(),
+            method_version: "1.0".into(),
+            scored: scored.into(),
+            revalidate_by: by.into(),
+            outcome: "band B".into(),
+            evidence_sha256: None,
+            evidence_url: None,
+            scenario_set: None,
+            scenario_set_version: None,
+        }
+    }
+
+    fn register(publisher: &str, entries: Vec<Entry>) -> Register {
+        Register {
+            schema: rv::REGISTER_SCHEMA.into(),
+            publisher: publisher.into(),
+            issued: "2026-11-01".into(),
+            entries,
+            signer: String::new(),
+            signature: String::new(),
+        }
+    }
+
+    fn crl(next_update: &str, revoked: Vec<Revoked>) -> Crl {
+        Crl {
+            schema: rv::CRL_SCHEMA.into(),
             issuer: "SYNTHETIC issuer".into(),
-            sequence: 7,
-            issued_utc: "2027-01-01T00:00:00Z".into(),
-            next_update_utc: next_update.into(),
+            issued: "2026-11-15".into(),
+            next_update: next_update.into(),
             revoked,
-            kid: key_id(&public_key_for(seed)),
+            signer: String::new(),
+            signature: String::new(),
+        }
+    }
+
+    #[test]
+    fn the_published_crl_test_vector_verifies() {
+        let seed: [u8; 32] = Sha256::digest(b"register crl test vector").into();
+        let key = "a028f6212dcbd196a38fe8e13927a9d997f4d72ab00341276b9437d8f2273a8d";
+        assert_eq!(pk(&seed), key);
+        let doc = format!(
+            r#"{{"schema":"kshana.register-crl/1","issuer":"Example issuer (test vector)","issued":"2026-11-20","next_update":"2026-11-27","revoked":[{{"id":"rx-007","revoked":"2026-11-19","reason":"score withdrawn"}},{{"id":"ant-12.v2","revoked":"2026-11-20","reason":"method superseded"}}],"signer":"{key}","signature":"d62b00f7ca67821e0bca98f6366df1cc44989810c4e678b1f32b82420f3427eb80df766fe72d24ad5e44bcb710bbaf0ac431de47f3cd8b79299c636991099107"}}"#
+        );
+        let c = rv::check_crl(&doc, key).unwrap();
+        assert_eq!(c.revoked.len(), 2);
+        assert_eq!(c.revoked[1].id, "ant-12.v2");
+        // Another pinned key, or a changed reason, does not verify.
+        assert!(rv::check_crl(&doc, &pk(&ISS)).is_err());
+        assert!(rv::check_crl(&doc.replace("score withdrawn", "score withdrawn."), key).is_err());
+        assert!(rv::check_crl(&doc, "").is_err());
+    }
+
+    #[test]
+    fn plan_flags_by_month_and_maker_with_lead_times() {
+        let reg_a = sign_register(
+            register(
+                "SYNTHETIC lab A",
+                vec![
+                    entry("rx-1", "Maker One", "2025-11-01", "2026-11-10"), // overdue
+                    entry("rx-2", "Maker One", "2025-12-15", "2026-12-15"), // due soon
+                    entry("rx-3", "Maker Two", "2026-06-01", "2027-06-01"), // scheduled
+                    entry("rx-4", "Maker Two", "2026-06-01", "2027-06-01"), // revoked
+                ],
+            ),
+            &PUB,
+        );
+        let reg_b = sign_register(
+            register(
+                "SYNTHETIC lab B",
+                vec![entry("ant-1", "Maker One", "2026-03-01", "2027-03-01")],
+            ),
+            &PUB,
+        );
+        let list = sign_crl(
+            crl(
+                "2026-12-15",
+                vec![Revoked {
+                    id: "rx-4".into(),
+                    revoked: "2026-11-18".into(),
+                    reason: "score withdrawn".into(),
+                }],
+            ),
+            &ISS,
+        );
+        let a = rv::check_register(&reg_a, Some(&pk(&PUB))).unwrap();
+        let b = rv::check_register(&reg_b, None).unwrap();
+        let c = rv::check_crl(&list, &pk(&ISS)).unwrap();
+        let q = Request {
+            title: "SYNTHETIC fleet".into(),
+            warn_days: 60,
+            lead_days: 90,
+            lead: vec![Lead {
+                maker: "Maker Two".into(),
+                days: 120,
+            }],
+            registers: vec![],
         };
-        let payload = serde_json::to_vec(&l).unwrap();
-        let sig = SigningKey::from_bytes(seed).sign(&payload);
-        format!("{}.{}", hex::encode(&payload), hex::encode(sig.to_bytes()))
-    }
-
-    fn cert(root: &std::path::Path, id: &str, issued: &str) -> std::path::PathBuf {
-        let c = cs::certificate(
-            id,
-            "SYNTHETIC receiver X1",
-            "leo-acquisition",
-            "1.0",
-            issued,
-            None,
-            "SYNTHETIC lab",
-            "",
+        let p = rv::plan(
+            &q,
+            &[("a.json".into(), a, Some(c)), ("b.json".into(), b, None)],
+            "2026-11-21",
         )
         .unwrap();
-        let d = root.join(id);
-        cs::write_certificate(&d, &c).unwrap();
-        kshana_pro::signed_dossier::sign(&d, &LAB, "SYNTHETIC lab", issued).unwrap();
-        d
-    }
-
-    fn tmp(name: &str) -> std::path::PathBuf {
-        let d = std::env::temp_dir().join(format!("kshana-cert-{name}-{}", std::process::id()));
-        let _ = std::fs::remove_dir_all(&d);
-        std::fs::create_dir_all(&d).unwrap();
-        d
-    }
-
-    const NOW: &str = "2027-01-15T00:00:00Z";
-
-    #[test]
-    fn revoked_certificate_shows_as_revoked() {
-        let root = tmp("revoked");
-        let a = cert(&root, "CERT-A", "2026-06-01");
-        let b = cert(&root, "CERT-B", "2026-06-01");
-        let list = sign_list(
-            &ISSUER,
-            vec![Revoked {
-                id: "CERT-A".into(),
-                reason: "SYNTHETIC: method error found".into(),
-                revoked_utc: "2027-01-10T00:00:00Z".into(),
-            }],
-            "2027-02-01T00:00:00Z",
-        );
-        let lab = [public_key_for(&LAB)];
-        let iss = [public_key_for(&ISSUER)];
-        let sa = cs::status(&a, Some(&list), &lab, &iss, NOW).unwrap();
-        assert_eq!(sa.state, "revoked", "{sa:?}");
-        assert!(sa.reason.contains("method error"));
-        assert_eq!(sa.revocation.unwrap().revoked_utc, "2027-01-10T00:00:00Z");
-        let sb = cs::status(&b, Some(&list), &lab, &iss, NOW).unwrap();
-        assert_eq!(sb.state, "valid", "{sb:?}");
-        assert_eq!(
-            sb.certificate.unwrap().revalidation_due_utc,
-            "2027-06-01T00:00:00Z"
-        );
-        // Before the revocation date the certificate was not yet revoked.
-        let early = cs::status(&a, Some(&list), &lab, &iss, "2027-01-05T00:00:00Z").unwrap();
-        assert_eq!(early.state, "valid");
-        let _ = std::fs::remove_dir_all(&root);
-    }
-
-    #[test]
-    fn a_stale_list_does_not_report_valid() {
-        let root = tmp("stale");
-        let a = cert(&root, "CERT-A", "2026-06-01");
-        let b = cert(&root, "CERT-B", "2026-06-01");
-        let list = sign_list(
-            &ISSUER,
-            vec![Revoked {
-                id: "CERT-B".into(),
-                reason: "SYNTHETIC withdrawn".into(),
-                revoked_utc: "2026-12-01T00:00:00Z".into(),
-            }],
-            "2027-01-08T00:00:00Z",
-        );
-        let iss = [public_key_for(&ISSUER)];
-        let sa = cs::status(&a, Some(&list), &[], &iss, NOW).unwrap();
-        assert_eq!(sa.state, "unknown", "{sa:?}");
-        assert!(sa.list.unwrap().stale);
-        assert!(sa.reason.contains("past its next update"));
-        // A revocation on a stale list still counts.
-        assert_eq!(
-            cs::status(&b, Some(&list), &[], &iss, NOW).unwrap().state,
-            "revoked"
-        );
-        // No list, a list from an untrusted key, a tampered list: never valid.
-        assert_eq!(
-            cs::status(&a, None, &[], &iss, NOW).unwrap().state,
-            "unknown"
-        );
-        let fresh = sign_list(&ISSUER, vec![], "2027-02-01T00:00:00Z");
-        let other = [public_key_for(&[33; 32])];
-        let s = cs::status(&a, Some(&fresh), &[], &other, NOW).unwrap();
-        assert_eq!(s.state, "unknown");
-        assert!(s.reason.contains("does not verify"), "{}", s.reason);
-        let (p, sig) = fresh.split_once('.').unwrap();
-        let mut pb = hex::decode(p).unwrap();
-        let i = pb.iter().position(|&c| c == b'7').unwrap();
-        pb[i] = b'8';
-        let forged = format!("{}.{sig}", hex::encode(pb));
-        assert_eq!(
-            cs::status(&a, Some(&forged), &[], &iss, NOW).unwrap().state,
-            "unknown"
-        );
-        assert_eq!(
-            cs::status(&a, Some(&fresh), &[], &iss, NOW).unwrap().state,
-            "valid"
-        );
-        assert!(cs::verify_list(&fresh, &[]).is_err());
-        let _ = std::fs::remove_dir_all(&root);
-    }
-
-    #[test]
-    fn overdue_and_invalid_certificates() {
-        let root = tmp("overdue");
-        let old = cert(&root, "CERT-OLD", "2025-12-01");
-        let list = sign_list(&ISSUER, vec![], "2027-02-01T00:00:00Z");
-        let iss = [public_key_for(&ISSUER)];
-        let s = cs::status(&old, Some(&list), &[], &iss, NOW).unwrap();
-        assert_eq!(s.state, "revalidation-overdue", "{s:?}");
-        // Overdue is known without a list.
-        assert_eq!(
-            cs::status(&old, None, &[], &iss, NOW).unwrap().state,
-            "revalidation-overdue"
-        );
-        // A certificate from another lab key, or edited after signing, is invalid.
-        let s = cs::status(&old, Some(&list), &[public_key_for(&[34; 32])], &iss, NOW).unwrap();
-        assert_eq!(s.state, "invalid");
-        let p = old.join(cs::CERT_FILE);
-        let t = std::fs::read_to_string(&p)
-            .unwrap()
-            .replace("2026-12-01", "2027-12-01");
-        std::fs::write(&p, t).unwrap();
-        let s = cs::status(&old, Some(&list), &[], &iss, NOW).unwrap();
-        assert_eq!(s.state, "invalid");
-        assert!(
-            s.certificate_signature
-                .contains("certificate.json: changed"),
-            "{s:?}"
-        );
-        assert!(cs::certificate(
-            "x",
-            "p",
-            "m",
-            "1",
-            "2026-01-01",
-            Some("2025-01-01"),
-            "i",
-            ""
-        )
-        .is_err());
-        // 29 February issue: due 28 February the next year.
-        let c = cs::certificate("x", "p", "m", "1", "2028-02-29", None, "i", "").unwrap();
-        assert_eq!(c.revalidation_due_utc, "2029-02-28T00:00:00Z");
-        let _ = std::fs::remove_dir_all(&root);
-    }
-
-    #[test]
-    fn revalidation_calendar_lists_due_and_overdue() {
-        let root = tmp("calendar");
-        let a = cert(&root, "CERT-A", "2026-02-01"); // due 2027-02-01: due soon
-        let b = cert(&root, "CERT-B", "2025-12-20"); // due 2026-12-20: overdue
-        let c = cert(&root, "CERT-C", "2026-10-01"); // due 2027-10-01: scheduled
-        let d = cert(&root, "CERT-D", "2026-10-01"); // revoked
-        let list = sign_list(
-            &ISSUER,
-            vec![Revoked {
-                id: "CERT-D".into(),
-                reason: "SYNTHETIC".into(),
-                revoked_utc: "2027-01-02T00:00:00Z".into(),
-            }],
-            "2027-02-01T00:00:00Z",
-        );
-        let iss = [public_key_for(&ISSUER)];
-        let cal = cs::schedule(
-            &[a.as_path(), b.as_path(), c.as_path(), d.as_path()],
-            Some(&list),
-            &[public_key_for(&LAB)],
-            &iss,
-            NOW,
-            60.0,
-        )
-        .unwrap();
-        let flags: Vec<(&str, &str)> = cal
+        let f: Vec<(&str, &str, &str)> = p
             .items
             .iter()
-            .map(|i| (i.id.as_str(), i.flag.as_str()))
+            .map(|i| (i.id.as_str(), i.flag.as_str(), i.status.as_str()))
             .collect();
         assert_eq!(
-            flags,
+            f,
             vec![
-                ("CERT-B", "OVERDUE"),
-                ("CERT-A", "DUE SOON"),
-                ("CERT-C", "SCHEDULED"),
-                ("CERT-D", "REVOKED"),
+                ("rx-1", "OVERDUE", "due"),
+                ("rx-2", "DUE SOON", "current"),
+                ("ant-1", "SCHEDULED", "current"),
+                ("rx-3", "SCHEDULED", "current"),
+                ("rx-4", "REVOKED", "revoked"),
             ]
         );
-        assert!(cal
-            .verdict
-            .starts_with("4 certificates: 1 overdue, 1 due within 60 days"));
-        let ics = cs::calendar_ics(&cal);
-        assert_eq!(ics.matches("BEGIN:VEVENT").count(), 3);
+        let rx3 = p.items.iter().find(|i| i.id == "rx-3").unwrap();
+        assert_eq!((rx3.lead_days, rx3.start_by.as_str()), (120, "2027-02-01"));
+        let rx2 = p.items.iter().find(|i| i.id == "rx-2").unwrap();
+        assert_eq!((rx2.start_by.as_str(), rx2.days_left), ("2026-09-16", 24));
+        assert_eq!(
+            p.items.iter().find(|i| i.id == "ant-1").unwrap().revocation,
+            "unknown"
+        );
+        assert_eq!(p.by_month["2027-06"]["SCHEDULED"], 1);
+        assert_eq!(p.by_month["2027-06"]["REVOKED"], 1);
+        let one = p.makers.iter().find(|m| m.maker == "Maker One").unwrap();
+        assert_eq!(
+            (one.entries, one.overdue, one.due_soon, one.scheduled),
+            (3, 1, 1, 1)
+        );
+        assert_eq!(one.next_revalidate_by.as_deref(), Some("2026-11-10"));
+        assert!(p.verdict.contains("revocation unchecked for 1 registers"));
+        let ics = rv::ics(&p);
+        assert_eq!(ics.matches("BEGIN:VEVENT").count(), 8);
         assert!(ics.contains("DTSTART;VALUE=DATE:20270201"));
-        assert!(cs::calendar_csv(&cal).lines().count() == 5);
-        assert!(cs::schedule(
-            &[a.as_path(), a.as_path()],
-            Some(&list),
-            &[],
-            &iss,
-            NOW,
-            60.0
-        )
-        .is_err());
-        let _ = std::fs::remove_dir_all(&root);
+        assert_eq!(rv::csv(&p).lines().count(), 6);
+    }
+
+    #[test]
+    fn stale_list_revocations_still_apply_and_say_stale() {
+        let reg = sign_register(
+            register(
+                "SYNTHETIC lab A",
+                vec![
+                    entry("rx-1", "M", "2026-06-01", "2027-06-01"),
+                    entry("rx-2", "M", "2026-06-01", "2027-06-01"),
+                ],
+            ),
+            &PUB,
+        );
+        let list = sign_crl(
+            crl(
+                "2026-11-20",
+                vec![
+                    Revoked {
+                        id: "rx-1".into(),
+                        revoked: "2026-11-16".into(),
+                        reason: "method superseded".into(),
+                    },
+                    Revoked {
+                        id: "rx-2".into(),
+                        revoked: "2026-12-01".into(),
+                        reason: "later".into(),
+                    },
+                    Revoked {
+                        id: "other-9".into(),
+                        revoked: "2026-11-01".into(),
+                        reason: "x".into(),
+                    },
+                ],
+            ),
+            &ISS,
+        );
+        let r = rv::check_register(&reg, None).unwrap();
+        let c = rv::check_crl(&list, &pk(&ISS)).unwrap();
+        let q: Request = toml::from_str("title = \"t\"\n[[register]]\nfile = \"x\"\n").unwrap();
+        let p = rv::plan(&q, &[("x".into(), r, Some(c))], "2026-11-21").unwrap();
+        assert_eq!(p.registers[0].revocation, "stale");
+        assert_eq!(p.registers[0].crl_unmatched, vec!["other-9".to_string()]);
+        let get = |id: &str| p.items.iter().find(|i| i.id == id).unwrap();
+        assert_eq!(get("rx-1").status, "revoked");
+        assert_eq!(get("rx-1").revocation, "stale");
+        // A revocation dated after the plan date does not apply yet.
+        assert_eq!(get("rx-2").status, "current");
+        assert!(p.verdict.contains("list stale for 1"));
+    }
+
+    #[test]
+    fn signatures_dates_and_files_are_checked() {
+        let good = sign_register(
+            register(
+                "SYNTHETIC",
+                vec![entry("rx-1", "M", "2026-06-01", "2027-06-01")],
+            ),
+            &PUB,
+        );
+        assert!(rv::check_register(&good, Some(&pk(&ISS))).is_err());
+        assert!(rv::check_register(&good.replace("band B", "band A"), None).is_err());
+        let bad_date = sign_register(
+            register(
+                "SYNTHETIC",
+                vec![entry("rx-1", "M", "2026-06-01", "2026-02-30")],
+            ),
+            &PUB,
+        );
+        assert!(rv::check_register(&bad_date, None).is_err());
+        let backwards = sign_register(
+            register(
+                "SYNTHETIC",
+                vec![entry("rx-1", "M", "2026-06-01", "2026-05-01")],
+            ),
+            &PUB,
+        );
+        assert!(rv::check_register(&backwards, None).is_err());
+        // Through files: a crl without its issuer key is refused.
+        let d = std::env::temp_dir().join(format!("kshana-reval-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        std::fs::write(d.join("r.json"), &good).unwrap();
+        std::fs::write(d.join("c.json"), sign_crl(crl("2026-12-31", vec![]), &ISS)).unwrap();
+        let q: Request =
+            toml::from_str("title = \"t\"\n[[register]]\nfile = \"r.json\"\ncrl = \"c.json\"\n")
+                .unwrap();
+        assert!(rv::run(&q, &d, "2026-11-21")
+            .unwrap_err()
+            .contains("crl_key"));
+        let q: Request = toml::from_str(&format!(
+            "title = \"t\"\n[[register]]\nfile = \"r.json\"\nkey = \"{}\"\ncrl = \"c.json\"\ncrl_key = \"{}\"\n",
+            pk(&PUB),
+            pk(&ISS)
+        ))
+        .unwrap();
+        let (p, inputs) = rv::run(&q, &d, "2026-11-21").unwrap();
+        assert_eq!(p.registers[0].revocation, "checked");
+        assert_eq!(inputs.len(), 2);
+        assert!(rv::run(&q, &d, "2026-13-01").is_err());
+        let _ = std::fs::remove_dir_all(&d);
     }
 }

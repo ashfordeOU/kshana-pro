@@ -163,11 +163,6 @@
       "tier": "pro"
     },
     {
-      "kind": "pro-cert-revalidation",
-      "type": "feature",
-      "tier": "pro"
-    },
-    {
       "kind": "pro-claims-triage",
       "type": "feature",
       "tier": "pro"
@@ -429,6 +424,11 @@
     },
     {
       "kind": "pro-retention",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-revalidation-plan",
       "type": "feature",
       "tier": "pro"
     },

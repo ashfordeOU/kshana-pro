@@ -5,14 +5,15 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
-- **Product certificates: revocation status and yearly revalidation (B2505 Pro part,
-  docs/CERT-STATUS.md).** `kshana-pro cert make` (`pro-cert-revalidation`, Pro) writes a signed
-  certificate pack (ID, product, method and version, issue and revalidation-due dates).
-  `cert status` (free) checks it against a signed revocation list file whose issuer key comes
-  from `--trust`, and reports valid, revoked (reason, date), revalidation-overdue, unknown (no
-  list, a list that does not verify, or a stale list) or invalid. `cert schedule` (Pro) writes a
-  signed revalidation calendar (CSV, iCalendar). Lists are read, never issued, in this crate.
-  Envelope token `cert`. Tier manifest regenerated. 4 tests in `tests/signed_dossier.rs`.
+- **Fleet revalidation plan over the open product register (B2505 Pro part,
+  docs/REVALIDATION-PLAN.md).** `kshana-pro revalidation plan` (`pro-revalidation-plan`, Pro)
+  reads many `kshana.register/1` registers and their `kshana.register-crl/1` lists by the
+  documented format (signatures checked). Per entry it follows the open status (current, due or
+  revoked; revocation unknown, checked or stale) and adds a start date from the maker's lead time
+  and a flag (OVERDUE, DUE SOON, SCHEDULED, REVOKED). It writes a signed report by month and by
+  maker, with CSV and iCalendar. Nothing here signs a register or a list. Envelope token
+  `revalidation`. Tier manifest regenerated. 4 tests in `tests/signed_dossier.rs`, one of them
+  the published revocation-list test vector.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from
