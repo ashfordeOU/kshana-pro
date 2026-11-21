@@ -71,6 +71,7 @@ pub mod interface_drift;
 pub mod ireports;
 pub mod ks_inside;
 pub mod lab_campaign;
+pub mod leo_eval;
 pub mod leo_timing;
 pub mod license;
 pub mod longterm;

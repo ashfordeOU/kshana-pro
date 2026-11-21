@@ -263,6 +263,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-leo-evaluation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-leo-timing-scorecard",
       "type": "feature",
       "tier": "pro"

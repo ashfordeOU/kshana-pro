@@ -152,6 +152,16 @@ own bullet so parallel work merges cleanly.
   fixes with fewer than four healthy satellites); pairwise NavIC/GPS/Galileo solution
   consistency; signed timing evidence with the stated traceability chain. Tier manifest
   regenerated; `tests/navic_evidence.rs` (4 tests).
+- **LEO-PNT evaluation (research 2026-11-20 gaps E21: B2101, B2107 evaluation only, B2108 Pro
+  part; docs/LEO-EVALUATION.md).** `kshana-pro leo-eval` (`pro-leo-evaluation`, Pro): published
+  procedures frozen at 1.0 (`docs/leo-procedures/`: Doppler stress, acquisition, signal
+  profiles) with method hashes registered before the runs; scorecards in input order (never
+  ranked); simulator equivalence within stated tolerances with the simulator self-test verdict
+  vocabulary; Doppler bounds; SISRE with numeric weights (checked against the published GPS
+  weights), sigma overbound, DCB stability and jumps, PPP dependency ratings, a T-RAIM
+  fault-injection study on the open snapshot RAIM (redundancy sweep, dual faults, recovery);
+  an investor due-diligence template in which every verdict cites its source. Tier manifest
+  regenerated; `tests/leo_evaluation.rs` (7 tests).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference

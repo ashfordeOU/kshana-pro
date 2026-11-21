@@ -1,0 +1,24 @@
+format = "kshana-pro-leo-sim-procedure/1"
+id = "leo-doppler-stress"
+version = "1.0"
+title = "LEO-PNT receiver: acquisition and tracking under LEO Doppler and Doppler rate"
+
+[[step]]
+id = "static-reference"
+what = "static receiver, nominal power, no added dynamics: the reference run"
+metric = "h_rms_m"
+
+[[step]]
+id = "doppler-max"
+what = "satellite passes at the profile's largest Doppler (horizon) for the stated altitude and carrier"
+metric = "availability"
+
+[[step]]
+id = "doppler-rate-max"
+what = "overhead passes at the profile's largest Doppler rate"
+metric = "availability"
+
+[[step]]
+id = "doppler-rate-max-accuracy"
+what = "horizontal error during the overhead passes"
+metric = "h_p95_m"

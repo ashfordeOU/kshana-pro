@@ -1,0 +1,24 @@
+format = "kshana-pro-leo-sim-procedure/1"
+id = "leo-signal-profiles"
+version = "1.0"
+title = "LEO-PNT receiver: performance across configurable signal profiles"
+
+[[step]]
+id = "profile-nominal"
+what = "the signal profile as the provider describes it, nominal power"
+metric = "h_rms_m"
+
+[[step]]
+id = "profile-low-power"
+what = "the same profile at the lowest power the profile states"
+metric = "availability"
+
+[[step]]
+id = "profile-few-satellites"
+what = "the same profile with the fewest satellites in view the profile allows"
+metric = "h_p95_m"
+
+[[step]]
+id = "profile-with-gnss"
+what = "the LEO profile together with GNSS"
+metric = "h_rms_m"
