@@ -613,3 +613,175 @@ fn cli_end_to_end() {
     );
     assert!(ok, "{out}");
 }
+
+/// Generic ISVV requirements coverage (`kshana-pro isvv`, docs/ISVV-EVIDENCE.md).
+mod isvv {
+    use kshana_pro::isvv::{self, Outcome, Request};
+
+    fn tmp(name: &str) -> std::path::PathBuf {
+        let d = std::env::temp_dir().join(format!("kshana-isvv-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        d
+    }
+
+    fn write_synth(d: &std::path::Path) {
+        let (r, t, b, c) = isvv::synth();
+        std::fs::write(d.join("requirements.csv"), r).unwrap();
+        std::fs::write(d.join("trace.csv"), t).unwrap();
+        std::fs::write(d.join("junit-baseline.xml"), b).unwrap();
+        std::fs::write(d.join("junit-current.xml"), c).unwrap();
+    }
+
+    fn req(results: &str, baseline: Option<&str>) -> Request {
+        Request {
+            title: "SYNTHETIC".into(),
+            requirements: "requirements.csv".into(),
+            trace: Some("trace.csv".into()),
+            results: vec![results.into()],
+            baseline: baseline.map(Into::into),
+        }
+    }
+
+    #[test]
+    fn junit_is_read_with_outcomes_and_entities() {
+        let x = r#"<?xml version="1.0"?><testsuites><testsuite name="s">
+            <testcase classname="a.B" name="ok"/>
+            <testcase name="bare"><failure message="x &lt; y">trace</failure></testcase>
+            <testcase classname="a.B" name="err"><error type="Panic"/></testcase>
+            <testcase classname="a.B" name="skip"><skipped/></testcase>
+            <!-- <testcase name="commented"/> -->
+            <testcase classname="a.B" name="cdata"><system-out><![CDATA[<testcase name="no"/>]]></system-out></testcase>
+            </testsuite></testsuites>"#;
+        let c = isvv::read_junit(x, "r.xml").unwrap();
+        let got: Vec<(&str, Outcome)> = c.iter().map(|c| (c.id.as_str(), c.outcome)).collect();
+        assert_eq!(
+            got,
+            vec![
+                ("a.B.ok", Outcome::Passed),
+                ("s.bare", Outcome::Failed),
+                ("a.B.err", Outcome::Error),
+                ("a.B.skip", Outcome::Skipped),
+                ("a.B.cdata", Outcome::Passed),
+            ]
+        );
+        assert_eq!(c[1].message, "x < y");
+        assert!(isvv::read_junit("<testsuite><testcase name=\"x\">", "r").is_err());
+        assert!(isvv::glob("log.Commands.*", "log.Commands.logs_burst"));
+        assert!(isvv::glob("*.rejects_*", "tc.Parser.rejects_bad_crc"));
+        assert!(!isvv::glob("tc.Parser.x", "tc.Parser.xy"));
+    }
+
+    #[test]
+    fn coverage_status_orphans_trace_errors() {
+        let d = tmp("cov");
+        write_synth(&d);
+        let (r, inputs) = isvv::run(&req("junit-current.xml", None), &d, &[]).unwrap();
+        let st = |id: &str| {
+            r.requirements
+                .iter()
+                .find(|q| q.id == id)
+                .unwrap()
+                .status
+                .clone()
+        };
+        assert_eq!(st("SYN-001"), "passed");
+        assert_eq!(st("SYN-002"), "failed"); // logs_burst fails under the glob
+        assert_eq!(st("SYN-003"), "partial"); // rejects_short_frame not in the results
+        assert_eq!(st("SYN-004"), "passed");
+        assert_eq!(st("SYN-005"), "not-run");
+        assert_eq!(st("SYN-006"), "other-method");
+        assert_eq!(st("SYN-007"), "not-run"); // only run was skipped
+        assert_eq!(st("SYN-008"), "untraced");
+        assert_eq!(
+            r.orphan_tests,
+            vec!["util.Strings.trims & splits".to_string()]
+        );
+        assert_eq!(r.trace_errors.len(), 1);
+        assert!(r.trace_errors[0].contains("SYN-099"));
+        assert_eq!(r.summary.verified_by_test, 7);
+        assert_eq!(r.summary.passed, 2);
+        assert_eq!(r.summary.tests, 7);
+        assert_eq!(r.inputs.len(), 3);
+        assert_eq!(inputs[2].1, "results/01-junit-current.xml");
+        assert!(r.verdict.contains("2 of 7"));
+        let _ = std::fs::remove_dir_all(&d);
+    }
+
+    #[test]
+    fn change_since_a_signed_baseline_and_a_tampered_one() {
+        let d = tmp("delta");
+        write_synth(&d);
+        let seed = [9u8; 32];
+        let (b, bi) = isvv::run(&req("junit-baseline.xml", None), &d, &[]).unwrap();
+        let bp = d.join("baseline-pack");
+        isvv::write(&bp, &b, "title = \"b\"\n", &bi).unwrap();
+        kshana_pro::signed_dossier::sign(&bp, &seed, "SYNTHETIC", "2026-11-21T00:00:00Z").unwrap();
+        let trust = [kshana_pro::license::public_key_for(&seed)];
+        let (r, _) =
+            isvv::run(&req("junit-current.xml", Some("baseline-pack")), &d, &trust).unwrap();
+        let dl = r.baseline.as_ref().unwrap();
+        assert!(
+            dl.baseline_signature.starts_with("verified"),
+            "{}",
+            dl.baseline_signature
+        );
+        let ch = |id: &str| {
+            dl.status_changes
+                .iter()
+                .find(|c| c.id == id)
+                .map(|c| (c.from.clone(), c.to.clone()))
+        };
+        assert_eq!(ch("SYN-002"), Some(("passed".into(), "failed".into())));
+        assert_eq!(ch("SYN-004"), Some(("failed".into(), "passed".into())));
+        assert_eq!(ch("SYN-003"), Some(("passed".into(), "partial".into())));
+        assert_eq!(ch("SYN-001"), None);
+        assert_eq!(dl.test_regressions.len(), 1);
+        assert_eq!(dl.test_regressions[0].id, "log.Commands.logs_burst");
+        assert_eq!(dl.test_fixes[0].id, "hk.Version.reports_version");
+        assert_eq!(
+            dl.new_tests,
+            vec!["util.Strings.trims & splits".to_string()]
+        );
+        assert_eq!(
+            dl.removed_tests,
+            vec!["tc.Parser.rejects_short_frame".to_string()]
+        );
+        // Another trusted key: the baseline is reported as not verifying.
+        let other = [kshana_pro::license::public_key_for(&[8u8; 32])];
+        let (r2, _) =
+            isvv::run(&req("junit-current.xml", Some("baseline-pack")), &d, &other).unwrap();
+        assert!(r2
+            .baseline
+            .unwrap()
+            .baseline_signature
+            .starts_with("does not verify"));
+        // A changed baseline report: the signature no longer covers it.
+        let p = bp.join("report.json");
+        let t = std::fs::read_to_string(&p)
+            .unwrap()
+            .replace("SYNTHETIC", "SYNTHETIC!");
+        std::fs::write(&p, t).unwrap();
+        let (r3, _) =
+            isvv::run(&req("junit-current.xml", Some("baseline-pack")), &d, &trust).unwrap();
+        let s = r3.baseline.unwrap().baseline_signature;
+        assert!(s.contains("report.json: changed"), "{s}");
+        let _ = std::fs::remove_dir_all(&d);
+    }
+
+    #[test]
+    fn csv_results_quoted_requirements_and_tests_column() {
+        let (reqs, pairs) = isvv::read_requirements(
+            "id,text,method,tests\nR1,\"Shall do A, then \"\"B\"\"\",T,x.a;x.b\nR2,Shall be reviewed,R,\n",
+        )
+        .unwrap();
+        assert_eq!(reqs[0].text, "Shall do A, then \"B\"");
+        assert_eq!(pairs.len(), 2);
+        let cases = isvv::read_result_csv("test,outcome\nx.a,pass\nx.b,FAIL\n", "r.csv").unwrap();
+        let r = isvv::coverage("t", &reqs, &pairs, &cases);
+        assert_eq!(r.requirements[0].status, "failed");
+        assert_eq!(r.requirements[1].status, "other-method");
+        assert!(isvv::read_result_csv("test,outcome\nx,maybe\n", "r").is_err());
+        assert!(isvv::read_requirements("id\nA\nA\n").is_err());
+    }
+}

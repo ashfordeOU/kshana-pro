@@ -288,6 +288,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-isvv-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-jammer-enforcement-pack",
       "type": "feature",
       "tier": "pro"
