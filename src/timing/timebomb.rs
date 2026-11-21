@@ -436,12 +436,15 @@ impl VectorSpec {
         out
     }
 
-    /// The index of the first epoch at or after the leap event (the epoch after 23:59:59).
+    /// The index of the first epoch at or after the leap event: the epoch after 23:59:59 for an
+    /// insertion (23:59:60), the epoch after 23:59:58 for a deletion (00:00:00 of the next day,
+    /// 23:59:59 being skipped).
     pub fn leap_index(&self) -> Option<usize> {
         let l = self.leap?;
+        let last = if l.insert { DAY_S - 1 } else { DAY_S - 2 };
         self.epochs()
             .iter()
-            .position(|e| e.utc.days == l.day && e.utc.sod == DAY_S - 1)
+            .position(|e| e.utc.days == l.day && e.utc.sod == last)
             .map(|i| i + 1)
     }
 }
