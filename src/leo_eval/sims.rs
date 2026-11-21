@@ -2,10 +2,12 @@
 //
 //! Neutral multi-simulator LEO-PNT procedures and scorecards (B2101).
 //!
-//! A procedure (`kshana-pro-leo-sim-procedure/1`) names its steps, the metric of each step and,
-//! where the user has one, a bar with its source. Its SHA-256 is registered before the runs;
-//! a scorecard refuses runs scored under a procedure whose hash differs. Runs come from each
-//! simulator as `simulator,step,t_s,err_e_m,err_n_m,err_u_m,clock_err_s,fix`. Per simulator and
+//! A procedure (`kshana-pro-leo-sim-procedure/1`, versioned; the published ones are frozen at
+//! 1.0) names its steps, the metric of each step, where the user has one a bar with its source,
+//! and the tolerance within which two simulators count as equivalent. As in the LEO timing
+//! scorecard, the **method hash** (SHA-256 of the canonical method part: id, version, steps) is
+//! registered before the runs; a scorecard states whether the registered hash matches. Runs come
+//! from each simulator as `simulator,step,t_s,err_e_m,err_n_m,err_u_m,clock_err_s,fix[,receiver]`. Per simulator and
 //! step: horizontal RMS and 95th percentile, availability (share of epochs with a fix), time to
 //! first fix, clock RMS. Simulators are listed in input order and never ranked; a simulator
 //! whose metric lies more than 3 scaled median absolute deviations from the others' median is
@@ -43,6 +45,9 @@ pub struct Step {
     pub bar: Option<f64>,
     #[serde(default)]
     pub bar_source: Option<String>,
+    /// Two simulators are equivalent on this step when their metrics differ by no more.
+    #[serde(default)]
+    pub equivalence_tolerance: Option<f64>,
 }
 
 /// A procedure.
@@ -51,6 +56,7 @@ pub struct Step {
 pub struct Procedure {
     pub format: String,
     pub id: String,
+    pub version: String,
     pub title: String,
     #[serde(rename = "step")]
     pub steps: Vec<Step>,
@@ -81,9 +87,34 @@ impl Procedure {
     }
 }
 
-/// SHA-256 of the procedure text, to register before the runs.
-pub fn procedure_hash(text: &str) -> String {
-    hex::encode(Sha256::digest(text.as_bytes()))
+#[derive(Serialize)]
+struct MethodPart<'a> {
+    method: &'a str,
+    id: &'a str,
+    version: &'a str,
+    steps: &'a [Step],
+}
+
+/// Method identifier of the scorecard.
+pub const METHOD_ID: &str = "kshana-pro/leo-sim-scorecard/v1";
+
+/// SHA-256 (hex) of the method part of a procedure (id, version, steps as canonical JSON), to
+/// register before the runs. Titles and wording are not part of it.
+pub fn method_sha256(p: &Procedure) -> String {
+    let m = MethodPart {
+        method: METHOD_ID,
+        id: &p.id,
+        version: &p.version,
+        steps: &p.steps,
+    };
+    hex::encode(Sha256::digest(serde_json::to_vec(&m).unwrap_or_default()))
+}
+
+/// The method hash of a procedure text.
+pub fn procedure_hash(text: &str) -> Result<String, String> {
+    let p: Procedure = toml::from_str(text).map_err(|e| format!("procedure: {e}"))?;
+    p.validate()?;
+    Ok(method_sha256(&p))
 }
 
 /// One cell of the scorecard.
@@ -113,13 +144,17 @@ pub struct StepScore {
 pub struct Scorecard {
     pub format: &'static str,
     pub procedure: String,
-    pub procedure_sha256: String,
+    pub procedure_version: String,
+    pub method_sha256: String,
+    /// Whether a registered hash was given and matches.
+    pub prereg_matches: bool,
+    pub label: String,
     pub simulators: Vec<String>,
     pub steps: Vec<StepScore>,
     pub statement: &'static str,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 struct Acc {
     t: Vec<f64>,
     h: Vec<f64>,
@@ -155,14 +190,15 @@ fn metric(a: &Acc, m: &str) -> Option<f64> {
     }
 }
 
-/// Score runs under a procedure whose text hashes to `registered_sha256`.
-pub fn score(proc_text: &str, registered_sha256: &str, runs: &str) -> Result<Scorecard, String> {
-    let h = procedure_hash(proc_text);
-    if h != registered_sha256 {
-        return Err(format!("the procedure hashes to {h}, not the registered {registered_sha256}: it changed after registration"));
-    }
-    let p: Procedure = toml::from_str(proc_text).map_err(|e| format!("procedure: {e}"))?;
-    p.validate()?;
+type Runs = (
+    Vec<String>,
+    Vec<String>,
+    BTreeMap<(String, String, String), Acc>,
+);
+
+/// Parse runs: simulators and receivers in input order, accumulators by (simulator, receiver,
+/// step).
+fn parse_runs(p: &Procedure, runs: &str) -> Result<Runs, String> {
     let t = Table::parse(runs)?;
     let (cs, cst, ct) = (t.need("simulator")?, t.need("step")?, t.need("t_s")?);
     let (ce, cn, cc, cf) = (
@@ -171,12 +207,21 @@ pub fn score(proc_text: &str, registered_sha256: &str, runs: &str) -> Result<Sco
         t.col("clock_err_s"),
         t.need("fix")?,
     );
+    let crx = t.col("receiver");
     let mut sims: Vec<String> = Vec::new();
-    let mut acc: BTreeMap<(String, String), Acc> = BTreeMap::new();
+    let mut rxs: Vec<String> = Vec::new();
+    let mut acc: BTreeMap<(String, String, String), Acc> = BTreeMap::new();
     for i in 0..t.rows.len() {
         let sim = t.text(i, Some(cs)).to_string();
         if !sims.contains(&sim) {
             sims.push(sim.clone());
+        }
+        let rx = match t.text(i, crx) {
+            "" => "receiver".to_string(),
+            r => r.to_string(),
+        };
+        if !rxs.contains(&rx) {
+            rxs.push(rx.clone());
         }
         let step = t.text(i, Some(cst)).to_string();
         if !p.steps.iter().any(|s| s.id == step) {
@@ -185,7 +230,7 @@ pub fn score(proc_text: &str, registered_sha256: &str, runs: &str) -> Result<Sco
                 i + 2
             ));
         }
-        let a = acc.entry((sim, step)).or_default();
+        let a = acc.entry((sim, rx, step)).or_default();
         a.t.push(t.num(i, Some(ct))?.ok_or("empty t_s")?);
         let (e, n) = (
             t.num(i, Some(ce))?.unwrap_or(f64::NAN),
@@ -194,6 +239,30 @@ pub fn score(proc_text: &str, registered_sha256: &str, runs: &str) -> Result<Sco
         a.h.push(e.hypot(n));
         a.clk.push(t.num(i, cc)?.unwrap_or(f64::NAN));
         a.fix.push(matches!(t.text(i, Some(cf)), "1" | "true"));
+    }
+    Ok((sims, rxs, acc))
+}
+
+/// Score runs under a procedure; `prereg` is the method hash registered before the runs.
+pub fn score(proc_text: &str, prereg: Option<&str>, runs: &str) -> Result<Scorecard, String> {
+    let p: Procedure = toml::from_str(proc_text).map_err(|e| format!("procedure: {e}"))?;
+    p.validate()?;
+    let h = method_sha256(&p);
+    let matches = prereg.is_some_and(|x| x.eq_ignore_ascii_case(&h));
+    let (sims, _rxs, by_rx) = parse_runs(&p, runs)?;
+    // The scorecard pools every receiver's runs per simulator and step.
+    let mut acc: BTreeMap<(String, String), Acc> = BTreeMap::new();
+    for ((sim, _, step), a) in &by_rx {
+        let e = acc.entry((sim.clone(), step.clone())).or_insert(Acc {
+            t: vec![],
+            h: vec![],
+            clk: vec![],
+            fix: vec![],
+        });
+        e.t.extend(&a.t);
+        e.h.extend(&a.h);
+        e.clk.extend(&a.clk);
+        e.fix.extend(&a.fix);
     }
     let mut steps = Vec::new();
     for s in &p.steps {
@@ -250,9 +319,173 @@ pub fn score(proc_text: &str, registered_sha256: &str, runs: &str) -> Result<Sco
     Ok(Scorecard {
         format: SCORE_FORMAT,
         procedure: p.id,
-        procedure_sha256: h,
+        procedure_version: p.version,
+        method_sha256: h,
+        prereg_matches: matches,
+        label: if matches {
+            "MODELLED unless the runs are named lab runs; method hash registered before the runs".into()
+        } else {
+            "MODELLED: the method hash was not registered before scoring, or does not match".into()
+        },
         simulators: sims,
         steps,
         statement: "Simulators in input order, never ranked. 'Differs from the others' says the simulators disagree on a step, not which one is right.",
     })
 }
+
+/// One simulator pair on one step for one receiver.
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct PairDiff {
+    pub receiver: String,
+    pub a: Option<f64>,
+    pub b: Option<f64>,
+    /// `b − a`.
+    pub diff: Option<f64>,
+    pub within: Option<bool>,
+}
+
+/// Equivalence of two simulators on one step.
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct Equivalence {
+    pub step: String,
+    pub metric: String,
+    pub simulator_a: String,
+    pub simulator_b: String,
+    pub tolerance: f64,
+    pub receivers: Vec<PairDiff>,
+    /// `consistent`, `simulator-deviation`, `receiver-deviation`, `unattributed` or
+    /// `inconclusive` (the simulator self-test vocabulary).
+    pub verdict: &'static str,
+}
+
+/// Equivalence report format.
+pub const EQUIV_FORMAT: &str = "kshana-pro-leo-sim-equivalence/1";
+
+/// The simulator-equivalence report.
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct EquivalenceReport {
+    pub format: &'static str,
+    pub procedure: String,
+    pub method_sha256: String,
+    pub prereg_matches: bool,
+    pub reference_simulator: String,
+    pub steps: Vec<Equivalence>,
+    pub statement: &'static str,
+}
+
+/// Equivalence of every simulator against the first one listed (the reference, by input order
+/// only), per step that states a tolerance. Attribution follows the simulator self-test: to the
+/// simulators when at least two receivers each differ beyond the tolerance with the same sign;
+/// to the receivers that differ when the others agree; unattributed with one receiver;
+/// inconclusive when all differ with opposite signs.
+pub fn equivalence(
+    proc_text: &str,
+    prereg: Option<&str>,
+    runs: &str,
+) -> Result<EquivalenceReport, String> {
+    let p: Procedure = toml::from_str(proc_text).map_err(|e| format!("procedure: {e}"))?;
+    p.validate()?;
+    let h = method_sha256(&p);
+    let (sims, rxs, acc) = parse_runs(&p, runs)?;
+    if sims.len() < 2 {
+        return Err("equivalence needs runs from at least two simulators".into());
+    }
+    let a = &sims[0];
+    let mut steps = Vec::new();
+    for s in &p.steps {
+        let Some(tol) = s.equivalence_tolerance else {
+            continue;
+        };
+        for b in &sims[1..] {
+            let get = |sim: &String, rx: &String| {
+                acc.get(&(sim.clone(), rx.clone(), s.id.clone()))
+                    .and_then(|x| metric(x, &s.metric))
+            };
+            let diffs: Vec<PairDiff> = rxs
+                .iter()
+                .filter_map(|rx| {
+                    let (va, vb) = (get(a, rx), get(b, rx));
+                    let d = vb? - va?;
+                    Some(PairDiff {
+                        receiver: rx.clone(),
+                        a: va,
+                        b: vb,
+                        diff: Some(d),
+                        within: Some(d.abs() <= tol),
+                    })
+                })
+                .collect();
+            let out: Vec<&PairDiff> = diffs.iter().filter(|x| x.within == Some(false)).collect();
+            let verdict = if diffs.is_empty() {
+                "inconclusive"
+            } else if out.is_empty() {
+                "consistent"
+            } else if diffs.len() == 1 {
+                "unattributed"
+            } else if out.len() < diffs.len() {
+                "receiver-deviation"
+            } else {
+                let pos = out.iter().filter(|x| x.diff.unwrap_or(0.0) > 0.0).count();
+                if pos == out.len() || pos == 0 {
+                    "simulator-deviation"
+                } else {
+                    "inconclusive"
+                }
+            };
+            steps.push(Equivalence {
+                step: s.id.clone(),
+                metric: s.metric.clone(),
+                simulator_a: a.clone(),
+                simulator_b: b.clone(),
+                tolerance: tol,
+                receivers: diffs,
+                verdict,
+            });
+        }
+    }
+    Ok(EquivalenceReport {
+        format: EQUIV_FORMAT,
+        procedure: p.id,
+        prereg_matches: prereg.is_some_and(|x| x.eq_ignore_ascii_case(&h)),
+        method_sha256: h,
+        reference_simulator: a.clone(),
+        steps,
+        statement: "The reference simulator is the first listed, by input order only. A consistent result is evidence that the simulators agree within the stated tolerance for these receivers; it is not a calibration of either simulator.",
+    })
+}
+
+/// Gravitational parameter (m³/s²), mean Earth radius (m) and speed of light (m/s).
+const GM: f64 = 3.986_004_418e14;
+const RE: f64 = 6_371_000.0;
+const CLIGHT: f64 = 299_792_458.0;
+
+/// Doppler bounds of a circular orbit seen from the ground, Earth rotation neglected: circular
+/// speed `v = √(GM/(R+h))`; largest range rate (at the horizon) `v·R/(R+h)`; largest range
+/// acceleration (overhead) `v²/h`; both scaled by `f/c`. Returns `(Hz, Hz/s)`.
+pub fn doppler_bounds(altitude_km: f64, carrier_hz: f64) -> Result<(f64, f64), String> {
+    if !(altitude_km > 0.0 && carrier_hz > 0.0) {
+        return Err("altitude and carrier must be positive".into());
+    }
+    let h = altitude_km * 1000.0;
+    let v = (GM / (RE + h)).sqrt();
+    Ok((
+        carrier_hz * v * RE / (RE + h) / CLIGHT,
+        carrier_hz * v * v / h / CLIGHT,
+    ))
+}
+
+/// The published procedures (frozen at 1.0): (id, TOML).
+pub const PUBLISHED: &[(&str, &str)] = &[
+    (
+        "leo-doppler-stress",
+        include_str!("../../leo/procedures/leo-doppler-stress.toml"),
+    ),
+    (
+        "leo-acquisition",
+        include_str!("../../leo/procedures/leo-acquisition.toml"),
+    ),
+    (
+        "leo-signal-profiles",
+        include_str!("../../leo/procedures/leo-signal-profiles.toml"),
+    ),
+];

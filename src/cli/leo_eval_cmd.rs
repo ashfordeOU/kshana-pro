@@ -11,12 +11,16 @@ use super::flag;
 use super::grid_cmd::gate;
 
 pub const LEO_EVAL_USAGE: &str = "usage: kshana-pro leo-eval <command>\n\
-    sim-hash <procedure.toml>                                        SHA-256 to register before the runs (no licence needed)\n\
-    sim-score <procedure.toml> <runs.csv> --registered <sha256> [--json <out>]   Multi-simulator scorecard in input order, never ranked (Pro)\n\
+    sim-procedure <id>                                               A published procedure, frozen at 1.0 (no licence needed)\n\
+    sim-hash <procedure.toml>                                        Method hash to register before the runs (no licence needed)\n\
+    sim-score <procedure.toml> <runs.csv> [--registered <sha256>] [--json <out>]   Multi-simulator scorecard in input order, never ranked (Pro)\n\
+    sim-equivalence <procedure.toml> <runs.csv> [--registered <sha256>] [--json <out>]   Simulator equivalence within the stated tolerances, self-test verdict vocabulary (Pro)\n\
+    doppler --altitude-km <h> --carrier-hz <f>                       Doppler and Doppler-rate bounds for a procedure's stress steps (Pro)\n\
     sisre <diffs.csv> --altitude-km <h> [--mask-deg <m>] [--json <out>]   SISRE of broadcast minus precise orbit and clock with numeric weights; overbound of the broadcast sigma (Pro)\n\
+    traim <study.toml> [--json <out>]                                T-RAIM fault-injection study on the open snapshot RAIM: false alarms, detection, exclusion, recovery by redundancy (Pro)\n\
     dcb <dcb.csv> [--k <k>] [--json <out>]                           DCB day-to-day stability and jumps (Pro)\n\
     deps <register.toml> [--json <out>]                              PPP dependency register rated (Pro)\n\
-    claims-template [--out <dir>]                                    Claim templates for Celeste, CentiSpace, Geespace: placeholders only (no licence needed)\n\
+    dd-template <claims.json> [--measured <claim,value csv>] [--out <file.md>]   Investor due-diligence report template; every verdict cites its source (Pro)\n\
     claims-check <claims.json>                                       Refuse values without source URL, date and quote (no licence needed)\n\
     claims-compare <claims.json> <measured.csv> [--json <out>]       Claimed against measured (`claim,value`) (Pro)\n\
     (Pro commands take [--license <token>] [--dev])";
@@ -56,26 +60,68 @@ pub fn run(args: &[String]) -> ExitCode {
         .skip(1)
         .take_while(|a| !a.starts_with("--"))
         .collect();
-    let free = matches!(sub, "sim-hash" | "claims-template" | "claims-check");
+    let free = matches!(sub, "sim-hash" | "sim-procedure" | "claims-check");
     if !free {
         if let Err(e) = gate(args, leo_eval::FEATURE) {
             return fail(e);
         }
     }
     let r: Result<String, String> = (|| match (sub, pos.as_slice()) {
+        ("sim-procedure", [id]) => {
+            let t = sims::PUBLISHED
+                .iter()
+                .find(|x| x.0 == id.as_str())
+                .ok_or_else(|| {
+                    format!(
+                        "unknown procedure (published: {})",
+                        sims::PUBLISHED
+                            .iter()
+                            .map(|x| x.0)
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    )
+                })?;
+            print!("{}", t.1);
+            Ok("[leo-eval] published procedure, frozen at 1.0: copy it, add your bars and tolerances, register its hash".into())
+        }
         ("sim-hash", [p]) => {
-            println!("{}", sims::procedure_hash(&read(p)?));
+            println!("{}", sims::procedure_hash(&read(p)?)?);
             Ok("[leo-eval] register this hash before taking runs".into())
         }
         ("sim-score", [p, r]) => {
-            let reg = flag(args, "--registered").ok_or("--registered <sha256> is needed")?;
-            let s = sims::score(&read(p)?, &reg, &read(r)?)?;
+            let reg = flag(args, "--registered");
+            let s = sims::score(&read(p)?, reg.as_deref(), &read(r)?)?;
             emit(args, &s)?;
             Ok(format!(
                 "[leo-eval] {} simulator(s), {} step(s)",
                 s.simulators.len(),
                 s.steps.len()
             ))
+        }
+        ("sim-equivalence", [p, r]) => {
+            let reg = flag(args, "--registered");
+            let e = sims::equivalence(&read(p)?, reg.as_deref(), &read(r)?)?;
+            emit(args, &e)?;
+            Ok(format!(
+                "[leo-eval] {} step comparison(s): {}",
+                e.steps.len(),
+                e.steps
+                    .iter()
+                    .map(|x| format!(
+                        "{} {} vs {}: {}",
+                        x.step, x.simulator_a, x.simulator_b, x.verdict
+                    ))
+                    .collect::<Vec<_>>()
+                    .join("; ")
+            ))
+        }
+        ("doppler", []) => {
+            let (d, r) = sims::doppler_bounds(
+                num(args, "--altitude-km", None)?,
+                num(args, "--carrier-hz", None)?,
+            )?;
+            println!("{{\"max_doppler_hz\": {d:.1}, \"max_doppler_rate_hz_s\": {r:.2}}}");
+            Ok("[leo-eval] circular orbit, Earth rotation neglected".into())
         }
         ("sisre", [d]) => {
             let w = od::weights(
@@ -85,6 +131,16 @@ pub fn run(args: &[String]) -> ExitCode {
             let s = od::sisre(&read(d)?, &w)?;
             emit(args, &serde_json::json!({"weights": w, "satellites": s}))?;
             Ok(format!("[leo-eval] SISRE for {} satellite(s)", s.len()))
+        }
+        ("traim", [d]) => {
+            let q: crate::leo_eval::traim::Study =
+                toml::from_str(&read(d)?).map_err(|e| format!("{d}: {e}"))?;
+            let r = crate::leo_eval::traim::run(&q)?;
+            emit(args, &r)?;
+            Ok(format!(
+                "[leo-eval] T-RAIM study over {} redundancy case(s)",
+                r.rows.len()
+            ))
         }
         ("dcb", [d]) => {
             let v = od::dcb(&read(d)?, num(args, "--k", Some(3.0))?)?;
@@ -108,20 +164,27 @@ pub fn run(args: &[String]) -> ExitCode {
                 v.iter().filter(|x| x.rating == "critical").count()
             ))
         }
-        ("claims-template", []) => {
-            let out = flag(args, "--out");
-            for d in claims::templates() {
-                let t = serde_json::to_string_pretty(&d).map_err(|e| e.to_string())? + "\n";
-                match &out {
-                    Some(o) => {
-                        std::fs::create_dir_all(o).map_err(|e| e.to_string())?;
-                        let f = format!("{o}/{}.json", d.constellation.to_lowercase());
-                        std::fs::write(&f, t).map_err(|e| format!("{f}: {e}"))?;
+        ("dd-template", [f]) => {
+            let d: claims::Dataset =
+                serde_json::from_str(&read(f)?).map_err(|e| format!("{f}: {e}"))?;
+            let mut meas = Vec::new();
+            let mut src = "none supplied".to_string();
+            if let Some(m) = flag(args, "--measured") {
+                let t = crate::transport::Table::parse(&read(&m)?)?;
+                let (cc, cv) = (t.need("claim")?, t.need("value")?);
+                for i in 0..t.rows.len() {
+                    if let Some(v) = t.num(i, Some(cv))? {
+                        meas.push((t.text(i, Some(cc)).to_string(), v));
                     }
-                    None => print!("{t}"),
                 }
+                src = m;
             }
-            Ok("[leo-eval] templates written: fill each claim from a public source".into())
+            let md = claims::dd_report(&d, &meas, &src)?;
+            match flag(args, "--out") {
+                Some(o) => std::fs::write(&o, md).map_err(|e| format!("{o}: {e}"))?,
+                None => print!("{md}"),
+            }
+            Ok("[leo-eval] due-diligence template written".into())
         }
         ("claims-check", [f]) => {
             let d: claims::Dataset =

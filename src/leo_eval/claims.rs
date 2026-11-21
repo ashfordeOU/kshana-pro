@@ -1,14 +1,14 @@
 // PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
-//! Constellation-claim datasets (B2108).
+//! Investor due-diligence report template on constellation claims (B2108, Pro part).
 //!
-//! A claim dataset (`kshana-pro-leo-claims/1`) lists what a constellation operator has said in
-//! public: quantity, value, unit, conditions, and the source (URL, date, and the quoted words).
-//! A value without a source URL, date and quote is refused: a claim the user cannot cite is not a
-//! claim. Kshana ships templates for Celeste, CentiSpace and Geespace whose claims are
-//! placeholders to fill; it cites nothing itself. [`compare`] puts filled claims beside measured
-//! results (e.g. from a scorecard) and says whether the measurement reproduced each claim under
-//! its own conditions.
+//! The open claim datasets and benchmarks are built in the open engine; this module takes a
+//! claim dataset (`kshana-pro-leo-claims/1`: quantity, value, unit, conditions, and the source
+//! URL, date and quoted words of each claim) and measured results, and writes an investor
+//! due-diligence report template. A value without a source URL, date and quote is refused;
+//! every verdict in the report cites its source and carries its label (`REPRODUCED`,
+//! `NOT REPRODUCED` or `NOT TESTED`, all MODELLED unless the measurement names its validation
+//! data). Kshana cites nothing itself and names no provider as a competitor.
 
 use serde::{Deserialize, Serialize};
 
@@ -43,51 +43,6 @@ pub struct Dataset {
     pub constellation: String,
     pub operator: String,
     pub claims: Vec<Claim>,
-}
-
-/// Quantities a template asks about (values to fill from public sources).
-const QUANTITIES: [(&str, &str, &str, &str); 5] = [
-    (
-        "horizontal-accuracy",
-        "horizontal positioning accuracy",
-        "m",
-        "max",
-    ),
-    ("timing-accuracy", "time transfer accuracy", "ns", "max"),
-    ("ttff", "time to first fix", "s", "max"),
-    (
-        "satellites-in-orbit",
-        "satellites in orbit at the stated date",
-        "count",
-        "min",
-    ),
-    ("availability", "service availability", "fraction", "min"),
-];
-
-/// The templates: placeholders only.
-pub fn templates() -> Vec<Dataset> {
-    ["Celeste", "CentiSpace", "Geespace"]
-        .iter()
-        .map(|c| Dataset {
-            format: FORMAT.into(),
-            constellation: (*c).into(),
-            operator: "PLACEHOLDER: operator as named in the source".into(),
-            claims: QUANTITIES
-                .iter()
-                .map(|(id, q, u, d)| Claim {
-                    id: (*id).into(),
-                    quantity: (*q).into(),
-                    unit: (*u).into(),
-                    direction: (*d).into(),
-                    value: None,
-                    conditions: "PLACEHOLDER: conditions as stated in the source".into(),
-                    source_url: None,
-                    source_date: None,
-                    quote: None,
-                })
-                .collect(),
-        })
-        .collect()
 }
 
 /// Problems with a dataset (refusals) and the number of placeholder claims.
@@ -148,4 +103,43 @@ pub fn compare(d: &Dataset, measured: &[(String, f64)]) -> Result<Vec<Comparison
             })
         })
         .collect())
+}
+
+/// Write the due-diligence report template (Markdown) for one dataset and measured values.
+pub fn dd_report(
+    d: &Dataset,
+    measured: &[(String, f64)],
+    measured_source: &str,
+) -> Result<String, String> {
+    let placeholders = check(d)?;
+    let cmp = compare(d, measured)?;
+    let mut rows = String::new();
+    for c in &d.claims {
+        let Some(v) = c.value else { continue };
+        let (verdict, m) = match cmp.iter().find(|x| x.claim == c.id) {
+            Some(x) if x.reproduced => ("REPRODUCED", format!("{} {}", x.measured, c.unit)),
+            Some(x) => ("NOT REPRODUCED", format!("{} {}", x.measured, c.unit)),
+            None => ("NOT TESTED", "-".into()),
+        };
+        rows.push_str(&format!(
+            "| {} | {} {} ({}) | {} | {} | [{}]({}), {} | MODELLED |\n",
+            c.quantity,
+            v,
+            c.unit,
+            if c.direction == "max" {
+                "at most"
+            } else {
+                "at least"
+            },
+            m,
+            verdict,
+            c.source_date.clone().unwrap_or_default(),
+            c.source_url.clone().unwrap_or_default(),
+            c.quote.clone().unwrap_or_default().replace('|', "/")
+        ));
+    }
+    Ok(format!(
+        "# Technical due diligence: {} ({})\n\n_Template. Each verdict cites the operator's public statement it tests and carries its label. Measurements: {measured_source}. {placeholders} claim(s) of the dataset have no cited value and are not assessed._\n\n## 1. Scope and questions\n\n[to fill]\n\n## 2. Public claims tested\n\n| claim | stated | measured | verdict | source | label |\n|---|---|---|---|---|---|\n{rows}\n## 3. How the measurements were made\n\n[to fill: method hash, procedure version, simulator or field set-up, operating envelope]\n\n## 4. What the evidence does not show\n\n[to fill]\n\n## 5. Risks and open questions for the investor\n\n[to fill]\n",
+        d.constellation, d.operator
+    ))
 }
