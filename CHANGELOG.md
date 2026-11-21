@@ -5,6 +5,14 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **ADS-B phantom-target plausibility evidence (research 2026-11-20 gaps B1002, Pro part;
+  docs/ADSB-PHANTOM.md).** `kshana-pro adsb-phantom check` (`pro-adsb-phantom`, Pro): reads the
+  interference-map ADS-B CSV, the declared receivers and an optional reference track file. It
+  gives a per-target score with reasons: physics, teleport, two places, no history, unhearable,
+  altitude, no entry, cluster, no independent track. The pack is signed and can be
+  pseudonymised. No transmitter location. `synth` is free; on its scene every injected phantom
+  is flagged and 0 of 45 genuine aircraft are. Tier manifest regenerated;
+  `tests/adsb_phantom.rs` (3 tests).
 - **Alternative-PNT evaluation and civil test-campaign evidence (backlog E40 B4004;
   docs/ALTPNT-EVIDENCE.md).** `kshana-pro altpnt` (features `pro-altpnt-evidence` and
   `pro-altpnt-campaign`, Pro): `failure-modes` (architecture failure-mode pack from declared

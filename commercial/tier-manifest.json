@@ -13,6 +13,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-adsb-phantom",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-agnss-integrity",
       "type": "feature",
       "tier": "pro"
