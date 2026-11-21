@@ -148,6 +148,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-casualty-reconstruction",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-claims-triage",
       "type": "feature",
       "tier": "pro"
