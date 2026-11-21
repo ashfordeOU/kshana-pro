@@ -65,6 +65,13 @@ own bullet so parallel work merges cleanly.
   for a victim receiver and its neighbours with derived levels. Unintentional interference only;
   no hostile-interference model, no waveform synthesis. Tier manifest regenerated; 2 tests in
   `tests/threat_library.rs`.
+- **Space-receiver resilience evaluation (docs/SPACE-RECEIVER.md).** `kshana-pro space-rx resilience`
+  (`pro-space-rx-resilience`, Pro): a space receiver's logged behaviour scored against a reference
+  over outage, scintillation, ephemeris-fault and above-constellation windows: availability, 95 %
+  position error, misleading unflagged epochs, time to flag, time to recover, holdover time error,
+  each against the mission's stated limits; signed. `space-rx resilience-synth` free. Evaluation
+  only; no mitigation or authentication technique. Tier manifest regenerated; 2 tests in
+  `tests/space_rx.rs`.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from

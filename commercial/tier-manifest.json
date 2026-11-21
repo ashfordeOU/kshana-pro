@@ -543,6 +543,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-space-rx-resilience",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-space-rx-see",
       "type": "feature",
       "tier": "pro"
