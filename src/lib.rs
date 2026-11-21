@@ -53,6 +53,7 @@ pub mod criterion;
 pub mod custody;
 pub mod debris_obs;
 pub mod dependency;
+pub mod deploy_attest;
 pub mod desktop;
 pub mod disposal_sensitivity;
 #[cfg(feature = "unfiled-methods")]
@@ -118,6 +119,7 @@ pub mod report_pack_a;
 pub mod report_pack_c;
 pub mod report_pdf;
 pub mod results_only;
+pub mod revalidation;
 pub mod scorecards;
 pub mod serve;
 pub mod signed_dossier;
@@ -137,6 +139,7 @@ pub mod watermark;
 
 // Value layers — gated stubs (seam guards only; no proprietary capability is built
 // on spec, per the open-core discipline in docs/OVERLAY-ARCHITECTURE.md).
+pub mod isvv;
 pub mod resilience;
 pub mod space_ops;
 pub mod station_fleet;

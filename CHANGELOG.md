@@ -81,6 +81,28 @@ own bullet so parallel work merges cleanly.
   clock (open-engine deterministic TIE) and orbit decay (open-engine US76 density).
   `twin-recal synth` free. Tier manifest regenerated; 3 tests in `tests/clock_bench.rs` with a mock
   service.
+- **Independent verification evidence: requirements coverage and verification status
+  (docs/ISVV-EVIDENCE.md).** `kshana-pro isvv run` (`pro-isvv-evidence`, Pro): from a requirements
+  CSV, a trace map and JUnit XML (or CSV) results, a signed report with each requirement's traced
+  tests and status, untested requirements, orphan tests, trace errors and the change since a
+  baseline pack (whose signature is checked). `isvv synth` is free. Tier manifest regenerated.
+  4 tests in `tests/avionics.rs`.
+- **Ground software deployment integrity and configuration drift, evidence only
+  (docs/DEPLOY-ATTESTATION.md).** `kshana-pro deploy-attest` (`pro-deploy-attestation`, Pro):
+  `baseline` signs a manifest of the SHA-256 of every released file. `check` verifies that
+  baseline against a trusted key, compares operator-supplied host hash snapshots with it
+  (modified, missing, added, and accepted by a change reference) and writes a signed report with
+  a per-host drift timeline and drift episodes. Nothing connects to a host. `deploy-attest synth`
+  is free. Tier manifest regenerated. 3 tests in `tests/custody.rs`.
+- **Fleet revalidation plan over the open product register (B2505 Pro part,
+  docs/REVALIDATION-PLAN.md).** `kshana-pro revalidation plan` (`pro-revalidation-plan`, Pro)
+  reads many `kshana.register/1` registers and their `kshana.register-crl/1` lists by the
+  documented format (signatures checked). Per entry it follows the open status (current, due or
+  revoked; revocation unknown, checked or stale) and adds a start date from the maker's lead time
+  and a flag (OVERDUE, DUE SOON, SCHEDULED, REVOKED). It writes a signed report by month and by
+  maker, with CSV and iCalendar. Nothing here signs a register or a list. Envelope token
+  `revalidation`. Tier manifest regenerated. 4 tests in `tests/signed_dossier.rs`, one of them
+  the published revocation-list test vector.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from
