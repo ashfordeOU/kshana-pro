@@ -100,6 +100,15 @@ own bullet so parallel work merges cleanly.
   time and could show OVERDUE, and the daily bins of the lunar SLA and UTM reports put it in the
   previous day. It now rounds before splitting the day. Test:
   `iso_rounds_into_the_next_day_not_hour_24`.
+- **Fix: ephemeris age across the week boundary in the software GNSS bridge.**
+  `select_ephemerides` (used by the hybrid GNSS bridge and the GNSS SDR scenes) measured an
+  ephemeris's distance from the scene start by wrapping the time-of-week difference, whatever
+  the week numbers said. A same-week Sunday 00:00 ephemeris was taken for a Saturday 22:40 scene
+  as 80 minutes away when it was 6.9 days old. The engine then propagated a week-stale ephemeris
+  without the "no usable ephemeris" error. Reachable only when the navigation file had no
+  nearer record for that satellite. The age is now the signed week difference (modulo 1024, so
+  a Galileo +1024 offset compares alike) times 604800 s plus the time-of-week difference. Test:
+  `ephemeris_age_spans_the_week_boundary_by_week_number`.
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**

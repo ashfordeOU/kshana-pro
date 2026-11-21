@@ -134,7 +134,10 @@ pub fn to_gnss_trajectory(t: &Trajectory) -> GTraj {
 }
 
 /// Pick, per satellite of `system`, the healthy ephemeris whose `toe` is nearest the scene
-/// start (same week, ±2 h).
+/// start, within ±2 h of it in absolute time: the week difference (signed, modulo the 1024-week
+/// cycle, so a Galileo week with or without its +1024 offset compares alike) times 604800 s
+/// plus the time-of-week difference. Same-week times of week are never wrapped, so a Sunday
+/// 00:00 ephemeris is not taken for a Saturday 22:40 scene of the same week.
 pub fn select_ephemerides(
     ephs: &[RinexEphemeris],
     system: char,
@@ -148,11 +151,13 @@ pub fn select_ephemerides(
     {
         // Galileo RINEX weeks are GST weeks aligned with GPS weeks (+1024 in some files):
         // compare by time of week only when the week fields disagree by a whole cycle.
-        let dweek = (e.gps_week as i64 - week).rem_euclid(1024);
-        if dweek != 0 && dweek != 1023 && dweek != 1 {
-            continue;
-        }
-        let dt = (e.toe - tow).abs().min(WEEK_S - (e.toe - tow).abs());
+        let dweek = match (e.gps_week as i64 - week).rem_euclid(1024) {
+            0 => 0.0,
+            1 => 1.0,
+            1023 => -1.0,
+            _ => continue,
+        };
+        let dt = (dweek * WEEK_S + e.toe - tow).abs();
         if dt > 7200.0 {
             continue;
         }
