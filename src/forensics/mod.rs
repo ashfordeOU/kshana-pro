@@ -42,6 +42,7 @@
 //! of the data supplied, not a legal opinion or a finding of fact.
 
 pub mod bundle;
+pub mod casualty;
 pub mod detect;
 pub mod dispute;
 pub mod inputs;

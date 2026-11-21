@@ -19,6 +19,14 @@ own bullet so parallel work merges cleanly.
   against candidate TLEs on the open SGP4), `disposal` (US76 drag lifetime against the plan's
   deadline), `pack` (all three signed together; framework article to confirm); `synth` free.
   MODELLED. Tier manifest regenerated; `tests/space_ops_evidence.rs` (4 tests).
+- **Maritime casualty reconstruction (research 2026-11-20 gaps B0601; docs/CASUALTY.md).**
+  `kshana-pro casualty run` (`pro-casualty-reconstruction`, Pro): grounding or collision from the
+  VDR NMEA, AIS and radar log; displayed vs reconstructed true track (dead reckoning on gyro and
+  log from the last clean fix, 1-sigma envelope), radar fixes on charted objects as independent
+  checks (nothing fused), the actor-vs-victim interference timeline embedded, radar CPA for a
+  collision, and a causation statement (interference / with a navigational factor / navigational
+  error / undetermined) with uncertainty, signed. `casualty synth` (free), SYNTHETIC cases only.
+  Tier manifest regenerated; `tests/casualty.rs` (3 tests). MODELLED.
 - **Alternative-PNT evaluation and civil test-campaign evidence (backlog E40 B4004;
   docs/ALTPNT-EVIDENCE.md).** `kshana-pro altpnt` (features `pro-altpnt-evidence` and
   `pro-altpnt-campaign`, Pro): `failure-modes` (architecture failure-mode pack from declared

@@ -15,6 +15,7 @@ mod aviation_cmd;
 mod avionics_cmd;
 mod bridge_cmd;
 mod briefing_cmd;
+mod casualty_cmd;
 mod clock_bench_cmd;
 mod custody_cmd;
 mod dossier_cmd;
@@ -104,6 +105,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro lunar-surface <plume|traverse|rf-forensics|synth> ...   Lunar surface operations evidence: MODELLED parametric dust-plume visibility, LTV/EVA navigation safety evidence, RF self-interference forensics from I/Q (analysis only) (Pro; synth free)\n\
        kshana-pro envelope <format|dir>   Operating envelope (valid inputs, ranges, exclusions) of a Pro output; every signed evidence directory carries one (free)\n\
        kshana-pro custody <capture|handover|verify|export> ...   Sealed incident capture: ring-buffer freeze around a trigger in SigMF I/Q, sealed capture with calibration ID, custody form and signed hash-chained handover log (capture Pro; the chain free)\n\
+       kshana-pro casualty <run|synth> ...   Maritime casualty (grounding/collision) reconstruction: displayed vs reconstructed track, interference timeline, causation statement, signed pack (Pro; synth free)\n\
        kshana-pro survey-qc <run|synth> ...   Marine survey and construction positioning QC under interference: per-line flags, signed QC annex, site risk plan (Pro; synth free)\n\
        kshana-pro vault <init|ingest|list|hold|release|delete|trend|calendar|submission|verify|export|import> ...   Customer evidence vault: signed packs with legal hold, retention, hash-chained ledger, trends, obligation calendar, submission skeletons, open export (Enterprise; import free)\n\
        kshana-pro method <schedule|budget> ...   Yearly re-scoring schedule and per-test GUM uncertainty budgets with a method report (Pro)\n\
@@ -252,6 +254,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "envelope",
     "custody",
     "survey-qc",
+    "casualty",
     "vault",
     "method",
     "fleet",
@@ -410,6 +413,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("envelope") => envelope_cmd::run(&args[1..]),
         Some("custody") => custody_cmd::run(&args[1..]),
         Some("survey-qc") => survey_cmd::run(&args[1..]),
+        Some("casualty") => casualty_cmd::run(&args[1..]),
         Some("vault") => vault_cmd::run(&args[1..]),
         Some("method") => method_cmd::run(&args[1..]),
         Some("fleet") => fleet_cmd::run(&args[1..]),
