@@ -381,6 +381,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-osnma-scenario-pack" => Tier::Pro,
         // Requirements cross-walk of the published LEO-PNT procedures (B2101).
         "pro-leo-ue-crosswalk" => Tier::Pro,
+        // Receiver behaviour fingerprint for the population benchmark (B2603, Pro side).
+        "pro-receiver-fingerprint" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -514,6 +516,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-navic-evidence",
     "pro-leo-evaluation",
     "pro-leo-ue-crosswalk",
+    "pro-receiver-fingerprint",
     "pro-casualty-reconstruction",
     "pro-method-validation",
     "pro-aviation-event-recon",
