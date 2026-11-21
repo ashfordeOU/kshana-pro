@@ -178,6 +178,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-departure-advisory",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-dependency-audit",
       "type": "feature",
       "tier": "pro"
