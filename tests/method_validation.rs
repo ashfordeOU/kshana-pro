@@ -113,6 +113,7 @@ fn synthetic_study_finds_the_biased_and_the_scattered_laboratory() {
         assert!(after.bias.unwrap().abs() < l.all_labs.bias.unwrap().abs());
     }
     assert!(r2.verdict.contains("1 laboratory exclusion"));
+    assert!(r2.verdict.contains("scored under method KM-SYNTH-1"));
 }
 
 #[test]

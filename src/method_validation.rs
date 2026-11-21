@@ -396,7 +396,7 @@ pub fn study(q: &Study) -> Result<Report, String> {
         ));
     }
     let verdict = format!(
-        "Precision of method {} for {} over {} level(s): {}; {} consistency test(s) at straggler or outlier level{}.",
+        "Precision of method {} for {} over {} level(s): {}; {} consistency test(s) at straggler or outlier level{}. Results are \"scored under method {}\"; this report does not rate any product.",
         q.method_id,
         q.quantity,
         levels.len(),
@@ -409,7 +409,8 @@ pub fn study(q: &Study) -> Result<Report, String> {
             .collect::<Vec<_>>()
             .join(", "),
         flags,
-        if q.exclude.is_empty() { String::new() } else { format!("; {} laboratory exclusion(s) with stated reasons", q.exclude.len()) }
+        if q.exclude.is_empty() { String::new() } else { format!("; {} laboratory exclusion(s) with stated reasons", q.exclude.len()) },
+        q.method_id
     );
     Ok(Report {
         format: FORMAT,
