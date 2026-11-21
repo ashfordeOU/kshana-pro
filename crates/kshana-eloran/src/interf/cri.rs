@@ -41,7 +41,7 @@ impl CriChain {
             };
             v.extend(offs.iter().map(|o| o + s.emission_delay_us));
         }
-        v.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        v.sort_by(f64::total_cmp);
         CriChain {
             gri_us: c.gri_us,
             pulse_offsets_us: v,
@@ -68,7 +68,7 @@ fn pulse_overlap_lattice(o: f64, gv: u32, it: &CriChain, w: f64) -> f64 {
         .iter()
         .map(|x| x.rem_euclid(gi))
         .collect();
-    p.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    p.sort_by(f64::total_cmp);
     let mut hit = 0usize;
     for r in 0..k {
         let x = (r as f64 * g + o).rem_euclid(gi);

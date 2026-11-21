@@ -65,7 +65,7 @@ pub fn mitigate(x: &mut [f64], m: &Mitigation) -> f64 {
     for chunk in x.chunks_mut(m.block.max(64)) {
         let mut a: Vec<f64> = chunk.iter().map(|v| v.abs()).collect();
         let mid = a.len() / 2;
-        a.select_nth_unstable_by(mid, |p, q| p.partial_cmp(q).unwrap());
+        a.select_nth_unstable_by(mid, f64::total_cmp);
         let sigma = 1.4826 * a[mid];
         if sigma <= 0.0 {
             continue;

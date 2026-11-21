@@ -87,8 +87,10 @@ pub fn run(args: &[String]) -> ExitCode {
         "cal-add" => {
             let num = |n: &str| -> Result<f64, String> {
                 need(args, n)?
-                    .parse()
-                    .map_err(|_| format!("{n} must be a number"))
+                    .parse::<f64>()
+                    .ok()
+                    .filter(|x| x.is_finite())
+                    .ok_or_else(|| format!("{n} must be a finite number"))
             };
             let e = Register::open(p).append(EntryBody {
                 seq: 0,

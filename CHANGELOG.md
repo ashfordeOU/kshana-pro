@@ -5,6 +5,25 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Robustness audit: fuzz-style parser tests and small fixes.** New `tests/input_fuzz.rs`: a
+  seeded xorshift mutator (no new dependency) feeds about 45 parsers mutated and random input:
+  NaN, inf, huge numbers, multi-byte characters, empty and stray fields, truncation, and
+  flipped UBX bytes. The families are time stamps, report text and NOTAMs, CSV tables, timing
+  logs, navigation and track files, and binary UBX. Each parser must return a value or an error,
+  never panic. It found the NOTAM Q-line position panic on a multi-byte character, now fixed.
+  Also fixed:
+  - a non-numeric PRN or subtype in decoded interface records is an error rather than "none",
+    which hid the unknown-PRN alarm;
+  - a non-finite device time or lab time in a timebomb CSV is a skipped row (NaN became 1970);
+  - the numeric flags of `attack-iq`, `eloran`, `leo-eval`, `lunar` and `fleet` refuse NaN and
+    inf;
+  - every `partial_cmp(..).unwrap()` sort in Pro and `kshana-eloran` uses a total order, so a
+    NaN cannot panic it. The two in the eLoran receiver are changed on the SigMF branch.
+
+  The README integration-test count is now one hundred and thirty-three. Five real robustness
+  bugs from the same audit are fixed on their own branches: clock-log NaN, station SLA cells,
+  flight-inspection NaN, `Table::num` infinities and malformed SigMF.
+
 - **Fix: collision probability summed object 2's covariance in the wrong frame
   (docs/SPACE-OPS-EVIDENCE.md).** `space_ops::pc_2d`, used by `space-ops ca` (the
   collision-avoidance decision record) and the operator evidence pack, took a relative state in
@@ -119,6 +138,49 @@ own bullet so parallel work merges cleanly.
   for other dates. Five real time edge bugs found in the same sweep are fixed on their own
   branches: leap-second deletion marker, vault retention for non-ISO `--utc`, `iso` hour 24,
   ephemeris age across the week, and OEM `TIME_SYSTEM` (frame audit).
+- **Fix: NaN in a clock log passed as "within" (timing self-check, grid PMU, cross-check, chain
+  onboarding, station clock).** `timing::selfcheck::read_source`, the clock-log reader all of
+  these share, accepted `nan`, `NaN`, `inf` and `-inf`, which `str::parse::<f64>` reads. A NaN
+  offset compares false against every limit, so it counted as inside the budget and ended open
+  exceedance intervals. A PMU clock log of `nan` values gave `within-budget` in a signed grid
+  pack, and a self-check pair agreed on a NaN. **Affected: packs built from clock logs holding
+  non-finite values before this fix.** The reader now refuses a non-finite time or offset with
+  its reading number. A source uncertainty `u_s` must be finite as well as positive. Test:
+  `clock_logs_with_non_finite_values_are_refused`.
+- **Fix: ground-station SLA passed on NaN or unreadable pass values (`timing station`).**
+  `read_passes` read an optional cell (`actual_aos`, `actual_los`, `bytes_planned`,
+  `bytes_delivered`, `frames_bad`, `frames_total`) that did not parse as no value, so that
+  pass's check was skipped without a note. It read `NaN` as NaN, so the check compared false
+  and passed: a pass with `bytes_delivered = NaN` met the delivery SLA, and an `actual_aos` of
+  `NaN` met the AOS delay. **Affected: station SLA reports built from pass files with such
+  cells before this fix.** A non-empty optional cell must now be a finite number or a UTC time,
+  else the row is refused with its number; empty cells are still allowed. Test:
+  `station_passes_refuse_non_finite_or_unreadable_cells`. The station clock series is covered by
+  the clock-log fix.
+- **Fix: flight-inspection truth check read NaN as "consistent" (`navaids inspection`).** The
+  track and measurement parsers accepted `NaN` and `inf`. A NaN residual compared false against
+  the gate, so the epoch's verdict was `consistent`, and a NaN time was paired with the t = 0
+  epoch. **Affected: inspection reports built from inputs holding non-finite values before this
+  fix.** Every number must now be finite. Test: `inspection_inputs_refuse_non_finite_values`.
+- **Fix: the shared CSV reader let infinite numbers through (`transport::Table::num`).** It
+  treated only an empty cell or exactly `nan` as missing and parsed everything else, so `inf`,
+  `-inf` and `infinity` came through as numbers, and `+nan`/`-nan` came through as NaN. About
+  25 tools read their CSV through it, among them lunar-surface traverse (an infinite position
+  made the hazard margin infinite, so the row was shown clear), road, rail and eCall,
+  telematics, AIS and VMS, interface drift, casualty, NavIC and space-ops. **Affected: outputs
+  from CSVs holding such cells before this fix.** `nan` in any sign is now the missing marker;
+  an infinite value is an error with its row and column. Test:
+  `num_treats_nan_as_missing_and_refuses_infinity`.
+- **Fix: malformed SigMF recordings panicked `eloran rx` and the capset tools.**
+  `kshana_eloran::io::read_sigmf` took `core:num_channels` and `core:sample_rate` as given, so
+  `num_channels: 0` divided by zero and a huge count tried to allocate that many channels. It
+  did not check rf32 samples either: one NaN (an SDR glitch) reached the impulse-mitigation
+  median and the acquisition metric sort, which used `partial_cmp().unwrap()` and panicked. The
+  reader now requires 1 to 64 channels and a positive, finite sample rate, and refuses a
+  non-finite sample with its index. The two sorts use a total order. Test:
+  `sigmf_headers_and_samples_are_checked`, which panicked on the old code.
+  `retention_is_the_same_whatever_form_utc_takes`. A `--utc` under four bytes no longer panics, and
+  `--retain-years` must be 1 to 100; a huge value used to overflow the year.
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**

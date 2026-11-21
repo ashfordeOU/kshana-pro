@@ -740,7 +740,7 @@ fn parse_lab_time(tok: &str) -> Option<f64> {
         return None;
     }
     if let Ok(x) = t.parse::<f64>() {
-        return Some(x);
+        return x.is_finite().then_some(x);
     }
     let l = Label::parse_iso(t).ok()?;
     let frac = t
@@ -919,8 +919,11 @@ pub fn read_csv(text: &str) -> (Vec<DeviceRecord>, usize) {
             [a, d, ..] => (parse_lab_time(a), *d),
             _ => continue,
         };
+        // A non-finite or absurd Unix time (NaN became 1970, -inf the minimum i64, and a later
+        // subtraction overflowed) is a skipped row, not a device time.
         let utc = match dev.parse::<f64>() {
-            Ok(x) => Some(Label::from_unix(x.floor() as i64)),
+            Ok(x) if x.is_finite() && x.abs() < 1e12 => Some(Label::from_unix(x.floor() as i64)),
+            Ok(_) => None,
             Err(_) => Label::parse_iso(dev).ok(),
         };
         match utc {

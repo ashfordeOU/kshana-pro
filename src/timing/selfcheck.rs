@@ -227,6 +227,21 @@ pub fn read_source(s: &SourceSpec, text: &str) -> Result<Vec<Reading>, String> {
             }
         }
     }
+    // A NaN or infinite time or offset (a logger's "nan" while unlocked, say) would compare false
+    // against every limit and pass as "within"; refuse it so it can never reach a verdict.
+    if let Some((i, r)) = out
+        .iter()
+        .enumerate()
+        .find(|(_, r)| !(r.t.is_finite() && r.offset.is_finite()))
+    {
+        return Err(format!(
+            "source {}: reading {} has a time or offset that is not a finite number (t {}, offset {}); remove such rows or mark the source unlocked",
+            s.name,
+            i + 1,
+            r.t,
+            r.offset
+        ));
+    }
     if out.is_empty() {
         return Err(format!("source {}: no reading in the log", s.name));
     }
@@ -492,7 +507,7 @@ pub fn check_node(spec: &NodeSpec, base: &Path) -> Result<NodeReport, String> {
     }
     let mut series = Vec::new();
     for s in &spec.sources {
-        if s.u_s.is_nan() || s.u_s <= 0.0 {
+        if !(s.u_s.is_finite() && s.u_s > 0.0) {
             return Err(format!("source {}: u_s must be > 0", s.name));
         }
         series.push(read_source(s, &read_text(base, &s.path)?)?);
@@ -824,7 +839,7 @@ pub fn check_sites(spec: &SitesSpec, base: &Path) -> Result<SitesReport, String>
     }
     let mut series = Vec::new();
     for s in &spec.sites {
-        if s.u_s.is_nan() || s.u_s <= 0.0 {
+        if !(s.u_s.is_finite() && s.u_s > 0.0) {
             return Err(format!("site {}: u_s must be > 0", s.id));
         }
         let src = SourceSpec {

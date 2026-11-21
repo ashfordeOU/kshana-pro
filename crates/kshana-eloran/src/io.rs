@@ -132,6 +132,9 @@ pub struct Recording {
     pub meta: serde_json::Value,
 }
 
+/// The most channels a recording may declare (a guard against a corrupt or hostile header).
+pub const MAX_CHANNELS: u64 = 64;
+
 /// Read a SigMF recording written by [`SigmfWriter`] (or any `ri16_le`/`rf32_le` real,
 /// interleaved SigMF pair). `max_samples` limits the samples read per channel.
 pub fn read_sigmf(base: &Path, max_samples: Option<u64>) -> Result<Recording, String> {
@@ -147,7 +150,20 @@ pub fn read_sigmf(base: &Path, max_samples: Option<u64>) -> Result<Recording, St
     let fs_hz = g["core:sample_rate"]
         .as_f64()
         .ok_or("missing core:sample_rate")?;
-    let nch = g["core:num_channels"].as_u64().unwrap_or(1) as usize;
+    if !(fs_hz.is_finite() && fs_hz > 0.0) {
+        return Err(format!(
+            "{}: core:sample_rate {fs_hz} is not positive",
+            meta_path.display()
+        ));
+    }
+    let nch = g["core:num_channels"].as_u64().unwrap_or(1);
+    if !(1..=MAX_CHANNELS).contains(&nch) {
+        return Err(format!(
+            "{}: core:num_channels {nch} (1 to {MAX_CHANNELS})",
+            meta_path.display()
+        ));
+    }
+    let nch = nch as usize;
     let mut r = BufReader::new(
         File::open(&data_path).map_err(|e| format!("{}: {e}", data_path.display()))?,
     );
@@ -168,6 +184,12 @@ pub fn read_sigmf(base: &Path, max_samples: Option<u64>) -> Result<Recording, St
                     f32::from_le_bytes([raw[o], raw[o + 1], raw[o + 2], raw[o + 3]]) as f64
                 }
             };
+            if !v.is_finite() {
+                return Err(format!(
+                    "{}: sample {i} of channel {c} is not a finite number",
+                    data_path.display()
+                ));
+            }
             ch.push(v);
         }
     }

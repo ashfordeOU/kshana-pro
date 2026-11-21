@@ -333,7 +333,7 @@ impl RtReceiver {
                 Some(m)
             })
             .collect();
-        emit.sort_by(|x, y| x.toa_s.partial_cmp(&y.toa_s).unwrap());
+        emit.sort_by(|x, y| x.toa_s.total_cmp(&y.toa_s));
         for m in emit {
             let key = (m.chain_index, m.station_index, m.channel);
             let period = 1.0 / self.chains[m.chain_index].signal.carrier_hz;

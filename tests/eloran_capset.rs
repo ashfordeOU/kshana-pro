@@ -82,3 +82,44 @@ fn eloran_and_gnss_capture_set_round_trips_and_misalignment_is_caught() {
     assert!((c - 25_000.0).abs() < 4_000.0, "cross {c} ps");
     std::fs::remove_dir_all(&dir).ok();
 }
+
+/// Robustness audit: a SigMF recording with zero channels, an absurd channel count, a bad sample
+/// rate or a non-finite rf32 sample is refused. Zero channels used to divide by zero, and a NaN
+/// sample later panicked the impulse-mitigation sort.
+#[test]
+fn sigmf_headers_and_samples_are_checked() {
+    let d = std::env::temp_dir().join(format!("kshana-sigmf-rob-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&d);
+    std::fs::create_dir_all(&d).unwrap();
+    let write = |name: &str, nch: &str, fs: &str, samples: &[f32]| {
+        let base = d.join(name);
+        std::fs::write(
+            base.with_extension("sigmf-meta"),
+            format!(r#"{{"global":{{"core:datatype":"rf32_le","core:sample_rate":{fs},"core:num_channels":{nch}}},"captures":[],"annotations":[]}}"#),
+        )
+        .unwrap();
+        let bytes: Vec<u8> = samples.iter().flat_map(|v| v.to_le_bytes()).collect();
+        std::fs::write(base.with_extension("sigmf-data"), bytes).unwrap();
+        base
+    };
+    let read = |b: &std::path::Path| kshana_eloran::io::read_sigmf(b, None);
+    let ok = write("ok", "1", "1000000", &[0.1, -0.2, 0.3]);
+    assert_eq!(read(&ok).unwrap().channels[0].len(), 3);
+    let e = read(&write("zero", "0", "1000000", &[0.1])).unwrap_err();
+    assert!(e.contains("num_channels 0"), "{e}");
+    assert!(read(&write("huge", "1000000000", "1000000", &[0.1])).is_err());
+    assert!(read(&write("fs", "1", "0", &[0.1])).is_err());
+    let e = read(&write("nan", "1", "1000000", &[0.1, f32::NAN, 0.3])).unwrap_err();
+    assert!(
+        e.contains("sample 1 of channel 0 is not a finite number"),
+        "{e}"
+    );
+    // The impulse mitigation itself no longer panics on a NaN (total order).
+    let mut x = vec![0.0, 1.0, f64::NAN, -1.0, 0.5];
+    x.extend(std::iter::repeat_n(0.1, 200));
+    let _ = kshana_eloran::rx::impulse::mitigate(
+        &mut x,
+        &kshana_eloran::rx::impulse::Mitigation::default(),
+    );
+    std::fs::remove_dir_all(&d).ok();
+}

@@ -875,3 +875,33 @@ fn grid_cli_json_commands() {
     );
     assert!(!ok && o.contains("requires"), "{o}");
 }
+
+/// Robustness audit: a clock log with a NaN or infinite offset or time is refused. It used to be
+/// read, and a NaN offset compared false against every limit, so a PMU clock log of `nan`
+/// values came out "within-budget" in a signed pack, and a self-check pair agreed on a NaN.
+#[test]
+fn clock_logs_with_non_finite_values_are_refused() {
+    use kshana_pro::timing::selfcheck::{read_source, SourceSpec};
+    let spec = SourceSpec {
+        name: "pmu-1".into(),
+        kind: None,
+        format: "csv".into(),
+        path: "x.csv".into(),
+        u_s: 1e-6,
+        disciplining: false,
+        sign: None,
+        time_offset_s: 0.0,
+        select: None,
+    };
+    let ok = "1767225600,1e-6\n1767225601,2e-6\n";
+    assert_eq!(read_source(&spec, ok).unwrap().len(), 2);
+    for bad in [
+        "1767225600,1e-6\n1767225601,nan\n",
+        "1767225600,NaN\n",
+        "1767225600,inf\n",
+        "-inf,1e-6\n",
+    ] {
+        let e = read_source(&spec, bad).unwrap_err();
+        assert!(e.contains("not a finite number"), "{bad}: {e}");
+    }
+}

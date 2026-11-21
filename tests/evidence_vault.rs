@@ -229,4 +229,8 @@ fn retention_is_the_same_whatever_form_utc_takes() {
     vault::delete(&v, &eb.id[..12], "2033-01-02T00:00:00Z").unwrap();
     let c = pack(&d, "c", "kshana-pro-grid-pmu/1", "2026-01-17T00:00:00Z", 3);
     assert!(vault::ingest(&v, &c, &[], 7, &trust, "next tuesday").is_err());
+    // A short --utc and an absurd retention are refused, not a panic or an overflow.
+    assert!(vault::ingest(&v, &c, &[], 7, &trust, "26").is_err());
+    assert!(vault::ingest(&v, &c, &[], 3_000_000_000, &trust, "2026-01-01").is_err());
+    assert!(vault::ingest(&v, &c, &[], 0, &trust, "2026-01-01").is_err());
 }
