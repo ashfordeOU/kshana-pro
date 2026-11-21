@@ -5,6 +5,14 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Product certificates: revocation status and yearly revalidation (B2505 Pro part,
+  docs/CERT-STATUS.md).** `kshana-pro cert make` (`pro-cert-revalidation`, Pro) writes a signed
+  certificate pack (ID, product, method and version, issue and revalidation-due dates).
+  `cert status` (free) checks it against a signed revocation list file whose issuer key comes
+  from `--trust`, and reports valid, revoked (reason, date), revalidation-overdue, unknown (no
+  list, a list that does not verify, or a stale list) or invalid. `cert schedule` (Pro) writes a
+  signed revalidation calendar (CSV, iCalendar). Lists are read, never issued, in this crate.
+  Envelope token `cert`. Tier manifest regenerated. 4 tests in `tests/signed_dossier.rs`.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from

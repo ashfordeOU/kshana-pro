@@ -1,7 +1,8 @@
 # Re-scoring schedule and per-test uncertainty budgets
 
 Research 2026-11-20 gaps, backlog B2505, Pro part only (the public register and the revocation
-list are not in this crate). Module `src/method_uncertainty.rs`, command `kshana-pro method`
+list issuer are not in this crate; certificate status and revalidation are in
+[CERT-STATUS.md](CERT-STATUS.md)). Module `src/method_uncertainty.rs`, command `kshana-pro method`
 (`src/cli/method_cmd.rs`), tests `tests/method_uncertainty.rs`. Feature `pro-method-uncertainty`
 (Pro).
 
