@@ -92,7 +92,10 @@ pub struct TimexferConfig {
     pub outlier_m: f64,
     /// Receiver total delay: internal + antenna cable − reference cable (ns).
     pub receiver_delay_ns: f64,
-    /// GPS time − UTC (leap seconds) for the track schedule (s).
+    /// GPS time − UTC (leap seconds) for the track schedule and MJD (s). The default, 18, holds
+    /// from 2017-01-01; it is not taken from the date or the RINEX `LEAP SECONDS` header, so
+    /// set it for data before 2017 (17 from 2015-07-01, 16 from 2012-07-01) or after a future
+    /// leap second, or every track is that many seconds off.
     pub leap_seconds: f64,
     /// Fewest satellites for an epoch.
     pub min_sats: usize,

@@ -109,6 +109,16 @@ own bullet so parallel work merges cleanly.
   nearer record for that satellite. The age is now the signed week difference (modulo 1024, so
   a Galileo +1024 offset compares alike) times 604800 s plus the time-of-week difference. Test:
   `ephemeris_age_spans_the_week_boundary_by_week_number`.
+- **Time edge-case audit, small fixes.** The timestamp parsers `kshana_eloran::time::AbsTime::
+  from_utc_iso`, `kshana_eloran::sync::UtcStamp::parse`, `agri::parse_utc` and
+  `timing::timebomb::Label::parse_iso` checked only that the day was in 1-31. They accepted
+  31 February, rolling it into March; they now check the day against the month (29 February
+  only in leap years, with the 100/400 rule) through a new `kshana_eloran::time::days_in_month`.
+  `kshana-pro fleet ageing` no longer panics on a `--utc` shorter than a date. The
+  time-transfer `leap_seconds` default (18, valid from 2017) is documented as fixed and to set
+  for other dates. Five real time edge bugs found in the same sweep are fixed on their own
+  branches: leap-second deletion marker, vault retention for non-ISO `--utc`, `iso` hour 24,
+  ephemeris age across the week, and OEM `TIME_SYSTEM` (frame audit).
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**

@@ -132,7 +132,7 @@ pub fn parse_utc(s: &str) -> Result<i64, String> {
         return Err(format!("'{s}': not an ISO 8601 UTC time"));
     }
     let (y, m, d) = (num(dp.first())?, num(dp.get(1))?, num(dp.get(2))?);
-    if !(1..=12).contains(&m) || !(1..=31).contains(&d) {
+    if !(1..=12).contains(&m) || d < 1 || d > kshana_eloran::time::days_in_month(y, m) {
         return Err(format!("'{s}': date out of range"));
     }
     let (hh, mm, ss) = (num(tp.first())?, num(tp.get(1))?, num(tp.get(2))?);
