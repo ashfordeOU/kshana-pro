@@ -28,10 +28,13 @@ fn cdm(r: [f64; 3], s1: f64, s2: f64, hbr: f64) -> so::Cdm {
         message_id: "T".into(),
         creation_utc: "2026-11-17T00:00:00Z".into(),
         tca_utc: "2026-11-18T00:00:00Z".into(),
-        rel_pos_rtn_m: r,
-        rel_vel_rtn_mps: [0.0, -14_000.0, 0.0],
+        rel_pos_rtn_m: Some(r),
+        rel_vel_rtn_mps: Some([0.0, -14_000.0, 0.0]),
+        state1_m: None,
+        state2_m: None,
         cov1_rtn_m2: [s1 * s1, 0.0, 1e6, 0.0, 0.0, s1 * s1],
         cov2_rtn_m2: [s2 * s2, 0.0, 1e6, 0.0, 0.0, s2 * s2],
+        cov2_frame: Some("rtn1".into()),
         hbr_m: hbr,
         pc_reported: None,
     }
@@ -57,7 +60,7 @@ fn encounter_plane_probability_matches_the_closed_forms() {
     assert!((a / b - 1.0).abs() < 1e-9);
     // No relative velocity, or no hard body, is refused.
     let mut c = cdm([0.0; 3], 1.0, 1.0, 1.0);
-    c.rel_vel_rtn_mps = [0.0; 3];
+    c.rel_vel_rtn_mps = Some([0.0; 3]);
     assert!(so::pc_2d(&c).is_err());
     assert!(so::pc_2d(&cdm([0.0; 3], 1.0, 1.0, 0.0)).is_err());
 }
@@ -477,7 +480,8 @@ mod cislunar_catalogue {
         let mut q = cc::synth();
         q.data_source = " ".into();
         assert!(cc::run(&q).is_err());
-
+    }
+}
 
 /// Pc dedupe preparation: Pro `space_ops::pc_2d` against the open engine's
 /// `orbit_data::pc::foster_2d` (open branch open/conjunction-pc, kshana #170), mirrored here
@@ -618,8 +622,8 @@ mod pc_dedupe {
             [0.0; 3],
             [0.0; 3],
             &cov(c.cov1_rtn_m2),
-            c.rel_pos_rtn_m,
-            c.rel_vel_rtn_mps,
+            c.rel_pos_rtn_m.unwrap(),
+            c.rel_vel_rtn_mps.unwrap(),
             &cov(c.cov2_rtn_m2),
             c.hbr_m,
         )
@@ -633,10 +637,13 @@ mod pc_dedupe {
                     message_id: id.into(),
                     creation_utc: "2026-11-17T00:00:00Z".into(),
                     tca_utc: "2026-11-18T00:00:00Z".into(),
-                    rel_pos_rtn_m: r,
-                    rel_vel_rtn_mps: v,
+                    rel_pos_rtn_m: Some(r),
+                    rel_vel_rtn_mps: Some(v),
+                    state1_m: None,
+                    state2_m: None,
                     cov1_rtn_m2: c1,
                     cov2_rtn_m2: c2,
+                    cov2_frame: Some("rtn1".into()),
                     hbr_m: hbr,
                     pc_reported: None,
                 },
@@ -710,27 +717,166 @@ mod pc_dedupe {
     }
 
     /// Pro `pc_2d` against the open `foster_2d` on the same inputs, the Pro CDM fixtures
-    /// included. The target of 1e-9 relative is NOT met: Pro integrates the disc on a fixed
-    /// 200 x 360 midpoint polar grid, accurate to about 1e-5 relative (worst with a body large
-    /// against the covariance), while the open function integrates the closed-form inner integral
-    /// adaptively to 1e-10 and matches the closed forms to 1e-9. The bound asserted is the
-    /// measured agreement; switching `pc_2d` to the open function improves Pro's numbers by up to
-    /// that much.
+    /// included: agreement to 1e-9 relative now that Pro integrates as the open routine does
+    /// (before pro/pc-frame-fix, Pro's fixed polar grid agreed only to about 1e-5).
     #[test]
     fn pro_pc_2d_against_the_open_foster_2d() {
-        let mut worst: f64 = 0.0;
         for (id, c) in cases() {
             let pro = so::pc_2d(&c).unwrap();
             let open = open_on(&c);
             let rel = (pro / open - 1.0).abs();
-            eprintln!("{id:>20}: pro {pro:.12e}  open {open:.12e}  rel {rel:.3e}");
             assert!(
-                open > 0.0 && rel < 1e-5,
+                open > 0.0 && rel < 1e-9,
                 "{id}: pro {pro} open {open} rel {rel}"
             );
-            worst = worst.max(rel);
         }
-        // The documented gap: the grid is not at 1e-9 everywhere.
-        assert!(worst > 1e-9, "Pro now agrees to 1e-9: tighten the bound");
+    }
+
+    // ---- Mirror of the open CDM path (from_cdm: each object's RTN covariance rotated from its
+    // own RTN frame, covariance::from_rtn with cdm::rtn_axes).
+    fn rtn_axes(s: &[f64; 6]) -> M3 {
+        let r = [s[0], s[1], s[2]];
+        let v = [s[3], s[4], s[5]];
+        let rr = scale(r, 1.0 / norm(r));
+        let h = cross(r, v);
+        let n = scale(h, 1.0 / norm(h));
+        [rr, cross(n, rr), n]
+    }
+    fn from_rtn(s: &[f64; 6], c: &M3) -> M3 {
+        let a = rtn_axes(s);
+        let mut out = [[0.0; 3]; 3];
+        for i in 0..3 {
+            for j in 0..3 {
+                for k in 0..3 {
+                    for l in 0..3 {
+                        out[i][j] += a[k][i] * c[k][l] * a[l][j];
+                    }
+                }
+            }
+        }
+        out
+    }
+    fn open_from_states(s1: &[f64; 6], c1: [f64; 6], s2: &[f64; 6], c2: [f64; 6], hbr: f64) -> f64 {
+        foster_2d(
+            [s1[0], s1[1], s1[2]],
+            [s1[3], s1[4], s1[5]],
+            &from_rtn(s1, &cov(c1)),
+            [s2[0], s2[1], s2[2]],
+            [s2[3], s2[4], s2[5]],
+            &from_rtn(s2, &cov(c2)),
+            hbr,
+        )
+    }
+
+    /// Two objects whose RTN frames differ (orbit planes 70 degrees apart, object 2 faster and
+    /// slightly eccentric), each covariance in its own RTN frame, long along track. The fixed code (object states) matches the mirrored
+    /// open CDM path; the old convention (relative state in object 1's RTN, object 2's covariance
+    /// summed unrotated) is measurably wrong.
+    #[test]
+    fn object_2_covariance_is_rotated_from_its_own_rtn_frame() {
+        let mu: f64 = 3.986004418e14;
+        let a: f64 = 7_000e3;
+        let vc = (mu / a).sqrt();
+        let inc: f64 = 70f64.to_radians();
+        let s1 = [a, 0.0, 0.0, 0.0, vc, 0.0];
+        // Object 2 crosses 120 m radially and 80 m cross-track off object 1 at TCA.
+        // Object 2 is on a faster, slightly eccentric orbit (a radial velocity and 8 % more speed), so
+        // the relative velocity does not bisect the two along-track axes.
+        let s2 = [
+            a + 120.0,
+            0.0,
+            80.0,
+            300.0,
+            1.08 * vc * inc.cos(),
+            1.08 * vc * inc.sin(),
+        ];
+        let c1 = [400.0, 0.0, 250_000.0, 0.0, 0.0, 900.0];
+        let c2 = [2_500.0, 0.0, 4_000_000.0, 0.0, 0.0, 1_600.0];
+        let hbr = 15.0;
+        let want = open_from_states(&s1, c1, &s2, c2, hbr);
+        let new = so::Cdm {
+            message_id: "X".into(),
+            creation_utc: "2026-11-17T00:00:00Z".into(),
+            tca_utc: "2026-11-18T00:00:00Z".into(),
+            rel_pos_rtn_m: None,
+            rel_vel_rtn_mps: None,
+            state1_m: Some(s1),
+            state2_m: Some(s2),
+            cov1_rtn_m2: c1,
+            cov2_rtn_m2: c2,
+            cov2_frame: None,
+            hbr_m: hbr,
+            pc_reported: None,
+        };
+        let got = so::pc_2d(&new).unwrap();
+        assert!((got / want - 1.0).abs() < 1e-9, "{got} vs {want}");
+        // The old convention: the relative state in object 1's RTN axes, object 2's covariance
+        // (in its own RTN) summed as if it were in object 1's.
+        let ax = rtn_axes(&s1);
+        let to1 = |w: V3| [dot(ax[0], w), dot(ax[1], w), dot(ax[2], w)];
+        let r = to1([s2[0] - s1[0], s2[1] - s1[1], s2[2] - s1[2]]);
+        let v = to1([s2[3] - s1[3], s2[4] - s1[4], s2[5] - s1[5]]);
+        let mut old = new.clone();
+        old.state1_m = None;
+        old.state2_m = None;
+        old.rel_pos_rtn_m = Some(r);
+        old.rel_vel_rtn_mps = Some(v);
+        old.cov2_frame = Some("rtn1".into());
+        let wrong = so::pc_2d(&old).unwrap();
+        let err = (wrong / want - 1.0).abs();
+        eprintln!("rotated {want:.6e}  unrotated {wrong:.6e}  relative error {err:.2}");
+        assert!(err > 0.1, "{wrong} vs {want}");
+        // The relative form with the covariance already rotated into object 1's RTN agrees.
+        let c2_in_1 = {
+            let g = from_rtn(&s2, &cov(c2));
+            let mut m = [[0.0; 3]; 3];
+            for i in 0..3 {
+                for j in 0..3 {
+                    for k in 0..3 {
+                        for l in 0..3 {
+                            m[i][j] += ax[i][k] * g[k][l] * ax[j][l];
+                        }
+                    }
+                }
+            }
+            [m[0][0], m[1][0], m[1][1], m[2][0], m[2][1], m[2][2]]
+        };
+        let mut right = old.clone();
+        right.cov2_rtn_m2 = c2_in_1;
+        let ok = so::pc_2d(&right).unwrap();
+        assert!((ok / want - 1.0).abs() < 1e-9, "{ok} vs {want}");
+        // Mixed or undeclared inputs.
+        let mut mixed = new.clone();
+        mixed.rel_pos_rtn_m = Some(r);
+        assert!(so::pc_2d(&mixed).is_err());
+        let mut bad = old.clone();
+        bad.cov2_frame = Some("rtn2".into());
+        assert!(so::pc_2d(&bad)
+            .unwrap_err()
+            .contains("give both object states"));
+    }
+
+    /// A record whose relative-state CDMs do not declare the frame of object 2's covariance is
+    /// flagged for review; the synth (which declares it) is not.
+    #[test]
+    fn undeclared_covariance_frame_is_flagged_in_the_record() {
+        let files = so::synth().unwrap();
+        let ca = &files.iter().find(|(n, _)| *n == "ca.toml").unwrap().1;
+        let q: so::CaRequest = toml::from_str(ca).unwrap();
+        let r = so::ca_record(&q).unwrap();
+        assert!(
+            r.policy_findings.iter().all(|f| !f.contains("cov2_frame")),
+            "{:?}",
+            r.policy_findings
+        );
+        assert!(r.cdms[0].covariance_frames.contains("(declared)"));
+        let q: so::CaRequest = toml::from_str(&ca.replace("cov2_frame = \"rtn1\"\n", "")).unwrap();
+        let r = so::ca_record(&q).unwrap();
+        assert!(
+            r.policy_findings.iter().any(|f| f.contains("cov2_frame")),
+            "{:?}",
+            r.policy_findings
+        );
+        assert!(r.cdms[0].covariance_frames.contains("ASSUMED"));
     }
 }
