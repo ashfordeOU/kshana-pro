@@ -5,6 +5,13 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Fix: `forensics::inputs::iso` could write hour 24.** It split off the day before rounding
+  the seconds of day to tenths, so a time in the last 0.05 s of a day came out as `T24:00:00Z`.
+  The text does not parse back, so a `method schedule` item scored then fell back to its raw
+  time and could show OVERDUE, and the daily bins of the lunar SLA and UTM reports put it in the
+  previous day. It now rounds before splitting the day. Test:
+  `iso_rounds_into_the_next_day_not_hour_24`.
+
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
   `kshana-pro leo-eval crosswalk` (`pro-leo-ue-crosswalk`, Pro): every step of the published LEO-PNT
