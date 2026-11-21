@@ -14,7 +14,8 @@ own bullet so parallel work merges cleanly.
   their `retain_until_utc` in the index.** The vault now brings `--utc` and an obligation's
   `first_due` to `YYYY-MM-DDTHH:MM:SSZ` first and refuses what does not parse. `delete`
   refuses an unparsable stored retention date instead of treating it as forever. Test:
-  `retention_is_the_same_whatever_form_utc_takes`.
+  `retention_is_the_same_whatever_form_utc_takes`. A `--utc` under four bytes no longer panics, and
+  `--retain-years` must be 1 to 100; a huge value used to overflow the year.
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**

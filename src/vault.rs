@@ -261,6 +261,12 @@ pub fn ingest(
     utc: &str,
 ) -> Result<Entry, String> {
     let utc = &canon(utc, "--utc")?;
+    // A retention beyond a century is a typo; a huge one would also overflow the year.
+    if !(1..=100).contains(&retain_years) {
+        return Err(format!(
+            "--retain-years {retain_years}: give 1 to 100 years"
+        ));
+    }
     let mut idx = index(vault)?;
     let v = crate::signed_dossier::verify(pack, trust).map_err(|e| e.to_string())?;
     let sig_ok = v.signature_ok && v.problems.iter().all(|p| p.contains("not a trusted key"));
