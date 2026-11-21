@@ -103,6 +103,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-aviation-event-recon",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-aviation-exposure",
       "type": "feature",
       "tier": "pro"

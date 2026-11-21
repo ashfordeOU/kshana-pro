@@ -5,6 +5,13 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Aviation and drone event reconstruction (research 2026-11-20 gaps B0602; docs/AVIATION-RECON.md).**
+  `kshana-pro aviation-recon run` (`pro-aviation-event-recon`, Pro): clock offsets of ADS-B and
+  tracker records against the FDM/QAR record, GNSS-minus-baro per source against the calibration
+  offset, ISA term and geoid datum, divergence episodes classed (common GNSS divergence, single
+  source, barometric disagreement, GNSS loss), FDM detector events on the timeline, signed
+  investigator pack. Alignment and comparison only. `aviation-recon synth` (free): SYNTHETIC King
+  Air-type flight. Tier manifest regenerated; `tests/aviation_recon.rs` (3 tests). MODELLED.
 - **Alternative-PNT evaluation and civil test-campaign evidence (backlog E40 B4004;
   docs/ALTPNT-EVIDENCE.md).** `kshana-pro altpnt` (features `pro-altpnt-evidence` and
   `pro-altpnt-campaign`, Pro): `failure-modes` (architecture failure-mode pack from declared
