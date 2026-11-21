@@ -81,6 +81,12 @@ own bullet so parallel work merges cleanly.
   clock (open-engine deterministic TIE) and orbit decay (open-engine US76 density).
   `twin-recal synth` free. Tier manifest regenerated; 3 tests in `tests/clock_bench.rs` with a mock
   service.
+- **Independent verification evidence: requirements coverage and verification status
+  (docs/ISVV-EVIDENCE.md).** `kshana-pro isvv run` (`pro-isvv-evidence`, Pro): from a requirements
+  CSV, a trace map and JUnit XML (or CSV) results, a signed report with each requirement's traced
+  tests and status, untested requirements, orphan tests, trace errors and the change since a
+  baseline pack (whose signature is checked). `isvv synth` is free. Tier manifest regenerated.
+  4 tests in `tests/avionics.rs`.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from
