@@ -999,3 +999,30 @@ fn station_inputs_are_validated() {
     assert_eq!(p[0].status, "ok");
     assert_eq!(p[0].scheduled_los - p[0].scheduled_aos, 600.0);
 }
+
+/// Robustness audit: a pass with a NaN, infinite or unreadable optional cell is refused. It
+/// used to read as no value (the check skipped) or as NaN (the check passed): a pass with
+/// `bytes_delivered = NaN` met the delivery SLA.
+#[test]
+fn station_passes_refuse_non_finite_or_unreadable_cells() {
+    let head = "pass_id,satellite,scheduled_aos,scheduled_los,actual_aos,bytes_planned,bytes_delivered,frames_bad,frames_total\n";
+    let row = |aos: &str, del: &str, bad: &str| {
+        format!("{head}p1,A,2026-11-01T10:00:00Z,2026-11-01T10:10:00Z,{aos},1000,{del},{bad},100\n")
+    };
+    assert!(st::read_passes(&row("2026-11-01T10:00:05Z", "990", "1")).is_ok());
+    // Empty optional cells are still allowed.
+    assert!(st::read_passes(&row("", "", "")).is_ok());
+    for (aos, del, bad) in [
+        ("2026-11-01T10:00:05Z", "NaN", "1"),
+        ("2026-11-01T10:00:05Z", "990", "inf"),
+        ("2026-11-01T10:00:05Z", "n/a", "1"),
+        ("NaN", "990", "1"),
+        ("yesterday", "990", "1"),
+    ] {
+        let e = st::read_passes(&row(aos, del, bad)).unwrap_err();
+        assert!(
+            e.contains("not a finite number or time"),
+            "{aos} {del} {bad}: {e}"
+        );
+    }
+}

@@ -5,6 +5,17 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Fix: ground-station SLA passed on NaN or unreadable pass values (`timing station`).**
+  `read_passes` read an optional cell (`actual_aos`, `actual_los`, `bytes_planned`,
+  `bytes_delivered`, `frames_bad`, `frames_total`) that did not parse as no value, so that
+  pass's check was skipped without a note. It read `NaN` as NaN, so the check compared false
+  and passed: a pass with `bytes_delivered = NaN` met the delivery SLA, and an `actual_aos` of
+  `NaN` met the AOS delay. **Affected: station SLA reports built from pass files with such
+  cells before this fix.** A non-empty optional cell must now be a finite number or a UTC time,
+  else the row is refused with its number; empty cells are still allowed. Test:
+  `station_passes_refuse_non_finite_or_unreadable_cells`. The station clock series is covered by
+  the clock-log fix.
+
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
   `kshana-pro leo-eval crosswalk` (`pro-leo-ue-crosswalk`, Pro): every step of the published LEO-PNT
