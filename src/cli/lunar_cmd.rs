@@ -172,7 +172,9 @@ fn num(args: &[String], name: &str) -> Result<Option<f64>, String> {
     flag(args, name)
         .map(|s| {
             s.parse::<f64>()
-                .map_err(|_| format!("{name}: bad number '{s}'"))
+                .ok()
+                .filter(|x| x.is_finite())
+                .ok_or_else(|| format!("{name}: bad number '{s}'"))
         })
         .transpose()
 }

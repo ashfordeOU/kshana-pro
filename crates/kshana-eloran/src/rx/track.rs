@@ -189,7 +189,7 @@ pub struct Blanking {
 
 impl Blanking {
     pub fn new(mut iv: Vec<(f64, f64)>) -> Blanking {
-        iv.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+        iv.sort_by(|a, b| a.0.total_cmp(&b.0));
         let mut out: Vec<(f64, f64)> = Vec::with_capacity(iv.len());
         for (a, b) in iv {
             if let Some(last) = out.last_mut() {

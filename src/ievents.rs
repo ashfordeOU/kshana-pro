@@ -279,7 +279,7 @@ pub fn merge(events: &[Event], tol_s: i64) -> Vec<Event> {
             m.location = es
                 .iter()
                 .filter_map(|e| e.location.clone())
-                .min_by(|a, b| a.radius_m.partial_cmp(&b.radius_m).unwrap());
+                .min_by(|a, b| a.radius_m.total_cmp(&b.radius_m));
             for e in &es {
                 for (k, v) in &e.metrics {
                     let cur = m.metrics.entry(k.clone()).or_insert(*v);

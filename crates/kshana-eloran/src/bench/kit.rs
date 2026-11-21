@@ -57,7 +57,7 @@ pub fn pads_for(db: f64) -> Vec<f64> {
         }
     }
     let mut v = best.map(|b| b.1).unwrap_or_else(|| vec![60.0, 60.0, 60.0]);
-    v.sort_by(|a, b| b.partial_cmp(a).unwrap());
+    v.sort_by(|a, b| b.total_cmp(a));
     v
 }
 

@@ -369,7 +369,7 @@ pub fn smooth_earth_reference(
     let kw = N_ATM * w / C;
     let total = |d_m: f64| near_field(kw * d_m) * se.w(d_m);
     let mut order: Vec<usize> = (0..distances_km.len()).collect();
-    order.sort_by(|a, b| distances_km[*a].partial_cmp(&distances_km[*b]).unwrap());
+    order.sort_by(|a, b| distances_km[*a].total_cmp(&distances_km[*b]));
     let mut out = vec![(f64::NAN, f64::NAN); distances_km.len()];
     let (mut d_prev, mut ph_prev) = (0.0f64, 0.0f64);
     for i in order {

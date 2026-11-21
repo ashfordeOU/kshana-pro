@@ -183,7 +183,7 @@ pub fn scorecard(
             .filter(|r| t.receivers.contains(&r.receiver))
             .collect();
         let mut rec: Vec<f64> = mine.iter().filter_map(|r| r.recovery_s).collect();
-        rec.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        rec.sort_by(f64::total_cmp);
         let not_rec = mine.iter().filter(|r| r.outcome == "not-recovered").count();
         let not_ass = mine.iter().filter(|r| r.outcome == "not-assessed").count();
         let assessed = rec.len() + not_rec;

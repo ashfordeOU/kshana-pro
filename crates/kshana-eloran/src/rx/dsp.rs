@@ -328,7 +328,7 @@ pub fn solve(a: &[Vec<f64>], b: &[f64]) -> Option<Vec<f64>> {
         })
         .collect();
     for c in 0..n {
-        let p = (c..n).max_by(|&i, &j| m[i][c].abs().partial_cmp(&m[j][c].abs()).unwrap())?;
+        let p = (c..n).max_by(|&i, &j| m[i][c].abs().total_cmp(&m[j][c].abs()))?;
         if m[p][c].abs() < 1e-300 {
             return None;
         }

@@ -264,7 +264,9 @@ pub fn parse_coords(s: &str) -> Option<(f64, f64)> {
 pub fn parse_q_position(s: &str) -> Option<(f64, f64, f64)> {
     let s = s.trim();
     let b = s.as_bytes();
-    if b.len() < 11 {
+    // The fixed-width fields are ASCII; anything else is not a Q-line position (and slicing it by
+    // byte would split a multi-byte character).
+    if b.len() < 11 || !b[..11].is_ascii() {
         return None;
     }
     let lat = compact(&s[0..4], 2)? * hemisphere(b[4] as char)?;
