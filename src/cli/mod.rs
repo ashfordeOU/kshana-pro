@@ -27,6 +27,7 @@ mod enforcement_cmd;
 mod envelope_cmd;
 mod evidence_cmd;
 mod evidence_infra_cmd;
+mod fingerprint_cmd;
 mod fleet_cmd;
 mod forensics_cmd;
 mod grid_cmd;
@@ -113,6 +114,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro aviation-recon <run|synth> ...   Aviation or drone event reconstruction: FDM/QAR, ADS-B and tracker aligned, GNSS vs baro vs ADS-B divergences explained, signed investigator pack (Pro; synth free)\n\
        kshana-pro enforcement <pack|checklist|synth> ...   Jammer enforcement evidence pack: victim timeline and effects, affected area from victim receivers only (no emitter position), custody chain, method statement, checklist from published cases (Pro; checklist and synth free)\n\
        kshana-pro product-bench <register|score|synth> ...   Third-party interference product benchmark under a pre-registered protocol: detection rate, latency, false reports per hour, affected-area accuracy on victim-receiver cells only (score Pro; register and synth free)\n\
+       kshana-pro fingerprint build ...   Signed per-firmware receiver behaviour fingerprint from verified Pro scorecards, with the consent flag for the population-benchmark give-back (Pro)\n\
        kshana-pro survey-qc <run|synth> ...   Marine survey and construction positioning QC under interference: per-line flags, signed QC annex, site risk plan (Pro; synth free)\n\
        kshana-pro vault <init|ingest|list|hold|release|delete|trend|calendar|submission|verify|export|import> ...   Customer evidence vault: signed packs with legal hold, retention, hash-chained ledger, trends, obligation calendar, submission skeletons, open export (Enterprise; import free)\n\
        kshana-pro method <schedule|budget> ...   Yearly re-scoring schedule and per-test GUM uncertainty budgets with a method report (Pro)\n\
@@ -264,6 +266,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "envelope",
     "custody",
     "survey-qc",
+    "fingerprint",
     "casualty",
     "aviation-recon",
     "enforcement",
@@ -427,6 +430,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("envelope") => envelope_cmd::run(&args[1..]),
         Some("custody") => custody_cmd::run(&args[1..]),
         Some("survey-qc") => survey_cmd::run(&args[1..]),
+        Some("fingerprint") => fingerprint_cmd::run(&args[1..]),
         Some("casualty") => casualty_cmd::run(&args[1..]),
         Some("aviation-recon") => aviation_recon_cmd::run(&args[1..]),
         Some("enforcement") => enforcement_cmd::run(&args[1..]),

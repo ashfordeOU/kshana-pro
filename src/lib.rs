@@ -64,6 +64,7 @@ pub mod envelope;
 pub mod exposure;
 pub mod extension;
 pub mod fdm;
+pub mod fingerprint;
 pub mod forensics;
 pub mod frameworks;
 pub mod ievents;

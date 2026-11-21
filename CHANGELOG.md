@@ -5,6 +5,13 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Receiver behaviour fingerprint for the population benchmark (research 2026-11-20 gaps B2603, Pro
+  side; docs/RECEIVER-FINGERPRINT.md).** `kshana-pro fingerprint build` (`pro-receiver-fingerprint`,
+  Pro): a signed per-firmware behaviour fingerprint from the customer's verified receiver and OSNMA
+  scorecards (one firmware per fingerprint, stable identifier, sources hashed), with a consent flag
+  (scope `population-benchmark` only); with consent, a contribution file carrying identity,
+  features and a salted customer pseudonym for the hosted aggregate. Tier manifest regenerated; 2
+  tests in `tests/receiver_scorecard.rs`.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from

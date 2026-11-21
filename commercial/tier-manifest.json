@@ -398,6 +398,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-receiver-fingerprint",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-regional-datasets",
       "type": "feature",
       "tier": "pro"
