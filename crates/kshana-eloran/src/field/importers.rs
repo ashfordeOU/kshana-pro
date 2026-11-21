@@ -1052,7 +1052,10 @@ pub struct TicProfile {
     pub unit: String,
     #[serde(default)]
     pub sign: TicSign,
-    /// Cable/antenna/distribution delay to remove (ns).
+    /// Cable/antenna/distribution delay to remove (ns), subtracted after the sign is applied
+    /// (`timing_ns` is receiver minus reference). Positive for extra delay in the receiver's
+    /// 1PPS path (it makes the receiver read late); a delay in the reference's path enters
+    /// with a negative value.
     #[serde(default)]
     pub fixed_delay_ns: f64,
     /// Reject |reading| above this (ns, after conversion): counter wrap / missed edge.
