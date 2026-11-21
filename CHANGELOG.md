@@ -5,6 +5,13 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Interlaboratory precision study (research 2026-11-20 gaps B2505 Pro part;
+  docs/METHOD-VALIDATION.md).** `kshana-pro method validate` (`pro-method-validation`, Pro):
+  repeatability r and reproducibility R in the form of the ISO 5725-2 basic method, with Mandel
+  h and k, Cochran and Grubbs critical values computed from F and t and cross-checked against
+  published table entries, bias against a reference, and exclusions only with a reason. The
+  pack is signed. `method synth-study` is free. Tier manifest regenerated;
+  `tests/method_validation.rs` (4 tests).
 - **Re-scoring schedule and per-test uncertainty budgets (research 2026-11-20 gaps B2505, Pro
   part; docs/METHOD-UNCERTAINTY.md).** `kshana-pro method schedule|budget`
   (`pro-method-uncertainty`, Pro): next re-scoring date per product and method with overdue and

@@ -228,6 +228,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-method-validation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-navaids",
       "type": "feature",
       "tier": "pro"
