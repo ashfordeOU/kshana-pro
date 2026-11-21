@@ -5,6 +5,13 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Departure go/no-go and pre-entry warning against verified zones (research 2026-11-20 gaps
+  B0806; docs/DEPARTURE-ADVISORY.md).** `kshana-pro exposure departure` (`pro-departure-advisory`,
+  Pro): per verified zone (VTS, STS, ice, pilotage) on the passage, ETA at entry and the pre-entry
+  warning time, record events touching the zone (affected circles only; source estimates never
+  read), activity at the decision time, risk, status and confidence, recommended checks; the
+  departure advisory is the worst zone status. Unverified zones refused. `exposure departure-synth`
+  free. Tier manifest regenerated; `tests/departure_advisory.rs` (3 tests). MODELLED.
 - **Alternative-PNT evaluation and civil test-campaign evidence (backlog E40 B4004;
   docs/ALTPNT-EVIDENCE.md).** `kshana-pro altpnt` (features `pro-altpnt-evidence` and
   `pro-altpnt-campaign`, Pro): `failure-modes` (architecture failure-mode pack from declared

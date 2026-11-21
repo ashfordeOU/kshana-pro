@@ -353,6 +353,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // Re-scoring schedule and per-test uncertainty budgets (research 2026-11-20 gaps,
         // B2505 Pro part).
         "pro-method-uncertainty" => Tier::Pro,
+        // Departure go/no-go and pre-entry warning against verified zones (B0806).
+        "pro-departure-advisory" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -479,6 +481,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-survey-qc",
     "pro-evidence-vault",
     "pro-method-uncertainty",
+    "pro-departure-advisory",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered
