@@ -53,7 +53,11 @@ pub const EXPOSURE_USAGE: &str = "usage: kshana-pro exposure <command>\n\
     voyage <voyage.toml> --out <dir> --signer <name> --key-file <file> [--trust <hex>[,...]] [--dev]\n\
         Voyage risk score from route exposure to historic events and the equipment rating (Pro)\n\
     scheme <request.toml> --out <dir> --signer <name> --key-file <file> [--trust <hex>[,...]] [--dev]\n\
-        Discount-scheme device scorecard: stated claims checked against signed scorecards, with the publication rule (Pro)";
+        Discount-scheme device scorecard: stated claims checked against signed scorecards, with the publication rule (Pro)\n\
+    departure <request.toml> --out <dir> --signer <name> --key-file <file> [--dev]\n\
+        Departure go/no-go and pre-entry warnings against verified VTS, STS, ice and pilotage zones, with confidence and recommended checks (Pro)\n\
+    departure-synth <dir>\n\
+        Write a SYNTHETIC passage, events and request (no licence needed)";
 
 fn fail(msg: impl std::fmt::Display) -> ExitCode {
     eprintln!("error: {msg}");
@@ -217,6 +221,33 @@ pub fn frameworks(args: &[String]) -> ExitCode {
     }
 }
 
+/// `exposure departure`.
+fn departure(args: &[String]) -> ExitCode {
+    use crate::exposure::departure as dp;
+    let Some(file) = file_arg(args) else {
+        return fail(EXPOSURE_USAGE);
+    };
+    let r = producing(args, dp::FEATURE).and_then(|(out, seed, signer, utc)| {
+        let src = std::fs::read_to_string(file).map_err(|e| format!("{file}: {e}"))?;
+        let q: dp::Request = toml::from_str(&src).map_err(|e| format!("{file}: {e}"))?;
+        let base = Path::new(file)
+            .parent()
+            .map(Path::to_path_buf)
+            .unwrap_or_else(|| std::path::PathBuf::from("."));
+        let a = dp::advise(&q, &base)?;
+        crate::transport::write_pack(Path::new(&out), &a, &dp::html(&a), "request.toml", &src)?;
+        sign(&out, &seed, &signer, &utc)?;
+        Ok((a, out))
+    });
+    match r {
+        Ok((a, out)) => {
+            eprintln!("[departure] {}; signed advisory in {out}", a.verdict);
+            ExitCode::SUCCESS
+        }
+        Err(e) => fail(e),
+    }
+}
+
 pub fn exposure(args: &[String]) -> ExitCode {
     match args.first().map(String::as_str) {
         Some("run") => {
@@ -247,6 +278,26 @@ pub fn exposure(args: &[String]) -> ExitCode {
         Some("equipment") => super::pnt_cmd::equipment(args),
         Some("voyage") => super::pnt_cmd::voyage(args),
         Some("scheme") => super::receiver_cmd::scheme(args),
+        Some("departure") => departure(args),
+        Some("departure-synth") => {
+            let Some(dir) = file_arg(args) else {
+                return fail(EXPOSURE_USAGE);
+            };
+            let d = Path::new(dir);
+            let (ev, req) = crate::exposure::departure::synth();
+            let w = || -> std::io::Result<()> {
+                std::fs::create_dir_all(d)?;
+                std::fs::write(d.join("events.json"), ev)?;
+                std::fs::write(d.join("request.toml"), req)
+            };
+            match w() {
+                Ok(()) => {
+                    eprintln!("[departure] SYNTHETIC passage and request in {dir}");
+                    ExitCode::SUCCESS
+                }
+                Err(e) => fail(format!("{dir}: {e}")),
+            }
+        }
         _ => fail(EXPOSURE_USAGE),
     }
 }

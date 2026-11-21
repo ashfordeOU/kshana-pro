@@ -373,6 +373,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-aviation-event-recon" => Tier::Pro,
         // Jammer enforcement evidence pack (research 2026-11-20 gaps, B0605).
         "pro-jammer-enforcement-pack" => Tier::Pro,
+        // Departure go/no-go and pre-entry warning against verified zones (B0806).
+        "pro-departure-advisory" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -509,6 +511,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-method-validation",
     "pro-aviation-event-recon",
     "pro-jammer-enforcement-pack",
+    "pro-departure-advisory",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered
