@@ -1123,6 +1123,46 @@ pub fn attest(l: &Loaded) -> Result<Attestation, String> {
     })
 }
 
+/// The request for the hosted per-flight verdict (`kshana-pro verdict flight-integrity`): the
+/// operation's speed and contingency buffer, the telemetry epochs, the linearised
+/// dead-reckoning growth over the longest gap, and this attestation (whose hash the verdict
+/// binds). Other flights and regional reports may be added to the JSON before sending.
+pub fn verdict_request(l: &Loaded, a: &Attestation) -> Result<serde_json::Value, String> {
+    let text = l
+        .telemetry
+        .as_ref()
+        .ok_or("the verdict request needs telemetry = \"<file.csv>\" in the request")?;
+    let (tel, _) = parse_telemetry(text)?;
+    let op = &l.req.operation;
+    let epochs: Vec<serde_json::Value> = tel
+        .iter()
+        .map(|e| {
+            serde_json::json!({
+                "t": e.t,
+                "lat_deg": e.lat,
+                "lon_deg": e.lon,
+                "fix_type": e.fix,
+                "eph_m": e.eph,
+                "jamming_state": e.jam,
+                "spoofing_state": e.spoof,
+            })
+        })
+        .collect();
+    let mut operation = serde_json::json!({
+        "id": op.id,
+        "speed_m_s": op.speed_m_s,
+        "contingency_m": op.contingency_m,
+    });
+    if a.longest_gap_s > 0.0 {
+        operation["dr_growth_m_per_s"] = serde_json::json!(a.gap_dr_error_m / a.longest_gap_s);
+    }
+    Ok(serde_json::json!({
+        "operation": operation,
+        "telemetry": epochs,
+        "attestation": serde_json::to_value(a).map_err(|e| e.to_string())?,
+    }))
+}
+
 /// A one-paragraph plain-text summary of any result.
 pub fn summary(kind: &str, headline: &str) -> String {
     format!("[utm {kind}] {headline}\n{DECISION_SUPPORT}\nEvidence class: {EVIDENCE}.\n")

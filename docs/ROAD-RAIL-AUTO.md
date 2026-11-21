@@ -26,6 +26,9 @@ controls an antenna, fuses sensors for navigation, or generates a signal.
 | `auto inject <request.toml> --csv <out>` | Data-level fault injection on recorded output | `pro-fault-injection` (Pro) |
 | `nr tdd <request.toml>`, `nr prs <request.toml>` | 5G TDD timing under GNSS loss; PRS accuracy model | `pro-nr-timing` (Pro) |
 | `nr vectors`, `nr check <vectors.json> <device.csv>` | GNSS integrity reference vectors; device check | free; `pro-agnss-integrity` (Pro) |
+| `nr alarms <request.toml>` | gNB timing-alarm adapter against the TDD model | `pro-nr-timing` (Pro) |
+| `nr tolerance <request.toml>` | Shared-risk test tolerances and test requirements on user-transcribed values | `pro-3gpp-tolerance` (Pro) |
+| `nr agnss-scaffold`, `nr agnss-status <set.json>`, `nr agnss-score <set.json> <results.csv>` | A-GNSS vector-set skeleton (placeholders), placeholder status, scoring of device trials | free, free, `pro-3gpp-tolerance` (Pro) |
 | `rail thr <request.toml> [--out ...]`, `rail balise <request.toml> [--out ...]` | THR position-hazard model; virtual-balise passage test | `pro-rail-evidence` (Pro) |
 | `regpack assess rail-gnss-sil4 \| iso26262-gnss-seooc \| eu-2017-79-ecall-gnss` | Pre-assessment over the signed packs above | `pro-regulator-pack` (Pro) |
 
@@ -111,9 +114,42 @@ the holdover evidence model's crossing of the ±1.5 µs budget and of half the r
 period); PRS DL-TDOA accuracy (Cramér-Rao ranging for a flat spectrum, gNB synchronisation
 error, TDOA geometry with a correlated reference); 48 GNSS integrity reference vectors from a
 Gaussian-overbound HPL formula written into the file, and a checker that flags optimistic
-device HPLs. The vectors are **not** the TS 37.571-5 or TS 38.171 conformance cases. Not built:
-those vector sets, the TS 37.571-1 test-tolerance calculator, PRS carrier phase and PRU
-calibration, a gNB timing-alarm adapter.
+device HPLs. The vectors are **not** the TS 37.571-5 or TS 38.171 cases.
+
+Second slice (`src/transport/tolerance.rs`, `src/transport/agnss.rs`, `tests/three_gpp_tolerance.rs`):
+
+* **Test-tolerance calculator** (`nr tolerance`). Per parameter: a minimum requirement and a
+  test tolerance transcribed by the user, each with its source, or a test-system uncertainty
+  budget (standard, 95 % expanded or rectangular half-width contributions, root-sum-square,
+  expanded with the stated `coverage_k`; under the shared-risk principle the derived tolerance
+  equals that expanded uncertainty, to confirm against the specification's derivation annex);
+  the test requirement `MR + TT` or `MR − TT` in the direction the user states eases the
+  device; a measured value classified as pass with margin, pass within uncertainty or fail;
+  a success-rate requirement with the exact 95 % interval and a `point` or `lower-bound`
+  decision rule (the specification's own statistical method is to confirm). A value without
+  its source is refused; a missing requirement or tolerance stays PLACEHOLDER.
+* **A-GNSS vector-set scaffold** (`nr agnss-scaffold`, `agnss-status`, `agnss-score`). Six
+  cases by category (sensitivity with coarse and fine time assistance, nominal accuracy,
+  dynamic range, multipath, moving with periodic update; category names to confirm), every
+  value `null` with a `source` to fill. Status lists the placeholders and refuses any value
+  without a source; scoring relaxes the transcribed accuracy and response-time limits by the
+  transcribed tolerances and refuses a case whose scoring fields are placeholders.
+
+**No TS 37.571-1, TS 37.571-2 or TS 38.171 value is shipped**: those texts were not read in
+this work. Outputs are pre-assessments on user-transcribed values, not 3GPP test verdicts.
+
+* **gNB timing-alarm adapter** (`nr alarms`, `pro-nr-timing`). A neutral alarm CSV
+  (`timestamp,gnb_id,alarm,state`) mapped to timing classes (`gnss-loss`, `holdover`,
+  `holdover-exceeded`, `ptp-loss`, `phase-alarm`, `ignore`) through the user's `[map]`; no
+  vendor's alarm names are built in, and names not in the map are counted as unmapped. Holdover
+  episodes are put against the TDD model (`[tdd]`, as for `nr tdd`): the modelled time of
+  passing the phase budget, time beyond it, the gNB's own phase alarm relative to the model,
+  and neighbour pairs in concurrent holdover past the modelled guard-period interference
+  onset. The adapter reads an export; it does not connect to or control a gNB.
+
+The Rel-18-style integrity vectors are the first slice's `nr vectors` (vendor-independent).
+
+Not built: the vector values themselves, PRS carrier phase and PRU calibration.
 
 ## B3005 Rail (first slice)
 

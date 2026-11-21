@@ -15,7 +15,7 @@ use crate::remote_verdict::{
 const USAGE: &str = "kshana-pro verdict — hosted methods, answered as signed verdicts\n\
 \n\
 USAGE:\n\
-    kshana-pro verdict <selfcal|survey|cause|calibrate> <request.json> [--url <base>] [--license <token>] [--trust <key>] [--out <verdict.json>]\n\
+    kshana-pro verdict <selfcal|survey|cause|calibrate|flight-integrity|rtk-quality|parametric-trigger|policy-wording|spaceweather|perception-eval|feeder-trust|archive-seal|archive-query|vision-claims/register|vision-claims|timing-correlation|gnss-leo-arbitration|delay-calibration|scorecard|benchmark|ntrip-qos> <request.json> [--url <base>] [--license <token>] [--trust <key>] [--out <verdict.json>]\n\
         Send the request to the verdict service, authorised by your licence, and verify the\n\
         signed verdict against the service's public key before printing or saving it.\n\
 \n\
@@ -30,6 +30,40 @@ USAGE:\n\
       calibrate  general parametric calibration of a simulator against telemetry: named\n\
                parameters with priors and bounds, a closed-form model per observable or\n\
                runs of your own simulator over a design (docs/REMOTE-VERDICTS.md)\n\
+      flight-integrity  a signed per-flight positioning-integrity verdict for a drone flight:\n\
+               the telemetry checks recomputed, your local attestation's hash bound and\n\
+               compared, and whether a degradation was shared by other flights nearby or\n\
+               regional reports (area) or specific to the aircraft. Build the request with\n\
+               `kshana-pro utm attest ... --verdict-request <file>`. Decision support only\n\
+      rtk-quality  RTK correction-service quality per mountpoint from monitoring receivers on\n\
+               surveyed marks: availability, wrong-fix rate, accuracy, time to fix, outage scope\n\
+      parametric-trigger  a neutral evaluation of a parametric GNSS-outage trigger definition:\n\
+               fired / not fired / insufficient data, events and outage index; no payout figures\n\
+      policy-wording  factual answers on synthetic, structured policy clauses from the\n\
+               service's own signed verdicts; never a coverage position, not advice\n\
+      spaceweather  space-weather advisory per location and service (RTK, PPP, single\n\
+               frequency): go / caution / no-go, not a forecast\n\
+      perception-eval  evaluation of a perception-aided positioning system's own outputs\n\
+               against tester truth: integrity classes, errors, landmark recall; evaluation only\n\
+      feeder-trust  trust class and score per feeder of a crowd-sourced monitoring network\n\
+      archive-seal  a signed, chained Merkle seal over an archive period's entry digests\n\
+      archive-query  aggregate statistics from the service's observation archives for an\n\
+               area and window (small groups withheld; never raw records)\n\
+      vision-claims/register  register a vision-navigation claims protocol before testing\n\
+      vision-claims  score campaign outputs against a registered protocol: shown,\n\
+               contradicted or not shown per claim; not a certification\n\
+      timing-correlation  correlated timing drift across grandmasters and operators: episodes\n\
+               by scope (regional, constellation-wide, one operator, one site) and alerts\n\
+      gnss-leo-arbitration  after the fact, which of a GNSS and a LEO timing solution the\n\
+               evidence supports when they disagree; evidence only, no fused solution\n\
+      delay-calibration  a timing receiver's delay against a calibrated reference receiver,\n\
+               with an uncertainty budget (k = 2)\n\
+      scorecard  a summary of signed verdicts a policyholder shared, for an insurer licence;\n\
+               never an underwriting decision\n\
+      benchmark  where a contributor's own source stands in the population of an archive\n\
+               domain (contributor licences only)\n\
+      ntrip-qos  a contributor's NTRIP mountpoint and caster scores against the population\n\
+               of contributed summaries (contributor licences only)\n\
 \n\
     kshana-pro verdict verify <verdict.json> [--trust <key>]\n\
         Check a saved verdict: intact, and signed by the trusted key.\n\
@@ -154,6 +188,8 @@ mod tests {
                 "{m} missing from usage"
             );
         }
-        assert!(USAGE.contains("<selfcal|survey|cause|calibrate>"));
+        assert!(USAGE.contains(
+            "<selfcal|survey|cause|calibrate|flight-integrity|rtk-quality|parametric-trigger|policy-wording|spaceweather|perception-eval|feeder-trust|archive-seal|archive-query|vision-claims/register|vision-claims|timing-correlation|gnss-leo-arbitration|delay-calibration|scorecard|benchmark|ntrip-qos>"
+        ));
     }
 }

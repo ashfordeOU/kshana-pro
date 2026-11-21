@@ -16,10 +16,13 @@ mod avionics_cmd;
 mod bridge_cmd;
 mod briefing_cmd;
 mod clock_bench_cmd;
+mod custody_cmd;
 mod dossier_cmd;
 mod eloran_cmd;
+mod envelope_cmd;
 mod evidence_cmd;
 mod evidence_infra_cmd;
+mod fleet_cmd;
 mod forensics_cmd;
 mod grid_cmd;
 mod incident_cmd;
@@ -30,6 +33,7 @@ mod license_cmd;
 mod lunar_cmd;
 mod lunar_evidence_cmd;
 mod lunar_surface_cmd;
+mod method_cmd;
 mod navaids_cmd;
 mod packs_cmd;
 mod payments_cmd;
@@ -42,6 +46,7 @@ mod reports_cmd;
 mod scorecard_cmd;
 mod simlab_cmd;
 mod space_rx_cmd;
+mod survey_cmd;
 mod testkit_cmd;
 mod threats_cmd;
 mod timing_cmd;
@@ -49,6 +54,7 @@ mod timing_net_cmd;
 mod transport_cmd;
 mod trust_cmd;
 mod utm_cmd;
+mod vault_cmd;
 mod verdict_cmd;
 
 use std::process::ExitCode;
@@ -91,11 +97,17 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro grid <pmu|drift|scada|prc002|event> ...   Power-grid timing evidence: PMU phase-angle error, gradual-spoof detection, SCADA time stamps, PRC-002 ±2 ms evidence with holdover resilience, event forensics (Pro; `kshana-pro grid` for details)\n\
        kshana-pro ais <consistency|sanctions|iuu|subsea|synth> ...   Maritime AIS evidence: cross-source consistency against radar, VTS, LRIT or imagery, and signed sanctions-review, IUU-review and subsea-asset packs (Pro; synth free; no list bundled, no determination)\n\
        kshana-pro lunar-surface <plume|traverse|rf-forensics|synth> ...   Lunar surface operations evidence: MODELLED parametric dust-plume visibility, LTV/EVA navigation safety evidence, RF self-interference forensics from I/Q (analysis only) (Pro; synth free)\n\
+       kshana-pro envelope <format|dir>   Operating envelope (valid inputs, ranges, exclusions) of a Pro output; every signed evidence directory carries one (free)\n\
+       kshana-pro custody <capture|handover|verify|export> ...   Sealed incident capture: ring-buffer freeze around a trigger in SigMF I/Q, sealed capture with calibration ID, custody form and signed hash-chained handover log (capture Pro; the chain free)\n\
+       kshana-pro survey-qc <run|synth> ...   Marine survey and construction positioning QC under interference: per-line flags, signed QC annex, site risk plan (Pro; synth free)\n\
+       kshana-pro vault <init|ingest|list|hold|release|delete|trend|calendar|submission|verify|export|import> ...   Customer evidence vault: signed packs with legal hold, retention, hash-chained ledger, trends, obligation calendar, submission skeletons, open export (Enterprise; import free)\n\
+       kshana-pro method <schedule|budget> ...   Yearly re-scoring schedule and per-test GUM uncertainty budgets with a method report (Pro)\n\
+       kshana-pro fleet <config-add|config-verify|site-log|cal-add|ageing|statement|dashboard> ...   Station fleet: hash-chained configuration history, calibration register with ageing, IGS-layout site logs, signed monthly clock-quality statements, static dashboard (Pro; config-verify free)\n\
        kshana-pro sfn <assess|systems> ...   Broadcast SFN (DAB/DVB-T) timing: pair guard margins and UTC-level scenarios such as SVN-23 (Pro; systems free)\n\
        kshana-pro road <check|obu-eval|library> ...   Telematics and road-charging GNSS anti-spoof: indicators, episodes, jammer fingerprint class, trip trust (pseudonymised), signed on-board-unit fraud evaluation (Pro; library free)\n\
        kshana-pro ecall <suite|mapping|score|location|duty|battery> ...   eCall GNSS tests of 2017/79 Annex VI with signed scoring, AML/E112 and PSAP location reliability (Pro); suite, mapping, duty-cycle detection and battery model free\n\
        kshana-pro auto <catalogue|pl|v2x|inject> ...   Automotive GNSS: SOTIF triggering-condition catalogue, PL validation by condition, V2X ellipse and time checks, data-level fault injection (Pro; catalogue free)\n\
-       kshana-pro nr <tdd|prs|vectors|check> ...   5G: TDD frame timing under GNSS loss, PRS accuracy model, GNSS integrity reference vectors and device check (Pro; vectors free)\n\
+       kshana-pro nr <tdd|prs|vectors|check|tolerance|agnss-scaffold|agnss-status|agnss-score|alarms> ...   5G: TDD frame timing under GNSS loss, PRS accuracy model, GNSS integrity reference vectors and device check, shared-risk test tolerances and A-GNSS vector scaffold on user-transcribed values, gNB timing-alarm adapter (Pro; vectors, scaffold and status free)\n\
        kshana-pro rail <thr|balise> ...   Rail GNSS: position hazard rate with jamming and spoofing against the apportioned THR, virtual-balise passage test (Pro); EN 50129 template via regpack assess\n\
        kshana-pro timing <assess|console|metrics|history|audit|compliance|timebomb|selfcheck|holdover-evidence|posture|chain|crosscheck|station> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit and evidence packs, time-bomb vectors and fleet audit, clock self-check, holdover evidence, appliance security posture and SBOMs, distribution-chain traceability, multi-source cross-check, ground-station pass assurance (Pro; `kshana-pro timing` for details)\n\
        kshana-pro trust <run|verify> ...   Multi-source trust (F3): choose epoch by epoch among GNSS, OSNMA, LEO, eLoran, PTP and holdover, with hash-chained evidence (Pro; verify free)\n\
@@ -225,6 +237,12 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "ks-inside",
     "ais",
     "lunar-surface",
+    "envelope",
+    "custody",
+    "survey-qc",
+    "vault",
+    "method",
+    "fleet",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -372,6 +390,12 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("space-rx") => space_rx_cmd::run(&args[1..]),
         Some("ais") => ais_cmd::run(&args[1..]),
         Some("lunar-surface") => lunar_surface_cmd::run(&args[1..]),
+        Some("envelope") => envelope_cmd::run(&args[1..]),
+        Some("custody") => custody_cmd::run(&args[1..]),
+        Some("survey-qc") => survey_cmd::run(&args[1..]),
+        Some("vault") => vault_cmd::run(&args[1..]),
+        Some("method") => method_cmd::run(&args[1..]),
+        Some("fleet") => fleet_cmd::run(&args[1..]),
         Some("regpack") => regpack_cmd::run(&args[1..]),
         Some("navaids") => navaids_cmd::run(&args[1..]),
         Some("grid") => grid_cmd::run_grid(&args[1..]),

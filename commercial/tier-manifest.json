@@ -8,6 +8,11 @@
       "tier": "open-seam"
     },
     {
+      "kind": "pro-3gpp-tolerance",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-accumulation",
       "type": "feature",
       "tier": "pro"
@@ -148,6 +153,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-custody-capture",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-dependency-audit",
       "type": "feature",
       "tier": "pro"
@@ -199,6 +209,11 @@
     },
     {
       "kind": "pro-emergency-location",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-evidence-vault",
       "type": "feature",
       "tier": "pro"
     },
@@ -289,6 +304,11 @@
     },
     {
       "kind": "pro-lunar-traverse-safety",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-method-uncertainty",
       "type": "feature",
       "tier": "pro"
     },
@@ -439,6 +459,11 @@
     },
     {
       "kind": "pro-study-dossier",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-survey-qc",
       "type": "feature",
       "tier": "pro"
     },

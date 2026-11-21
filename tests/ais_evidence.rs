@@ -10,6 +10,7 @@ use std::process::Command;
 
 use kshana_pro::ais_evidence::consistency::{self, Outcome};
 use kshana_pro::ais_evidence::packs::{iuu, sanctions, subsea};
+use kshana_pro::ais_evidence::trust::{self, GapCause};
 use kshana_pro::ais_evidence::{self as ais, synth, Area, Params, Tracks};
 
 fn scenario(name: &str) -> PathBuf {
@@ -89,9 +90,9 @@ fn cross_source_consistency_finds_offset_phantom_and_dark_target() {
     assert_eq!(r.format, consistency::FORMAT);
     let v5 = r.vessels.iter().find(|v| v.mmsi == "211000005").unwrap();
     assert!(v5.inconsistent >= 10 && v5.consistent >= 50, "{v5:?}");
-    assert_eq!(r.episodes.len(), 1);
-    let e = &r.episodes[0];
-    assert_eq!(e.mmsi, "211000005");
+    assert_eq!(r.episodes.len(), 2, "{:?}", r.episodes);
+    let e = r.episodes.iter().find(|e| e.mmsi == "211000005").unwrap();
+    assert_eq!(e.duration_s, 7200.0);
     assert!(
         e.start_utc.starts_with("2026-06-01T04:00") && e.end_utc.starts_with("2026-06-01T06:00")
     );
@@ -199,14 +200,14 @@ fn subsea_pack_finds_anchor_drag_and_presence_at_fault() {
         c.first_anchor_status_moving_utc.as_deref(),
         Some("2026-06-01T07:00:00Z")
     );
-    // Only vessel 4 is flagged; the others never enter the corridor slowly.
-    assert_eq!(
-        p.vessels
-            .iter()
-            .filter(|v| !v.indicators.is_empty())
-            .count(),
-        1
-    );
+    // Flagged: 4 (status), 13 (drag) and 14 (slow in C2, but no drag alert).
+    let flagged: Vec<&str> = p
+        .vessels
+        .iter()
+        .filter(|v| !v.indicators.is_empty())
+        .map(|v| v.mmsi.as_str())
+        .collect();
+    assert_eq!(flagged, vec!["211000004", "211000013", "211000014"]);
     assert_eq!(p.incident_presence.len(), 1);
     let x = &p.incident_presence[0];
     assert_eq!(x.mmsi, "211000004");
@@ -258,9 +259,141 @@ fn cli_gates_signs_and_verifies() {
         assert!(v.passed(), "{cmd}: {:?}", v.problems);
         let html = std::fs::read_to_string(out.join("report.html")).unwrap();
         assert!(html.contains("MODELLED"));
+        if cmd == "consistency" {
+            assert!(out.join("alerts/ais-discrepancy-1.cap.xml").exists());
+        }
     }
     let (ok, msg) = run(&home, &["ais", "synth", d.join("again").to_str().unwrap()]);
     assert!(ok && d.join("again/positions.csv").exists(), "{msg}");
     let (ok, _) = run(&home, &["ais", "nonsense"]);
     assert!(!ok);
+}
+
+fn all_indicators_cite_observations(inds: &[kshana_pro::ais_evidence::packs::Indicator]) {
+    for i in inds {
+        assert!(!i.observations.is_empty(), "{} has no observation", i.code);
+    }
+}
+
+#[test]
+fn b0703_trust_reconstruction_and_reproducibility() {
+    let d = scenario("b0703");
+    let q: sanctions::Request = req(&d, "sanctions.toml");
+    let p = sanctions::run(&q, &d).unwrap();
+    for v in &p.vessels {
+        all_indicators_cite_observations(&v.indicators);
+    }
+    let v1 = p.vessels.iter().find(|v| v.mmsi == "211000001").unwrap();
+    let t = &v1.trust[0];
+    let score = t.score.unwrap();
+    assert!(score < 100.0 && score > 50.0, "{score}");
+    let id = t.components.iter().find(|c| c.name == "identity").unwrap();
+    assert_eq!(id.value, Some(0.5));
+    assert!(id.observations[0].contains("2026-06-01T07:00:00Z"));
+    let cont = t
+        .components
+        .iter()
+        .find(|c| c.name == "continuity")
+        .unwrap();
+    assert!(cont.value.unwrap() < 1.0 && cont.observations[0].starts_with("gap"));
+    // Weights are the stated ones and sum to one.
+    let w: f64 = t.components.iter().map(|c| c.weight).sum();
+    assert!((w - 1.0).abs() < 1e-12);
+    let v7 = p.vessels.iter().find(|v| v.mmsi == "211000007").unwrap();
+    assert!(v7.trust[0].score.unwrap() < score);
+    // Concealed port call and dark ship-to-ship candidates.
+    assert_eq!(v1.port_calls.len(), 1);
+    assert_eq!(v1.port_calls[0].port, "P1");
+    assert_eq!(p.dark_sts.len(), 1);
+    let ds = &p.dark_sts[0];
+    assert_eq!((ds.a.as_str(), ds.b.as_str()), ("211000001", "211000009"));
+    assert!(ds.slack_h >= 0.0 && ds.observations.len() == 4);
+    // Reproducible from its inputs.
+    let again = sanctions::run(&q, &d).unwrap();
+    assert_eq!(
+        kshana_pro::transport::rounded_json(&p),
+        kshana_pro::transport::rounded_json(&again)
+    );
+}
+
+#[test]
+fn b0704_vms_integrity_and_gap_cause() {
+    let d = scenario("b0704");
+    let q: iuu::Request = req(&d, "iuu.toml");
+    let p = iuu::run(&q, &d).unwrap();
+    for v in &p.vessels {
+        all_indicators_cite_observations(&v.indicators);
+    }
+    let v3 = p.vessels.iter().find(|v| v.mmsi == "211000003").unwrap();
+    assert_eq!(v3.gap_causes.len(), 1);
+    assert_eq!(v3.gap_causes[0].cause, GapCause::AisOnlySilent);
+    let v12 = p.vessels.iter().find(|v| v.mmsi == "211000012").unwrap();
+    assert_eq!(v12.gap_causes[0].cause, GapCause::AreaWide);
+    let a = p.vms.iter().find(|x| x.vessel_id == "VMS-A").unwrap();
+    let codes: Vec<&str> = a.indicators.iter().map(|i| i.code).collect();
+    assert!(
+        codes.contains(&"frozen-position") && codes.contains(&"ais-disagreement"),
+        "{codes:?}"
+    );
+    assert!(!codes.contains(&"too-regular-track"));
+    let b = p.vms.iter().find(|x| x.vessel_id == "VMS-B").unwrap();
+    assert_eq!(b.indicators[0].code, "too-regular-track");
+    // Reports without a fix: the transponder was on.
+    let t = ais::load_tracks(&d, "positions.csv", None).unwrap();
+    let g = ais::gaps(&t.by_mmsi["211000010"], &Params::default());
+    let c = trust::classify_gap(&g[0], &t, None, 30_000.0, &Params::default());
+    assert_eq!(c.cause, GapCause::TransponderOnNoFix);
+    // Without VMS, vessel 3's gap is undetermined.
+    let g3 = ais::gaps(&t.by_mmsi["211000003"], &Params::default());
+    let c3 = trust::classify_gap(&g3[0], &t, None, 30_000.0, &Params::default());
+    assert_eq!(c3.cause, GapCause::Undetermined);
+}
+
+#[test]
+fn b0705_anchor_drag_alerts_before_crossing() {
+    let d = scenario("b0705");
+    let q: subsea::Request = req(&d, "subsea.toml");
+    let p = subsea::run(&q, &d).unwrap();
+    for v in &p.vessels {
+        all_indicators_cite_observations(&v.indicators);
+    }
+    let v13 = p.vessels.iter().find(|v| v.mmsi == "211000013").unwrap();
+    assert!(v13.drag.max_likelihood > 0.9);
+    assert_eq!(v13.drag.corridor.as_deref(), Some("C2"));
+    let lead = v13.drag.lead_h.unwrap();
+    assert!(lead > 1.0, "alert {lead} h before the crossing");
+    assert!(!v13.trust.is_empty());
+    let v14 = p.vessels.iter().find(|v| v.mmsi == "211000014").unwrap();
+    assert!(v14.drag.alert_utc.is_none() && v14.drag.max_likelihood < q.drag_threshold);
+    assert!(v14.indicators.iter().all(|i| i.code != "anchor-drag-alert"));
+}
+
+#[test]
+fn b0706_lrit_offset_alarms_with_cap_and_secondary_ais() {
+    let d = scenario("b0706");
+    let q: consistency::Request = req(&d, "consistency.toml");
+    let r = consistency::run(&q, &d).unwrap();
+    let e = r.episodes.iter().find(|e| e.source == "lrit").unwrap();
+    assert_eq!(e.mmsi, "211000008");
+    assert!(
+        (e.max_residual_m - 40.0 * 1852.0).abs() < 50.0,
+        "{}",
+        e.max_residual_m
+    );
+    assert_eq!(e.duration_s, 12.0 * 3600.0);
+    let cap = consistency::cap_alerts(&r, "2026-11-20T00:00:00Z");
+    assert_eq!(cap.len(), r.episodes.len() + r.dark_targets.len());
+    let lrit = cap.iter().find(|(_, x)| x.contains("211000008")).unwrap();
+    assert!(lrit.1.contains("urn:oasis:names:tc:emergency:cap:1.2"));
+    assert!(lrit.1.contains("<status>Actual</status>") && lrit.1.contains("<circle>"));
+    // Satellite AIS compared with terrestrial AIS as a further source.
+    let mut q2 = q.clone();
+    q2.primary_ais_source = Some("terrestrial".into());
+    q2.sources.clear();
+    let r2 = consistency::run(&q2, &d).unwrap();
+    assert!(r2.associations.iter().all(|a| a.source == "ais:satellite"));
+    assert!(!r2.associations.is_empty());
+    let mut bad = q;
+    bad.cap_status = "Live".into();
+    assert!(consistency::run(&bad, &d).is_err());
 }

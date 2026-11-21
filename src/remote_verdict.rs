@@ -14,7 +14,10 @@
 //! position episode: jamming, spoofing, self-reported track falsification, equipment fault,
 //! or insufficient evidence) and `calibrate` (general parametric calibration of any
 //! simulator against telemetry: named parameters with priors and bounds, a closed-form or
-//! design-of-runs model; the `selfcal` verdict shape).
+//! design-of-runs model; the `selfcal` verdict shape) and `flight-integrity` (a signed
+//! per-flight positioning-integrity verdict for a drone flight: the telemetry checks
+//! recomputed, the local attestation's hash bound and compared, and whether a degradation was
+//! shared by other flights nearby or regional reports, or specific to the aircraft).
 
 use ed25519_dalek::{Signature, Verifier, VerifyingKey};
 use serde::{Deserialize, Serialize};
@@ -27,6 +30,23 @@ pub const METHODS: &[(&str, &str)] = &[
     ("survey", "survey-plan"),
     ("cause", "cause"),
     ("calibrate", "calibrate"),
+    ("flight-integrity", "flight-integrity"),
+    ("rtk-quality", "rtk-quality"),
+    ("parametric-trigger", "parametric-trigger"),
+    ("policy-wording", "policy-wording"),
+    ("spaceweather", "spaceweather"),
+    ("perception-eval", "perception-eval"),
+    ("feeder-trust", "feeder-trust"),
+    ("archive-seal", "archive-seal"),
+    ("archive-query", "archive-query"),
+    ("vision-claims/register", "claims-protocol"),
+    ("vision-claims", "vision-claims"),
+    ("timing-correlation", "timing-correlation"),
+    ("gnss-leo-arbitration", "gnss-leo-arbitration"),
+    ("delay-calibration", "delay-calibration"),
+    ("scorecard", "scorecard"),
+    ("benchmark", "benchmark"),
+    ("ntrip-qos", "ntrip-qos"),
 ];
 
 /// A signed verdict as the service returns it.

@@ -49,7 +49,11 @@ own bullet so parallel work merges cleanly.
   declared cable and pipeline corridors with anchor-status-while-moving and vessels around a
   reported fault, presence not attribution (`pro-ais-subsea-pack`). Signed evidence
   directories; all Pro; tier manifest regenerated. MODELLED (SYNTHETIC scenario,
-  `tests/ais_evidence.rs`, 8 tests).
+  `tests/ais_evidence.rs`, 12 tests). Backlog B0703-B0706: explainable position-trust score
+  with stated weights, concealed port-call and dark ship-to-ship candidates, VMS integrity
+  indicators and AIS-off vs interference gap causes, anchor-drag likelihood with alert lead
+  time, LRIT/ECDIS/satellite-AIS discrepancy alarms with magnitude and duration as JSON and CAP
+  1.2; every indicator cites its observations.
 - **Lunar surface operations evidence, second slice (research 2026-11-20 gaps E24 B2404;
   docs/LUNAR-SURFACE.md).** `kshana-pro lunar-surface plume|traverse|rf-forensics|synth`:
   dust-plume visibility as a MODELLED parametric ejecta-sheet model with every assumption
@@ -62,6 +66,79 @@ own bullet so parallel work merges cleanly.
   harmonic match to declared on-board sources, time correlation with an activity log, in-band
   C/N0 loss) (`pro-lunar-rf-forensics`). All Pro; tier manifest regenerated. MODELLED
   (SYNTHETIC inputs, `tests/lunar_surface.rs`, 5 tests).
+- **Hosted per-flight verdict client (research 2026-11-20 gaps E18, the client side of the
+  hosted per-flight verdict).** `kshana-pro verdict flight-integrity <request.json>`: a new
+  remote-verdict method (`remote_verdict::METHODS`) for a signed per-flight positioning-integrity
+  verdict from the verdict service (telemetry checks recomputed, the local attestation's hash bound
+  and compared, area or aircraft attribution from other flights nearby and regional reports).
+  `kshana-pro utm attest ... --verdict-request <file.json>` writes the request
+  (`utm::verdict_request`) outside the signed directory. No new feature; decision support only;
+  `tests/utm_integrity.rs` gains one test.
+- **Client entries for further hosted verdicts.** `kshana-pro verdict rtk-quality | parametric-trigger |
+  policy-wording | spaceweather <request.json>`: four more methods in `remote_verdict::METHODS`
+  (RTK correction-service quality, neutral parametric-trigger evaluation, policy-wording facts on
+  synthetic clauses, space-weather advisory), and `perception-eval`, `feeder-trust` and
+  `archive-seal` (evaluation of perception-aided positioning outputs, crowd-feeder trust,
+  chained archive seals), and `archive-query`, `vision-claims/register` and `vision-claims`
+  (aggregate archive statistics; pre-registered vision-navigation claims tests). Decision support
+  only; no new feature gate.
+- **3GPP test tolerances and A-GNSS vector scaffold (research 2026-11-20 gaps E30 B3004,
+  remaining; docs/ROAD-RAIL-AUTO.md).** `kshana-pro nr tolerance` (`pro-3gpp-tolerance`, Pro):
+  shared-risk test tolerances (transcribed, or derived from an RSS test-system uncertainty
+  budget), test requirements, measured-value and success-rate decisions, on values the user
+  transcribes with their sources; `nr agnss-scaffold` and `nr agnss-status` (free): an A-GNSS
+  vector-set skeleton whose every value is a placeholder, with placeholder tracking and refusal
+  of unsourced values; `nr agnss-score` (Pro): device trials against the transcribed limits
+  and tolerances; `nr alarms` (`pro-nr-timing`): a gNB timing-alarm adapter mapping a vendor
+  alarm export through a user-supplied table and putting holdover episodes against the TDD
+  timing model (phase-budget crossing, own-alarm timing, neighbour interference onset). Kshana
+  ships no TS 37.571-1/-2 or TS 38.171 value and no vendor alarm names. Tier manifest
+  regenerated; `tests/three_gpp_tolerance.rs` (6 tests).
+- **Operating envelope in every signed Pro output (research 2026-11-20 gaps B2508;
+  docs/OPERATING-ENVELOPE.md).** `operating-envelope.json` (valid inputs, ranges, exclusions;
+  schema `docs/schemas/operating-envelope.schema.json`) is written into every evidence directory
+  whose JSON carries a Kshana format, before signing, so it is covered by the signature; nine
+  output families with common exclusions; `kshana-pro envelope <format|dir>` (free).
+  `tests/operating_envelope.rs` (4 tests) checks that every format tag in the source has a
+  family and that envelopes follow the schema.
+- **Sealed incident capture and chain of custody (research 2026-11-20 gaps B0604;
+  docs/CUSTODY.md).** `kshana-pro custody capture` (`pro-custody-capture`, Pro): ring-buffer
+  freeze around a sample or block-power trigger in a SigMF recording, bytes copied as they are;
+  sealed SigMF metadata (calibration ID, source and capture hashes, Ed25519 seal in the
+  `kshana_custody` namespace); custody form bound to the hashes. `custody handover|verify|export`
+  (free): signed, hash-chained handover log; any changed byte or re-ordered handover fails; chain
+  export as JSON. Tier manifest regenerated; `tests/custody.rs` (4 tests).
+- **Marine survey and construction positioning QC under interference (research 2026-11-20
+  gaps B0807; docs/SURVEY-QC.md).** `kshana-pro survey-qc run` (`pro-survey-qc`, Pro): per-epoch
+  indicators (C/N0 and AGC drops against the line's own baseline, satellites, fix quality,
+  correction age, sigma and cross-track against the user's tolerance), merged intervals, PASS /
+  DEGRADED / RE-RUN per line, a signed QC annex and a site risk plan by hour and cell;
+  `survey-qc synth` (free). Tier manifest regenerated; `tests/survey_qc.rs` (2 tests).
+- **Customer evidence vault, first slice (research 2026-11-20 gaps B2504;
+  docs/EVIDENCE-VAULT.md).** `kshana-pro vault` (`pro-evidence-vault`, Enterprise; `import`
+  free): ingest of signed evidence directories after signature checks, legal hold and retention
+  that block deletion, a hash-chained action ledger, monthly trends by family with an HTML page,
+  an obligation calendar, submission skeletons citing pack ids, and a full open export that
+  imports back byte for byte. Tier manifest regenerated; `tests/evidence_vault.rs` (2 tests).
+- **Re-scoring schedule and per-test uncertainty budgets (research 2026-11-20 gaps B2505, Pro
+  part; docs/METHOD-UNCERTAINTY.md).** `kshana-pro method schedule|budget`
+  (`pro-method-uncertainty`, Pro): next re-scoring date per product and method with overdue and
+  due-soon status; per-test GUM budgets (Type A from runs, Type B with sources, Welch-Satterthwaite
+  degrees of freedom, Student t coverage factor, bias and E_n) and a signed method report worded
+  "scored under method X". Tier manifest regenerated; `tests/method_uncertainty.rs` (4 tests).
+- **Station fleet management and calibration register (research 2026-11-20 gaps B2604;
+  docs/STATION-FLEET.md).** `kshana-pro fleet` under the existing `pro-station-fleet`:
+  hash-chained configuration history (`config-verify` free), calibration register ageing with
+  the date a prediction leaves tolerance (on `kshana_eloran::calreg`), site logs in the IGS
+  section layout, signed monthly clock-quality statements (MTIE, TDEV, ADEV) that verify offline,
+  and a static fleet dashboard. `tests/fleet_records.rs` (3 tests).
+- **Client entries for the timing, calibration and portal verdicts.** `kshana-pro verdict
+  timing-correlation | gnss-leo-arbitration | delay-calibration | scorecard | benchmark
+  <request.json>`: five more methods in `remote_verdict::METHODS` (correlated timing drift across
+  sites and operators; after-the-fact GNSS versus LEO arbitration, evidence only; timing-receiver
+  delay calibration with an uncertainty budget; an insurer's summary of shared verdicts, never an
+  underwriting decision; a contributor's own population benchmark; `ntrip-qos`, a contributor's NTRIP mountpoint
+  and caster scores). No new feature gate.
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference

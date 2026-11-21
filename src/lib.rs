@@ -46,6 +46,7 @@ pub mod briefings;
 pub mod cli;
 pub mod connectors;
 pub mod criterion;
+pub mod custody;
 pub mod dependency;
 pub mod desktop;
 #[cfg(feature = "unfiled-methods")]
@@ -57,6 +58,7 @@ pub mod eloran_gnss_sdr;
 pub mod eloran_service;
 pub mod eloran_timexfer;
 pub mod eloran_trust;
+pub mod envelope;
 pub mod exposure;
 pub mod extension;
 pub mod fdm;
@@ -74,6 +76,7 @@ pub mod longterm;
 pub mod lunar_evidence;
 pub mod lunar_pro;
 pub mod lunar_surface;
+pub mod method_uncertainty;
 pub mod multi_source;
 pub mod navaids;
 pub mod obs_provenance;
@@ -109,6 +112,7 @@ pub mod study_ledger;
 pub mod testkit;
 pub mod threat_library;
 pub mod units;
+pub mod vault;
 // Shared helpers; public so a server-side extension crate can reuse them (not a stable API).
 pub mod simlab;
 #[doc(hidden)]
@@ -119,7 +123,9 @@ pub mod watermark;
 // Value layers — gated stubs (seam guards only; no proprietary capability is built
 // on spec, per the open-core discipline in docs/OVERLAY-ARCHITECTURE.md).
 pub mod resilience;
+pub mod station_fleet;
 pub mod suite;
+pub mod survey_qc;
 pub mod timing;
 pub mod transport;
 pub mod twin;

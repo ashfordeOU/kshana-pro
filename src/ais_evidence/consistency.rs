@@ -70,12 +70,31 @@ pub struct Request {
     /// Time-stamp tolerance `τ` between sources (s).
     #[serde(default = "d_tau")]
     pub time_tolerance_s: f64,
-    /// Inconsistent reports closer than this join one episode (s).
+    /// Inconsistent reports closer than this (or 1.5 times the source's median report spacing,
+    /// whichever is longer) join one episode (s).
     #[serde(default = "d_join")]
     pub episode_join_s: f64,
+    #[serde(default)]
     pub sources: Vec<Source>,
+    /// When set, AIS reports whose `source` differs from this label (e.g. satellite AIS
+    /// against `terrestrial`) are compared with the track of this source as one more source.
+    #[serde(default)]
+    pub primary_ais_source: Option<String>,
+    /// CAP `sender` of the alerts.
+    #[serde(default = "d_sender")]
+    pub cap_sender: String,
+    /// CAP `status`: `Actual`, `Exercise` or `Test`.
+    #[serde(default = "d_cap_status")]
+    pub cap_status: String,
     #[serde(default)]
     pub params: Params,
+}
+
+fn d_sender() -> String {
+    "kshana-pro".into()
+}
+fn d_cap_status() -> String {
+    "Actual".into()
 }
 
 fn d_ais_sigma() -> f64 {
@@ -126,6 +145,10 @@ pub struct Episode {
     pub end_utc: String,
     pub reports: usize,
     pub max_residual_m: f64,
+    /// Start to end of the episode (s).
+    pub duration_s: f64,
+    /// Independent position at the start of the episode.
+    pub position: [f64; 2],
 }
 
 /// Per-vessel summary.
@@ -244,8 +267,11 @@ fn validate(q: &Request) -> Result<(), String> {
     if q.time_tolerance_s.is_nan() || q.time_tolerance_s < 0.0 {
         return Err("time_tolerance_s must be zero or positive".into());
     }
-    if q.sources.is_empty() {
-        return Err("at least one [[sources]] entry is needed".into());
+    if q.sources.is_empty() && q.primary_ais_source.is_none() {
+        return Err("at least one [[sources]] entry (or primary_ais_source) is needed".into());
+    }
+    if !matches!(q.cap_status.as_str(), "Actual" | "Exercise" | "Test") {
+        return Err("cap_status must be Actual, Exercise or Test".into());
     }
     let mut names = BTreeSet::new();
     for s in &q.sources {
@@ -265,15 +291,47 @@ fn validate(q: &Request) -> Result<(), String> {
 /// Run the check on a request whose files are relative to `base`.
 pub fn run(q: &Request, base: &Path) -> Result<Report, String> {
     validate(q)?;
-    let tracks = load_tracks(base, &q.ais, None)?;
+    let mut tracks = load_tracks(base, &q.ais, None)?;
     let mut files = vec![q.ais.as_str()];
     files.extend(q.sources.iter().map(|s| s.file.as_str()));
     let inputs = hash_inputs(base, &files)?;
     let mut assoc = Vec::new();
     let mut unconfirmed: BTreeMap<String, usize> = BTreeMap::new();
+    // Secondary AIS sources become independent sources against the primary track.
+    let mut secondary: BTreeMap<String, Vec<Indep>> = BTreeMap::new();
+    if let Some(pri) = &q.primary_ais_source {
+        for v in tracks.by_mmsi.values_mut() {
+            let (keep, other): (Vec<_>, Vec<_>) = v.drain(..).partition(|x| &x.source == pri);
+            for x in other {
+                secondary
+                    .entry(format!("ais:{}", x.source))
+                    .or_default()
+                    .push(Indep {
+                        t: x.t,
+                        track: x.mmsi.clone(),
+                        lat: x.lat,
+                        lon: x.lon,
+                        mmsi: Some(x.mmsi),
+                    });
+            }
+            *v = keep;
+        }
+        tracks.by_mmsi.retain(|_, v| !v.is_empty());
+    }
     for s in &q.sources {
         let rows = read_source(base, s)?;
         compare_source(q, s, &rows, &tracks, &mut assoc, &mut unconfirmed);
+    }
+    for (name, mut rows) in secondary {
+        rows.sort_by(|a, b| a.t.total_cmp(&b.t));
+        let s = Source {
+            name,
+            kind: "ais".into(),
+            file: q.ais.clone(),
+            sigma_m: q.ais_sigma_m,
+            coverage: None,
+        };
+        compare_source(q, &s, &rows, &tracks, &mut assoc, &mut unconfirmed);
     }
     assoc.sort_by(|a, b| a.t.total_cmp(&b.t).then(a.source.cmp(&b.source)));
     let episodes = episodes(&assoc, q.episode_join_s);
@@ -421,7 +479,27 @@ fn compare_source(
     }
 }
 
+/// Median spacing of each source's reports for one vessel (s).
+fn cadence(assoc: &[Association]) -> BTreeMap<(String, String), f64> {
+    let mut t: BTreeMap<(String, String), Vec<f64>> = BTreeMap::new();
+    for a in assoc {
+        if let Some(m) = &a.mmsi {
+            t.entry((m.clone(), a.source.clone()))
+                .or_default()
+                .push(a.t);
+        }
+    }
+    t.into_iter()
+        .filter_map(|(k, mut v)| {
+            v.sort_by(f64::total_cmp);
+            let d: Vec<f64> = v.windows(2).map(|w| w[1] - w[0]).collect();
+            crate::transport::quantile(&d, 0.5).map(|m| (k, m))
+        })
+        .collect()
+}
+
 fn episodes(assoc: &[Association], join_s: f64) -> Vec<Episode> {
+    let cad = cadence(assoc);
     let mut by: BTreeMap<(String, String), Vec<&Association>> = BTreeMap::new();
     for a in assoc.iter().filter(|a| a.outcome == Outcome::Inconsistent) {
         if let Some(m) = &a.mmsi {
@@ -430,6 +508,8 @@ fn episodes(assoc: &[Association], join_s: f64) -> Vec<Episode> {
     }
     let mut out = Vec::new();
     for ((m, s), v) in by {
+        // Join across one missed report of a slow source as well.
+        let join = join_s.max(1.5 * cad.get(&(m.clone(), s.clone())).copied().unwrap_or(0.0));
         let mut cur: Vec<&Association> = Vec::new();
         let flush = |cur: &mut Vec<&Association>, out: &mut Vec<Episode>| {
             if let (Some(f), Some(l)) = (cur.first(), cur.last()) {
@@ -440,12 +520,14 @@ fn episodes(assoc: &[Association], join_s: f64) -> Vec<Episode> {
                     end_utc: l.utc.clone(),
                     reports: cur.len(),
                     max_residual_m: cur.iter().filter_map(|a| a.residual_m).fold(0.0, f64::max),
+                    duration_s: l.t - f.t,
+                    position: f.position,
                 });
             }
             cur.clear();
         };
         for a in v {
-            if cur.last().is_some_and(|l| a.t - l.t > join_s) {
+            if cur.last().is_some_and(|l| a.t - l.t > join) {
                 flush(&mut cur, &mut out);
             }
             cur.push(a);
@@ -488,6 +570,84 @@ fn dark_targets(assoc: &[Association], tracks: &Tracks, q: &Request) -> Vec<Dark
             }
         })
         .collect()
+}
+
+fn xml(s: &str) -> String {
+    s.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+}
+
+/// CAP 1.2 alert documents (OASIS Common Alerting Protocol), one per inconsistency episode and
+/// per target without AIS: `(file name, XML)`. Scope `Restricted`; urgency, severity and
+/// certainty are `Unknown`, `Unknown` and `Possible`: the alert says a discrepancy was seen,
+/// not what it means.
+pub fn cap_alerts(rep: &Report, sent_utc: &str) -> Vec<(String, String)> {
+    let q = &rep.request;
+    let one = |id: String,
+               event: &str,
+               headline: String,
+               desc: String,
+               pos: [f64; 2],
+               radius_km: f64| {
+        let sent = sent_utc.replace('Z', "+00:00");
+        let doc = format!(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<alert xmlns=\"urn:oasis:names:tc:emergency:cap:1.2\">\n  <identifier>{id}</identifier>\n  <sender>{sender}</sender>\n  <sent>{sent}</sent>\n  <status>{status}</status>\n  <msgType>Alert</msgType>\n  <scope>Restricted</scope>\n  <restriction>recipients of this evidence directory</restriction>\n  <info>\n    <category>Transport</category>\n    <event>{event}</event>\n    <urgency>Unknown</urgency>\n    <severity>Unknown</severity>\n    <certainty>Possible</certainty>\n    <headline>{headline}</headline>\n    <description>{desc}</description>\n    <area>\n      <areaDesc>around the first discrepant independent position</areaDesc>\n      <circle>{lat:.5},{lon:.5} {radius_km:.3}</circle>\n    </area>\n  </info>\n</alert>\n",
+            id = xml(&id),
+            sender = xml(&q.cap_sender),
+            status = xml(&q.cap_status),
+            event = xml(event),
+            headline = xml(&headline),
+            desc = xml(&desc),
+            lat = pos[0],
+            lon = pos[1],
+        );
+        (format!("{id}.cap.xml"), doc)
+    };
+    let mut out = Vec::new();
+    for (i, e) in rep.episodes.iter().enumerate() {
+        out.push(one(
+            format!("ais-discrepancy-{}", i + 1),
+            "AIS position discrepancy",
+            format!(
+                "AIS of {} differs from {} by up to {:.1} km for {:.0} min",
+                e.mmsi,
+                e.source,
+                e.max_residual_m / 1000.0,
+                e.duration_s / 60.0
+            ),
+            format!(
+                "{} independent report(s) from {} to {} outside the gate; largest residual {:.0} m. {}",
+                e.reports, e.start_utc, e.end_utc, e.max_residual_m, super::EVIDENCE
+            ),
+            e.position,
+            (e.max_residual_m / 1000.0).max(1.0),
+        ));
+    }
+    for (i, d) in rep.dark_targets.iter().enumerate() {
+        if !(d.first_position[0].is_finite() && d.first_position[1].is_finite()) {
+            continue;
+        }
+        out.push(one(
+            format!("target-without-ais-{}", i + 1),
+            "Target without AIS",
+            format!(
+                "{} track {} has no AIS within the gate",
+                d.source, d.track_id
+            ),
+            format!(
+                "{} report(s) from {} to {}. {}",
+                d.reports,
+                d.first_utc,
+                d.last_utc,
+                super::EVIDENCE
+            ),
+            d.first_position,
+            1.0,
+        ));
+    }
+    out
 }
 
 /// HTML page of a report.
