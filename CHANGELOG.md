@@ -70,6 +70,12 @@ own bullet so parallel work merges cleanly.
   `max_doppler_rate_hz_s` printed by `leo-eval doppler` before this fix (conservative, too
   high).** The published v1.0 procedures do not use it. The test now checks the closed form
   against a finite-difference derivative of the pass geometry.
+- **Unit and sign audit, doc corrections.** The `timing attack` cross-check calibration window
+  learns `(eLoran reference) − (GNSS reference)`, as the code computes; its field doc said
+  GNSS − eLoran. The eLoran field importer's TIC `fixed_delay_ns` now states which side it
+  belongs to: positive for extra delay in the receiver's 1PPS path, negative for the reference's,
+  subtracted after the sign. No behaviour changes. The two real errors the sweep found are fixed
+  on their own branches: the NavIC-minus-GPS sign and the overhead Doppler rate.
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
