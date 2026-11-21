@@ -5,6 +5,43 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
+  B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
+  authenticated share, time conflicts against authenticated GNSS time, time adjustments only from
+  authenticated positions and their interval, GNSS anomaly event spacing, and the fallback
+  record, checked against Annex IC of (EU) 2021/1228 as read on EUR-Lex; signed pack. Catalogue
+  `eu-2021-1228-tachograph-osnma` (Appendix 12 rows to confirm). Tier manifest regenerated;
+  `tests/tachograph_osnma.rs` (3 tests).
+- **Space-operations signed evidence packs (research 2026-11-20 gaps B2205;
+  docs/SPACE-OPS-EVIDENCE.md).** `kshana-pro space-ops` (`pro-space-ops-evidence`, Pro): `ca`
+  collision-avoidance decision record (CDMs, encounter-plane Pc recomputed beside the reported
+  value, decision, lead time, checks against the operator's own policy), `identify` (ephemeris
+  against candidate TLEs on the open SGP4), `disposal` (US76 drag lifetime against the plan's
+  deadline), `pack` (all three signed together; framework article to confirm); `synth` free.
+  MODELLED. Tier manifest regenerated; `tests/space_ops_evidence.rs` (4 tests).
+- **Maritime casualty reconstruction (research 2026-11-20 gaps B0601; docs/CASUALTY.md).**
+  `kshana-pro casualty run` (`pro-casualty-reconstruction`, Pro): grounding or collision from the
+  VDR NMEA, AIS and radar log; displayed vs reconstructed true track (dead reckoning on gyro and
+  log from the last clean fix, 1-sigma envelope), radar fixes on charted objects as independent
+  checks (nothing fused), the actor-vs-victim interference timeline embedded, radar CPA for a
+  collision, and a causation statement (interference / with a navigational factor / navigational
+  error / undetermined) with uncertainty, signed. `casualty synth` (free), SYNTHETIC cases only.
+  Tier manifest regenerated; `tests/casualty.rs` (3 tests). MODELLED.
+- **ADS-B phantom-target plausibility evidence (research 2026-11-20 gaps B1002, Pro part;
+  docs/ADSB-PHANTOM.md).** `kshana-pro adsb-phantom check` (`pro-adsb-phantom`, Pro): reads the
+  interference-map ADS-B CSV, the declared receivers and an optional reference track file. It
+  gives a per-target score with reasons: physics, teleport, two places, no history, unhearable,
+  altitude, no entry, cluster, no independent track. The pack is signed and can be
+  pseudonymised. No transmitter location. `synth` is free; on its scene every injected phantom
+  is flagged and 0 of 45 genuine aircraft are. Tier manifest regenerated;
+  `tests/adsb_phantom.rs` (3 tests).
+- **Aviation and drone event reconstruction (research 2026-11-20 gaps B0602; docs/AVIATION-RECON.md).**
+  `kshana-pro aviation-recon run` (`pro-aviation-event-recon`, Pro): clock offsets of ADS-B and
+  tracker records against the FDM/QAR record, GNSS-minus-baro per source against the calibration
+  offset, ISA term and geoid datum, divergence episodes classed (common GNSS divergence, single
+  source, barometric disagreement, GNSS loss), FDM detector events on the timeline, signed
+  investigator pack. Alignment and comparison only. `aviation-recon synth` (free): SYNTHETIC King
+  Air-type flight. Tier manifest regenerated; `tests/aviation_recon.rs` (3 tests). MODELLED.
 - **Alternative-PNT evaluation and civil test-campaign evidence (backlog E40 B4004;
   docs/ALTPNT-EVIDENCE.md).** `kshana-pro altpnt` (features `pro-altpnt-evidence` and
   `pro-altpnt-campaign`, Pro): `failure-modes` (architecture failure-mode pack from declared
@@ -120,6 +157,13 @@ own bullet so parallel work merges cleanly.
   that block deletion, a hash-chained action ledger, monthly trends by family with an HTML page,
   an obligation calendar, submission skeletons citing pack ids, and a full open export that
   imports back byte for byte. Tier manifest regenerated; `tests/evidence_vault.rs` (2 tests).
+- **Interlaboratory precision study (research 2026-11-20 gaps B2505 Pro part;
+  docs/METHOD-VALIDATION.md).** `kshana-pro method validate` (`pro-method-validation`, Pro):
+  repeatability r and reproducibility R in the form of the ISO 5725-2 basic method, with Mandel
+  h and k, Cochran and Grubbs critical values computed from F and t and cross-checked against
+  published table entries, bias against a reference, and exclusions only with a reason. The
+  pack is signed. `method synth-study` is free. Tier manifest regenerated;
+  `tests/method_validation.rs` (4 tests).
 - **Re-scoring schedule and per-test uncertainty budgets (research 2026-11-20 gaps B2505, Pro
   part; docs/METHOD-UNCERTAINTY.md).** `kshana-pro method schedule|budget`
   (`pro-method-uncertainty`, Pro): next re-scoring date per product and method with overdue and
@@ -139,6 +183,29 @@ own bullet so parallel work merges cleanly.
   delay calibration with an uncertainty budget; an insurer's summary of shared verdicts, never an
   underwriting decision; a contributor's own population benchmark; `ntrip-qos`, a contributor's NTRIP mountpoint
   and caster scores). No new feature gate.
+- **Correction-decoder interface-change regression (research 2026-11-20 gaps B1604;
+  docs/DECODER-REGRESSION.md).** `kshana-pro iface` (`pro-decoder-regression`, Pro; `template`
+  free): interface profiles per stream version with their source (template with placeholders
+  only), drift alarms when decoded header records carry an unknown message type, subtype, GNSS
+  id, transmitting PRN or field value, per-version regression vectors and decoder scoring that
+  lists silently accepted unknowns. Tier manifest regenerated; `tests/decoder_regression.rs`
+  (3 tests, SYNTHETIC profiles).
+- **NavIC test kit and integrity evidence (research 2026-11-20 gaps B1605; docs/NAVIC.md).**
+  `kshana-pro navic` (`pro-navic-evidence`, Pro; `scaffold` free): an L1 SPS test-vector scaffold
+  with placeholders only; health-aware receiver checks (unhealthy satellites used, NavIC-only
+  fixes with fewer than four healthy satellites); pairwise NavIC/GPS/Galileo solution
+  consistency; signed timing evidence with the stated traceability chain. Tier manifest
+  regenerated; `tests/navic_evidence.rs` (4 tests).
+- **LEO-PNT evaluation (research 2026-11-20 gaps E21: B2101, B2107 evaluation only, B2108 Pro
+  part; docs/LEO-EVALUATION.md).** `kshana-pro leo-eval` (`pro-leo-evaluation`, Pro): published
+  procedures frozen at 1.0 (`docs/leo-procedures/`: Doppler stress, acquisition, signal
+  profiles) with method hashes registered before the runs; scorecards in input order (never
+  ranked); simulator equivalence within stated tolerances with the simulator self-test verdict
+  vocabulary; Doppler bounds; SISRE with numeric weights (checked against the published GPS
+  weights), sigma overbound, DCB stability and jumps, PPP dependency ratings, a T-RAIM
+  fault-injection study on the open snapshot RAIM (redundancy sweep, dual faults, recovery);
+  an investor due-diligence template in which every verdict cites its source. Tier manifest
+  regenerated; `tests/leo_evaluation.rs` (7 tests).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference

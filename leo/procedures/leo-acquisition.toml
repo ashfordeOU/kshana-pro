@@ -1,0 +1,24 @@
+format = "kshana-pro-leo-sim-procedure/1"
+id = "leo-acquisition"
+version = "1.0"
+title = "LEO-PNT receiver: cold and warm acquisition and time to first fix"
+
+[[step]]
+id = "cold-start"
+what = "no almanac, no time, no position: time to first fix"
+metric = "ttff_s"
+
+[[step]]
+id = "warm-start"
+what = "valid almanac and coarse time: time to first fix"
+metric = "ttff_s"
+
+[[step]]
+id = "steady-state"
+what = "after the first fix, open sky: horizontal accuracy"
+metric = "h_rms_m"
+
+[[step]]
+id = "steady-state-time"
+what = "after the first fix: receiver clock error"
+metric = "clock_rms_s"

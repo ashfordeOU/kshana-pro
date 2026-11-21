@@ -18,6 +18,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-adsb-phantom",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-agnss-integrity",
       "type": "feature",
       "tier": "pro"
@@ -103,6 +108,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-aviation-event-recon",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-aviation-exposure",
       "type": "feature",
       "tier": "pro"
@@ -148,12 +158,22 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-casualty-reconstruction",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-claims-triage",
       "type": "feature",
       "tier": "pro"
     },
     {
       "kind": "pro-custody-capture",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-decoder-regression",
       "type": "feature",
       "tier": "pro"
     },
@@ -263,6 +283,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-leo-evaluation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-leo-timing-scorecard",
       "type": "feature",
       "tier": "pro"
@@ -313,7 +338,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-method-validation",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-navaids",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-navic-evidence",
       "type": "feature",
       "tier": "pro"
     },
@@ -433,6 +468,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-space-ops-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-space-rx-exposure",
       "type": "feature",
       "tier": "pro"
@@ -464,6 +504,11 @@
     },
     {
       "kind": "pro-survey-qc",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-tachograph-osnma",
       "type": "feature",
       "tier": "pro"
     },

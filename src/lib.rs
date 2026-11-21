@@ -30,6 +30,7 @@
 // is unambiguous that Pro *embeds* (does not reimplement) the open core.
 pub use kshana;
 
+pub mod adsb_phantom;
 pub mod agri;
 pub mod ais_evidence;
 pub mod alerts;
@@ -67,9 +68,11 @@ pub mod frameworks;
 pub mod ievents;
 pub mod insurance;
 pub mod integrity;
+pub mod interface_drift;
 pub mod ireports;
 pub mod ks_inside;
 pub mod lab_campaign;
+pub mod leo_eval;
 pub mod leo_timing;
 pub mod license;
 pub mod longterm;
@@ -77,8 +80,10 @@ pub mod lunar_evidence;
 pub mod lunar_pro;
 pub mod lunar_surface;
 pub mod method_uncertainty;
+pub mod method_validation;
 pub mod multi_source;
 pub mod navaids;
+pub mod navic;
 pub mod obs_provenance;
 pub mod osnma_conformance;
 pub mod pack_c;
@@ -123,9 +128,11 @@ pub mod watermark;
 // Value layers — gated stubs (seam guards only; no proprietary capability is built
 // on spec, per the open-core discipline in docs/OVERLAY-ARCHITECTURE.md).
 pub mod resilience;
+pub mod space_ops;
 pub mod station_fleet;
 pub mod suite;
 pub mod survey_qc;
+pub mod tacho_osnma;
 pub mod timing;
 pub mod transport;
 pub mod twin;

@@ -29,6 +29,7 @@
 //! aircraft were affected, never a source position.
 
 pub mod approach;
+pub mod event_recon;
 pub mod nuisance;
 pub mod residual;
 pub mod synth;

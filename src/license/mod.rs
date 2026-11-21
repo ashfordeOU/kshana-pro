@@ -316,6 +316,12 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-agri-resilience" => Tier::Pro,
         "pro-agri-advisor" => Tier::Pro,
         "pro-agri-photo" => Tier::Enterprise,
+        // Smart-tachograph and road-charging OSNMA field verification (2026-11-20 gaps, B1403).
+        "pro-tachograph-osnma" => Tier::Pro,
+        // Space-operations signed evidence packs (2026-11-20 gaps, B2205).
+        "pro-space-ops-evidence" => Tier::Pro,
+        // ADS-B phantom-target plausibility evidence (2026-11-20 gaps, B1002).
+        "pro-adsb-phantom" => Tier::Pro,
         // KS-Inside OEM SDK (research 2026-11-20 gaps E39 B3901, docs/KS-INSIDE.md): the
         // embedded facade and C ABI. Enterprise, and in addition only under an explicit
         // grant on a token naming the `sdk` product (crate::ks_inside); every call is metered.
@@ -353,6 +359,18 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // Re-scoring schedule and per-test uncertainty budgets (research 2026-11-20 gaps,
         // B2505 Pro part).
         "pro-method-uncertainty" => Tier::Pro,
+        // Correction-decoder interface-change regression (research 2026-11-20 gaps, B1604).
+        "pro-decoder-regression" => Tier::Pro,
+        // NavIC test kit and integrity evidence (research 2026-11-20 gaps, B1605).
+        "pro-navic-evidence" => Tier::Pro,
+        // LEO-PNT evaluation (research 2026-11-20 gaps, E21: B2101, B2107, B2108).
+        "pro-leo-evaluation" => Tier::Pro,
+        // Maritime casualty reconstruction (research 2026-11-20 gaps, B0601).
+        "pro-casualty-reconstruction" => Tier::Pro,
+        // Interlaboratory precision study (2026-11-20 gaps, B2505 Pro part).
+        "pro-method-validation" => Tier::Pro,
+        // Aviation and drone event reconstruction (research 2026-11-20 gaps, B0602).
+        "pro-aviation-event-recon" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -460,6 +478,9 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-agri-resilience",
     "pro-agri-advisor",
     "pro-agri-photo",
+    "pro-tachograph-osnma",
+    "pro-space-ops-evidence",
+    "pro-adsb-phantom",
     "pro-ks-inside",
     "pro-simlab-replay",
     "pro-simlab-selftest",
@@ -479,6 +500,12 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-survey-qc",
     "pro-evidence-vault",
     "pro-method-uncertainty",
+    "pro-decoder-regression",
+    "pro-navic-evidence",
+    "pro-leo-evaluation",
+    "pro-casualty-reconstruction",
+    "pro-method-validation",
+    "pro-aviation-event-recon",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

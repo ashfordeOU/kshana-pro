@@ -116,6 +116,10 @@ pub const CATALOGUES: &[(&str, &str)] = &[
         "eu-2017-79-ecall-gnss",
         include_str!("../../report-templates/regpacks/eu-2017-79-ecall-gnss.json"),
     ),
+    (
+        "eu-2021-1228-tachograph-osnma",
+        include_str!("../../report-templates/regpacks/eu-2021-1228-tachograph-osnma.json"),
+    ),
 ];
 
 /// The evidence formats a row may name: format tag and product name.
@@ -161,6 +165,11 @@ pub const EVIDENCE_FORMATS: &[(&str, &str)] = &[
         "On-board-unit GNSS attack evaluation",
     ),
     (crate::transport::ecall::FORMAT, "eCall GNSS test scoring"),
+    (
+        crate::tacho_osnma::FORMAT,
+        "Tachograph OSNMA field verification",
+    ),
+    ("kshana-pro-osnma-scorecard/1", "OSNMA receiver scorecard"),
     (
         crate::transport::auto::PL_FORMAT,
         "Protection-level validation",

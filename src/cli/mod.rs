@@ -5,6 +5,7 @@
 //! binary) and the licensing mechanics (issue / verify tokens; `--license` enforces
 //! tier entitlements on Pro packs).
 
+mod adsb_phantom_cmd;
 mod agri_cmd;
 mod ais_cmd;
 mod alerts_cmd;
@@ -12,9 +13,11 @@ mod altpnt_cmd;
 mod area_cmd;
 mod attack_iq_cmd;
 mod aviation_cmd;
+mod aviation_recon_cmd;
 mod avionics_cmd;
 mod bridge_cmd;
 mod briefing_cmd;
+mod casualty_cmd;
 mod clock_bench_cmd;
 mod custody_cmd;
 mod dossier_cmd;
@@ -25,9 +28,11 @@ mod evidence_infra_cmd;
 mod fleet_cmd;
 mod forensics_cmd;
 mod grid_cmd;
+mod iface_cmd;
 mod incident_cmd;
 mod insurance_cmd;
 mod ks_inside_cmd;
+mod leo_eval_cmd;
 mod leo_timing_cmd;
 mod license_cmd;
 mod lunar_cmd;
@@ -35,6 +40,7 @@ mod lunar_evidence_cmd;
 mod lunar_surface_cmd;
 mod method_cmd;
 mod navaids_cmd;
+mod navic_cmd;
 mod packs_cmd;
 mod payments_cmd;
 mod pics_cmd;
@@ -45,8 +51,10 @@ mod regpack_cmd;
 mod reports_cmd;
 mod scorecard_cmd;
 mod simlab_cmd;
+mod space_ops_cmd;
 mod space_rx_cmd;
 mod survey_cmd;
+mod tacho_cmd;
 mod testkit_cmd;
 mod threats_cmd;
 mod timing_cmd;
@@ -99,10 +107,19 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro lunar-surface <plume|traverse|rf-forensics|synth> ...   Lunar surface operations evidence: MODELLED parametric dust-plume visibility, LTV/EVA navigation safety evidence, RF self-interference forensics from I/Q (analysis only) (Pro; synth free)\n\
        kshana-pro envelope <format|dir>   Operating envelope (valid inputs, ranges, exclusions) of a Pro output; every signed evidence directory carries one (free)\n\
        kshana-pro custody <capture|handover|verify|export> ...   Sealed incident capture: ring-buffer freeze around a trigger in SigMF I/Q, sealed capture with calibration ID, custody form and signed hash-chained handover log (capture Pro; the chain free)\n\
+       kshana-pro casualty <run|synth> ...   Maritime casualty (grounding/collision) reconstruction: displayed vs reconstructed track, interference timeline, causation statement, signed pack (Pro; synth free)\n\
+       kshana-pro aviation-recon <run|synth> ...   Aviation or drone event reconstruction: FDM/QAR, ADS-B and tracker aligned, GNSS vs baro vs ADS-B divergences explained, signed investigator pack (Pro; synth free)\n\
        kshana-pro survey-qc <run|synth> ...   Marine survey and construction positioning QC under interference: per-line flags, signed QC annex, site risk plan (Pro; synth free)\n\
        kshana-pro vault <init|ingest|list|hold|release|delete|trend|calendar|submission|verify|export|import> ...   Customer evidence vault: signed packs with legal hold, retention, hash-chained ledger, trends, obligation calendar, submission skeletons, open export (Enterprise; import free)\n\
        kshana-pro method <schedule|budget> ...   Yearly re-scoring schedule and per-test GUM uncertainty budgets with a method report (Pro)\n\
        kshana-pro fleet <config-add|config-verify|site-log|cal-add|ageing|statement|dashboard> ...   Station fleet: hash-chained configuration history, calibration register with ageing, IGS-layout site logs, signed monthly clock-quality statements, static dashboard (Pro; config-verify free)\n\
+       kshana-pro iface <template|check|vectors|score> ...   Correction-decoder interface-change regression: profiles per interface version, drift alarms on decoded headers, regression vectors and decoder scoring (Pro; template free)\n\
+       kshana-pro navic <scaffold|health|consistency|timing> ...   NavIC: L1 SPS test-vector scaffold, health-aware receiver checks (3 vs 4 satellites), NavIC/GPS/Galileo consistency, signed timing evidence (Pro; scaffold free)\n\
+       kshana-pro leo-eval <sim-hash|sim-score|sisre|dcb|deps|claims-template|claims-check|claims-compare> ...   LEO-PNT evaluation: neutral multi-simulator scorecards, SISRE/clock/DCB evaluation and PPP dependency risk, constellation-claim datasets (Pro; hash, templates, check free)\n\
+       kshana-pro tacho <verify|synth> ...   Smart-tachograph and road-charging OSNMA field verification: authenticated positions, time conflicts, time adjustments, anomaly events, fallback; signed (Pro; synth free); catalogue via regpack assess --catalogue eu-2021-1228-tachograph-osnma\n\
+       kshana-pro space-ops <ca|identify|disposal|pack|synth> ...   Space-operations signed evidence: collision-avoidance decision record (CDMs, recomputed Pc, decision, timeline), identification against candidate TLEs, disposal-plan lifetime check, operator evidence pack; MODELLED, no regulatory determination (Pro; synth free)\n\
+       kshana-pro adsb-phantom <check|synth> ...   ADS-B phantom-target plausibility evidence: physics limits, teleporting or duplicated addresses, targets no declared receiver could hear, geometric/barometric mismatch, clusters with no entry, optional independent-track comparison; per-target score with reasons, signed (Pro; synth free); never locates a transmitter\n\
+       kshana-pro method <schedule|budget|validate|synth-study> ...   Yearly re-scoring schedule, per-test GUM uncertainty budgets with a method report, and an interlaboratory precision study (repeatability r, reproducibility R) (Pro; synth-study free)\n\
        kshana-pro sfn <assess|systems> ...   Broadcast SFN (DAB/DVB-T) timing: pair guard margins and UTC-level scenarios such as SVN-23 (Pro; systems free)\n\
        kshana-pro road <check|obu-eval|library> ...   Telematics and road-charging GNSS anti-spoof: indicators, episodes, jammer fingerprint class, trip trust (pseudonymised), signed on-board-unit fraud evaluation (Pro; library free)\n\
        kshana-pro ecall <suite|mapping|score|location|duty|battery> ...   eCall GNSS tests of 2017/79 Annex VI with signed scoring, AML/E112 and PSAP location reliability (Pro); suite, mapping, duty-cycle detection and battery model free\n\
@@ -233,16 +250,24 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "obs-provenance",
     "longterm",
     "agri",
+    "adsb-phantom",
     "space-rx",
+    "tacho",
+    "space-ops",
     "ks-inside",
     "ais",
     "lunar-surface",
     "envelope",
     "custody",
     "survey-qc",
+    "casualty",
+    "aviation-recon",
     "vault",
     "method",
     "fleet",
+    "iface",
+    "navic",
+    "leo-eval",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -387,15 +412,23 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("testkit") => testkit_cmd::run(&args[1..]),
         Some("avionics") => avionics_cmd::run(&args[1..]),
         Some("agri") => agri_cmd::run(&args[1..]),
+        Some("adsb-phantom") => adsb_phantom_cmd::run(&args[1..]),
         Some("space-rx") => space_rx_cmd::run(&args[1..]),
+        Some("tacho") => tacho_cmd::run(&args[1..]),
+        Some("space-ops") => space_ops_cmd::run(&args[1..]),
         Some("ais") => ais_cmd::run(&args[1..]),
         Some("lunar-surface") => lunar_surface_cmd::run(&args[1..]),
         Some("envelope") => envelope_cmd::run(&args[1..]),
         Some("custody") => custody_cmd::run(&args[1..]),
         Some("survey-qc") => survey_cmd::run(&args[1..]),
+        Some("casualty") => casualty_cmd::run(&args[1..]),
+        Some("aviation-recon") => aviation_recon_cmd::run(&args[1..]),
         Some("vault") => vault_cmd::run(&args[1..]),
         Some("method") => method_cmd::run(&args[1..]),
         Some("fleet") => fleet_cmd::run(&args[1..]),
+        Some("iface") => iface_cmd::run(&args[1..]),
+        Some("navic") => navic_cmd::run(&args[1..]),
+        Some("leo-eval") => leo_eval_cmd::run(&args[1..]),
         Some("regpack") => regpack_cmd::run(&args[1..]),
         Some("navaids") => navaids_cmd::run(&args[1..]),
         Some("grid") => grid_cmd::run_grid(&args[1..]),
