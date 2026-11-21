@@ -5,6 +5,12 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Fix: flight-inspection truth check read NaN as "consistent" (`navaids inspection`).** The
+  track and measurement parsers accepted `NaN` and `inf`. A NaN residual compared false against
+  the gate, so the epoch's verdict was `consistent`, and a NaN time was paired with the t = 0
+  epoch. **Affected: inspection reports built from inputs holding non-finite values before this
+  fix.** Every number must now be finite. Test: `inspection_inputs_refuse_non_finite_values`.
+
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
   `kshana-pro leo-eval crosswalk` (`pro-leo-ue-crosswalk`, Pro): every step of the published LEO-PNT

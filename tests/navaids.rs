@@ -383,3 +383,33 @@ fn flight_inspection_truth_assurance() {
     assert_eq!(r.consistent, 22);
     assert_eq!(r.unresolved, 0);
 }
+
+/// Robustness audit: a NaN or infinite value in a flight-inspection track or measurement is
+/// refused. It used to be read, and a NaN residual compared false against the gate, so the
+/// epoch's truth verdict was "consistent".
+#[test]
+fn inspection_inputs_refuse_non_finite_values() {
+    use kshana_pro::navaids::inspection::{parse_measurements, parse_track};
+    assert!(parse_track("0,54.0,25.0,3000,5\n").is_ok());
+    assert!(parse_measurements("0,DME1,dme,12.5\n").is_ok());
+    for bad in [
+        "0,NaN,25.0,3000,5\n",
+        "0,54.0,25.0,3000,inf\n",
+        "NaN,54.0,25.0,3000,5\n",
+    ] {
+        assert!(
+            parse_track(bad)
+                .unwrap_err()
+                .contains("not a finite number"),
+            "{bad}"
+        );
+    }
+    for bad in ["0,DME1,dme,NaN\n", "0,VOR1,vor,-inf\n"] {
+        assert!(
+            parse_measurements(bad)
+                .unwrap_err()
+                .contains("not a finite number"),
+            "{bad}"
+        );
+    }
+}
