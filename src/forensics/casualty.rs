@@ -540,6 +540,10 @@ pub fn run(q: &Request, base: &Path) -> Result<(Report, maritime::EvidencePack),
                 continue;
             }
             let tgt = tb.text(i, Some(cg));
+            // The charted reference and the GNSS track must be on one datum (WGS-84), and the
+            // radar fix is the radar antenna's position: the offset to the GNSS antenna (lever
+            // arm, tens of metres on a large ship) is not applied and is part of the tolerance
+            // only through gnss_sigma_m.
             let (e, n) = (r * b.to_radians().sin(), r * b.to_radians().cos());
             if let Some(rf) = q.reference.iter().find(|x| x.name == tgt) {
                 let pos = offset_deg(rf.lat, rf.lon, -e, -n);

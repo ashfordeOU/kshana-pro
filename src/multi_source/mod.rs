@@ -201,6 +201,10 @@ impl Config {
 pub struct Obs {
     pub status: Status,
     /// The measured offset of the local clock against the source, s (ignored unless `ok`).
+    /// Every source's offset must be against **UTC**, each source's own scale already
+    /// corrected (GPST, GST, BDT and TAI differ from UTC by whole seconds, and an uncorrected
+    /// one makes a false disagreement or hides a real one): the vote differences offsets
+    /// directly and does not convert scales.
     pub offset_s: f64,
 }
 

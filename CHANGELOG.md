@@ -5,6 +5,58 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Fix: collision probability summed object 2's covariance in the wrong frame
+  (docs/SPACE-OPS-EVIDENCE.md).** `space_ops::pc_2d`, used by `space-ops ca` (the
+  collision-avoidance decision record) and the operator evidence pack, took a relative state in
+  object 1's RTN frame and added object 2's position covariance as given. A CCSDS CDM gives
+  object 2's covariance in object 2's own RTN frame, so when the input came from a real CDM the
+  combined covariance, and so the recomputed probability, was wrong by the rotation between the
+  two RTN frames. In a test geometry (orbit planes 70 degrees apart) the error is 18 %; it is
+  zero only when the frames coincide or the geometry is symmetric. **Affected: every MODELLED
+  probability in a decision record or operator pack computed from real CDM data before this
+  fix**, and any policy finding that depended on it. Records built from relative states already
+  in object 1's frame were right. Now `[[cdm]]` takes either both object states in a common
+  inertial frame (each covariance rotated from its own object's RTN frame, as the open engine's
+  CDM path does) or a relative state that declares `cov2_frame = "rtn1"`. An undeclared relative
+  state is computed under that assumption and flagged in the record. Each CDM line states how
+  its covariances were framed. The relative velocity is documented as inertial; no path converts
+  RTN rates. The fixed 200 x 360 polar grid is replaced by the open engine's integration
+  (closed-form inner integral, adaptive quadrature), mirrored until the pinned engine has it.
+  The grid was accurate to about 1e-5 relative; Pro now agrees with the open routine to 1e-9.
+  The SYNTHETIC fixtures' decisions and findings are unchanged (their probabilities move by less
+  than 1e-7 relative); the synth now declares `cov2_frame`. `libm` (already in the graph) is a
+  dependency. Tests in `tests/space_ops_evidence.rs`: the comparison against the open routine
+  (tightened to 1e-9), a CDM with distinct object RTN frames, and the undeclared-frame flag.
+- **Fix: sign of the laboratory's offset in the time-distribution chain
+  (docs/TIMING-ASSURANCE.md, B1904).** `timing chain` computed the end point's offset from UTC as
+  `(UTC − UTC(k)) + Σ hop biases`. The hops start at UTC(k), so the right sum is
+  `End − UTC = Σ hop biases − (UTC − UTC(k))`. **Affected: every `offset_from_utc_s` in a chain
+  statement before this fix**, which was off by twice the Circular T value. Also affected: the
+  `limit_s` verdict and the onboarding consistency test that use it. The test that encoded the
+  same sign is corrected, and a hand-checked case is added (UTC − UTC(k) = +5 ns with a +10 ns
+  hop gives +5 ns). The example onboarding series (`examples/timing-networks/chain`) is shifted
+  by −4.8 ns (twice its 2.4 ns reference) so it stays centred on the corrected prediction.
+- **Frame and time-scale audit (inputs combined across frames, objects or time scales).**
+  Each place that combines inputs from different frames, objects or time scales was checked.
+  Where a mismatch would silently give a wrong result, an assertion now refuses it or makes it
+  visible:
+  - `space-ops` identification: the ephemeris is TEME on UTC (what SGP4 gives). Optional
+    `frame`/`time_scale` columns are checked, other values are refused, and an undeclared
+    ephemeris is reported as assumed. The synth declares both.
+  - `debris-obs`: an OEM target's `TIME_SYSTEM` must be UTC; others are refused rather than
+    shifting every pass by their offset from UTC.
+  - `leo-timing` replay window: `time_scale` and `tx_minus_rx_scale_s` in `[replay]`; the
+    result records which applied, and `scale_warning` flags latencies near 18, 19 or 37 s.
+  - The software GNSS bridge: a Galileo (`Gst`) residual different from the GPS one is refused
+    while Galileo is on. It was replaced by the GPS residual before.
+
+  The other assumptions are now stated where the data are combined: multi-source time votes
+  (offsets against UTC, scales corrected), the WWRNS position vote (one datum), the area console
+  (Unix seconds on UTC), timing SFN, grid and cross-check pairs (one common reference), the
+  casualty radar fixes (datum, radar-to-GNSS lever arm not applied), and the LuGRE geometry
+  (GPS-as-UT1 adds about 4.5 arcmin, under 0.1 degree at the Moon, not only nutation). Tests in
+  `tests/space_ops_evidence.rs`, `tests/leo_timing.rs` and `tests/eloran_gnss.rs`.
+
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
   `kshana-pro leo-eval crosswalk` (`pro-leo-ue-crosswalk`, Pro): every step of the published LEO-PNT

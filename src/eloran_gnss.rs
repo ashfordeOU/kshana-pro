@@ -11,7 +11,10 @@
 //! * the scene starts at the eLoran scenario's `start_utc`, converted to GPS week and time of
 //!   week through TAI (GPST = TAI − 19 s), so sample 0 of both recordings is the same instant;
 //! * a GPS-time steering residual in the eLoran scenario (`gnss_time_residual_ns.Gpst`) shifts
-//!   every satellite signal, which is the same as a receiver clock offset of the opposite sign;
+//!   every satellite signal, which is the same as a receiver clock offset of the opposite sign.
+//!   It shifts the Galileo signals too: GST is generated as GPST plus that residual, with no
+//!   GPST-GST offset; a scenario whose `Gst` residual differs from its `Gpst` one is refused
+//!   while Galileo is on;
 //! * satellites come from a RINEX 3 broadcast navigation file: GPS L1 C/A (with LNAV built from
 //!   the ephemeris) and Galileo E1-B/C (seeded data symbols; MODELLED as a non-decodable
 //!   message) at their broadcast positions; the elevation mask and the elevation-based C/N0
@@ -173,6 +176,23 @@ fn build_scene(
     duration: f64,
 ) -> Result<(Scene, Vec<String>, i64, f64), String> {
     let (week, tow) = gps_week_tow(start);
+    // One receiver clock offset shifts every satellite, so the bridge can represent only one
+    // GNSS time residual. A Galileo (GST) residual other than the GPS one would be silently
+    // replaced by it: refuse it instead.
+    if opts.galileo {
+        let gpst = sc
+            .gnss_time_residual_ns
+            .get(&GnssTime::Gpst)
+            .copied()
+            .unwrap_or(0.0);
+        if let Some(gst) = sc.gnss_time_residual_ns.get(&GnssTime::Gst) {
+            if (gst - gpst).abs() > 1e-9 {
+                return Err(format!(
+                    "gnss_time_residual_ns: Gst ({gst} ns) differs from Gpst ({gpst} ns); the software GNSS bridge applies one clock offset to GPS and Galileo alike, so set them equal or turn Galileo off"
+                ));
+            }
+        }
+    }
     let residual_s = sc
         .gnss_time_residual_ns
         .get(&GnssTime::Gpst)

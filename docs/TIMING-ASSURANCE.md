@@ -533,7 +533,8 @@ last row it is held for at most `max_extrapolation_days` (45) with `extrapolatio
 Every hop needs a calibration record (`id`, `date`, `valid_days`, `by`); the chain is
 `unbroken`, `provisional` (Circular T extrapolated) or `broken` (an expired, missing or
 not-yet-valid calibration, or a reference too old), naming the break. The end point's offset
-from UTC is the laboratory's offset plus every hop's bias, with the combined and expanded (`k`)
+from UTC is every hop's bias (output minus input) plus the laboratory's offset UTC(k) − UTC,
+which is **minus** the Circular T value: `End − UTC = Σ bias − (UTC − UTC(k))`, with the combined and expanded (`k`)
 uncertainty, against an optional `limit_s`. An **onboarding test** (`[onboarding]`) for a
 national time service compares the delivered time against the operator's reference over a
 window: its mean must agree with the chain's predicted offset within

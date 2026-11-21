@@ -25,12 +25,15 @@ directory holds `report.json`, `report.html`, the inputs under `inputs/` and the
 ## Collision-avoidance decision record
 
 For each conjunction data message: id, creation time, TCA, miss distance, the collision
-probability **recomputed** from the message's relative state, both position covariances and the
-hard-body radius, beside the value the message reports. The method is the two-dimensional
-encounter-plane probability (Foster): the combined covariance projected on the plane normal to
-the relative velocity, the Gaussian of the projected miss integrated over the hard-body disk on
-a polar grid. It assumes a short, rectilinear encounter; long or low-relative-velocity
-encounters need another method, and the record does not say otherwise.
+probability **recomputed** from the message's geometry, both position covariances and the
+hard-body radius, beside the value the message reports. It also says how the covariances were
+brought into one frame. The method is the two-dimensional encounter-plane probability (Foster
+1992). Both covariances are put in one frame and summed, then projected on the plane normal to
+the inertial relative velocity. The Gaussian of the projected miss is integrated over the
+hard-body disc: the inner integral in closed form, the outer one by adaptive quadrature to
+1e-10 relative. This mirrors the open engine's routine, which is not yet in the pinned
+release. It assumes a short, rectilinear encounter; long or low-relative-velocity encounters
+need another method, and the record does not say otherwise.
 
 The record checks the decision against the operator's **own stated policy** (probability
 threshold, decision lead time, and the document they come from). It lists, for review: an
@@ -38,10 +41,23 @@ action other than a manoeuvre at or above the threshold, a manoeuvre below it, a
 than the stated lead time, a recomputed probability more than a factor of ten from the reported
 one, and a post-manoeuvre probability still at or above the threshold. No threshold is built in.
 
-CDM fields are taken as a TOML subset (`[[cdm]]` tables): relative position and velocity of
-object 2 in object 1's RTN frame, lower-triangle RTN position covariances
-`[rr, tr, tt, nr, nt, nn]` (m²). Reading CCSDS CDM files directly is not built (to confirm
-against CCSDS 508.0 before it is).
+CDM fields are taken as a TOML subset (`[[cdm]]` tables), in one of two forms:
+
+* **object states** (`state1_m`, `state2_m`, `[x, y, z, vx, vy, vz]` in m and m/s in one common
+  inertial frame), with each object's lower-triangle position covariance
+  `[rr, tr, tt, nr, nt, nn]` (m²) in **its own** RTN frame, as a CCSDS CDM gives them. Each
+  covariance is rotated from its object's RTN frame into the common frame before summing;
+* **relative state** (`rel_pos_rtn_m`, `rel_vel_rtn_mps`): object 2 relative to object 1 in
+  object 1's RTN axes. Both covariances must then be in **object 1's** RTN frame, declared with
+  `cov2_frame = "rtn1"`. An undeclared message is computed under that assumption and flagged for
+  review. `cov2_frame = "rtn2"` is refused: give the object states to have it rotated. The
+  relative velocity must be the inertial relative velocity expressed in object 1's RTN axes,
+  not the rate of the RTN components, which differs by ω×r. No path converts between the two.
+
+Before 21 November 2026 the record took the relative form only and summed object 2's covariance
+as given. For a CDM, where it is in object 2's own RTN frame, that was wrong; see the
+CHANGELOG. Reading CCSDS CDM files directly is not built (to confirm against CCSDS 508.0 before
+it is).
 
 ## Identification evidence
 

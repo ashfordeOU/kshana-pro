@@ -90,6 +90,13 @@ pub struct ReplayRef {
     pub file: String,
     /// Acceptance window stated by the receiver or the service (s).
     pub window_s: f64,
+    /// The time scale both columns are on (e.g. `UTC`, `GPST`), as the operator states it.
+    #[serde(default)]
+    pub time_scale: Option<String>,
+    /// When the columns are on different scales: the transmit scale minus the receive scale (s),
+    /// e.g. 18 for transmit times in GPST and receive times in UTC. Subtracted from `tx_s`.
+    #[serde(default)]
+    pub tx_minus_rx_scale_s: f64,
     /// Whether the log is synthetic.
     pub synthetic: bool,
 }
@@ -248,6 +255,13 @@ pub struct ReplayResult {
     /// `held` when nothing was accepted outside the window, else `breached`.
     pub outcome: &'static str,
     pub synthetic: bool,
+    /// The time scales of the two columns: declared, or assumed common.
+    pub time_scale: String,
+    /// Transmit scale minus receive scale applied (s).
+    pub tx_minus_rx_scale_s: f64,
+    /// Set when the latencies sit near a whole leap-second scale offset (18, 19 or 37 s), the
+    /// mark of receive and transmit times on different scales.
+    pub scale_warning: Option<String>,
 }
 
 /// The scorecard.
@@ -366,8 +380,26 @@ fn claim_outcome(c: &Claim, envs: &[EnvResult]) -> ClaimResult {
     }
 }
 
-/// Check an authentication log against a replay window.
+/// Check an authentication log against a replay window, both columns taken as one time scale
+/// (not declared).
 pub fn replay_check(text: &str, window_s: f64, synthetic: bool) -> Result<ReplayResult, String> {
+    replay_check_scaled(text, window_s, synthetic, None, 0.0)
+}
+
+/// Check an authentication log against a replay window. Latency is `rx − (tx − d)` with `d`
+/// the transmit scale minus the receive scale: both columns must be on one time scale, or `d`
+/// must be stated, or a leap-second offset (18 s GPST−UTC, 37 s TAI−UTC) turns into false
+/// breaches or hides real ones.
+pub fn replay_check_scaled(
+    text: &str,
+    window_s: f64,
+    synthetic: bool,
+    time_scale: Option<&str>,
+    tx_minus_rx_scale_s: f64,
+) -> Result<ReplayResult, String> {
+    if !tx_minus_rx_scale_s.is_finite() {
+        return Err("tx_minus_rx_scale_s must be a number".into());
+    }
     if !(window_s.is_finite() && window_s > 0.0) {
         return Err("the replay window must be a positive number of seconds".into());
     }
@@ -386,7 +418,20 @@ pub fn replay_check(text: &str, window_s: f64, synthetic: bool) -> Result<Replay
         max_accepted_latency_s: None,
         outcome: "held",
         synthetic,
+        time_scale: match (time_scale, tx_minus_rx_scale_s != 0.0) {
+            (Some(s), false) => format!("{s} (declared, both columns)"),
+            (Some(s), true) => {
+                format!("{s} (declared), transmit times moved by {tx_minus_rx_scale_s} s")
+            }
+            (None, false) => "not declared: both columns ASSUMED on one time scale".into(),
+            (None, true) => {
+                format!("not declared; transmit times moved by {tx_minus_rx_scale_s} s")
+            }
+        },
+        tx_minus_rx_scale_s,
+        scale_warning: None,
     };
+    let mut lats = Vec::new();
     for l in lines {
         let f: Vec<&str> = l.split(',').collect();
         let get = |i: usize| f.get(i).map(|s| s.trim()).unwrap_or("");
@@ -401,7 +446,8 @@ pub fn replay_check(text: &str, window_s: f64, synthetic: bool) -> Result<Replay
             continue;
         }
         r.messages += 1;
-        let lat = rx - tx;
+        let lat = rx - (tx - tx_minus_rx_scale_s);
+        lats.push(lat);
         let inside = (0.0..=window_s).contains(&lat);
         if acc {
             r.accepted += 1;
@@ -418,6 +464,18 @@ pub fn replay_check(text: &str, window_s: f64, synthetic: bool) -> Result<Replay
     }
     if r.accepted_outside_window > 0 || r.accepted_negative_latency > 0 {
         r.outcome = "breached";
+    }
+    if !lats.is_empty() {
+        lats.sort_by(f64::total_cmp);
+        let med = lats[lats.len() / 2];
+        if let Some(k) = [18.0, -18.0, 19.0, -19.0, 37.0, -37.0]
+            .iter()
+            .find(|k| (med - *k).abs() < 1.0 && window_s < 15.0)
+        {
+            r.scale_warning = Some(format!(
+                "the median latency is {med:.3} s, within 1 s of {k} s: receive and transmit times look like they are on different time scales; state tx_minus_rx_scale_s"
+            ));
+        }
     }
     Ok(r)
 }
@@ -516,7 +574,13 @@ pub fn score(l: &Loaded) -> Result<Scorecard, String> {
         .map(|c| claim_outcome(c, &environments))
         .collect();
     let replay = match (&p.replay, &l.replay_text) {
-        (Some(r), Some(t)) => Some(replay_check(t, r.window_s, r.synthetic)?),
+        (Some(r), Some(t)) => Some(replay_check_scaled(
+            t,
+            r.window_s,
+            r.synthetic,
+            r.time_scale.as_deref(),
+            r.tx_minus_rx_scale_s,
+        )?),
         _ => None,
     };
     let hash = method_sha256(p);

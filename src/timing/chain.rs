@@ -268,7 +268,8 @@ pub struct ChainStatement {
     pub reference_status: String,
     pub hops: Vec<HopResult>,
     pub budget: Vec<Component>,
-    /// End point minus UTC: the lab's offset plus every hop's bias.
+    /// End point minus UTC: every hop's bias (output minus input, from UTC(k)) plus the lab's
+    /// offset UTC(k) − UTC, which is minus the Circular T value `utc_minus_utck_s`.
     pub offset_from_utc_s: f64,
     pub u_c_s: f64,
     pub coverage_k: f64,
@@ -641,7 +642,8 @@ pub fn assess(spec: &ChainSpec, base: &Path, utc: &str) -> Result<ChainStatement
             wr,
         });
     }
-    let offset = rv + hops.iter().map(|h| h.bias_s).sum::<f64>();
+    // End − UTC = (End − UTC(k)) + (UTC(k) − UTC) = Σ hop biases − (UTC − UTC(k)).
+    let offset = hops.iter().map(|h| h.bias_s).sum::<f64>() - rv;
     let uc = budget.iter().map(|c| c.u_s * c.u_s).sum::<f64>().sqrt();
     let big_u = spec.coverage_k * uc;
     let within = spec.limit_s.map(|l| offset.abs() + big_u <= l);

@@ -822,6 +822,7 @@ dependencies = [
  "hex",
  "kshana",
  "kshana-eloran",
+ "libm",
  "lopdf",
  "p256",
  "printpdf",

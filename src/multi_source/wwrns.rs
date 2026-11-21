@@ -216,6 +216,8 @@ pub fn run(cfg: &WwrnsConfig, fixes: &[Fix]) -> Result<WwrnsReport, String> {
                 }
             }
         }
+        // Fixes from different sources are compared by great-circle distance: every source's
+        // latitude and longitude must be on one datum (WGS-84); none is converted here.
         let agrees = |a: usize, b: usize| {
             let ((pa, sa), (pb, sb)) = (fix[a].unwrap(), fix[b].unwrap());
             dist_m(pa, pb) <= k * (sa * sa + sb * sb).sqrt()
