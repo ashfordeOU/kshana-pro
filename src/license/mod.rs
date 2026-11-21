@@ -316,6 +316,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-agri-resilience" => Tier::Pro,
         "pro-agri-advisor" => Tier::Pro,
         "pro-agri-photo" => Tier::Enterprise,
+        // Smart-tachograph and road-charging OSNMA field verification (2026-11-20 gaps, B1403).
+        "pro-tachograph-osnma" => Tier::Pro,
         // KS-Inside OEM SDK (research 2026-11-20 gaps E39 B3901, docs/KS-INSIDE.md): the
         // embedded facade and C ABI. Enterprise, and in addition only under an explicit
         // grant on a token naming the `sdk` product (crate::ks_inside); every call is metered.
@@ -466,6 +468,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-agri-resilience",
     "pro-agri-advisor",
     "pro-agri-photo",
+    "pro-tachograph-osnma",
     "pro-ks-inside",
     "pro-simlab-replay",
     "pro-simlab-selftest",

@@ -1,0 +1,72 @@
+{
+  "format": "kshana-pro-regulator-catalogue/1",
+  "id": "eu-2021-1228-tachograph-osnma",
+  "title": "Smart tachograph GNSS authentication: Commission Implementing Regulation (EU) 2021/1228, Annex IC",
+  "kind": "type-approval",
+  "status": "Amends the smart-tachograph Annex IC; Appendix 12 (GNSS) requirements GNS_xx to be confirmed against the full text",
+  "source": {
+    "title": "Commission Implementing Regulation (EU) 2021/1228",
+    "version": "as published in the Official Journal, CELEX 32021R1228",
+    "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32021R1228",
+    "read": "Annex IC requirements 41, 41b, 86, 88a, 110, 135a, 211 and 212 and Appendix 1 data definitions read on EUR-Lex on 21 Nov 2026; Appendix 12 was not in the text read."
+  },
+  "rows": [
+    {
+      "id": "IC-110",
+      "clause": "Annex IC req. 110 (also 133b, 133g, 306a-306g)",
+      "basis": "Annex IC read on EUR-Lex on 21 Nov 2026",
+      "topic": "Recorded positions carry a flag saying whether the position was authenticated",
+      "evidence": ["kshana-pro-tachograph-osnma-field/1"],
+      "gap": "The field check reads the flag from the user's log; it does not verify the receiver's authentication itself."
+    },
+    {
+      "id": "IC-86",
+      "clause": "Annex IC req. 86",
+      "basis": "Annex IC read on EUR-Lex on 21 Nov 2026",
+      "topic": "A time-conflict event when VU time and the time of authenticated GNSS positions differ by more than 3 s",
+      "evidence": ["kshana-pro-tachograph-osnma-field/1"],
+      "gap": "Checked from the logged times and events as supplied."
+    },
+    {
+      "id": "IC-88a",
+      "clause": "Annex IC req. 88a",
+      "basis": "Annex IC read on EUR-Lex on 21 Nov 2026",
+      "topic": "A GNSS anomaly event on a detected attack or failed navigation-message authentication; no further such event for 10 minutes",
+      "evidence": ["kshana-pro-tachograph-osnma-field/1"],
+      "gap": "The spacing of logged events is checked; whether the receiver detected the attack is a laboratory test (see the OSNMA receiver scorecard)."
+    },
+    {
+      "id": "IC-211-212",
+      "clause": "Annex IC req. 211 and 212",
+      "basis": "Annex IC read on EUR-Lex on 21 Nov 2026",
+      "topic": "VU time is re-adjusted only from GNSS time obtained with authenticated positions; automatic re-adjustment every 72 h to 168 h",
+      "evidence": ["kshana-pro-tachograph-osnma-field/1"],
+      "gap": "Workshop adjustments appear as out-of-window intervals and need the workshop record."
+    },
+    {
+      "id": "IC-41",
+      "clause": "Annex IC req. 41, 41b",
+      "basis": "Annex IC read on EUR-Lex on 21 Nov 2026",
+      "topic": "Time drift of at most 1 s per day; a drift counter since the last adjustment",
+      "evidence": [],
+      "gap": "Not checked by Kshana: needs the VU's drift counter."
+    },
+    {
+      "id": "APP12-GNS",
+      "clause": "clause to be confirmed",
+      "basis": "Appendix 12 (GNSS) was not in the text read on 21 Nov 2026",
+      "topic": "Receiver-side OSNMA processing and authentication status reporting",
+      "evidence": ["kshana-pro-osnma-scorecard/1"],
+      "gap": "To confirm against Appendix 12; the OSNMA receiver scorecard gives laboratory test evidence under stated bars."
+    },
+    {
+      "id": "ROAD-CHARGING",
+      "clause": "clause to be confirmed",
+      "basis": "No road-charging text on OSNMA was read",
+      "topic": "Use of OSNMA-authenticated positions in road-charging on-board units, where a scheme requires it",
+      "evidence": ["kshana-pro-tachograph-osnma-field/1"],
+      "gap": "The scheme's own requirements are the user's to supply; the field check applies to any unit that logs the authentication flag."
+    }
+  ],
+  "wording": "Each row names a requirement of the document (paraphrased, never quoted at length, with its clause where the research read it), the Kshana evidence formats that speak to it and the gap Kshana does not cover. A pre-assessment is an aid for preparing a submission. It does not state, and must not be read as stating, that any product or operator meets the document; that judgement belongs to the type-approval authority or assessor."
+}

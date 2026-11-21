@@ -5,6 +5,13 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
+  B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
+  authenticated share, time conflicts against authenticated GNSS time, time adjustments only from
+  authenticated positions and their interval, GNSS anomaly event spacing, and the fallback
+  record, checked against Annex IC of (EU) 2021/1228 as read on EUR-Lex; signed pack. Catalogue
+  `eu-2021-1228-tachograph-osnma` (Appendix 12 rows to confirm). Tier manifest regenerated;
+  `tests/tachograph_osnma.rs` (3 tests).
 - **Alternative-PNT evaluation and civil test-campaign evidence (backlog E40 B4004;
   docs/ALTPNT-EVIDENCE.md).** `kshana-pro altpnt` (features `pro-altpnt-evidence` and
   `pro-altpnt-campaign`, Pro): `failure-modes` (architecture failure-mode pack from declared

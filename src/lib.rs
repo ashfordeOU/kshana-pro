@@ -129,6 +129,7 @@ pub mod resilience;
 pub mod station_fleet;
 pub mod suite;
 pub mod survey_qc;
+pub mod tacho_osnma;
 pub mod timing;
 pub mod transport;
 pub mod twin;
