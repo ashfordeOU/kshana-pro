@@ -379,6 +379,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-interference-product-benchmark" => Tier::Pro,
         // Pro OSNMA scenario pack (research 2026-11-20 gaps, B1402).
         "pro-osnma-scenario-pack" => Tier::Pro,
+        // Observation scheduling evidence pack for space-debris sensors (planning only).
+        "pro-debris-obs-schedule" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -511,6 +513,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-decoder-regression",
     "pro-navic-evidence",
     "pro-leo-evaluation",
+    "pro-debris-obs-schedule",
     "pro-casualty-reconstruction",
     "pro-method-validation",
     "pro-aviation-event-recon",

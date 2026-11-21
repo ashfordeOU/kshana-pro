@@ -5,6 +5,13 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Observation scheduling for space-debris sensors (docs/DEBRIS-OBS.md).** `kshana-pro debris-obs plan`
+  (`pro-debris-obs-schedule`, Pro): from a sensor (location, limits, optical or radar, track and slew,
+  noise) and targets (TLE or CCSDS OEM, priority, prior covariance), visibility windows (optical:
+  sensor dark, target sunlit), a greedy priority schedule, and the expected position-covariance
+  improvement per scheduled track from the Fisher information of its measurements on the open
+  engine's analytic partials and state-transition matrix; signed. Planning only. `debris-obs synth`
+  free. Tier manifest regenerated; 2 tests in `tests/space_ops_evidence.rs`. MODELLED.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from

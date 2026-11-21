@@ -173,6 +173,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-debris-obs-schedule",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-decoder-regression",
       "type": "feature",
       "tier": "pro"
