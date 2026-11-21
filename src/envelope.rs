@@ -71,7 +71,7 @@ const GEO: (&str, &str) = (
 pub const FAMILIES: &[Family] = &[
     Family {
         name: "interference-and-forensics",
-        tokens: &["interference", "forensic", "incident", "dispute", "log", "attack", "threat", "area", "alert", "watch", "planner", "fdm", "complaint", "product", "referee"],
+        tokens: &["interference", "forensic", "incident", "dispute", "log", "attack", "threat", "area", "alert", "watch", "planner", "fdm", "complaint", "custody", "product", "referee"],
         valid_inputs: &[
             "receiver logs (NMEA, RINEX, vendor CSV as documented), Kshana Station events, interference reports as supplied",
             "thresholds pre-registered in the request",
@@ -81,7 +81,7 @@ pub const FAMILIES: &[Family] = &[
     },
     Family {
         name: "maritime",
-        tokens: &["maritime", "ais", "ecdis", "bridge", "voyage", "transit", "mass", "bam", "wwrns", "flag", "sanctions", "iuu", "subsea", "vms", "casualty"],
+        tokens: &["maritime", "ais", "ecdis", "bridge", "voyage", "transit", "mass", "bam", "wwrns", "flag", "sanctions", "iuu", "subsea", "vms", "casualty", "departure", "survey"],
         valid_inputs: &[
             "decoded AIS positions and static data, VMS, LRIT, radar or ECDIS exports as documented; vessel NMEA logs",
             "user-declared areas, ports, zones and asset routes",
@@ -91,7 +91,7 @@ pub const FAMILIES: &[Family] = &[
     },
     Family {
         name: "aviation-and-airspace",
-        tokens: &["flight", "rnp", "notam", "nuisance", "residual", "reset", "unpublished", "approach", "avionics", "low", "utm", "ussp", "rid", "navaid", "regional", "adsb", "aviation", "departure"],
+        tokens: &["flight", "rnp", "notam", "nuisance", "residual", "reset", "unpublished", "approach", "avionics", "low", "utm", "ussp", "rid", "navaid", "regional", "adsb", "aviation"],
         valid_inputs: &[
             "flight-data or ADS-B exports, crew reports, procedure definitions and avionics logs as documented",
         ],
@@ -100,7 +100,7 @@ pub const FAMILIES: &[Family] = &[
     },
     Family {
         name: "land-transport-agriculture-and-cellular",
-        tokens: &["road", "rail", "nr", "agnss", "v2x", "telematics", "obu", "ecall", "emergency", "pl", "tolerance", "gnb", "guidance", "agri", "survey"],
+        tokens: &["road", "rail", "nr", "agnss", "v2x", "telematics", "obu", "ecall", "emergency", "pl", "tolerance", "gnb", "guidance", "agri"],
         valid_inputs: &[
             "telematics, on-board-unit, eCall test, CAM, rail passage, farm-machine and device logs as documented; values transcribed by the user with their source",
         ],
@@ -133,14 +133,14 @@ pub const FAMILIES: &[Family] = &[
     },
     Family {
         name: "receivers-space-and-test",
-        tokens: &["receiver", "osnma", "unit", "scheme", "equipment", "firmware", "pics", "testkit", "scorecard", "space", "sbas", "lugre", "lunar", "trust", "link", "verification", "dut", "procedure", "verdict", "trace", "params", "fleet", "kit", "campaign", "mission", "see", "inject", "db", "sequence", "stream", "fingerprints", "lines", "prereg", "review", "failure", "labels", "interface", "equivalence", "traim", "consistency", "vectors", "recorder", "replay", "selftest", "tco", "precision", "rescoring", "ca", "identification"],
+        tokens: &["receiver", "osnma", "unit", "scheme", "equipment", "firmware", "pics", "testkit", "scorecard", "space", "sbas", "lugre", "lunar", "trust", "link", "verification", "dut", "procedure", "verdict", "trace", "params", "fleet", "kit", "campaign", "mission", "see", "inject", "db", "sequence", "stream", "fingerprints", "lines", "prereg", "review", "failure", "labels", "ca", "identification", "interface", "sim", "traim", "consistency", "l1", "recorder", "replay", "selftest", "tco"],
         valid_inputs: &["receiver and test-bench logs, simulator exports, mission profiles and campaign files as documented"],
         ranges: &[("signals", "civil open signals only; no PRS, M-code or other restricted signals")],
         exclusions: &["Scores are under the named method and pre-registered bars; they are not type approval."],
     },
     Family {
         name: "evidence-and-governance",
-        tokens: &["signed", "pack", "results", "report", "audit", "backup", "pre", "regulator", "framework", "bid", "dependency", "graph", "inventory", "dossier", "longterm", "licence", "revocations", "key", "feeder", "keyring", "provenance", "obs", "catalogue", "rating", "check", "operating", "envelope", "custody", "evidence", "vault", "feed", "ks", "meter", "telemetry"],
+        tokens: &["signed", "pack", "results", "report", "audit", "backup", "pre", "regulator", "framework", "bid", "dependency", "graph", "inventory", "dossier", "longterm", "licence", "revocations", "key", "feeder", "keyring", "provenance", "obs", "catalogue", "rating", "check", "operating", "envelope", "evidence", "feed", "ks", "meter", "method", "rescoring", "telemetry", "vault"],
         valid_inputs: &["Kshana evidence directories, signed packs and the user's declared architecture or catalogues"],
         ranges: &[("signatures", "Ed25519 over SHA-256 file digests; verification is offline")],
         exclusions: &["States which evidence speaks to a requirement and what is missing; never that a product or operator meets a document."],
