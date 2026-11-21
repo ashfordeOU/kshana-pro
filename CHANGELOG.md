@@ -42,6 +42,37 @@ own bullet so parallel work merges cleanly.
   source, barometric disagreement, GNSS loss), FDM detector events on the timeline, signed
   investigator pack. Alignment and comparison only. `aviation-recon synth` (free): SYNTHETIC King
   Air-type flight. Tier manifest regenerated; `tests/aviation_recon.rs` (3 tests). MODELLED.
+- **Jammer enforcement evidence pack (research 2026-11-20 gaps B0605; docs/JAMMER-ENFORCEMENT.md).**
+  `kshana-pro enforcement pack` (`pro-jammer-enforcement-pack`, Pro): victim-effect timeline,
+  per-victim effects, concurrency and cessation at the recorded device-off time, the affected area
+  as cells of victim receivers only (emitter, bearing and DF columns refused), the custody chain of
+  a sealed capture (B0604 module, verified and exported), a method statement for experts and a
+  checklist derived from published cases (FCC 13-106, DA 16-184, FCC 14-92, tribunal correctionnel
+  de Nantes 2017), each item cited and marked supplied, partial, missing or for the authority.
+  `enforcement checklist|synth` free. Tier manifest regenerated; `tests/enforcement.rs` (3 tests).
+- **Departure go/no-go and pre-entry warning against verified zones (research 2026-11-20 gaps
+  B0806; docs/DEPARTURE-ADVISORY.md).** `kshana-pro exposure departure` (`pro-departure-advisory`,
+  Pro): per verified zone (VTS, STS, ice, pilotage) on the passage, ETA at entry and the pre-entry
+  warning time, record events touching the zone (affected circles only; source estimates never
+  read), activity at the decision time, risk, status and confidence, recommended checks; the
+  departure advisory is the worst zone status. Unverified zones refused. `exposure departure-synth`
+  free. Tier manifest regenerated; `tests/departure_advisory.rs` (3 tests). MODELLED.
+- **Third-party interference product benchmark (research 2026-11-20 gaps B1005;
+  docs/PRODUCT-BENCHMARK.md).** `kshana-pro product-bench score` (`pro-interference-product-benchmark`,
+  Pro): protocol hashed at registration (`product-bench register`, free) and checked at scoring;
+  per product, detection rate, latency (median, worst), false reports per clean hour and
+  affected-area precision, recall and IoU on victim-receiver cells. Attribution and false reports
+  from the open engine's referee (`kshana jammertest locate-score`, unchanged, no position in or
+  out); report records carrying an emitter estimate are refused. `product-bench synth` free, two
+  anonymised products. Tier manifest regenerated; `tests/product_bench.rs` (3 tests).
+- **Pro OSNMA scenario pack (research 2026-11-20 gaps B1402; docs/OSNMA-SCENARIOS.md).**
+  `kshana-pro osnma-pack export|score` (`pro-osnma-scenario-pack`, Pro): nine scenarios (startup-cold,
+  key-renewal, chain-revocation, subframe-loss, replay-delayed, meaconing-short, time-sync-loss,
+  time-sync-attack, pk-revocation) with per-subframe conditions and expected states, a reference
+  model that reproduces every expected table, cryptographic premises checked with the open
+  engine's TESLA functions, and receiver-log scoring (unsafe and missed subframes); `list` and
+  `synth-log` free. DO-401A and SBAS authentication not covered (not public). Tier manifest
+  regenerated; `tests/osnma_scenarios.rs` (3 tests). MODELLED.
 - **Alternative-PNT evaluation and civil test-campaign evidence (backlog E40 B4004;
   docs/ALTPNT-EVIDENCE.md).** `kshana-pro altpnt` (features `pro-altpnt-evidence` and
   `pro-altpnt-campaign`, Pro): `failure-modes` (architecture failure-mode pack from declared

@@ -178,6 +178,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-departure-advisory",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-dependency-audit",
       "type": "feature",
       "tier": "pro"
@@ -273,7 +278,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-interference-product-benchmark",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-interference-reports",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-jammer-enforcement-pack",
       "type": "feature",
       "tier": "pro"
     },
@@ -369,6 +384,11 @@
     },
     {
       "kind": "pro-obu-fraud-eval",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-osnma-scenario-pack",
       "type": "feature",
       "tier": "pro"
     },
