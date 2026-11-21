@@ -69,3 +69,23 @@ build.
 - CCSDS CDM (KVN/XML) parsing; probability methods for long encounters (Monte Carlo, 3-D).
 - Manoeuvre planning. The record documents a decision; it does not propose one.
 - Any statement that a pack satisfies a regulation.
+
+## Disposal-plan sensitivity study
+
+`space-ops disposal-sensitivity <request.toml>` (`pro-disposal-sensitivity`, Pro; module
+`src/disposal_sensitivity.rs`, tests in `tests/space_ops_evidence.rs`). The disposal check above
+uses one lifetime in the static US76 atmosphere. This study runs the same circular-orbit decay
+(`da/dt = −√(GM a) ρ Cd A/m`, to 120 km) over a grid:
+
+* solar-activity bands (constant F10.7, 81-day F10.7, Kp; defaults low 70/Kp 1, moderate 130/Kp 2,
+  high 200/Kp 3) with density from the open engine's Jacchia 1971 thermosphere at the diurnal-mean
+  exospheric temperature (`kshana::space_weather::space_weather_density`);
+* a solar-cycle case (F10.7 sinusoidal between the stated minimum and maximum over 11 years),
+  starting at minimum and at maximum;
+* the ballistic coefficient at nominal and ± the stated relative spread (`bc_uncertainty`);
+* the US76 lifetime as a reference.
+
+It reports every case's lifetime, the range, how many cases fall within the plan's own deadline,
+and the elasticity of the lifetime to the ballistic coefficient (about −1, as drag decay implies)
+and to F10.7. Wording: "within / beyond the plan's deadline under this model". A sensitivity
+study, not a lifetime prediction for a real object and not a regulatory determination. MODELLED.

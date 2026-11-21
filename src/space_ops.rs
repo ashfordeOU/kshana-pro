@@ -705,6 +705,10 @@ pub fn synth() -> Result<Vec<(&'static str, String)>, String> {
         ("ephemeris.csv", eph),
         ("candidates.toml", cands),
         ("disposal.toml", disp),
+        (
+            "disposal-sensitivity.toml",
+            crate::disposal_sensitivity::synth(),
+        ),
         ("pack.toml", pk),
     ])
 }

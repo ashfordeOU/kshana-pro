@@ -267,3 +267,76 @@ fn operator_pack_is_signed_and_needs_a_licence() {
             .passed());
     }
 }
+
+// ---------------------------------------------------------------------------------------------
+// Disposal-plan sensitivity: lifetime against solar activity and ballistic coefficient.
+
+mod disposal_sensitivity {
+    use kshana_pro::disposal_sensitivity::{self, Request};
+
+    fn req() -> Request {
+        toml::from_str(&disposal_sensitivity::synth()).unwrap()
+    }
+
+    #[test]
+    fn lifetime_moves_with_solar_activity_and_ballistic_coefficient() {
+        let s = disposal_sensitivity::study(&req()).unwrap();
+        assert_eq!(s.total, 15, "3 bands x 3 B + 2 cycle starts x 3 B");
+        let y = |a: &str, b: &str| {
+            s.cases
+                .iter()
+                .find(|c| c.activity == a && c.bc == b)
+                .unwrap()
+                .lifetime_years
+                .unwrap()
+        };
+        // Higher activity and larger B shorten the lifetime, monotonically.
+        for b in ["low", "nominal", "high"] {
+            assert!(
+                y("band low", b) > y("band moderate", b)
+                    && y("band moderate", b) > y("band high", b)
+            );
+        }
+        for a in [
+            "band low",
+            "band moderate",
+            "band high",
+            "cycle from minimum",
+            "cycle from maximum",
+        ] {
+            assert!(
+                y(a, "low") > y(a, "nominal") && y(a, "nominal") > y(a, "high"),
+                "{a}"
+            );
+        }
+        // Drag lifetime scales as 1/B: elasticity about -1. Solar activity moves it by an order of magnitude.
+        assert!(
+            (s.elasticity_bc.unwrap() + 1.0).abs() < 0.05,
+            "{:?}",
+            s.elasticity_bc
+        );
+        assert!(y("band low", "nominal") / y("band high", "nominal") > 10.0);
+        // Starting at solar maximum decays faster than starting at minimum.
+        assert!(y("cycle from maximum", "nominal") < y("cycle from minimum", "nominal"));
+        // The plan's deadline splits the cases: some within, some beyond.
+        assert!(s.within_plan > 0 && s.within_plan < s.total);
+        assert!(s.us76_nominal_years.is_some());
+        let j = serde_json::to_string(&s).unwrap().to_lowercase();
+        for w in ["complian", "conform", "certif"] {
+            assert!(!j.contains(w), "{w}");
+        }
+    }
+
+    #[test]
+    fn requests_are_checked() {
+        let mut q = req();
+        q.plan_source = " ".into();
+        assert!(disposal_sensitivity::study(&q).is_err());
+        let mut q = req();
+        q.bc_uncertainty = 1.5;
+        assert!(disposal_sensitivity::study(&q).is_err());
+        let mut q = req();
+        q.altitude_km = 100.0;
+        assert!(disposal_sensitivity::study(&q).is_err());
+    }
+}
