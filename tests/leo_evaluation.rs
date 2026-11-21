@@ -363,6 +363,8 @@ fn crosswalk_document_is_in_step_with_the_code() {
         want,
         "regenerate with KSHANA_PRO_REGEN_CROSSWALK=1 cargo test --test leo_evaluation"
     );
+}
+
 /// Acceptance audit (B2101): the three published procedures are frozen at v1.0. Their method
 /// hashes are pinned, so any change to a published procedure's method fails here and needs a
 /// new version, not an edit.
