@@ -125,3 +125,31 @@ treatment. A planning figure, not a predicted on-orbit rate.
   and high-dynamics scenarios, upper-SSV benchmark) belong to the open engine per the backlog;
   `detect` covers only time-tag and clock signatures of single-event effects.
 - Validation against flight traces or a published campaign: none in this build.
+
+## Resilience evaluation under degradation scenarios
+
+`space-rx resilience <request.toml> --out <dir> --signer <name> --key-file <file>`
+(`pro-space-rx-resilience`, Pro; module `src/space_rx/resilience.rs`, tests in
+`tests/space_rx.rs`). Scores a space receiver's **logged behaviour** against a reference
+trajectory and clock over the degradation windows a campaign applied: `outage`, `scintillation`,
+`ephemeris-fault`, `above-constellation` (weak, sparse signals at high altitude).
+
+The log has the space-receiver trace columns (`t_s,x_m,y_m,z_m,clock_bias_m,...,fix`) plus an
+optional `integrity_flag`. The reference has `t_s,x_m,y_m,z_m,clock_bias_m`. The mission limits
+(position, time, minimum availability, maximum recovery, maximum time to flag a fault, settle
+time) are stated with their source.
+
+Per scenario it reports:
+
+* availability, and the 95th percentile position error;
+* epochs with a fix beyond the position limit and no flag (misleading, unflagged);
+* the time to the first flag;
+* the time to recover (a fix within the limit held for the settle time);
+* holdover: the clock's time error during no-fix epochs, against the last fixed epoch's offset.
+
+Each check is met or not met against the limits. The clean baseline is reported beside them.
+`space-rx resilience-synth <good|faulty> <dir>` writes synthetic logs.
+
+**Evaluation only**: it measures behaviour already logged. It implements no interference
+mitigation or authentication technique. Evidence for a review; not a statement that a part is fit
+for flight.

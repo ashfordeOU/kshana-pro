@@ -268,6 +268,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-space-rx-exposure" => Tier::Pro,
         "pro-space-rx-qual" => Tier::Pro,
         "pro-space-rx-see" => Tier::Pro,
+        // Space-receiver resilience evaluation under degradation scenarios (evaluation only).
+        "pro-space-rx-resilience" => Tier::Pro,
         // Insurance and finance analytics (research 2026-11-20 gaps E28): the parametric
         // trigger on the user's station data, basis risk, business-interruption quantification,
         // the underwriting feed and the claims triage aid (Pro); portfolio accumulation
@@ -461,6 +463,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-space-rx-exposure",
     "pro-space-rx-qual",
     "pro-space-rx-see",
+    "pro-space-rx-resilience",
     "pro-parametric-trigger",
     "pro-basis-risk",
     "pro-accumulation",

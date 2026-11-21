@@ -632,3 +632,56 @@ fn cli_end_to_end() {
     );
     assert!(ok && out.contains("solar minimum"), "{out}");
 }
+
+// ---------------------------------------------------------------------------------------------
+// Resilience evaluation under degradation scenarios (evaluation only).
+
+mod resilience {
+    use kshana_pro::space_rx::resilience as rs;
+
+    fn run(good: bool) -> rs::Report {
+        let (l, r, q) = rs::synth(good);
+        rs::score(&toml::from_str(&q).unwrap(), &l, &r).unwrap()
+    }
+
+    #[test]
+    fn good_and_faulty_receivers_are_separated() {
+        let g = run(true);
+        assert!(
+            g.scenarios.iter().all(|s| s.verdict == "met"),
+            "{:#?}",
+            g.scenarios
+        );
+        let eph = g
+            .scenarios
+            .iter()
+            .find(|s| s.id == "ephemeris-ramp")
+            .unwrap();
+        assert_eq!(eph.time_to_flag_s, Some(15.0));
+        assert_eq!(eph.misleading_unflagged, 0);
+        let out = g.scenarios.iter().find(|s| s.id == "outage-120s").unwrap();
+        assert_eq!(out.availability, 0.0);
+        assert!(out.holdover_max_time_error_ns.unwrap() < 300.0);
+
+        let f = run(false);
+        let s = |id: &str| f.scenarios.iter().find(|s| s.id == id).unwrap().clone();
+        // Unflagged biased fixes during the ephemeris fault, and slow recovery.
+        assert!(s("ephemeris-ramp").misleading_unflagged > 100);
+        assert_eq!(s("ephemeris-ramp").verdict, "not met");
+        // The clock drifts beyond the time limit in the outage; recovery is late.
+        assert!(s("outage-120s").holdover_max_time_error_ns.unwrap() > 300.0);
+        assert_eq!(s("outage-120s").verdict, "not met");
+        // Availability above the constellation below the mission's minimum.
+        assert!(s("high-altitude-weak").availability < 0.7);
+        assert_eq!(s("scintillation").verdict, "met");
+        assert!(rs::EVIDENCE.contains("Evaluation only"));
+    }
+
+    #[test]
+    fn limits_need_a_source() {
+        let (l, r, q) = rs::synth(true);
+        let mut q: rs::Request = toml::from_str(&q).unwrap();
+        q.limits.source = " ".into();
+        assert!(rs::score(&q, &l, &r).is_err());
+    }
+}
