@@ -140,7 +140,7 @@ pub const FAMILIES: &[Family] = &[
     },
     Family {
         name: "evidence-and-governance",
-        tokens: &["signed", "pack", "results", "report", "audit", "backup", "pre", "regulator", "framework", "bid", "dependency", "graph", "inventory", "dossier", "longterm", "licence", "revocations", "key", "feeder", "keyring", "provenance", "obs", "catalogue", "rating", "check", "operating", "envelope", "evidence", "feed", "ks", "meter", "method", "rescoring", "telemetry", "vault"],
+        tokens: &["signed", "pack", "results", "report", "audit", "backup", "pre", "regulator", "framework", "bid", "dependency", "graph", "inventory", "dossier", "longterm", "licence", "revocations", "key", "feeder", "keyring", "provenance", "obs", "catalogue", "rating", "check", "operating", "envelope", "evidence", "feed", "ks", "meter", "method", "rescoring", "telemetry", "vault", "deploy"],
         valid_inputs: &["Kshana evidence directories, signed packs and the user's declared architecture or catalogues"],
         ranges: &[("signatures", "Ed25519 over SHA-256 file digests; verification is offline")],
         exclusions: &["States which evidence speaks to a requirement and what is missing; never that a product or operator meets a document."],
