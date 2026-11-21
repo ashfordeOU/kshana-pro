@@ -5,6 +5,15 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Digital-twin recalibration evidence pack on the hosted calibrate verdict
+  (docs/TWIN-RECALIBRATION.md).** `kshana-pro twin-recal run` (`pro-twin-recalibration`, Pro):
+  telemetry split into windows; per window a `calibrate` request (stated parameters, an expression
+  model or a design of local runs) sent through the verdict client and each signed verdict
+  verified; locally, before/after residuals and the drift per day of each parameter with its
+  standard error. No fitting code in this crate (owner decision of 19 Nov 2026). Worked models:
+  clock (open-engine deterministic TIE) and orbit decay (open-engine US76 density).
+  `twin-recal synth` free. Tier manifest regenerated; 3 tests in `tests/clock_bench.rs` with a mock
+  service.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from

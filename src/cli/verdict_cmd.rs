@@ -80,11 +80,11 @@ fn fail(msg: impl std::fmt::Display) -> ExitCode {
     ExitCode::FAILURE
 }
 
-fn env(k: &str) -> Option<String> {
+pub(super) fn env(k: &str) -> Option<String> {
     std::env::var(k).ok().filter(|v| !v.trim().is_empty())
 }
 
-fn trusted_key(args: &[String]) -> Result<String, String> {
+pub(super) fn trusted_key(args: &[String]) -> Result<String, String> {
     flag(args, "--trust")
         .or_else(|| env("KSHANA_VERDICT_KEY"))
         .or_else(|| builtin_trusted_keys().map(str::to_string))

@@ -221,3 +221,140 @@ fn the_example_request_scores() {
     let r = cb::score(&s, &root, UTC).unwrap();
     assert_eq!(r.clocks.len(), 3);
 }
+
+// ---------------------------------------------------------------------------------------------
+// Digital-twin recalibration evidence pack on the hosted calibrate verdict (mock service).
+
+mod twin_recal {
+    use ed25519_dalek::{Signer, SigningKey};
+    use kshana_pro::remote_verdict::{SignedVerdict, VerdictTransport};
+    use kshana_pro::twin_recal as tr;
+    use serde_json::{json, Value};
+    use sha2::{Digest, Sha256};
+    use std::cell::RefCell;
+
+    const SEED: [u8; 32] = *b"twin-recal-mock-service-key-0001";
+
+    fn pk() -> String {
+        hex::encode(SigningKey::from_bytes(&SEED).verifying_key().to_bytes())
+    }
+
+    /// A stand-in for the hosted service: it answers each calibrate request with a verdict
+    /// signed as the service signs one. Its "fit" is test code (a straight-line least squares
+    /// for the clock), not part of the Pro build.
+    struct Mock {
+        seed: [u8; 32],
+        seen: RefCell<Vec<Value>>,
+    }
+
+    impl VerdictTransport for Mock {
+        fn post(&self, path: &str, _bearer: &str, body: &str) -> Result<String, String> {
+            assert_eq!(path, "/verdict/calibrate");
+            let b: Value = serde_json::from_str(body).unwrap();
+            self.seen.borrow_mut().push(b.clone());
+            let obs = b["observations"].as_array().unwrap();
+            let pts: Vec<(f64, f64)> = obs
+                .iter()
+                .map(|o| (o["t_s"].as_f64().unwrap(), o["value"].as_f64().unwrap()))
+                .collect();
+            let n = pts.len() as f64;
+            let (sx, sy) = pts.iter().fold((0.0, 0.0), |a, p| (a.0 + p.0, a.1 + p.1));
+            let (mx, my) = (sx / n, sy / n);
+            let sxx: f64 = pts.iter().map(|p| (p.0 - mx).powi(2)).sum();
+            let sxy: f64 = pts.iter().map(|p| (p.0 - mx) * (p.1 - my)).sum();
+            let y = sxy / sxx;
+            let x0 = my - y * mx;
+            let verdict = json!({
+                "converged": true,
+                "posterior": [
+                    {"name": "x0", "value": x0, "std_err": 2.0 / n.sqrt()},
+                    {"name": "y", "value": y, "std_err": 2.0 / sxx.sqrt()},
+                    {"name": "d", "value": 0.0, "std_err": 1e-9},
+                ],
+            });
+            let mut v = SignedVerdict {
+                service: "verdict-service/1".into(),
+                method: "calibrate".into(),
+                evidence_class: "MODELLED".into(),
+                utc: "2026-11-21T00:00:00Z".into(),
+                key_id: "k1".into(),
+                verdict,
+                verdict_sha256: String::new(),
+                signature: String::new(),
+            };
+            let canon = serde_json::to_vec(&json!({
+                "service": v.service, "method": v.method, "evidence_class": v.evidence_class,
+                "utc": v.utc, "key_id": v.key_id, "verdict": v.verdict,
+            }))
+            .unwrap();
+            v.verdict_sha256 = hex::encode(Sha256::digest(&canon));
+            v.signature = hex::encode(SigningKey::from_bytes(&self.seed).sign(&canon).to_bytes());
+            Ok(serde_json::to_string(&v).unwrap())
+        }
+    }
+
+    #[test]
+    fn windows_are_calibrated_by_the_service_and_drift_is_found() {
+        let (csv, req) = tr::synth_clock();
+        let q: tr::Request = toml::from_str(&req).unwrap();
+        let m = Mock {
+            seed: SEED,
+            seen: RefCell::new(vec![]),
+        };
+        let r = tr::run(&q, &csv, &m, "tok", &pk()).unwrap();
+        assert_eq!(r.pack.windows.len(), 4);
+        assert_eq!(r.exchanges.len(), 4);
+        // The request carries the stated model as an expression and the window's observations.
+        let first = &m.seen.borrow()[0];
+        assert_eq!(first["model"]["kind"], "expression");
+        assert_eq!(first["observations"].as_array().unwrap().len(), 144);
+        for w in &r.pack.windows {
+            assert!(w.rms_after < w.rms_before, "{w:?}");
+            assert!(w.rms_after < 3.0, "noise is 2 ns: {w:?}");
+        }
+        // The frequency grows 0.0005 ns/s per day: the drift of y is found and is significant.
+        let y = r.pack.drift.iter().find(|d| d.parameter == "y").unwrap();
+        assert!((y.slope_per_day.unwrap() - 0.0005).abs() < 0.0001, "{y:?}");
+        assert_eq!(y.significant, Some(true));
+        assert!(tr::EVIDENCE.contains("hosted calibrate verdict"));
+    }
+
+    #[test]
+    fn a_verdict_from_another_key_is_refused() {
+        let (csv, req) = tr::synth_clock();
+        let q: tr::Request = toml::from_str(&req).unwrap();
+        let m = Mock {
+            seed: [9u8; 32],
+            seen: RefCell::new(vec![]),
+        };
+        let e = tr::run(&q, &csv, &m, "tok", &pk()).err().unwrap();
+        assert!(e.contains("does not verify"), "{e}");
+    }
+
+    #[test]
+    fn orbit_decay_request_is_a_design_of_local_runs() {
+        let q = tr::Request {
+            title: "t".into(),
+            data_source: "SYNTHETIC".into(),
+            observable: "altitude_km".into(),
+            telemetry: String::new(),
+            window_s: 86_400.0,
+            model: tr::Model::OrbitDecay {
+                altitude0_km: 300.0,
+                b_design: vec![0.01, 0.02, 0.03],
+            },
+            parameters: vec![],
+            drift_k: 3.0,
+        };
+        let body = tr::request_body(&q, &[(0.0, 300.0, 0.1), (43_200.0, 299.0, 0.1)]).unwrap();
+        let runs = body["model"]["runs"].as_array().unwrap();
+        assert_eq!(runs.len(), 3);
+        // Larger b decays faster in the local US76 model.
+        let last = |i: usize| {
+            runs[i]["predictions"]["altitude_km"][1][1]
+                .as_f64()
+                .unwrap()
+        };
+        assert!(last(0) > last(1) && last(1) > last(2));
+    }
+}
