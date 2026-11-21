@@ -71,7 +71,7 @@ const GEO: (&str, &str) = (
 pub const FAMILIES: &[Family] = &[
     Family {
         name: "interference-and-forensics",
-        tokens: &["interference", "forensic", "incident", "dispute", "log", "attack", "threat", "area", "alert", "watch", "planner", "fdm", "complaint", "custody", "product", "referee"],
+        tokens: &["interference", "forensic", "incident", "dispute", "log", "attack", "threat", "area", "alert", "watch", "planner", "fdm", "complaint", "custody", "product", "referee", "coexistence"],
         valid_inputs: &[
             "receiver logs (NMEA, RINEX, vendor CSV as documented), Kshana Station events, interference reports as supplied",
             "thresholds pre-registered in the request",
@@ -133,7 +133,7 @@ pub const FAMILIES: &[Family] = &[
     },
     Family {
         name: "receivers-space-and-test",
-        tokens: &["receiver", "osnma", "unit", "scheme", "equipment", "firmware", "pics", "testkit", "scorecard", "space", "sbas", "lugre", "lunar", "trust", "link", "verification", "dut", "procedure", "verdict", "trace", "params", "fleet", "kit", "campaign", "mission", "see", "inject", "db", "sequence", "stream", "fingerprints", "lines", "prereg", "review", "failure", "labels", "ca", "identification", "interface", "sim", "traim", "consistency", "l1", "recorder", "replay", "selftest", "tco", "equivalence", "vectors", "precision", "sensitivity", "fingerprint"],
+        tokens: &["receiver", "osnma", "unit", "scheme", "equipment", "firmware", "pics", "testkit", "scorecard", "space", "sbas", "lugre", "lunar", "trust", "link", "verification", "dut", "procedure", "verdict", "trace", "params", "fleet", "kit", "campaign", "mission", "see", "inject", "db", "sequence", "stream", "fingerprints", "lines", "prereg", "review", "failure", "labels", "ca", "identification", "interface", "sim", "traim", "consistency", "l1", "recorder", "replay", "selftest", "tco", "equivalence", "vectors", "precision", "sensitivity", "fingerprint", "cislunar"],
         valid_inputs: &["receiver and test-bench logs, simulator exports, mission profiles and campaign files as documented"],
         ranges: &[("signals", "civil open signals only; no PRS, M-code or other restricted signals")],
         exclusions: &["Scores are under the named method and pre-registered bars; they are not type approval."],
