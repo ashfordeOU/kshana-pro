@@ -413,6 +413,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-space-ops-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-space-rx-exposure",
       "type": "feature",
       "tier": "pro"

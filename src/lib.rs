@@ -119,6 +119,7 @@ pub mod watermark;
 // Value layers — gated stubs (seam guards only; no proprietary capability is built
 // on spec, per the open-core discipline in docs/OVERLAY-ARCHITECTURE.md).
 pub mod resilience;
+pub mod space_ops;
 pub mod suite;
 pub mod timing;
 pub mod transport;

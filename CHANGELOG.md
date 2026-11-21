@@ -5,6 +5,13 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Space-operations signed evidence packs (research 2026-11-20 gaps B2205;
+  docs/SPACE-OPS-EVIDENCE.md).** `kshana-pro space-ops` (`pro-space-ops-evidence`, Pro): `ca`
+  collision-avoidance decision record (CDMs, encounter-plane Pc recomputed beside the reported
+  value, decision, lead time, checks against the operator's own policy), `identify` (ephemeris
+  against candidate TLEs on the open SGP4), `disposal` (US76 drag lifetime against the plan's
+  deadline), `pack` (all three signed together; framework article to confirm); `synth` free.
+  MODELLED. Tier manifest regenerated; `tests/space_ops_evidence.rs` (4 tests).
 - **Alternative-PNT evaluation and civil test-campaign evidence (backlog E40 B4004;
   docs/ALTPNT-EVIDENCE.md).** `kshana-pro altpnt` (features `pro-altpnt-evidence` and
   `pro-altpnt-campaign`, Pro): `failure-modes` (architecture failure-mode pack from declared
