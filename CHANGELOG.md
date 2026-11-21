@@ -19,6 +19,14 @@ own bullet so parallel work merges cleanly.
   (scope `population-benchmark` only); with consent, a contribution file carrying identity,
   features and a salted customer pseudonym for the hosted aggregate. Tier manifest regenerated; 2
   tests in `tests/receiver_scorecard.rs`.
+- **Combined eLoran and GNSS signal-file scenario (docs/HYBRID-SIM.md).** `kshana-pro hybrid-sim run`
+  (`pro-hybrid-signal-sim`, Pro): one request drives the eLoran scene simulator and the software GNSS
+  bridge on one time base, injects faults on the shared clock (ASF error as an added station delay,
+  fixed skywave, GNSS outage, GNSS interference as the C/N0 drop of a stated J/S), and writes both
+  SigMF files, their truth CSVs, a shared `truth.json` (common start, stream parameters, faults,
+  file hashes) and `truth-timeline.csv`, signed. Files only, no transmit path; no interference
+  waveform synthesised. `hybrid-sim synth` free. Tier manifest regenerated; 2 tests in
+  `tests/eloran_gnss_sdr.rs`. MODELLED.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from

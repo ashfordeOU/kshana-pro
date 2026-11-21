@@ -238,3 +238,99 @@ fn paced_sink_runs_in_real_time_and_shares_the_start() {
     assert!(meta.contains("\"kshana:paced\": true"));
     std::fs::remove_dir_all(&d).ok();
 }
+
+// ---------------------------------------------------------------------------------------------
+// Combined eLoran + GNSS signal-file scenario with injected faults and a shared truth.
+
+mod hybrid {
+    use kshana_pro::hybrid_sim::{self, Request};
+
+    fn setup(name: &str) -> (std::path::PathBuf, Request) {
+        let d = super::tmp(&format!("hybrid-{name}"));
+        let (s, q) = hybrid_sim::synth();
+        std::fs::write(d.join("scenario.toml"), s).unwrap();
+        std::fs::write(d.join("nav.rnx"), super::NAV).unwrap();
+        (d, toml::from_str(&q).unwrap())
+    }
+
+    #[test]
+    fn one_scenario_writes_aligned_files_faults_and_shared_truth() {
+        let (d, q) = setup("run");
+        let out = d.join("out");
+        let t = hybrid_sim::run(&q, &d, &out).unwrap();
+        // Both streams start at the same instant and cover the run.
+        assert_eq!(t.eloran.first_sample_utc, t.gnss.first_sample_utc);
+        assert_eq!(t.eloran.samples, 200_000);
+        assert_eq!(t.gnss.samples, 500_000);
+        assert_eq!(t.eloran.center_hz, 100_000.0);
+        assert_eq!(t.faults.len(), 4);
+        for f in [
+            "eloran.sigmf-data",
+            "gnss.sigmf-data",
+            "eloran.truth.csv",
+            "gnss.truth.csv",
+            "truth.json",
+            "truth-timeline.csv",
+        ] {
+            assert!(out.join(f).is_file(), "{f}");
+        }
+        assert_eq!(t.files.len(), 6);
+        assert!(t.files_only.contains("no transmit path"));
+        // The eLoran truth shows the ASF error on X in its window and the skywave throughout.
+        let et = std::fs::read_to_string(out.join("eloran.truth.csv")).unwrap();
+        let rows = kshana_eloran::scene::truth_from_csv(&et).unwrap();
+        let x: Vec<_> = rows.iter().filter(|r| r.station == "X").collect();
+        assert!(x.iter().any(|r| r.t_emit_s >= 0.2
+            && r.t_emit_s < 0.4
+            && (r.emission_error_ns - 500.0).abs() < 1e-6));
+        assert!(x
+            .iter()
+            .any(|r| r.t_emit_s < 0.2 && r.emission_error_ns.abs() < 1e-6));
+        assert!(rows.iter().all(|r| r.sky_delay_us.is_some()));
+        // The shared timeline marks the GNSS outage and the interference drop.
+        let tl = std::fs::read_to_string(out.join("truth-timeline.csv")).unwrap();
+        assert!(tl.contains("0.150,skywave,outage,"), "{tl}");
+        let drop = hybrid_sim::cn0_drop_db(30.0, 45.0, 1.023e6);
+        assert!((drop - 10.0 * (1.0f64 + 10f64.powf(4.5) * 1e3 / 1.023e6).log10()).abs() < 1e-9);
+        assert!(
+            tl.contains(&format!(
+                "0.350,asf-error:SYN/X;skywave,interference,-{drop:.2}"
+            )),
+            "{tl}"
+        );
+        assert!(tl.contains("0.050,skywave,nominal,0"), "{tl}");
+        // The GNSS signal is gone in the outage window.
+        let iq = super::read_ci16(&out.join("gnss.sigmf-data"));
+        let p = |a: usize, b: usize| {
+            iq[a..b].iter().map(|(i, q)| i * i + q * q).sum::<f64>() / (b - a) as f64
+        };
+        assert!(
+            p(120_000, 180_000) < p(20_000, 80_000),
+            "outage lowers the received power"
+        );
+    }
+
+    #[test]
+    fn faults_are_checked() {
+        let (d, mut q) = setup("bad");
+        q.faults.push(hybrid_sim::Fault::GnssOutage {
+            from_s: 0.4,
+            to_s: 0.9,
+            sats: None,
+        });
+        assert!(hybrid_sim::run(&q, &d, &d.join("o"))
+            .unwrap_err()
+            .contains("inside the run"));
+        let (d, mut q) = setup("bad2");
+        q.faults[0] = hybrid_sim::Fault::AsfError {
+            chain: "SYN".into(),
+            station: "Y".into(),
+            from_s: 0.1,
+            to_s: 0.2,
+            error_ns: 1.0,
+        };
+        assert!(hybrid_sim::run(&q, &d, &d.join("o"))
+            .unwrap_err()
+            .contains("no station"));
+    }
+}

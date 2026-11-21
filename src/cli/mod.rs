@@ -31,6 +31,7 @@ mod fingerprint_cmd;
 mod fleet_cmd;
 mod forensics_cmd;
 mod grid_cmd;
+mod hybrid_sim_cmd;
 mod iface_cmd;
 mod incident_cmd;
 mod insurance_cmd;
@@ -117,6 +118,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro product-bench <register|score|synth> ...   Third-party interference product benchmark under a pre-registered protocol: detection rate, latency, false reports per hour, affected-area accuracy on victim-receiver cells only (score Pro; register and synth free)\n\
        kshana-pro osnma-pack <list|export|score|synth-log> ...   OSNMA scenario pack: key renewal, chain and public-key revocation, subframe loss, replay, time-sync attacks, start-up, meaconing, each with expected authentication states checked against a reference model; receiver-log scoring (export and score Pro; list and synth-log free)\n\
        kshana-pro fingerprint build ...   Signed per-firmware receiver behaviour fingerprint from verified Pro scorecards, with the consent flag for the population-benchmark give-back (Pro)\n\
+       kshana-pro hybrid-sim <run|synth> ...   One scenario writing time-aligned eLoran (100 kHz) and GNSS baseband SigMF files with injected faults and a shared truth; files only, no transmit path (Pro; synth free)\n\
        kshana-pro survey-qc <run|synth> ...   Marine survey and construction positioning QC under interference: per-line flags, signed QC annex, site risk plan (Pro; synth free)\n\
        kshana-pro vault <init|ingest|list|hold|release|delete|trend|calendar|submission|verify|export|import> ...   Customer evidence vault: signed packs with legal hold, retention, hash-chained ledger, trends, obligation calendar, submission skeletons, open export (Enterprise; import free)\n\
        kshana-pro method <schedule|budget> ...   Yearly re-scoring schedule and per-test GUM uncertainty budgets with a method report (Pro)\n\
@@ -269,6 +271,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "custody",
     "survey-qc",
     "fingerprint",
+    "hybrid-sim",
     "casualty",
     "aviation-recon",
     "enforcement",
@@ -434,6 +437,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("custody") => custody_cmd::run(&args[1..]),
         Some("survey-qc") => survey_cmd::run(&args[1..]),
         Some("fingerprint") => fingerprint_cmd::run(&args[1..]),
+        Some("hybrid-sim") => hybrid_sim_cmd::run(&args[1..]),
         Some("casualty") => casualty_cmd::run(&args[1..]),
         Some("aviation-recon") => aviation_recon_cmd::run(&args[1..]),
         Some("enforcement") => enforcement_cmd::run(&args[1..]),
