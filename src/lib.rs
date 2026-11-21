@@ -80,6 +80,7 @@ pub mod lunar_surface;
 pub mod method_uncertainty;
 pub mod multi_source;
 pub mod navaids;
+pub mod navic;
 pub mod obs_provenance;
 pub mod osnma_conformance;
 pub mod pack_c;

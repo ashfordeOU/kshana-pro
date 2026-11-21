@@ -146,6 +146,12 @@ own bullet so parallel work merges cleanly.
   id, transmitting PRN or field value, per-version regression vectors and decoder scoring that
   lists silently accepted unknowns. Tier manifest regenerated; `tests/decoder_regression.rs`
   (3 tests, SYNTHETIC profiles).
+- **NavIC test kit and integrity evidence (research 2026-11-20 gaps B1605; docs/NAVIC.md).**
+  `kshana-pro navic` (`pro-navic-evidence`, Pro; `scaffold` free): an L1 SPS test-vector scaffold
+  with placeholders only; health-aware receiver checks (unhealthy satellites used, NavIC-only
+  fixes with fewer than four healthy satellites); pairwise NavIC/GPS/Galileo solution
+  consistency; signed timing evidence with the stated traceability chain. Tier manifest
+  regenerated; `tests/navic_evidence.rs` (4 tests).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
