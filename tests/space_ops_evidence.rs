@@ -267,3 +267,259 @@ fn operator_pack_is_signed_and_needs_a_licence() {
             .passed());
     }
 }
+
+/// Pc dedupe preparation: Pro `space_ops::pc_2d` against the open engine's
+/// `orbit_data::pc::foster_2d` (open branch open/conjunction-pc, kshana #170), mirrored here
+/// because the pinned engine release does not have it yet. Once it does, `pc_2d` calls it and
+/// this mirror goes.
+mod pc_dedupe {
+    use kshana_pro::space_ops as so;
+
+    type V3 = [f64; 3];
+    type M3 = [[f64; 3]; 3];
+
+    // ---- Mirror of the open foster_2d (encounter frame, principal axes, closed-form inner
+    // integral, adaptive Simpson with x = R sin t). Kept line for line with the open code.
+    fn sub(a: V3, b: V3) -> V3 {
+        [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
+    }
+    fn dot(a: V3, b: V3) -> f64 {
+        a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+    }
+    fn cross(a: V3, b: V3) -> V3 {
+        [
+            a[1] * b[2] - a[2] * b[1],
+            a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0],
+        ]
+    }
+    fn scale(a: V3, s: f64) -> V3 {
+        [a[0] * s, a[1] * s, a[2] * s]
+    }
+    fn norm(a: V3) -> f64 {
+        dot(a, a).sqrt()
+    }
+    fn quad(m: &M3, a: V3, b: V3) -> f64 {
+        let mb = [dot(m[0], b), dot(m[1], b), dot(m[2], b)];
+        dot(a, mb)
+    }
+
+    pub fn foster_2d(r1: V3, v1: V3, c1: &M3, r2: V3, v2: V3, c2: &M3, hbr_m: f64) -> f64 {
+        let r = sub(r2, r1);
+        let v = sub(v2, v1);
+        let speed = norm(v);
+        let mut c = [[0.0; 3]; 3];
+        for i in 0..3 {
+            for j in 0..3 {
+                c[i][j] = 0.5 * (c1[i][j] + c1[j][i]) + 0.5 * (c2[i][j] + c2[j][i]);
+            }
+        }
+        let z = scale(v, 1.0 / speed);
+        let perp = sub(r, scale(z, dot(r, z)));
+        let x = if norm(perp) > 1e-12 * norm(r).max(1.0) {
+            scale(perp, 1.0 / norm(perp))
+        } else {
+            let t = if z[0].abs() < 0.9 {
+                [1.0, 0.0, 0.0]
+            } else {
+                [0.0, 1.0, 0.0]
+            };
+            let p = cross(z, t);
+            scale(p, 1.0 / norm(p))
+        };
+        let y = cross(z, x);
+        let (cxx, cxy, cyy) = (quad(&c, x, x), quad(&c, x, y), quad(&c, y, y));
+        let miss_plane = dot(r, x);
+        let tr = cxx + cyy;
+        let disc = (((cxx - cyy) / 2.0).powi(2) + cxy * cxy).sqrt();
+        let (l1, l2) = (tr / 2.0 + disc, tr / 2.0 - disc);
+        assert!(l2 > 0.0);
+        let th = 0.5 * (2.0 * cxy).atan2(cxx - cyy);
+        let (s, co) = th.sin_cos();
+        integrate(
+            hbr_m,
+            l1.sqrt(),
+            l2.sqrt(),
+            miss_plane * co,
+            -miss_plane * s,
+        )
+    }
+
+    fn integrate(r: f64, sx: f64, sy: f64, mx: f64, my: f64) -> f64 {
+        let inv_sqrt_2pi = 1.0 / (2.0 * std::f64::consts::PI).sqrt();
+        let g = |t: f64| {
+            let (st, ct) = t.sin_cos();
+            let x = r * st;
+            let h = (r * ct).max(0.0);
+            let px = inv_sqrt_2pi / sx * (-0.5 * ((x - mx) / sx).powi(2)).exp();
+            let s2 = std::f64::consts::SQRT_2 * sy;
+            let inner = 0.5 * (libm::erf((my + h) / s2) - libm::erf((my - h) / s2));
+            px * inner * r * ct
+        };
+        let (a, b) = (-std::f64::consts::FRAC_PI_2, std::f64::consts::FRAC_PI_2);
+        let n = 64;
+        let w = (b - a) / n as f64;
+        let mut total = 0.0;
+        for k in 0..n {
+            let (l, u) = (a + k as f64 * w, a + (k + 1) as f64 * w);
+            let (fl, fm, fu) = (g(l), g(0.5 * (l + u)), g(u));
+            let whole = (u - l) / 6.0 * (fl + 4.0 * fm + fu);
+            total += simpson(&g, l, u, fl, fm, fu, whole, 1e-13, 40);
+        }
+        total.clamp(0.0, 1.0)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn simpson(
+        g: &dyn Fn(f64) -> f64,
+        a: f64,
+        b: f64,
+        fa: f64,
+        fm: f64,
+        fb: f64,
+        whole: f64,
+        tol: f64,
+        depth: u32,
+    ) -> f64 {
+        let m = 0.5 * (a + b);
+        let (lm, rm) = (0.5 * (a + m), 0.5 * (m + b));
+        let (flm, frm) = (g(lm), g(rm));
+        let left = (m - a) / 6.0 * (fa + 4.0 * flm + fm);
+        let right = (b - m) / 6.0 * (fm + 4.0 * frm + fb);
+        let delta = left + right - whole;
+        if depth == 0 || delta.abs() <= 15.0 * tol.max(1e-10 * (left + right).abs()) {
+            return left + right + delta / 15.0;
+        }
+        simpson(g, a, m, fa, flm, fm, left, tol / 2.0, depth - 1)
+            + simpson(g, m, b, fm, frm, fb, right, tol / 2.0, depth - 1)
+    }
+
+    // ---- The comparison.
+
+    fn cov(l: [f64; 6]) -> M3 {
+        [[l[0], l[1], l[3]], [l[1], l[2], l[4]], [l[3], l[4], l[5]]]
+    }
+
+    /// The open function on a Pro CDM: object 1 at the origin at rest, object 2 at the relative
+    /// state, both covariances taken in the same (object 1 RTN) frame, as `pc_2d` does.
+    fn open_on(c: &so::Cdm) -> f64 {
+        foster_2d(
+            [0.0; 3],
+            [0.0; 3],
+            &cov(c.cov1_rtn_m2),
+            c.rel_pos_rtn_m,
+            c.rel_vel_rtn_mps,
+            &cov(c.cov2_rtn_m2),
+            c.hbr_m,
+        )
+    }
+
+    fn cases() -> Vec<(String, so::Cdm)> {
+        let base = |id: &str, r: V3, v: V3, c1: [f64; 6], c2: [f64; 6], hbr: f64| {
+            (
+                id.to_string(),
+                so::Cdm {
+                    message_id: id.into(),
+                    creation_utc: "2026-11-17T00:00:00Z".into(),
+                    tca_utc: "2026-11-18T00:00:00Z".into(),
+                    rel_pos_rtn_m: r,
+                    rel_vel_rtn_mps: v,
+                    cov1_rtn_m2: c1,
+                    cov2_rtn_m2: c2,
+                    hbr_m: hbr,
+                    pc_reported: None,
+                },
+            )
+        };
+        let head_on = [0.0, -14_000.0, 0.0];
+        let mut v = vec![
+            base(
+                "zero-miss-iso",
+                [0.0; 3],
+                head_on,
+                [900.0, 0.0, 1e6, 0.0, 0.0, 900.0],
+                [1600.0, 0.0, 1e6, 0.0, 0.0, 1600.0],
+                20.0,
+            ),
+            base(
+                "far-small-body",
+                [250.0, 0.0, 0.0],
+                head_on,
+                [1e4, 0.0, 1e6, 0.0, 0.0, 1e4],
+                [0.0; 6],
+                1.0,
+            ),
+            base(
+                "big-body",
+                [40.0, 0.0, 10.0],
+                head_on,
+                [100.0, 0.0, 1e6, 0.0, 0.0, 100.0],
+                [100.0, 0.0, 1e6, 0.0, 0.0, 100.0],
+                30.0,
+            ),
+            base(
+                "correlated-oblique",
+                [120.0, 300.0, -80.0],
+                [50.0, -9_000.0, 4_000.0],
+                [2500.0, 800.0, 250_000.0, -300.0, 1500.0, 900.0],
+                [40_000.0, -2000.0, 4e6, 500.0, -800.0, 10_000.0],
+                12.0,
+            ),
+            base(
+                "elongated",
+                [5.0, 0.0, 400.0],
+                head_on,
+                [25.0, 0.0, 1e6, 0.0, 0.0, 250_000.0],
+                [0.0; 6],
+                10.0,
+            ),
+        ];
+        // The Pro CDM fixtures (the decision-record synth).
+        let files = so::synth().unwrap();
+        let ca = &files.iter().find(|(n, _)| *n == "ca.toml").unwrap().1;
+        let q: so::CaRequest = toml::from_str(ca).unwrap();
+        for c in q.cdms {
+            v.push((c.message_id.clone(), c));
+        }
+        v
+    }
+
+    /// The mirror reproduces the closed forms to 1e-9 (so it, not Pro's grid, is the reference).
+    #[test]
+    fn open_mirror_matches_the_closed_forms() {
+        let head_on = [0.0, -14_000.0, 0.0];
+        for (s1, s2, hbr) in [(30.0, 40.0, 20.0), (100.0, 0.0, 10.0), (10.0, 10.0, 30.0)] {
+            let s2c: f64 = s1 * s1 + s2 * s2;
+            let want = 1.0 - (-(hbr * hbr) / (2.0 * s2c)).exp();
+            let c1 = [[s1 * s1, 0.0, 0.0], [0.0, 1e6, 0.0], [0.0, 0.0, s1 * s1]];
+            let c2 = [[s2 * s2, 0.0, 0.0], [0.0, 1e6, 0.0], [0.0, 0.0, s2 * s2]];
+            let got = foster_2d([0.0; 3], [0.0; 3], &c1, [0.0; 3], head_on, &c2, hbr);
+            assert!((got / want - 1.0).abs() < 1e-9, "{got} vs {want}");
+        }
+    }
+
+    /// Pro `pc_2d` against the open `foster_2d` on the same inputs, the Pro CDM fixtures
+    /// included. The target of 1e-9 relative is NOT met: Pro integrates the disc on a fixed
+    /// 200 x 360 midpoint polar grid, accurate to about 1e-5 relative (worst with a body large
+    /// against the covariance), while the open function integrates the closed-form inner integral
+    /// adaptively to 1e-10 and matches the closed forms to 1e-9. The bound asserted is the
+    /// measured agreement; switching `pc_2d` to the open function improves Pro's numbers by up to
+    /// that much.
+    #[test]
+    fn pro_pc_2d_against_the_open_foster_2d() {
+        let mut worst: f64 = 0.0;
+        for (id, c) in cases() {
+            let pro = so::pc_2d(&c).unwrap();
+            let open = open_on(&c);
+            let rel = (pro / open - 1.0).abs();
+            eprintln!("{id:>20}: pro {pro:.12e}  open {open:.12e}  rel {rel:.3e}");
+            assert!(
+                open > 0.0 && rel < 1e-5,
+                "{id}: pro {pro} open {open} rel {rel}"
+            );
+            worst = worst.max(rel);
+        }
+        // The documented gap: the grid is not at 1e-9 everywhere.
+        assert!(worst > 1e-9, "Pro now agrees to 1e-9: tighten the bound");
+    }
+}
