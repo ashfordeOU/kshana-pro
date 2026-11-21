@@ -278,6 +278,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-interference-product-benchmark",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-interference-reports",
       "type": "feature",
       "tier": "pro"

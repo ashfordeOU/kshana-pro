@@ -97,6 +97,7 @@ pub mod pnt_study;
 pub mod pntdp;
 pub mod premium;
 pub mod pro_study;
+pub mod product_bench;
 pub mod propack;
 pub mod registry;
 pub mod regpacks;
