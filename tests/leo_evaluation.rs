@@ -299,3 +299,81 @@ fn dd_template_cites_every_verdict_and_refuses_uncited_values() {
     d.claims[0].quote = None;
     assert!(claims::dd_report(&d, &[], "x").is_err());
 }
+
+/// Acceptance audit (B2101): the three published procedures are frozen at v1.0. Their method
+/// hashes are pinned, so any change to a published procedure's method fails here and needs a
+/// new version, not an edit.
+#[test]
+fn published_v1_procedures_are_pinned_by_hash() {
+    const PINNED: [(&str, &str); 3] = [
+        (
+            "leo-doppler-stress",
+            "74b807fa219c123de9a106e18ba9145fa691fe2bf3f6cd6d98fcc98a16567d85",
+        ),
+        (
+            "leo-acquisition",
+            "e544eb7bbe703dd8b814f0150c5cb4509397a064fe613e2860b6b9e459394097",
+        ),
+        (
+            "leo-signal-profiles",
+            "cc6f5bdcf0ed55d6ce86a3fa72257f30166b578b5bfcdf9f2dc699c49a259652",
+        ),
+    ];
+    let got: Vec<(String, String)> = sims::PUBLISHED
+        .iter()
+        .map(|(id, t)| (id.to_string(), sims::procedure_hash(t).unwrap()))
+        .collect();
+    let want: Vec<(String, String)> = PINNED
+        .iter()
+        .map(|(a, b)| (a.to_string(), b.to_string()))
+        .collect();
+    assert_eq!(got, want);
+}
+
+/// Acceptance audit (B2107): an ODTS product fixture with an injected orbit fault. A
+/// broadcast-minus-precise series for two satellites with the same small errors, one of them
+/// with a 6 m radial fault over 40 of 400 epochs: the clean satellite's SISRE is overbounded by
+/// its broadcast sigma, the faulted one is not and asks for inflation.
+#[test]
+fn odts_fixture_with_an_injected_orbit_fault_breaks_the_overbound() {
+    use rand::{Rng, SeedableRng};
+    let mut rng = rand_chacha::ChaCha8Rng::seed_from_u64(2107);
+    // Box-Muller, sigma 0.25 m.
+    let mut g = move || {
+        let (u1, u2): (f64, f64) = (rng.gen_range(1e-12..1.0), rng.gen());
+        0.25 * (-2.0 * u1.ln()).sqrt() * (std::f64::consts::TAU * u2).cos()
+    };
+    let w = od::weights(1_000.0, 5.0).unwrap();
+    let mut csv = String::from("t,sat,dR_m,dA_m,dC_m,dclk_m,sigma_m\n");
+    for k in 0..400 {
+        for sat in ["CLEAN", "FAULT"] {
+            let fault = if sat == "FAULT" && (200..240).contains(&k) {
+                6.0
+            } else {
+                0.0
+            };
+            csv.push_str(&format!(
+                "{k},{sat},{},{},{},{},1.0\n",
+                g() + fault,
+                g(),
+                g(),
+                g()
+            ));
+        }
+    }
+    let s = od::sisre(&csv, &w).unwrap();
+    let get = |id: &str| s.iter().find(|x| x.sat == id).unwrap();
+    let (clean, fault) = (get("CLEAN"), get("FAULT"));
+    let ob_c = clean.overbound.as_ref().unwrap();
+    let ob_f = fault.overbound.as_ref().unwrap();
+    assert!(ob_c.bounded, "{ob_c:?}");
+    assert!(!ob_f.bounded, "{ob_f:?}");
+    assert!(ob_f.inflation_needed > 1.5, "{ob_f:?}");
+    assert!(
+        fault.max_m > 4.0 && clean.max_m < 2.0,
+        "{} {}",
+        fault.max_m,
+        clean.max_m
+    );
+    assert!(fault.orbit_only_rms_m > 3.0 * clean.orbit_only_rms_m);
+}
