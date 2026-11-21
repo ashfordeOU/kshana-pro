@@ -495,3 +495,89 @@ fn bench_routes_catalogue_free_check_licensed() {
         422
     );
 }
+
+// ---------------------------------------------------------------------------------------------
+// Crisis PNT service-availability model (planning tool).
+
+mod crisis {
+    use kshana_pro::crisis_pnt::{self, Request};
+
+    fn req() -> Request {
+        toml::from_str(&crisis_pnt::synth()).unwrap()
+    }
+
+    #[test]
+    fn availability_follows_the_sources_that_remain() {
+        let r = crisis_pnt::evaluate(&req()).unwrap();
+        assert_eq!(r.eloran_on_air, vec!["S1", "S2", "S3"]);
+        assert_eq!(r.eloran_off_air, vec!["S4"]);
+        let c = |n: &str| r.classes.iter().find(|c| c.class == n).unwrap();
+        // Maritime: eLoran (three stations, all needed) and LEO together meet 0.99 everywhere.
+        let m = c("maritime coastal navigation");
+        assert_eq!(m.denied_cells, 20);
+        assert_eq!(m.denied_served_share, 1.0);
+        let a = 0.999f64.powi(3);
+        let want = 1.0 - (1.0 - a) * (1.0 - 0.99);
+        for g in m.grid.iter().filter(|g| g.gnss_denied) {
+            assert!((g.availability - want).abs() < 1e-6, "{g:?}");
+            assert_eq!(g.sources_meeting_need, vec!["eloran", "leo"]);
+        }
+        // Telecom timing on eLoran alone: 0.997 < 0.999, and a RAFS holds over far less than 48 h.
+        let t = c("telecom timing");
+        assert_eq!(t.denied_served_share, 0.0);
+        assert!(t.holdover_h.unwrap() < 48.0 && t.beyond_holdover_h.unwrap() > 40.0);
+        // The handheld class needs 10 m; the LEO service states 20 m: not served when denied.
+        let h = c("first-responder handheld");
+        assert!(h
+            .grid
+            .iter()
+            .filter(|g| g.gnss_denied)
+            .all(|g| g.sources_meeting_need.is_empty()));
+        // Cells outside the denial polygon keep GNSS.
+        assert!(m
+            .grid
+            .iter()
+            .filter(|g| !g.gnss_denied)
+            .all(|g| g.sources_meeting_need == ["gnss"]));
+        assert!(r.scope.contains("no navigation or timing solution"));
+        assert!(r.evidence.starts_with("MODELLED"));
+    }
+
+    #[test]
+    fn a_longer_holdover_or_a_fourth_station_changes_the_answer() {
+        // A 30-minute denial is held over by the RAFS.
+        let mut q = req();
+        q.denial.duration_h = 0.5;
+        let r = crisis_pnt::evaluate(&q).unwrap();
+        let t = r
+            .classes
+            .iter()
+            .find(|c| c.class == "telecom timing")
+            .unwrap();
+        assert_eq!(t.denied_served_share, 1.0);
+        assert!(t
+            .grid
+            .iter()
+            .all(|g| g.gnss_denied == g.sources_meeting_need.contains(&"holdover".to_string())));
+        // Losing every eLoran station leaves maritime on LEO alone (0.99): still served.
+        let mut q = req();
+        for s in &mut q.eloran.as_mut().unwrap().stations {
+            s.on_air = false;
+        }
+        let r = crisis_pnt::evaluate(&q).unwrap();
+        let m = r
+            .classes
+            .iter()
+            .find(|c| c.class == "maritime coastal navigation")
+            .unwrap();
+        assert!(m
+            .grid
+            .iter()
+            .filter(|g| g.gnss_denied)
+            .all(|g| g.sources_meeting_need == ["leo"]));
+        // Stated LEO figures need their source.
+        let mut q = req();
+        q.leo.as_mut().unwrap().source_of_figures = " ".into();
+        assert!(crisis_pnt::evaluate(&q).is_err());
+    }
+}

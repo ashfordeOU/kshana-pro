@@ -385,6 +385,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-receiver-fingerprint" => Tier::Pro,
         // Combined eLoran and GNSS signal-file scenario with faults and shared truth.
         "pro-hybrid-signal-sim" => Tier::Pro,
+        // Crisis PNT service-availability model (planning tool).
+        "pro-crisis-pnt-availability" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -520,6 +522,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-leo-ue-crosswalk",
     "pro-receiver-fingerprint",
     "pro-hybrid-signal-sim",
+    "pro-crisis-pnt-availability",
     "pro-casualty-reconstruction",
     "pro-method-validation",
     "pro-aviation-event-recon",

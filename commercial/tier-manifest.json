@@ -168,6 +168,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-crisis-pnt-availability",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-custody-capture",
       "type": "feature",
       "tier": "pro"
