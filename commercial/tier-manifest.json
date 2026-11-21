@@ -263,6 +263,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-hybrid-signal-sim",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-incident-replay",
       "type": "feature",
       "tier": "pro"

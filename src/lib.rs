@@ -66,6 +66,7 @@ pub mod extension;
 pub mod fdm;
 pub mod forensics;
 pub mod frameworks;
+pub mod hybrid_sim;
 pub mod ievents;
 pub mod insurance;
 pub mod integrity;
