@@ -5,6 +5,13 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Cislunar catalogue build-up (docs/CISLUNAR-CATALOGUE.md).** `kshana-pro cislunar-catalogue run`
+  (`pro-cislunar-catalogue`, Pro): attributables from angles-only tracklets, pairwise association
+  by range hypotheses refined to a pairwise orbit in the open engine's Earth-Moon CR3BP, objects as
+  linked components, and a six-state batch initial orbit per object with its formal covariance;
+  purity, completeness and IOD error against truth on synthetic data; signed. Planning and evidence
+  only. `cislunar-catalogue synth` free. Tier manifest regenerated; 2 tests in
+  `tests/space_ops_evidence.rs`. MODELLED.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from

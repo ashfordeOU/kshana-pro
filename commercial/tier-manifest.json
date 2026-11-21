@@ -163,6 +163,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-cislunar-catalogue",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-claims-triage",
       "type": "feature",
       "tier": "pro"
