@@ -133,7 +133,7 @@ pub const FAMILIES: &[Family] = &[
     },
     Family {
         name: "receivers-space-and-test",
-        tokens: &["receiver", "osnma", "unit", "scheme", "equipment", "firmware", "pics", "testkit", "scorecard", "space", "sbas", "lugre", "lunar", "trust", "link", "verification", "dut", "procedure", "verdict", "trace", "params", "fleet", "kit", "campaign", "mission", "see", "inject", "db", "sequence", "stream", "fingerprints", "lines", "prereg", "review", "failure", "labels", "ca", "identification", "interface", "sim", "traim", "consistency", "l1", "recorder", "replay", "selftest", "tco"],
+        tokens: &["receiver", "osnma", "unit", "scheme", "equipment", "firmware", "pics", "testkit", "scorecard", "space", "sbas", "lugre", "lunar", "trust", "link", "verification", "dut", "procedure", "verdict", "trace", "params", "fleet", "kit", "campaign", "mission", "see", "inject", "db", "sequence", "stream", "fingerprints", "lines", "prereg", "review", "failure", "labels", "ca", "identification", "interface", "sim", "traim", "consistency", "l1", "recorder", "replay", "selftest", "tco", "equivalence", "vectors", "precision"],
         valid_inputs: &["receiver and test-bench logs, simulator exports, mission profiles and campaign files as documented"],
         ranges: &[("signals", "civil open signals only; no PRS, M-code or other restricted signals")],
         exclusions: &["Scores are under the named method and pre-registered bars; they are not type approval."],
