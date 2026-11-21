@@ -124,7 +124,7 @@ impl AbsTime {
         let (y, mo, da) = (p(d[0])?, p(d[1])?, p(d[2])?);
         let (h, mi) = (p(t[0])?, p(t[1])?);
         let sec: f64 = t[2].parse().map_err(|e| format!("{}: {e}", t[2]))?;
-        if !(1..=12).contains(&mo) || !(1..=31).contains(&da) || h > 23 || mi > 59 {
+        if !(1..=12).contains(&mo) || da < 1 || da > days_in_month(y, mo) || h > 23 || mi > 59 {
             return Err(format!("date or time out of range: {s}"));
         }
         if !(0.0..61.0).contains(&sec) {
@@ -215,6 +215,17 @@ pub fn civil_from_days(z: i64) -> (i64, i64, i64) {
     let d = doy - (153 * mp + 2) / 5 + 1;
     let m = if mp < 10 { mp + 3 } else { mp - 9 };
     (if m <= 2 { y + 1 } else { y }, m, d)
+}
+
+/// Days in month `m` (1-12) of year `y`, proleptic Gregorian (0 for a month out of range).
+pub fn days_in_month(y: i64, m: i64) -> i64 {
+    match m {
+        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+        4 | 6 | 9 | 11 => 30,
+        2 if y % 4 == 0 && (y % 100 != 0 || y % 400 == 0) => 29,
+        2 => 28,
+        _ => 0,
+    }
 }
 
 /// Days from 1970-01-01 of a proleptic Gregorian date (H. Hinnant's algorithm).

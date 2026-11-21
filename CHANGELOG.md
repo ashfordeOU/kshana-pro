@@ -56,6 +56,69 @@ own bullet so parallel work merges cleanly.
   casualty radar fixes (datum, radar-to-GNSS lever arm not applied), and the LuGRE geometry
   (GPS-as-UT1 adds about 4.5 arcmin, under 0.1 degree at the Moon, not only nutation). Tests in
   `tests/space_ops_evidence.rs`, `tests/leo_timing.rs` and `tests/eloran_gnss.rs`.
+- **Fix: sign of the NavIC-minus-GPS offset in NavIC timing evidence (docs/NAVIC.md, B1605).**
+  `navic timing` takes `offset_navic_s` and `offset_gps_s` as the receiver clock minus each
+  system's time, and reported `offset_navic_s − offset_gps_s` as NavIC minus GPS. That
+  difference is GPS minus NavIC. **Affected: the `navic_minus_gps_mean_s` of every signed NavIC
+  timing pack before this fix (sign reversed).** The RMS, peak-to-peak and MTIE are unchanged.
+  The test that encoded the same sign is corrected.
+- **Fix: overhead Doppler rate in `leo-eval doppler` (docs/LEO-EVALUATION.md, B2101).** The
+  largest range acceleration of a circular orbit seen from the ground was taken as `v²/h`. That
+  is the straight-line flyby value. Seen from a point on the sphere, `ρ² = R² + r² −
+  2Rr·cos ωt` gives `ρ̈ = v²·R/((R+h)·h)` overhead, so the old value was high by `(R+h)/R`:
+  8.6 % at 550 km (550 vs 506 Hz/s at L1), 19 % at 1200 km. **Affected: the
+  `max_doppler_rate_hz_s` printed by `leo-eval doppler` before this fix (conservative, too
+  high).** The published v1.0 procedures do not use it. The test now checks the closed form
+  against a finite-difference derivative of the pass geometry.
+- **Unit and sign audit, doc corrections.** The `timing attack` cross-check calibration window
+  learns `(eLoran reference) − (GNSS reference)`, as the code computes; its field doc said
+  GNSS − eLoran. The eLoran field importer's TIC `fixed_delay_ns` now states which side it
+  belongs to: positive for extra delay in the receiver's 1PPS path, negative for the reference's,
+  subtracted after the sign. No behaviour changes. The two real errors the sweep found are fixed
+  on their own branches: the NavIC-minus-GPS sign and the overhead Doppler rate.
+- **Fix: the leap-second deletion vector lost its event marker (docs/TIMING-ASSURANCE.md).**
+  `VectorSpec::leap_index` looked for the epoch after 23:59:59 on the leap day. A deletion skips
+  23:59:59, so every `leap-delete` vector had no event. Its UBX NAV-TIMELS never announced the
+  −1 s change, `expected.csv` marked no `leap` row, and the analyser reported a device that did
+  not delete the second as `leap-mistimed` instead of `leap-not-applied`. **Affected: every
+  `leap-delete` vector and analysis before this fix**; insertion vectors were right. The event
+  is now the epoch after 23:59:58 for a deletion. Tests cover the deletion marker and the
+  analyser on a device that does not delete; both fail on the old code.
+- **Fix: evidence-vault retention date when `--utc` is not in ISO form (docs/EVIDENCE-VAULT.md,
+  B2504).** `vault ingest` added the retention years to the first four characters of `--utc`
+  whatever its form, although every other vault command accepts any form `parse_utc` takes.
+  Unix seconds (`1767225600`) gave a retention limit 7,000,000 s, about 81 days, later instead
+  of 7 years. A bare date (`2026-01-01`) gave a limit that never parsed, so the pack could
+  never be deleted. **Affected: packs ingested with a non-ISO `--utc` before this fix; check
+  their `retain_until_utc` in the index.** The vault now brings `--utc` and an obligation's
+  `first_due` to `YYYY-MM-DDTHH:MM:SSZ` first and refuses what does not parse. `delete`
+  refuses an unparsable stored retention date instead of treating it as forever. Test:
+  `retention_is_the_same_whatever_form_utc_takes`.
+- **Fix: `forensics::inputs::iso` could write hour 24.** It split off the day before rounding
+  the seconds of day to tenths, so a time in the last 0.05 s of a day came out as `T24:00:00Z`.
+  The text does not parse back, so a `method schedule` item scored then fell back to its raw
+  time and could show OVERDUE, and the daily bins of the lunar SLA and UTM reports put it in the
+  previous day. It now rounds before splitting the day. Test:
+  `iso_rounds_into_the_next_day_not_hour_24`.
+- **Fix: ephemeris age across the week boundary in the software GNSS bridge.**
+  `select_ephemerides` (used by the hybrid GNSS bridge and the GNSS SDR scenes) measured an
+  ephemeris's distance from the scene start by wrapping the time-of-week difference, whatever
+  the week numbers said. A same-week Sunday 00:00 ephemeris was taken for a Saturday 22:40 scene
+  as 80 minutes away when it was 6.9 days old. The engine then propagated a week-stale ephemeris
+  without the "no usable ephemeris" error. Reachable only when the navigation file had no
+  nearer record for that satellite. The age is now the signed week difference (modulo 1024, so
+  a Galileo +1024 offset compares alike) times 604800 s plus the time-of-week difference. Test:
+  `ephemeris_age_spans_the_week_boundary_by_week_number`.
+- **Time edge-case audit, small fixes.** The timestamp parsers `kshana_eloran::time::AbsTime::
+  from_utc_iso`, `kshana_eloran::sync::UtcStamp::parse`, `agri::parse_utc` and
+  `timing::timebomb::Label::parse_iso` checked only that the day was in 1-31. They accepted
+  31 February, rolling it into March; they now check the day against the month (29 February
+  only in leap years, with the 100/400 rule) through a new `kshana_eloran::time::days_in_month`.
+  `kshana-pro fleet ageing` no longer panics on a `--utc` shorter than a date. The
+  time-transfer `leap_seconds` default (18, valid from 2017) is documented as fixed and to set
+  for other dates. Five real time edge bugs found in the same sweep are fixed on their own
+  branches: leap-second deletion marker, vault retention for non-ISO `--utc`, `iso` hour 24,
+  ephemeris age across the week, and OEM `TIME_SYSTEM` (frame audit).
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**

@@ -99,7 +99,13 @@ impl UtcStamp {
             let digits: String = frac.chars().take(9).collect();
             frac_ns = p(&digits)? * 10i64.pow(9 - digits.len() as u32);
         }
-        if !(1..=12).contains(&mo) || !(1..=31).contains(&da) || h > 23 || mi > 59 || sec > 59 {
+        if !(1..=12).contains(&mo)
+            || da < 1
+            || da > crate::time::days_in_month(y, mo)
+            || h > 23
+            || mi > 59
+            || sec > 59
+        {
             return Err(format!("date or time out of range: {s}"));
         }
         Ok(UtcStamp {

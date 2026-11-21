@@ -387,7 +387,8 @@ pub fn timing(q: &TimingRequest, csv: &str) -> Result<Timing, String> {
         return Err("fewer than 10 samples".into());
     }
     s.sort_by(|a, b| a.0.total_cmp(&b.0));
-    let d: Vec<f64> = s.iter().map(|x| x.1 - x.2).collect();
+    // Columns are receiver minus each system time, so NavIC − GPS = (rx − GPS) − (rx − NavIC).
+    let d: Vec<f64> = s.iter().map(|x| x.2 - x.1).collect();
     let n = d.len() as f64;
     let mean = d.iter().sum::<f64>() / n;
     let rms = (d.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / n).sqrt();

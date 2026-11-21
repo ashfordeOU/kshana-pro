@@ -106,7 +106,13 @@ impl Label {
         let p = |x: &str| x.trim().parse::<i64>().map_err(|_| bad());
         let (y, mo, da, h, mi) = (p(d[0])?, p(d[1])?, p(d[2])?, p(tm[0])?, p(tm[1])?);
         let sec = p(tm[2].split('.').next().unwrap_or(""))?;
-        if !(1..=12).contains(&mo) || !(1..=31).contains(&da) || h > 23 || mi > 59 || sec > 60 {
+        if !(1..=12).contains(&mo)
+            || da < 1
+            || da > kshana_eloran::time::days_in_month(y, mo)
+            || h > 23
+            || mi > 59
+            || sec > 60
+        {
             return Err(bad());
         }
         if sec == 60 && !(h == 23 && mi == 59) {
@@ -436,12 +442,15 @@ impl VectorSpec {
         out
     }
 
-    /// The index of the first epoch at or after the leap event (the epoch after 23:59:59).
+    /// The index of the first epoch at or after the leap event: the epoch after 23:59:59 for an
+    /// insertion (23:59:60), the epoch after 23:59:58 for a deletion (00:00:00 of the next day,
+    /// 23:59:59 being skipped).
     pub fn leap_index(&self) -> Option<usize> {
         let l = self.leap?;
+        let last = if l.insert { DAY_S - 1 } else { DAY_S - 2 };
         self.epochs()
             .iter()
-            .position(|e| e.utc.days == l.day && e.utc.sod == DAY_S - 1)
+            .position(|e| e.utc.days == l.day && e.utc.sod == last)
             .map(|i| i + 1)
     }
 }

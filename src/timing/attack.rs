@@ -122,7 +122,8 @@ pub struct Detector {
     pub threshold_ns: f64,
     /// Averaging window (s).
     pub window_s: f64,
-    /// Cross-check calibration window [from, to] (s): the GNSS−eLoran offset learned there.
+    /// Cross-check calibration window [from, to] (s): the mean of the cross-check difference
+    /// `(eLoran reference) − (GNSS reference)` learned there and removed afterwards.
     pub calib_from_s: f64,
     pub calib_to_s: f64,
 }
