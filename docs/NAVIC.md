@@ -16,7 +16,8 @@ Research 2026-11-20 gaps, backlog B1605. Module `src/navic.rs`, command `kshana-
   solutions of each system compared pairwise against `k·√(σa² + σb²)` (`--gate-k`, default 5);
   inconsistent episodes per pair. An episode on every pair with one system points at that system.
 * **Timing evidence** (`navic timing <request.toml>`): the receiver's offsets against NavIC and
-  GPS time; the NavIC-minus-GPS mean, RMS and peak-to-peak, MTIE of the NavIC offset, and the
+  GPS time (CSV `timestamp,offset_navic_s,offset_gps_s`, each the receiver clock minus that
+  system's time); the NavIC-minus-GPS mean (`offset_gps_s − offset_navic_s`), RMS and peak-to-peak, MTIE of the NavIC offset, and the
   traceability chain as the user states it (each link to confirm against the operators'
   publications); signed.
 
