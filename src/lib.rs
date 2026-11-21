@@ -30,6 +30,7 @@
 // is unambiguous that Pro *embeds* (does not reimplement) the open core.
 pub use kshana;
 
+pub mod adsb_phantom;
 pub mod agri;
 pub mod ais_evidence;
 pub mod alerts;

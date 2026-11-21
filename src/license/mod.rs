@@ -320,6 +320,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-tachograph-osnma" => Tier::Pro,
         // Space-operations signed evidence packs (2026-11-20 gaps, B2205).
         "pro-space-ops-evidence" => Tier::Pro,
+        // ADS-B phantom-target plausibility evidence (2026-11-20 gaps, B1002).
+        "pro-adsb-phantom" => Tier::Pro,
         // KS-Inside OEM SDK (research 2026-11-20 gaps E39 B3901, docs/KS-INSIDE.md): the
         // embedded facade and C ABI. Enterprise, and in addition only under an explicit
         // grant on a token naming the `sdk` product (crate::ks_inside); every call is metered.
@@ -474,6 +476,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-agri-photo",
     "pro-tachograph-osnma",
     "pro-space-ops-evidence",
+    "pro-adsb-phantom",
     "pro-ks-inside",
     "pro-simlab-replay",
     "pro-simlab-selftest",
