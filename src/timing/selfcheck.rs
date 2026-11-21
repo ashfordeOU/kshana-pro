@@ -129,8 +129,65 @@ fn ptp_path_delay(line: &str) -> Option<f64> {
         .map(|ns| ns * 1e-9)
 }
 
+/// Rows of one input that were dropped, with the first few reasons (shown in the report so a
+/// reader sees "N rows skipped" rather than a silent loss).
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkippedRows {
+    pub source: String,
+    pub rows: usize,
+    pub first: Vec<String>,
+}
+
+/// The verdict suffix for skipped rows ("" when none).
+pub fn skipped_note(v: &[SkippedRows]) -> String {
+    if v.is_empty() {
+        return String::new();
+    }
+    let total: usize = v.iter().map(|s| s.rows).sum();
+    format!(
+        "; {total} row(s) skipped ({}), see skipped_rows",
+        v.iter()
+            .map(|s| format!("{} {}", s.source, s.rows))
+            .collect::<Vec<_>>()
+            .join(", ")
+    )
+}
+
+impl SkippedRows {
+    /// The first reasons kept.
+    pub const KEEP: usize = 5;
+    pub fn new(source: &str) -> Self {
+        SkippedRows {
+            source: source.into(),
+            ..Default::default()
+        }
+    }
+    pub fn add(&mut self, line: usize, reason: &str) {
+        self.rows += 1;
+        if self.first.len() < Self::KEEP {
+            self.first.push(format!("line {line}: {reason}"));
+        }
+    }
+    /// `Some` only when something was skipped.
+    pub fn nonzero(self) -> Option<Self> {
+        (self.rows > 0).then_some(self)
+    }
+}
+
 /// Read one source's log into readings (node minus source, Unix time).
 pub fn read_source(s: &SourceSpec, text: &str) -> Result<Vec<Reading>, String> {
+    read_source_counted(s, text).map(|(r, _)| r)
+}
+
+/// [`read_source`], with the rows of a `csv` or `ntp-peerstats` log that could not be read
+/// counted (a `csv` log's first unreadable line is its header, not a skip). Daemon logs (ptp4l,
+/// chrony and the like) mix measurement lines with other messages, so their other lines are not
+/// counted.
+pub fn read_source_counted(
+    s: &SourceSpec,
+    text: &str,
+) -> Result<(Vec<Reading>, SkippedRows), String> {
+    let mut skipped = SkippedRows::new(&s.name);
     use kshana::clock_log::{read_line, ClockLogFormat};
     let sign = s.sign.unwrap_or(if s.format == "ntp-peerstats" {
         -1.0
@@ -140,16 +197,21 @@ pub fn read_source(s: &SourceSpec, text: &str) -> Result<Vec<Reading>, String> {
     let mut out = Vec::new();
     match s.format.as_str() {
         "csv" => {
-            for l in text.lines() {
+            let mut first = true;
+            for (n, l) in text.lines().enumerate() {
                 let l = l.trim();
                 if l.is_empty() || l.starts_with('#') {
                     continue;
                 }
+                let header = std::mem::replace(&mut first, false);
                 let c: Vec<&str> = l.split([',', ';']).map(str::trim).collect();
                 let (Some(t), Some(o)) = (
                     c.first().and_then(|x| x.parse::<f64>().ok()),
                     c.get(1).and_then(|x| x.parse::<f64>().ok()),
                 ) else {
+                    if !header {
+                        skipped.add(n + 1, "time or offset not a number");
+                    }
                     continue;
                 };
                 let locked = c.get(2).map(|x| {
@@ -167,9 +229,13 @@ pub fn read_source(s: &SourceSpec, text: &str) -> Result<Vec<Reading>, String> {
             }
         }
         "ntp-peerstats" => {
-            for l in text.lines() {
+            for (n, l) in text.lines().enumerate() {
                 let f: Vec<&str> = l.split_whitespace().collect();
+                if f.is_empty() || f[0].starts_with('#') {
+                    continue;
+                }
                 if f.len() < 8 {
+                    skipped.add(n + 1, "fewer than 8 fields");
                     continue;
                 }
                 if s.select.as_deref().is_some_and(|p| p != f[2]) {
@@ -181,6 +247,7 @@ pub fn read_source(s: &SourceSpec, text: &str) -> Result<Vec<Reading>, String> {
                     f[4].parse::<f64>(),
                     f[5].parse::<f64>(),
                 ) else {
+                    skipped.add(n + 1, "a field is not a number");
                     continue;
                 };
                 let t = (mjd - 40_587) as f64 * 86_400.0 + sec;
@@ -246,7 +313,7 @@ pub fn read_source(s: &SourceSpec, text: &str) -> Result<Vec<Reading>, String> {
         return Err(format!("source {}: no reading in the log", s.name));
     }
     out.sort_by(|a, b| a.t.total_cmp(&b.t));
-    Ok(out)
+    Ok((out, skipped))
 }
 
 fn median(v: &mut [f64]) -> f64 {
@@ -457,6 +524,8 @@ pub struct NodeReport {
     pub counts: BTreeMap<String, usize>,
     pub events: Vec<Event>,
     pub verdict: String,
+    /// Rows of the source logs that could not be read.
+    pub skipped_rows: Vec<SkippedRows>,
     #[serde(skip)]
     pub bins: Vec<Bin>,
 }
@@ -506,11 +575,14 @@ pub fn check_node(spec: &NodeSpec, base: &Path) -> Result<NodeReport, String> {
         return Err("at most one source can be the disciplining one".into());
     }
     let mut series = Vec::new();
+    let mut skipped = Vec::new();
     for s in &spec.sources {
         if !(s.u_s.is_finite() && s.u_s > 0.0) {
             return Err(format!("source {}: u_s must be > 0", s.name));
         }
-        series.push(read_source(s, &read_text(base, &s.path)?)?);
+        let (r, sk) = read_source_counted(s, &read_text(base, &s.path)?)?;
+        series.push(r);
+        skipped.extend(sk.nonzero());
     }
     let states = match &spec.holdover {
         Some(h) => read_states(&read_text(base, &h.path)?),
@@ -684,7 +756,8 @@ pub fn check_node(spec: &NodeSpec, base: &Path) -> Result<NodeReport, String> {
             .collect(),
         counts,
         events,
-        verdict,
+        verdict: format!("{verdict}{}", skipped_note(&skipped)),
+        skipped_rows: skipped,
         bins,
     })
 }
@@ -802,6 +875,8 @@ pub struct SitesReport {
     pub sites: Vec<SiteSummary>,
     pub events: Vec<SiteEvent>,
     pub verdict: String,
+    /// Rows of the site logs that could not be read.
+    pub skipped_rows: Vec<SkippedRows>,
 }
 
 fn scope_of(flagged: &[usize], spec: &SitesSpec) -> String {
@@ -838,6 +913,7 @@ pub fn check_sites(spec: &SitesSpec, base: &Path) -> Result<SitesReport, String>
         ));
     }
     let mut series = Vec::new();
+    let mut skipped = Vec::new();
     for s in &spec.sites {
         if !(s.u_s.is_finite() && s.u_s > 0.0) {
             return Err(format!("site {}: u_s must be > 0", s.id));
@@ -852,7 +928,9 @@ pub fn check_sites(spec: &SitesSpec, base: &Path) -> Result<SitesReport, String>
             select: s.select.clone(),
             ..Default::default()
         };
-        series.push(read_source(&src, &read_text(base, &s.path)?)?);
+        let (r, sk) = read_source_counted(&src, &read_text(base, &s.path)?)?;
+        series.push(r);
+        skipped.extend(sk.nonzero());
     }
     let t0 = series
         .iter()
@@ -1051,6 +1129,7 @@ pub fn check_sites(spec: &SitesSpec, base: &Path) -> Result<SitesReport, String>
             })
             .collect(),
         events,
-        verdict,
+        verdict: format!("{verdict}{}", skipped_note(&skipped)),
+        skipped_rows: skipped,
     })
 }

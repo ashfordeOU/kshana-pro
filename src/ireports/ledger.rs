@@ -28,7 +28,7 @@ use serde::{Deserialize, Serialize};
 
 use super::episodes::{EpisodesDoc, MemberSource};
 use super::text::{iso, round};
-use super::verify::{load_receiver, Epoch};
+use super::verify::Epoch;
 use super::*;
 
 pub const LEDGER_FORMAT: &str = "kshana-pro-exposure-ledger/1";
@@ -533,6 +533,9 @@ pub struct ResetCheck {
     pub params: ResetParams,
     pub inputs: Vec<InputFile>,
     pub statement: String,
+    /// Rows of the receiver log and reference track that could not be read.
+    #[serde(default)]
+    pub skipped_rows: Vec<crate::timing::selfcheck::SkippedRows>,
 }
 
 fn interp(track: &[Epoch], t: f64, max_gap: f64) -> Option<(f64, f64)> {
@@ -587,6 +590,7 @@ pub fn reset_check(
         persisting_at_end: None,
         findings: vec![],
         reasons: vec![],
+        skipped_rows: vec![],
         params: p.clone(),
         inputs,
         statement: "A recommendation only (MODELLED). The receiver manufacturer's and the operator's procedures decide whether and how a receiver is reset.".into(),
@@ -713,8 +717,10 @@ pub fn run_reset(path: &Path) -> Result<(ResetCheck, Copies), String> {
     let base = path.parent().unwrap_or(Path::new("."));
     let rd = |p: &str| std::fs::read(base.join(p)).map_err(|e| format!("{p}: {e}"));
     let rb = rd(&req.receiver.path)?;
-    let rx = load_receiver(&req.receiver.format, &rb)
+    let (rx, mut sk) = super::verify::load_receiver_counted(&req.receiver.format, &rb)
         .map_err(|e| format!("{}: {e}", req.receiver.path))?;
+    sk.source = "receiver".into();
+    let mut skipped: Vec<_> = sk.nonzero().into_iter().collect();
     let mut inputs = vec![InputFile {
         role: "receiver".into(),
         file: safe_name(&req.receiver.path),
@@ -724,8 +730,11 @@ pub fn run_reset(path: &Path) -> Result<(ResetCheck, Copies), String> {
     let reference = match &req.reference_track {
         Some(r) => {
             let b = rd(r)?;
-            let tr = super::verify::load_csv_positions(&String::from_utf8_lossy(&b))
-                .map_err(|e| format!("{r}: {e}"))?;
+            let (tr, mut sk) =
+                super::verify::load_csv_positions_counted(&String::from_utf8_lossy(&b))
+                    .map_err(|e| format!("{r}: {e}"))?;
+            sk.source = "reference track".into();
+            skipped.extend(sk.nonzero());
             inputs.push(InputFile {
                 role: "reference".into(),
                 file: safe_name(r),
@@ -742,7 +751,16 @@ pub fn run_reset(path: &Path) -> Result<(ResetCheck, Copies), String> {
         sha256: sha256_hex(t.as_bytes()),
     });
     copies.push((path.to_string_lossy().to_string(), t.into_bytes()));
-    let c = reset_check(&req, &rx, reference.as_deref(), inputs)?;
+    let mut c = reset_check(&req, &rx, reference.as_deref(), inputs)?;
+    for s in &skipped {
+        c.reasons.push(format!(
+            "{} row(s) of the {} skipped: {}",
+            s.rows,
+            s.source,
+            s.first.join("; ")
+        ));
+    }
+    c.skipped_rows = skipped;
     Ok((c, copies))
 }
 
