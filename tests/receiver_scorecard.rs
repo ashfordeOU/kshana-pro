@@ -95,7 +95,12 @@ fn dev_campaign(dir: &Path) -> String {
 }
 
 fn dev_score() -> scorecards::Scorecard {
-    let d = tmp("dev");
+    // One directory per call: tests calling this in parallel must not clear each other's files.
+    static N: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+    let d = tmp(&format!(
+        "dev{}",
+        N.fetch_add(1, std::sync::atomic::Ordering::SeqCst)
+    ));
     let src = dev_campaign(&d);
     std::fs::write(d.join("campaign.toml"), &src).unwrap();
     let (c, src) = Campaign::from_file(&d.join("campaign.toml")).unwrap();
