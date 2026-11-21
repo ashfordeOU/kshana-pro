@@ -354,6 +354,8 @@ mod debris_obs {
         let mut bad = req();
         bad.targets[0].tle_line1 = None;
         assert!(debris_obs::plan(&bad, std::path::Path::new(".")).is_err());
+    }
+}
 
 // ---------------------------------------------------------------------------------------------
 // Disposal-plan sensitivity: lifetime against solar activity and ballistic coefficient.
