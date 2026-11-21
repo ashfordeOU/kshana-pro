@@ -655,6 +655,7 @@ fn verification_with_no_data_is_uncorroborated() {
         receivers: vec![],
         adsb: vec![],
         ais: vec![],
+        skipped: vec![],
     };
     let rec = verify::verify_report(&r, &obs, &verify::Params::default());
     assert_eq!(rec.label, Label::Uncorroborated);

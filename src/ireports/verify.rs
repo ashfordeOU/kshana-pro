@@ -34,6 +34,7 @@
 //! Evidence: MODELLED. The thresholds are the incident-forensics method's where they overlap;
 //! the rules were checked on synthetic data only.
 
+use crate::timing::selfcheck::SkippedRows;
 use std::path::Path;
 
 use kshana::interference_map::grid::haversine_m;
@@ -223,8 +224,17 @@ pub struct Epoch {
 
 /// Read a receiver log (any open-engine format, or `csv`) into epochs with UTC times.
 pub fn load_receiver(format: &str, bytes: &[u8]) -> Result<Vec<Epoch>, String> {
+    load_receiver_counted(format, bytes).map(|(e, _)| e)
+}
+
+/// [`load_receiver`] with the skipped rows of a `csv` log counted (the open-engine formats
+/// report their own).
+pub fn load_receiver_counted(
+    format: &str,
+    bytes: &[u8],
+) -> Result<(Vec<Epoch>, SkippedRows), String> {
     if format == "csv" {
-        return load_csv_positions(&String::from_utf8_lossy(bytes));
+        return load_csv_positions_counted(&String::from_utf8_lossy(bytes));
     }
     let f: LogFormat = serde_json::from_value(serde_json::Value::String(format.into()))
         .map_err(|_| format!("unknown receiver log format '{format}'"))?;
@@ -270,12 +280,18 @@ pub fn load_receiver(format: &str, bytes: &[u8]) -> Result<Vec<Epoch>, String> {
         return Err("the log has no epoch with a UTC time".into());
     }
     out.sort_by(|a, b| a.t.total_cmp(&b.t));
-    Ok(out)
+    Ok((out, SkippedRows::default()))
 }
 
 /// A CSV of positions: `timestamp,lat,lon[,cn0_dbhz,sats,fix]`. An empty lat/lon (or
 /// `fix` 0) is an epoch without a fix.
 pub fn load_csv_positions(text_in: &str) -> Result<Vec<Epoch>, String> {
+    load_csv_positions_counted(text_in).map(|(e, _)| e)
+}
+
+/// [`load_csv_positions`] with the rows whose timestamp could not be read counted.
+pub fn load_csv_positions_counted(text_in: &str) -> Result<(Vec<Epoch>, SkippedRows), String> {
+    let mut skipped = SkippedRows::new("csv");
     let recs = text::csv_records(text_in);
     let head: Vec<String> = recs
         .first()
@@ -296,10 +312,15 @@ pub fn load_csv_positions(text_in: &str) -> Result<Vec<Epoch>, String> {
         col(&["fix", "fix valid"]),
     );
     let mut out = vec![];
-    for line in &recs[1..] {
+    for (k, line) in recs[1..].iter().enumerate() {
         let f = text::csv_fields(line);
-        let num = |c: Option<usize>| c.and_then(|c| f.get(c)).and_then(|v| v.parse::<f64>().ok());
+        let num = |c: Option<usize>| {
+            c.and_then(|c| f.get(c))
+                .and_then(|v| v.parse::<f64>().ok())
+                .filter(|x| x.is_finite())
+        };
         let Some(t) = f.get(ct).and_then(|v| text::parse_utc(v)) else {
+            skipped.add(k + 2, "timestamp not readable");
             continue;
         };
         let fix_ok = num(cf).is_none_or(|v| v > 0.0);
@@ -324,7 +345,7 @@ pub fn load_csv_positions(text_in: &str) -> Result<Vec<Epoch>, String> {
         return Err("no CSV row with a readable timestamp".into());
     }
     out.sort_by(|a, b| a.t.total_cmp(&b.t));
-    Ok(out)
+    Ok((out, skipped))
 }
 
 fn mean_std(v: &[f64]) -> Option<(f64, f64)> {
@@ -409,6 +430,9 @@ pub struct VerificationDoc {
     pub params_sha256: String,
     pub inputs: Vec<InputFile>,
     pub records: Vec<Record>,
+    /// Rows of the inputs that could not be read ("N rows skipped").
+    #[serde(default)]
+    pub skipped_rows: Vec<SkippedRows>,
 }
 
 fn coverage(times: &[f64], w0: f64, w1: f64, max_gap: f64) -> f64 {
@@ -947,6 +971,8 @@ pub struct Observations {
     pub receivers: Vec<(ReceiverSpec, String, Vec<Epoch>)>,
     pub adsb: Vec<(TrackSpec, String, Tracks)>,
     pub ais: Vec<(TrackSpec, String, Tracks)>,
+    /// Rows of the receiver logs that could not be read.
+    pub skipped: Vec<SkippedRows>,
 }
 
 /// Label one report.
@@ -1156,10 +1182,14 @@ pub fn load(req: &Request, base: &Path) -> Result<Loaded, String> {
         receivers: vec![],
         adsb: vec![],
         ais: vec![],
+        skipped: vec![],
     };
     for s in &req.receiver {
         let b = rd(&s.path)?;
-        let ep = load_receiver(&s.format, &b).map_err(|e| format!("{}: {e}", s.path))?;
+        let (ep, mut sk) =
+            load_receiver_counted(&s.format, &b).map_err(|e| format!("{}: {e}", s.path))?;
+        sk.source = format!("receiver {}", s.label);
+        obs.skipped.extend(sk.nonzero());
         obs.receivers.push((s.clone(), safe_name(&s.path), ep));
         files.push((format!("receiver:{}", s.label), s.path.clone(), b));
     }
@@ -1227,6 +1257,7 @@ pub fn run(path: &Path) -> Result<(VerificationDoc, Copies), String> {
             params: req.params,
             inputs,
             records,
+            skipped_rows: obs.skipped.clone(),
         },
         copies,
     ))

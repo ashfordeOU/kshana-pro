@@ -257,6 +257,8 @@ pub struct Monitor {
     pub max_abs_common_mode_s: f64,
     pub pairs: Vec<PairMonitor>,
     pub events: Vec<MonitorEvent>,
+    /// Rows of the transmitter logs that could not be read.
+    pub skipped_rows: Vec<super::selfcheck::SkippedRows>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
@@ -699,9 +701,14 @@ fn push_event(
 fn monitor(net: &Net, base: &Path) -> Result<Option<Monitor>, String> {
     let req = net.req;
     let mut series: Vec<Option<Vec<super::selfcheck::Reading>>> = Vec::new();
+    let mut skipped = Vec::new();
     for t in &req.transmitter {
         series.push(match &t.log {
-            Some(l) => Some(grid::read_clock(&t.name, l, base)?),
+            Some(l) => {
+                let (r, sk) = grid::read_clock(&t.name, l, base)?;
+                skipped.extend(sk.nonzero());
+                Some(r)
+            }
             None => None,
         });
     }
@@ -812,6 +819,7 @@ fn monitor(net: &Net, base: &Path) -> Result<Option<Monitor>, String> {
         max_abs_common_mode_s: max_common,
         pairs: pm,
         events,
+        skipped_rows: skipped,
     }))
 }
 
@@ -892,6 +900,8 @@ pub fn assess(req: &SfnRequest, base: &Path, utc: &str) -> Result<SfnReport, Str
     if parts.is_empty() {
         parts.push("no log and no scenario given: guard interval and pair budget only".into());
     }
+    let note =
+        super::selfcheck::skipped_note(mon.as_ref().map_or(&[][..], |m| &m.skipped_rows[..]));
     Ok(SfnReport {
         format: FORMAT,
         label: LABEL,
@@ -905,7 +915,7 @@ pub fn assess(req: &SfnRequest, base: &Path, utc: &str) -> Result<SfnReport, Str
         coverage_k: req.coverage_k,
         monitor: mon,
         scenarios,
-        verdict: parts.join(" | "),
+        verdict: format!("{}{note}", parts.join(" | ")),
     })
 }
 

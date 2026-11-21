@@ -42,6 +42,16 @@ use serde::{Deserialize, Serialize};
 
 use super::{mean, median, numeric_csv, r, std_dev};
 use crate::aviation::Inputs;
+use crate::timing::selfcheck::{skipped_note, SkippedRows};
+
+/// A bare count of skipped rows (from [`numeric_csv`], which keeps no reasons) as a record.
+fn counted(source: &str, n: usize) -> Option<SkippedRows> {
+    (n > 0).then(|| SkippedRows {
+        source: source.into(),
+        rows: n,
+        first: vec![],
+    })
+}
 
 pub const FORMAT: &str = "kshana-simlab-selftest/1";
 pub const METHOD: &str = "kshana-pro/simlab-selftest/v1";
@@ -117,23 +127,34 @@ pub struct Loaded {
     pub expected_cn0: BTreeMap<String, f64>,
     pub logs: Vec<Logs>,
     pub inputs: Inputs,
+    /// Rows of the logs that could not be read.
+    pub skipped: Vec<SkippedRows>,
 }
 
 /// Parse `t_s,prn,cn0_dbhz` rows (header and malformed rows skipped).
 pub fn parse_obs(text: &str) -> BTreeMap<String, Vec<f64>> {
+    parse_obs_counted(text, "observations").0
+}
+
+/// [`parse_obs`] with the malformed rows counted (the first unreadable line is the header).
+pub fn parse_obs_counted(text: &str, source: &str) -> (BTreeMap<String, Vec<f64>>, SkippedRows) {
+    let mut skipped = SkippedRows::new(source);
     let mut m: BTreeMap<String, Vec<f64>> = BTreeMap::new();
-    for l in text.lines() {
-        let f: Vec<&str> = l.split(',').map(str::trim).collect();
-        if f.len() < 3 || f[0].parse::<f64>().is_err() {
+    let mut first = true;
+    for (n, l) in text.lines().enumerate() {
+        if l.trim().is_empty() || l.trim_start().starts_with('#') {
             continue;
         }
-        if let Ok(c) = f[2].parse::<f64>() {
-            if c.is_finite() {
-                m.entry(f[1].to_string()).or_default().push(c);
-            }
+        let header = std::mem::replace(&mut first, false);
+        let f: Vec<&str> = l.split(',').map(str::trim).collect();
+        let ok = f.len() >= 3 && f[0].parse::<f64>().is_ok();
+        match (ok, f.get(2).and_then(|c| c.parse::<f64>().ok())) {
+            (true, Some(c)) if c.is_finite() => m.entry(f[1].to_string()).or_default().push(c),
+            _ if header => {}
+            _ => skipped.add(n + 1, "time or C/N0 not a finite number"),
         }
     }
-    m
+    (m, skipped)
 }
 
 pub fn load(path: &Path) -> Result<Loaded, String> {
@@ -157,13 +178,18 @@ pub fn load(path: &Path) -> Result<Loaded, String> {
     }
     let base = super::base_of(path);
     let mut expected_cn0 = req.expected.cn0_by_prn.clone();
+    let mut skipped = Vec::new();
     if req.mode == "replay-rig" {
         let o = req
             .expected
             .observations
             .as_ref()
             .ok_or("selftest: replay-rig mode needs expected.observations (the station's)")?;
-        let st = parse_obs(&inputs.read(base, o, "station-observations")?);
+        let (st, sk) = parse_obs_counted(
+            &inputs.read(base, o, "station-observations")?,
+            "station observations",
+        );
+        skipped.extend(sk.nonzero());
         if st.is_empty() {
             return Err(format!("{o}: no station observations"));
         }
@@ -173,14 +199,21 @@ pub fn load(path: &Path) -> Result<Loaded, String> {
     for rx in &req.receivers {
         let mut l = Logs::default();
         if let Some(o) = &rx.observations {
-            l.cn0 = parse_obs(&inputs.read(base, o, &format!("observations:{}", rx.name))?);
+            let (m, sk) = parse_obs_counted(
+                &inputs.read(base, o, &format!("observations:{}", rx.name))?,
+                &format!("observations {}", rx.name),
+            );
+            l.cn0 = m;
+            skipped.extend(sk.nonzero());
         }
         if let Some(f) = &rx.fixes {
-            let (rows, _) = numeric_csv(&inputs.read(base, f, &format!("fixes:{}", rx.name))?, 4);
+            let (rows, n) = numeric_csv(&inputs.read(base, f, &format!("fixes:{}", rx.name))?, 4);
+            skipped.extend(counted(&format!("fixes {}", rx.name), n));
             l.fixes = rows.iter().map(|r| [r[1], r[2], r[3]]).collect();
         }
         if let Some(p) = &rx.pps {
-            let (rows, _) = numeric_csv(&inputs.read(base, p, &format!("pps:{}", rx.name))?, 2);
+            let (rows, n) = numeric_csv(&inputs.read(base, p, &format!("pps:{}", rx.name))?, 2);
+            skipped.extend(counted(&format!("pps {}", rx.name), n));
             l.pps_ns = rows.iter().map(|r| r[1]).collect();
         }
         logs.push(l);
@@ -190,6 +223,7 @@ pub fn load(path: &Path) -> Result<Loaded, String> {
         expected_cn0,
         logs,
         inputs,
+        skipped,
     })
 }
 
@@ -234,6 +268,8 @@ pub struct SelfTestReport {
     pub mode: String,
     pub source: String,
     pub verdict: String,
+    /// Rows of the logs that could not be read.
+    pub skipped_rows: Vec<SkippedRows>,
     pub receivers: Vec<ReceiverResult>,
     pub attribution: Vec<Attribution>,
     pub inputs: Vec<crate::aviation::InputRef>,
@@ -473,7 +509,8 @@ pub fn assess(l: &Loaded) -> SelfTestReport {
         id: l.req.id.clone(),
         mode: l.req.mode.clone(),
         source: l.req.source.clone(),
-        verdict: verdict.into(),
+        verdict: format!("{verdict}{}", skipped_note(&l.skipped)),
+        skipped_rows: l.skipped.clone(),
         receivers: rs,
         attribution,
         inputs: l.inputs.refs.clone(),

@@ -318,6 +318,8 @@ pub struct StationReport {
     pub aggregates: Vec<Aggregate>,
     pub timing_exceeded: usize,
     pub verdict: String,
+    /// Rows of the station clock log that could not be read.
+    pub skipped_rows: Vec<selfcheck::SkippedRows>,
 }
 
 /// Assess the station. `base` resolves the request's relative paths.
@@ -337,12 +339,13 @@ pub fn assess(spec: &StationSpec, base: &Path, utc: &str) -> Result<StationRepor
         .map(time)
         .map(|x| x.ok_or("to: YYYY-MM-DD"))
         .transpose()?;
+    let mut skipped = Vec::new();
     let clock: Option<Vec<Reading>> = match &spec.clock {
         None => None,
         Some(c) => {
             let p = base.join(&c.path);
             let text = std::fs::read_to_string(&p).map_err(|e| format!("{}: {e}", p.display()))?;
-            Some(selfcheck::read_source(
+            let (r, sk) = selfcheck::read_source_counted(
                 &SourceSpec {
                     name: "station-clock".into(),
                     kind: None,
@@ -355,7 +358,9 @@ pub fn assess(spec: &StationSpec, base: &Path, utc: &str) -> Result<StationRepor
                     select: c.select.clone(),
                 },
                 &text,
-            )?)
+            )?;
+            skipped.extend(sk.nonzero());
+            Some(r)
         }
     };
     let (limit, basis) = match (spec.limit_s, &spec.antenna) {
@@ -551,7 +556,8 @@ pub fn assess(spec: &StationSpec, base: &Path, utc: &str) -> Result<StationRepor
         passes: out,
         aggregates,
         timing_exceeded: te,
-        verdict,
+        verdict: format!("{verdict}{}", selfcheck::skipped_note(&skipped)),
+        skipped_rows: skipped,
     })
 }
 
