@@ -5,6 +5,16 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Fix: sign of the laboratory's offset in the time-distribution chain
+  (docs/TIMING-ASSURANCE.md, B1904).** `timing chain` computed the end point's offset from UTC as
+  `(UTC − UTC(k)) + Σ hop biases`. The hops start at UTC(k), so the right sum is
+  `End − UTC = Σ hop biases − (UTC − UTC(k))`. **Affected: every `offset_from_utc_s` in a chain
+  statement before this fix**, which was off by twice the Circular T value. Also affected: the
+  `limit_s` verdict and the onboarding consistency test that use it. The test that encoded the
+  same sign is corrected, and a hand-checked case is added (UTC − UTC(k) = +5 ns with a +10 ns
+  hop gives +5 ns). The example onboarding series (`examples/timing-networks/chain`) is shifted
+  by −4.8 ns (twice its 2.4 ns reference) so it stays centred on the corrected prediction.
+
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
   `kshana-pro leo-eval crosswalk` (`pro-leo-ue-crosswalk`, Pro): every step of the published LEO-PNT
