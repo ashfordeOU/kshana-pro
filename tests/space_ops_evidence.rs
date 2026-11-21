@@ -918,6 +918,8 @@ mod pc_dedupe {
         );
         assert!(r.cdms[0].covariance_frames.contains("ASSUMED"));
     }
+}
+
 /// Frame audit: the identification ephemeris must be TEME on UTC; declared otherwise it is
 /// refused, undeclared it is assumed and said.
 #[test]
