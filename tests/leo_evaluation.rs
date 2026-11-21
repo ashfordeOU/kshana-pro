@@ -182,7 +182,21 @@ fn doppler_bounds_follow_the_closed_form() {
     let (d, r) = sims::doppler_bounds(550.0, 1.5e9).unwrap();
     let v = (3.986_004_418e14_f64 / 6_921_000.0).sqrt();
     assert!((d - 1.5e9 * v * 6_371_000.0 / 6_921_000.0 / 299_792_458.0).abs() < 1e-6);
-    assert!((r - 1.5e9 * v * v / 550_000.0 / 299_792_458.0).abs() < 1e-6);
+    assert!(
+        (r - 1.5e9 * v * v * 6_371_000.0 / (6_921_000.0 * 550_000.0) / 299_792_458.0).abs() < 1e-6
+    );
+    // The overhead range acceleration from the pass geometry itself: range from a ground point
+    // to a satellite at central angle ωt, second derivative by central differences at t = 0.
+    let (re, rs) = (6_371_000.0_f64, 6_921_000.0_f64);
+    let w = v / rs;
+    let rho = |t: f64| (re * re + rs * rs - 2.0 * re * rs * (w * t).cos()).sqrt();
+    let dt = 0.01;
+    let acc = (rho(dt) - 2.0 * rho(0.0) + rho(-dt)) / (dt * dt);
+    let r_geom = 1.5e9 * acc / 299_792_458.0;
+    assert!((r / r_geom - 1.0).abs() < 1e-4, "{r} vs {r_geom}");
+    // The straight-line value v²/h overstates it by (R+h)/R (about 8.6 % at 550 km).
+    let straight = 1.5e9 * v * v / 550_000.0 / 299_792_458.0;
+    assert!((straight / r - rs / re).abs() < 1e-9);
     assert!(d > 30_000.0 && d < 40_000.0, "{d}");
     assert!(sims::doppler_bounds(0.0, 1.0).is_err());
 }

@@ -461,7 +461,8 @@ const CLIGHT: f64 = 299_792_458.0;
 
 /// Doppler bounds of a circular orbit seen from the ground, Earth rotation neglected: circular
 /// speed `v = √(GM/(R+h))`; largest range rate (at the horizon) `v·R/(R+h)`; largest range
-/// acceleration (overhead) `v²/h`; both scaled by `f/c`. Returns `(Hz, Hz/s)`.
+/// acceleration (overhead) `v²·R/((R+h)·h)` (from `ρ² = R² + r² − 2Rr·cos ωt` at `t = 0`:
+/// `ρ̈ = R·r·ω²/h`, `r = R+h`, `v = rω`); both scaled by `f/c`. Returns `(Hz, Hz/s)`.
 pub fn doppler_bounds(altitude_km: f64, carrier_hz: f64) -> Result<(f64, f64), String> {
     if !(altitude_km > 0.0 && carrier_hz > 0.0) {
         return Err("altitude and carrier must be positive".into());
@@ -470,7 +471,7 @@ pub fn doppler_bounds(altitude_km: f64, carrier_hz: f64) -> Result<(f64, f64), S
     let v = (GM / (RE + h)).sqrt();
     Ok((
         carrier_hz * v * RE / (RE + h) / CLIGHT,
-        carrier_hz * v * v / h / CLIGHT,
+        carrier_hz * v * v * RE / ((RE + h) * h) / CLIGHT,
     ))
 }
 

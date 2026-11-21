@@ -62,6 +62,14 @@ own bullet so parallel work merges cleanly.
   difference is GPS minus NavIC. **Affected: the `navic_minus_gps_mean_s` of every signed NavIC
   timing pack before this fix (sign reversed).** The RMS, peak-to-peak and MTIE are unchanged.
   The test that encoded the same sign is corrected.
+- **Fix: overhead Doppler rate in `leo-eval doppler` (docs/LEO-EVALUATION.md, B2101).** The
+  largest range acceleration of a circular orbit seen from the ground was taken as `v²/h`. That
+  is the straight-line flyby value. Seen from a point on the sphere, `ρ² = R² + r² −
+  2Rr·cos ωt` gives `ρ̈ = v²·R/((R+h)·h)` overhead, so the old value was high by `(R+h)/R`:
+  8.6 % at 550 km (550 vs 506 Hz/s at L1), 19 % at 1200 km. **Affected: the
+  `max_doppler_rate_hz_s` printed by `leo-eval doppler` before this fix (conservative, too
+  high).** The published v1.0 procedures do not use it. The test now checks the closed form
+  against a finite-difference derivative of the pass geometry.
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
