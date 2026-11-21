@@ -119,6 +119,15 @@ own bullet so parallel work merges cleanly.
   for other dates. Five real time edge bugs found in the same sweep are fixed on their own
   branches: leap-second deletion marker, vault retention for non-ISO `--utc`, `iso` hour 24,
   ephemeris age across the week, and OEM `TIME_SYSTEM` (frame audit).
+- **Fix: NaN in a clock log passed as "within" (timing self-check, grid PMU, cross-check, chain
+  onboarding, station clock).** `timing::selfcheck::read_source`, the clock-log reader all of
+  these share, accepted `nan`, `NaN`, `inf` and `-inf`, which `str::parse::<f64>` reads. A NaN
+  offset compares false against every limit, so it counted as inside the budget and ended open
+  exceedance intervals. A PMU clock log of `nan` values gave `within-budget` in a signed grid
+  pack, and a self-check pair agreed on a NaN. **Affected: packs built from clock logs holding
+  non-finite values before this fix.** The reader now refuses a non-finite time or offset with
+  its reading number. A source uncertainty `u_s` must be finite as well as positive. Test:
+  `clock_logs_with_non_finite_values_are_refused`.
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
