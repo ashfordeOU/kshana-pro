@@ -120,6 +120,7 @@ pub mod watermark;
 // on spec, per the open-core discipline in docs/OVERLAY-ARCHITECTURE.md).
 pub mod resilience;
 pub mod suite;
+pub mod tacho_osnma;
 pub mod timing;
 pub mod transport;
 pub mod twin;

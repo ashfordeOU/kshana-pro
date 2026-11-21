@@ -42,6 +42,7 @@ mod reports_cmd;
 mod scorecard_cmd;
 mod simlab_cmd;
 mod space_rx_cmd;
+mod tacho_cmd;
 mod testkit_cmd;
 mod threats_cmd;
 mod timing_cmd;
@@ -91,6 +92,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro grid <pmu|drift|scada|prc002|event> ...   Power-grid timing evidence: PMU phase-angle error, gradual-spoof detection, SCADA time stamps, PRC-002 ±2 ms evidence with holdover resilience, event forensics (Pro; `kshana-pro grid` for details)\n\
        kshana-pro ais <consistency|sanctions|iuu|subsea|synth> ...   Maritime AIS evidence: cross-source consistency against radar, VTS, LRIT or imagery, and signed sanctions-review, IUU-review and subsea-asset packs (Pro; synth free; no list bundled, no determination)\n\
        kshana-pro lunar-surface <plume|traverse|rf-forensics|synth> ...   Lunar surface operations evidence: MODELLED parametric dust-plume visibility, LTV/EVA navigation safety evidence, RF self-interference forensics from I/Q (analysis only) (Pro; synth free)\n\
+       kshana-pro tacho <verify|synth> ...   Smart-tachograph and road-charging OSNMA field verification: authenticated positions, time conflicts, time adjustments, anomaly events, fallback; signed (Pro; synth free); catalogue via regpack assess --catalogue eu-2021-1228-tachograph-osnma\n\
        kshana-pro sfn <assess|systems> ...   Broadcast SFN (DAB/DVB-T) timing: pair guard margins and UTC-level scenarios such as SVN-23 (Pro; systems free)\n\
        kshana-pro road <check|obu-eval|library> ...   Telematics and road-charging GNSS anti-spoof: indicators, episodes, jammer fingerprint class, trip trust (pseudonymised), signed on-board-unit fraud evaluation (Pro; library free)\n\
        kshana-pro ecall <suite|mapping|score|location|duty|battery> ...   eCall GNSS tests of 2017/79 Annex VI with signed scoring, AML/E112 and PSAP location reliability (Pro); suite, mapping, duty-cycle detection and battery model free\n\
@@ -222,6 +224,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "longterm",
     "agri",
     "space-rx",
+    "tacho",
     "ks-inside",
     "ais",
     "lunar-surface",
@@ -370,6 +373,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("avionics") => avionics_cmd::run(&args[1..]),
         Some("agri") => agri_cmd::run(&args[1..]),
         Some("space-rx") => space_rx_cmd::run(&args[1..]),
+        Some("tacho") => tacho_cmd::run(&args[1..]),
         Some("ais") => ais_cmd::run(&args[1..]),
         Some("lunar-surface") => lunar_surface_cmd::run(&args[1..]),
         Some("regpack") => regpack_cmd::run(&args[1..]),
