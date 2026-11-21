@@ -127,6 +127,7 @@ pub mod watermark;
 // on spec, per the open-core discipline in docs/OVERLAY-ARCHITECTURE.md).
 pub mod resilience;
 pub mod station_fleet;
+pub mod space_ops;
 pub mod suite;
 pub mod survey_qc;
 pub mod tacho_osnma;
