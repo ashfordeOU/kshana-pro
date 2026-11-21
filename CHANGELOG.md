@@ -65,6 +65,14 @@ own bullet so parallel work merges cleanly.
   from the open engine's referee (`kshana jammertest locate-score`, unchanged, no position in or
   out); report records carrying an emitter estimate are refused. `product-bench synth` free, two
   anonymised products. Tier manifest regenerated; `tests/product_bench.rs` (3 tests).
+- **Pro OSNMA scenario pack (research 2026-11-20 gaps B1402; docs/OSNMA-SCENARIOS.md).**
+  `kshana-pro osnma-pack export|score` (`pro-osnma-scenario-pack`, Pro): nine scenarios (startup-cold,
+  key-renewal, chain-revocation, subframe-loss, replay-delayed, meaconing-short, time-sync-loss,
+  time-sync-attack, pk-revocation) with per-subframe conditions and expected states, a reference
+  model that reproduces every expected table, cryptographic premises checked with the open
+  engine's TESLA functions, and receiver-log scoring (unsafe and missed subframes); `list` and
+  `synth-log` free. DO-401A and SBAS authentication not covered (not public). Tier manifest
+  regenerated; `tests/osnma_scenarios.rs` (3 tests). MODELLED.
 - **Alternative-PNT evaluation and civil test-campaign evidence (backlog E40 B4004;
   docs/ALTPNT-EVIDENCE.md).** `kshana-pro altpnt` (features `pro-altpnt-evidence` and
   `pro-altpnt-campaign`, Pro): `failure-modes` (architecture failure-mode pack from declared

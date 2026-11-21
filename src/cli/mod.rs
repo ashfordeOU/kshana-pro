@@ -43,6 +43,7 @@ mod lunar_surface_cmd;
 mod method_cmd;
 mod navaids_cmd;
 mod navic_cmd;
+mod osnma_pack_cmd;
 mod packs_cmd;
 mod payments_cmd;
 mod pics_cmd;
@@ -113,6 +114,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro aviation-recon <run|synth> ...   Aviation or drone event reconstruction: FDM/QAR, ADS-B and tracker aligned, GNSS vs baro vs ADS-B divergences explained, signed investigator pack (Pro; synth free)\n\
        kshana-pro enforcement <pack|checklist|synth> ...   Jammer enforcement evidence pack: victim timeline and effects, affected area from victim receivers only (no emitter position), custody chain, method statement, checklist from published cases (Pro; checklist and synth free)\n\
        kshana-pro product-bench <register|score|synth> ...   Third-party interference product benchmark under a pre-registered protocol: detection rate, latency, false reports per hour, affected-area accuracy on victim-receiver cells only (score Pro; register and synth free)\n\
+       kshana-pro osnma-pack <list|export|score|synth-log> ...   OSNMA scenario pack: key renewal, chain and public-key revocation, subframe loss, replay, time-sync attacks, start-up, meaconing, each with expected authentication states checked against a reference model; receiver-log scoring (export and score Pro; list and synth-log free)\n\
        kshana-pro survey-qc <run|synth> ...   Marine survey and construction positioning QC under interference: per-line flags, signed QC annex, site risk plan (Pro; synth free)\n\
        kshana-pro vault <init|ingest|list|hold|release|delete|trend|calendar|submission|verify|export|import> ...   Customer evidence vault: signed packs with legal hold, retention, hash-chained ledger, trends, obligation calendar, submission skeletons, open export (Enterprise; import free)\n\
        kshana-pro method <schedule|budget> ...   Yearly re-scoring schedule and per-test GUM uncertainty budgets with a method report (Pro)\n\
@@ -268,6 +270,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "aviation-recon",
     "enforcement",
     "product-bench",
+    "osnma-pack",
     "vault",
     "method",
     "fleet",
@@ -431,6 +434,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("aviation-recon") => aviation_recon_cmd::run(&args[1..]),
         Some("enforcement") => enforcement_cmd::run(&args[1..]),
         Some("product-bench") => bench_cmd::run(&args[1..]),
+        Some("osnma-pack") => osnma_pack_cmd::run(&args[1..]),
         Some("vault") => vault_cmd::run(&args[1..]),
         Some("method") => method_cmd::run(&args[1..]),
         Some("fleet") => fleet_cmd::run(&args[1..]),
