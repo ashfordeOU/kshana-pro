@@ -46,6 +46,7 @@ pub mod bridge;
 pub mod briefings;
 pub mod cli;
 pub mod connectors;
+pub mod crisis_pnt;
 pub mod criterion;
 pub mod custody;
 pub mod dependency;

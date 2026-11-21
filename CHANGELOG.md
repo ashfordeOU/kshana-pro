@@ -5,6 +5,14 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Crisis PNT service-availability model (docs/CRISIS-PNT.md).** `kshana-pro crisis-pnt run`
+  (`pro-crisis-pnt-availability`, Pro): GNSS denied over a polygon for a duration; per grid cell and
+  user class, the sources that meet the need (eLoran from the network planner on the stations still
+  on air, LEO from Walker coverage geometry with the provider's stated figures, clock holdover from
+  the open engine's classes), modelled availability, accuracy or timing class, and per class the
+  share served and the hours beyond holdover; signed. Planning only: no navigation or timing
+  solution. `crisis-pnt synth` free. Tier manifest regenerated; 2 tests in
+  `tests/eloran_service.rs`. MODELLED.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from
