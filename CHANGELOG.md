@@ -42,6 +42,14 @@ own bullet so parallel work merges cleanly.
   source, barometric disagreement, GNSS loss), FDM detector events on the timeline, signed
   investigator pack. Alignment and comparison only. `aviation-recon synth` (free): SYNTHETIC King
   Air-type flight. Tier manifest regenerated; `tests/aviation_recon.rs` (3 tests). MODELLED.
+- **Jammer enforcement evidence pack (research 2026-11-20 gaps B0605; docs/JAMMER-ENFORCEMENT.md).**
+  `kshana-pro enforcement pack` (`pro-jammer-enforcement-pack`, Pro): victim-effect timeline,
+  per-victim effects, concurrency and cessation at the recorded device-off time, the affected area
+  as cells of victim receivers only (emitter, bearing and DF columns refused), the custody chain of
+  a sealed capture (B0604 module, verified and exported), a method statement for experts and a
+  checklist derived from published cases (FCC 13-106, DA 16-184, FCC 14-92, tribunal correctionnel
+  de Nantes 2017), each item cited and marked supplied, partial, missing or for the authority.
+  `enforcement checklist|synth` free. Tier manifest regenerated; `tests/enforcement.rs` (3 tests).
 - **Alternative-PNT evaluation and civil test-campaign evidence (backlog E40 B4004;
   docs/ALTPNT-EVIDENCE.md).** `kshana-pro altpnt` (features `pro-altpnt-evidence` and
   `pro-altpnt-campaign`, Pro): `failure-modes` (architecture failure-mode pack from declared

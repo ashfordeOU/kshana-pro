@@ -278,6 +278,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-jammer-enforcement-pack",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-ks-inside",
       "type": "feature",
       "tier": "pro"
