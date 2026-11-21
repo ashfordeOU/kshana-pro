@@ -84,6 +84,16 @@ own bullet so parallel work merges cleanly.
   `leap-delete` vector and analysis before this fix**; insertion vectors were right. The event
   is now the epoch after 23:59:58 for a deletion. Tests cover the deletion marker and the
   analyser on a device that does not delete; both fail on the old code.
+- **Fix: evidence-vault retention date when `--utc` is not in ISO form (docs/EVIDENCE-VAULT.md,
+  B2504).** `vault ingest` added the retention years to the first four characters of `--utc`
+  whatever its form, although every other vault command accepts any form `parse_utc` takes.
+  Unix seconds (`1767225600`) gave a retention limit 7,000,000 s, about 81 days, later instead
+  of 7 years. A bare date (`2026-01-01`) gave a limit that never parsed, so the pack could
+  never be deleted. **Affected: packs ingested with a non-ISO `--utc` before this fix; check
+  their `retain_until_utc` in the index.** The vault now brings `--utc` and an obligation's
+  `first_due` to `YYYY-MM-DDTHH:MM:SSZ` first and refuses what does not parse. `delete`
+  refuses an unparsable stored retention date instead of treating it as forever. Test:
+  `retention_is_the_same_whatever_form_utc_takes`.
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**

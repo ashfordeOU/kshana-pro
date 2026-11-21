@@ -205,3 +205,28 @@ fn cli_is_enterprise_and_import_is_free() {
     let (ok, m) = run(&["vault", "verify", b.to_str().unwrap(), "--dev"]);
     assert!(ok, "{m}");
 }
+
+/// Time edge audit: `--utc` as Unix seconds or a bare date gives the same retention date as
+/// the ISO form (the year arithmetic used to work on the raw text: Unix seconds gave a limit
+/// about 81 days out, a bare date one that never expired).
+#[test]
+fn retention_is_the_same_whatever_form_utc_takes() {
+    let d = tmp("vault-utc");
+    let v = d.join("vault");
+    vault::init(&v, "2026-01-01T00:00:00Z").unwrap();
+    let trust = [kshana_pro::license::public_key_for(&[1u8; 32])];
+    let a = pack(&d, "a", "kshana-pro-grid-pmu/1", "2026-01-15T00:00:00Z", 1);
+    let b = pack(&d, "b", "kshana-pro-grid-pmu/1", "2026-01-16T00:00:00Z", 2);
+    // 2026-01-01T00:00:00Z as Unix seconds, and as a bare date.
+    let ea = vault::ingest(&v, &a, &[], 7, &trust, "1767225600").unwrap();
+    assert_eq!(ea.ingested_utc, "2026-01-01T00:00:00Z");
+    assert_eq!(ea.retain_until_utc, "2033-01-01T00:00:00Z");
+    let eb = vault::ingest(&v, &b, &[], 7, &trust, "2026-01-01").unwrap();
+    assert_eq!(eb.retain_until_utc, "2033-01-01T00:00:00Z");
+    // Still retained 81 days later; deletable after seven years.
+    assert!(vault::delete(&v, &ea.id[..12], "2026-03-23T00:00:00Z").is_err());
+    vault::delete(&v, &ea.id[..12], "2033-01-02T00:00:00Z").unwrap();
+    vault::delete(&v, &eb.id[..12], "2033-01-02T00:00:00Z").unwrap();
+    let c = pack(&d, "c", "kshana-pro-grid-pmu/1", "2026-01-17T00:00:00Z", 3);
+    assert!(vault::ingest(&v, &c, &[], 7, &trust, "next tuesday").is_err());
+}
