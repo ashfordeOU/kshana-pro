@@ -139,6 +139,13 @@ own bullet so parallel work merges cleanly.
   delay calibration with an uncertainty budget; an insurer's summary of shared verdicts, never an
   underwriting decision; a contributor's own population benchmark; `ntrip-qos`, a contributor's NTRIP mountpoint
   and caster scores). No new feature gate.
+- **Correction-decoder interface-change regression (research 2026-11-20 gaps B1604;
+  docs/DECODER-REGRESSION.md).** `kshana-pro iface` (`pro-decoder-regression`, Pro; `template`
+  free): interface profiles per stream version with their source (template with placeholders
+  only), drift alarms when decoded header records carry an unknown message type, subtype, GNSS
+  id, transmitting PRN or field value, per-version regression vectors and decoder scoring that
+  lists silently accepted unknowns. Tier manifest regenerated; `tests/decoder_regression.rs`
+  (3 tests, SYNTHETIC profiles).
 - **Neutral clock benchmarks (research 2026-11-20 gaps E33: B3302; docs/TIMING-ASSURANCE.md
   "Clock benchmarks").** `kshana-pro timing clock-bench register|score` (`pro-timing-clock-bench`,
   Pro; `register` free): a protocol hashed before the data (metrics, averaging times, reference
