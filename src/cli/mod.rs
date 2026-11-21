@@ -60,6 +60,7 @@ mod pntdp_cmd;
 mod receiver_cmd;
 mod regpack_cmd;
 mod reports_cmd;
+mod revalidation_cmd;
 mod scorecard_cmd;
 mod simlab_cmd;
 mod space_ops_cmd;
@@ -133,6 +134,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro twin-recal <run|synth> ...   Digital-twin recalibration evidence pack: window-by-window hosted calibrate verdicts (verified), local before/after residuals and parameter drift (Pro; synth free)\n\
        kshana-pro isvv <run|synth> ...   Requirements coverage and verification status from test results, requirements and trace map: signed report, orphan tests, change since baseline (Pro; synth free)
        kshana-pro deploy-attest <baseline|check|synth> ...   Ground software deployment integrity: signed baseline of artefact hashes, host snapshots against it, drift timeline, signed report (Pro; synth free)
+       kshana-pro revalidation plan ...   Revalidation calendar across open product registers and their revocation lists: by month and maker, CSV and iCalendar, signed (Pro)
        kshana-pro survey-qc <run|synth> ...   Marine survey and construction positioning QC under interference: per-line flags, signed QC annex, site risk plan (Pro; synth free)\n\
        kshana-pro vault <init|ingest|list|hold|release|delete|trend|calendar|submission|verify|export|import> ...   Customer evidence vault: signed packs with legal hold, retention, hash-chained ledger, trends, obligation calendar, submission skeletons, open export (Enterprise; import free)\n\
        kshana-pro method <schedule|budget> ...   Yearly re-scoring schedule and per-test GUM uncertainty budgets with a method report (Pro)\n\
@@ -293,6 +295,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "twin-recal",
     "isvv",
     "deploy-attest",
+    "revalidation",
     "casualty",
     "aviation-recon",
     "enforcement",
@@ -466,6 +469,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("twin-recal") => twin_recal_cmd::run(&args[1..]),
         Some("isvv") => isvv_cmd::run(&args[1..]),
         Some("deploy-attest") => deploy_attest_cmd::run(&args[1..]),
+        Some("revalidation") => revalidation_cmd::run(&args[1..]),
         Some("casualty") => casualty_cmd::run(&args[1..]),
         Some("aviation-recon") => aviation_recon_cmd::run(&args[1..]),
         Some("enforcement") => enforcement_cmd::run(&args[1..]),

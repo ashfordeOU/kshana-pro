@@ -119,6 +119,7 @@ pub mod report_pack_a;
 pub mod report_pack_c;
 pub mod report_pdf;
 pub mod results_only;
+pub mod revalidation;
 pub mod scorecards;
 pub mod serve;
 pub mod signed_dossier;
