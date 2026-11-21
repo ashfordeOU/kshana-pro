@@ -76,6 +76,14 @@ own bullet so parallel work merges cleanly.
   belongs to: positive for extra delay in the receiver's 1PPS path, negative for the reference's,
   subtracted after the sign. No behaviour changes. The two real errors the sweep found are fixed
   on their own branches: the NavIC-minus-GPS sign and the overhead Doppler rate.
+- **Fix: the leap-second deletion vector lost its event marker (docs/TIMING-ASSURANCE.md).**
+  `VectorSpec::leap_index` looked for the epoch after 23:59:59 on the leap day. A deletion skips
+  23:59:59, so every `leap-delete` vector had no event. Its UBX NAV-TIMELS never announced the
+  −1 s change, `expected.csv` marked no `leap` row, and the analyser reported a device that did
+  not delete the second as `leap-mistimed` instead of `leap-not-applied`. **Affected: every
+  `leap-delete` vector and analysis before this fix**; insertion vectors were right. The event
+  is now the epoch after 23:59:58 for a deletion. Tests cover the deletion marker and the
+  analyser on a device that does not delete; both fail on the old code.
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**

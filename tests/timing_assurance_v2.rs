@@ -101,6 +101,8 @@ fn leap_vectors_insert_and_delete_the_second_and_gps_time_runs_on() {
         .unwrap();
     assert_eq!(e[i + 1].utc.iso(), "2027-07-01T00:00:00Z");
     assert_eq!(e[i + 1].gps_minus_utc_s, 17);
+    // The event marker of a deletion is the epoch after 23:59:58 (it used to be lost).
+    assert_eq!(d.leap_index(), Some(i + 1));
     assert_eq!(v.lnav.delta_t_lsf_s, 19);
     assert_eq!(d.lnav.delta_t_lsf_s, 17);
 }
@@ -1021,4 +1023,30 @@ fn cli_vectors_analyse_and_signed_holdover_evidence() {
     assert!(!ok);
     let (ok, out) = run(&["timing", "holdover-evidence", "presets"]);
     assert!(ok && out.contains("finland-reg54"), "{out}");
+}
+
+/// Time edge audit: a deletion vector carries its leap marker into the expected epochs and the
+/// analyser, so a device that does not delete 23:59:59 is `leap-not-applied`, not
+/// `leap-mistimed`.
+#[test]
+fn analyser_reads_a_leap_second_deletion() {
+    let v = vector("leap-delete");
+    let li = v.leap_index().expect("deletion has an event");
+    let eps = v.epochs();
+    assert_eq!(eps[li].utc.iso(), "2027-07-01T00:00:00Z");
+    assert!(tb::expected_csv(&v).lines().any(|l| l.contains("leap")));
+    // Not deleted: the device counts on through 23:59:59, one second behind from then on.
+    let a = tb::analyse(
+        &v,
+        &records(&v, |k, _| {
+            Some(Label::from_unix(eps[0].utc.seconds() + k as i64))
+        }),
+        "csv",
+        0,
+    );
+    assert_eq!(a.faults.len(), 1, "{:?}", a.faults);
+    assert_eq!(a.faults[0].kind, "leap-not-applied", "{:?}", a.faults);
+    // A correct device: no fault.
+    let a = tb::analyse(&v, &records(&v, |_, l| Some(l)), "csv", 0);
+    assert!(a.faults.is_empty(), "{:?}", a.faults);
 }
