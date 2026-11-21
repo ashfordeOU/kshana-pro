@@ -208,6 +208,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-disposal-sensitivity",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-dispute-evidence",
       "type": "feature",
       "tier": "pro"

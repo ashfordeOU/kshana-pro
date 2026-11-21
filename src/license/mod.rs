@@ -389,6 +389,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-crisis-pnt-availability" => Tier::Pro,
         // Observation scheduling evidence pack for space-debris sensors (planning only).
         "pro-debris-obs-schedule" => Tier::Pro,
+        // Disposal-plan sensitivity study (solar activity, ballistic coefficient).
+        "pro-disposal-sensitivity" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -526,6 +528,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-hybrid-signal-sim",
     "pro-crisis-pnt-availability",
     "pro-debris-obs-schedule",
+    "pro-disposal-sensitivity",
     "pro-casualty-reconstruction",
     "pro-method-validation",
     "pro-aviation-event-recon",

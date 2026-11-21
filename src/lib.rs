@@ -52,6 +52,7 @@ pub mod custody;
 pub mod debris_obs;
 pub mod dependency;
 pub mod desktop;
+pub mod disposal_sensitivity;
 #[cfg(feature = "unfiled-methods")]
 pub mod eloran_attrib;
 pub mod eloran_claims;

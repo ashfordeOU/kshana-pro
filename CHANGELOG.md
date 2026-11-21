@@ -42,6 +42,13 @@ own bullet so parallel work merges cleanly.
   improvement per scheduled track from the Fisher information of its measurements on the open
   engine's analytic partials and state-transition matrix; signed. Planning only. `debris-obs synth`
   free. Tier manifest regenerated; 2 tests in `tests/space_ops_evidence.rs`. MODELLED.
+- **Disposal-plan sensitivity study (docs/SPACE-OPS-EVIDENCE.md).** `kshana-pro space-ops
+  disposal-sensitivity` (`pro-disposal-sensitivity`, Pro): circular-orbit drag lifetime to 120 km
+  across solar-activity bands and a sinusoidal solar cycle (start at minimum and at maximum) with the
+  open engine's Jacchia 1971 density, and the ballistic coefficient at nominal and ± a stated spread;
+  every case against the plan's own deadline, the range, and the elasticities to B and F10.7, beside
+  the US76 reference; signed. Added to `space-ops synth`. Tier manifest regenerated; 2 tests in
+  `tests/space_ops_evidence.rs`. MODELLED; no regulatory determination.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from
