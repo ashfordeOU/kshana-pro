@@ -427,5 +427,53 @@ mod disposal_sensitivity {
         let mut q = req();
         q.altitude_km = 100.0;
         assert!(disposal_sensitivity::study(&q).is_err());
+
+// ---------------------------------------------------------------------------------------------
+// Cislunar catalogue build-up: tracklet association and initial orbit determination.
+
+mod cislunar_catalogue {
+    use kshana_pro::cislunar_catalogue as cc;
+
+    #[test]
+    fn tracklets_associate_to_their_objects_and_iod_covers_truth() {
+        let q = cc::synth();
+        assert_eq!(q.tracklets.len(), 9);
+        let r = cc::run(&q).unwrap();
+        assert_eq!(r.objects.len(), 3);
+        assert!(r.unassociated.is_empty());
+        assert_eq!(r.purity, Some(1.0));
+        assert_eq!(r.completeness, Some(1.0));
+        // Every link joins tracklets of one truth object.
+        let label = |id: &str| {
+            q.tracklets
+                .iter()
+                .find(|t| t.id == id)
+                .unwrap()
+                .truth_object
+                .clone()
+        };
+        for l in &r.links {
+            assert_eq!(label(&l.from), label(&l.to), "{l:?}");
+            assert!(l.residual <= q.gate);
+        }
+        for o in &r.objects {
+            assert_eq!(o.tracklets.len(), 3);
+            assert!(o.rms_arcsec.unwrap() < 2.0, "{o:?}");
+            assert_eq!(o.within_3_sigma, Some(true), "{o:?}");
+            assert!(o.pos_sigma_km.unwrap() > 0.0);
+        }
+        assert!(r.evidence.starts_with("MODELLED"));
+    }
+
+    #[test]
+    fn a_tight_gate_leaves_tracklets_unassociated() {
+        let mut q = cc::synth();
+        q.gate = 0.01;
+        let r = cc::run(&q).unwrap();
+        assert!(r.objects.is_empty());
+        assert_eq!(r.unassociated.len(), 9);
+        let mut q = cc::synth();
+        q.data_source = " ".into();
+        assert!(cc::run(&q).is_err());
     }
 }
