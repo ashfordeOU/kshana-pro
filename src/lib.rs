@@ -49,6 +49,7 @@ pub mod connectors;
 pub mod crisis_pnt;
 pub mod criterion;
 pub mod custody;
+pub mod debris_obs;
 pub mod dependency;
 pub mod desktop;
 #[cfg(feature = "unfiled-methods")]

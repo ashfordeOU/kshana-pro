@@ -267,3 +267,92 @@ fn operator_pack_is_signed_and_needs_a_licence() {
             .passed());
     }
 }
+// ---------------------------------------------------------------------------------------------
+// Observation scheduling for space-debris sensors (planning only).
+
+mod debris_obs {
+    use kshana_pro::debris_obs::{self, Request};
+
+    fn req() -> Request {
+        toml::from_str(&debris_obs::synth()).unwrap()
+    }
+
+    fn plan(q: &Request) -> debris_obs::Plan {
+        debris_obs::plan(q, std::path::Path::new(".")).unwrap()
+    }
+
+    fn t(s: &str) -> f64 {
+        kshana_pro::forensics::inputs::parse_utc(s).unwrap()
+    }
+
+    #[test]
+    fn windows_schedule_and_covariance_gain() {
+        let q = req();
+        let p = plan(&q);
+        assert_eq!(p.windows.len(), 9);
+        assert_eq!(p.schedule.len(), 6);
+        // The low-inclination object never rises into the radar's sector at 50 deg N.
+        let d4 = p
+            .targets
+            .iter()
+            .find(|x| x.target == "SYNTH-DEB-4")
+            .unwrap();
+        assert_eq!(d4.scheduled, 0);
+        assert!(d4
+            .reason_unscheduled
+            .as_deref()
+            .unwrap()
+            .contains("no visibility window"));
+        // Every track lies inside a window of its target and clears the others by the slew time.
+        for tr in &p.schedule {
+            assert!(p.windows.iter().any(|w| w.target == tr.target
+                && t(&w.start_utc) <= t(&tr.start_utc)
+                && t(&tr.end_utc) <= t(&w.end_utc)));
+            assert!(
+                tr.posterior_pos_sigma_m < tr.prior_pos_sigma_m / 5.0,
+                "{tr:?}"
+            );
+            assert_eq!(tr.measurements, 39, "13 epochs x (az, el, range)");
+        }
+        let mut iv: Vec<(f64, f64)> = p
+            .schedule
+            .iter()
+            .map(|x| (t(&x.start_utc), t(&x.end_utc)))
+            .collect();
+        iv.sort_by(|a, b| a.0.total_cmp(&b.0));
+        for w in iv.windows(2) {
+            assert!(w[1].0 >= w[0].1 + q.sensor.slew_s - 1e-6);
+        }
+        // Noisier measurements give less improvement.
+        let mut noisy = q.clone();
+        noisy.sensor.sigma_angle_arcsec *= 10.0;
+        noisy.sensor.sigma_range_m = Some(150.0);
+        let n = plan(&noisy);
+        assert!(n.schedule[0].posterior_pos_sigma_m > p.schedule[0].posterior_pos_sigma_m);
+        assert!(p.evidence.starts_with("MODELLED") && p.evidence.contains("Planning only"));
+    }
+
+    #[test]
+    fn optical_needs_darkness_and_requests_are_checked() {
+        let mut q = req();
+        q.sensor.kind = debris_obs::SensorKind::Optical;
+        q.sensor.az_min_deg = None;
+        q.sensor.az_max_deg = None;
+        let p = plan(&q);
+        // At 50 deg N, 7 deg E in November the Sun is 12 deg below the horizon only between
+        // about 17:30 and 05:30 UTC: no optical window around local noon.
+        for w in &p.windows {
+            let h = (t(&w.start_utc) / 3600.0).rem_euclid(24.0);
+            assert!(!(8.0..15.0).contains(&h), "{w:?}");
+        }
+        let mut bad = req();
+        bad.sensor.sigma_range_m = None;
+        assert!(
+            debris_obs::plan(&bad, std::path::Path::new(".")).is_err(),
+            "radar needs range noise"
+        );
+        let mut bad = req();
+        bad.targets[0].tle_line1 = None;
+        assert!(debris_obs::plan(&bad, std::path::Path::new(".")).is_err());
+    }
+}

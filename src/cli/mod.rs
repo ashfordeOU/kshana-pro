@@ -22,6 +22,7 @@ mod casualty_cmd;
 mod clock_bench_cmd;
 mod crisis_cmd;
 mod custody_cmd;
+mod debris_cmd;
 mod dossier_cmd;
 mod eloran_cmd;
 mod enforcement_cmd;
@@ -121,6 +122,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro fingerprint build ...   Signed per-firmware receiver behaviour fingerprint from verified Pro scorecards, with the consent flag for the population-benchmark give-back (Pro)\n\
        kshana-pro hybrid-sim <run|synth> ...   One scenario writing time-aligned eLoran (100 kHz) and GNSS baseband SigMF files with injected faults and a shared truth; files only, no transmit path (Pro; synth free)\n\
        kshana-pro crisis-pnt <run|synth> ...   Crisis PNT service availability: modelled availability, accuracy class and timing holdover per user class when GNSS is denied over an area (Pro; synth free)\n\
+       kshana-pro debris-obs <plan|synth> ...   Observation scheduling for a space-debris sensor: visibility windows, priority schedule, expected orbit-covariance improvement per pass; planning only (Pro; synth free)\n\
        kshana-pro survey-qc <run|synth> ...   Marine survey and construction positioning QC under interference: per-line flags, signed QC annex, site risk plan (Pro; synth free)\n\
        kshana-pro vault <init|ingest|list|hold|release|delete|trend|calendar|submission|verify|export|import> ...   Customer evidence vault: signed packs with legal hold, retention, hash-chained ledger, trends, obligation calendar, submission skeletons, open export (Enterprise; import free)\n\
        kshana-pro method <schedule|budget> ...   Yearly re-scoring schedule and per-test GUM uncertainty budgets with a method report (Pro)\n\
@@ -275,6 +277,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "fingerprint",
     "hybrid-sim",
     "crisis-pnt",
+    "debris-obs",
     "casualty",
     "aviation-recon",
     "enforcement",
@@ -442,6 +445,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("fingerprint") => fingerprint_cmd::run(&args[1..]),
         Some("hybrid-sim") => hybrid_sim_cmd::run(&args[1..]),
         Some("crisis-pnt") => crisis_cmd::run(&args[1..]),
+        Some("debris-obs") => debris_cmd::run(&args[1..]),
         Some("casualty") => casualty_cmd::run(&args[1..]),
         Some("aviation-recon") => aviation_recon_cmd::run(&args[1..]),
         Some("enforcement") => enforcement_cmd::run(&args[1..]),
