@@ -100,7 +100,7 @@ pub const FAMILIES: &[Family] = &[
     },
     Family {
         name: "land-transport-agriculture-and-cellular",
-        tokens: &["road", "rail", "nr", "agnss", "v2x", "telematics", "obu", "ecall", "emergency", "pl", "tolerance", "gnb", "guidance", "agri"],
+        tokens: &["road", "rail", "nr", "agnss", "v2x", "telematics", "obu", "ecall", "emergency", "pl", "tolerance", "gnb", "guidance", "agri", "ue"],
         valid_inputs: &[
             "telematics, on-board-unit, eCall test, CAM, rail passage, farm-machine and device logs as documented; values transcribed by the user with their source",
         ],
@@ -126,14 +126,14 @@ pub const FAMILIES: &[Family] = &[
     },
     Family {
         name: "eloran-and-terrestrial",
-        tokens: &["eloran", "loran", "dme", "vor", "rmode", "navaids", "wwrns"],
+        tokens: &["eloran", "loran", "dme", "vor", "rmode", "navaids", "wwrns", "crisis"],
         valid_inputs: &["eLoran or R-Mode receiver logs, station tables and ASF data as documented"],
         ranges: &[GEO, ("signal", "LF 100 kHz eLoran; other bands as the output states")],
         exclusions: &["Simulator outputs are for conducted use only."],
     },
     Family {
         name: "receivers-space-and-test",
-        tokens: &["receiver", "osnma", "unit", "scheme", "equipment", "firmware", "pics", "testkit", "scorecard", "space", "sbas", "lugre", "lunar", "trust", "link", "verification", "dut", "procedure", "verdict", "trace", "params", "fleet", "kit", "campaign", "mission", "see", "inject", "db", "sequence", "stream", "fingerprints", "lines", "prereg", "review", "failure", "labels", "ca", "identification", "interface", "sim", "traim", "consistency", "l1", "recorder", "replay", "selftest", "tco", "equivalence", "vectors", "precision"],
+        tokens: &["receiver", "osnma", "unit", "scheme", "equipment", "firmware", "pics", "testkit", "scorecard", "space", "sbas", "lugre", "lunar", "trust", "link", "verification", "dut", "procedure", "verdict", "trace", "params", "fleet", "kit", "campaign", "mission", "see", "inject", "db", "sequence", "stream", "fingerprints", "lines", "prereg", "review", "failure", "labels", "ca", "identification", "interface", "sim", "traim", "consistency", "l1", "recorder", "replay", "selftest", "tco", "equivalence", "vectors", "precision", "sensitivity", "fingerprint"],
         valid_inputs: &["receiver and test-bench logs, simulator exports, mission profiles and campaign files as documented"],
         ranges: &[("signals", "civil open signals only; no PRS, M-code or other restricted signals")],
         exclusions: &["Scores are under the named method and pre-registered bars; they are not type approval."],
