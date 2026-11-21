@@ -32,6 +32,21 @@ otherwise. Runs: `simulator,step,t_s,err_e_m,err_n_m,err_u_m,clock_err_s,fix[,re
 
 No provider is named, and none is compared as a competitor.
 
+### Requirements cross-walk for user equipment, L-band and C-band (B2101)
+
+`leo-eval crosswalk [--json <out>] [--markdown]` (`pro-leo-ue-crosswalk`, Pro) maps every step of
+the published procedures to the public requirement documents read for it: ETSI EN 303 413
+V1.2.1 (L-band GNSS receivers: receiver blocking, spurious emissions), Recommendation ITU-R
+M.2031 (C-band RNSS receiving earth stations, 5 010-5 030 MHz: interference protection criteria),
+the DHS RPCF and NIST IR 8323r1 (diversity and holdover expectations). Each row states how the
+step relates to the clause (`measures-same-quantity`, `related`, `evidence-for`,
+`no-requirement-in-source`, `none-found`, `gap`); rows with no read source say **to confirm**, and
+clauses no procedure exercises are listed as gaps. RTCA, EUROCAE and IEC standards are not public
+and are not cited. The table is published as
+[`docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md`](leo-procedures/UE-REQUIREMENTS-CROSSWALK.md),
+kept in step with the code by a test. A cross-walk, never a statement that a receiver meets a
+document.
+
 ## Orbit, clock and DCB evaluation and PPP dependency risk (B2107, evaluation only)
 
 * `sisre`: broadcast-minus-precise differences `t,sat,dR_m,dA_m,dC_m,dclk_m[,sigma_m]`;

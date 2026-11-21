@@ -23,6 +23,7 @@ pub const LEO_EVAL_USAGE: &str = "usage: kshana-pro leo-eval <command>\n\
     dd-template <claims.json> [--measured <claim,value csv>] [--out <file.md>]   Investor due-diligence report template; every verdict cites its source (Pro)\n\
     claims-check <claims.json>                                       Refuse values without source URL, date and quote (no licence needed)\n\
     claims-compare <claims.json> <measured.csv> [--json <out>]       Claimed against measured (`claim,value`) (Pro)\n\
+    crosswalk [--json <out>] [--markdown]                            Requirements cross-walk of the published procedures to public documents, L-band and C-band user equipment; every row cited or \"to confirm\" (Pro)\n\
     (Pro commands take [--license <token>] [--dev])";
 
 fn fail(m: impl std::fmt::Display) -> ExitCode {
@@ -61,7 +62,11 @@ pub fn run(args: &[String]) -> ExitCode {
         .take_while(|a| !a.starts_with("--"))
         .collect();
     let free = matches!(sub, "sim-hash" | "sim-procedure" | "claims-check");
-    if !free {
+    if sub == "crosswalk" {
+        if let Err(e) = gate(args, leo_eval::crosswalk::FEATURE) {
+            return fail(e);
+        }
+    } else if !free {
         if let Err(e) = gate(args, leo_eval::FEATURE) {
             return fail(e);
         }
@@ -83,6 +88,20 @@ pub fn run(args: &[String]) -> ExitCode {
                 })?;
             print!("{}", t.1);
             Ok("[leo-eval] published procedure, frozen at 1.0: copy it, add your bars and tolerances, register its hash".into())
+        }
+        ("crosswalk", []) => {
+            let c = leo_eval::crosswalk::build()?;
+            if args.iter().any(|a| a == "--markdown") {
+                print!("{}", leo_eval::crosswalk::markdown(&c));
+            } else {
+                emit(args, &c)?;
+            }
+            Ok(format!(
+                "[leo-eval] cross-walk: {} rows; {} published steps cited, {} to confirm only",
+                c.rows.len(),
+                c.steps_cited,
+                c.steps_to_confirm_only.len()
+            ))
         }
         ("sim-hash", [p]) => {
             println!("{}", sims::procedure_hash(&read(p)?)?);
