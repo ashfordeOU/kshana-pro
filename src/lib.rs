@@ -81,6 +81,7 @@ pub mod multi_source;
 pub mod navaids;
 pub mod obs_provenance;
 pub mod osnma_conformance;
+pub mod osnma_scenarios;
 pub mod pack_c;
 pub mod packs;
 pub mod payments;

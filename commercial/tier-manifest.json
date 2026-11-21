@@ -338,6 +338,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-osnma-scenario-pack",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-parametric-trigger",
       "type": "feature",
       "tier": "pro"
