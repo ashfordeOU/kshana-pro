@@ -143,6 +143,15 @@ own bullet so parallel work merges cleanly.
   the gate, so the epoch's verdict was `consistent`, and a NaN time was paired with the t = 0
   epoch. **Affected: inspection reports built from inputs holding non-finite values before this
   fix.** Every number must now be finite. Test: `inspection_inputs_refuse_non_finite_values`.
+- **Fix: the shared CSV reader let infinite numbers through (`transport::Table::num`).** It
+  treated only an empty cell or exactly `nan` as missing and parsed everything else, so `inf`,
+  `-inf` and `infinity` came through as numbers, and `+nan`/`-nan` came through as NaN. About
+  25 tools read their CSV through it, among them lunar-surface traverse (an infinite position
+  made the hazard margin infinite, so the row was shown clear), road, rail and eCall,
+  telematics, AIS and VMS, interface drift, casualty, NavIC and space-ops. **Affected: outputs
+  from CSVs holding such cells before this fix.** `nan` in any sign is now the missing marker;
+  an infinite value is an error with its row and column. Test:
+  `num_treats_nan_as_missing_and_refuses_infinity`.
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**

@@ -145,12 +145,25 @@ impl Table {
             .ok_or_else(|| format!("missing column '{name}'"))
     }
 
-    /// The number in `row` at column `c` (`None` when the column is absent or the cell empty).
+    /// The number in `row` at column `c` (`None` when the column is absent, the cell empty or
+    /// `nan` in any sign or case, the missing-value marker). An infinite value is an error: it
+    /// parses, and would make a margin infinite or a comparison pass.
     pub fn num(&self, row: usize, c: Option<usize>) -> Result<Option<f64>, String> {
         let Some(c) = c else { return Ok(None) };
         let s = self.rows[row][c].as_str();
-        if s.is_empty() || s.eq_ignore_ascii_case("nan") {
+        let unsigned = s.trim_start_matches(['+', '-']);
+        if s.is_empty() || unsigned.eq_ignore_ascii_case("nan") {
             return Ok(None);
+        }
+        if let Ok(x) = s.parse::<f64>() {
+            if !x.is_finite() {
+                return Err(format!(
+                    "row {}: '{}' is not a finite number ({})",
+                    row + 2,
+                    s,
+                    self.cols[c]
+                ));
+            }
         }
         s.parse::<f64>().map(Some).map_err(|_| {
             format!(
@@ -263,6 +276,21 @@ pub fn fo(x: Option<f64>) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Robustness audit: `nan` in any sign is the missing marker; an infinite value is an error
+    /// (it used to parse and could make a margin infinite or pass a comparison).
+    #[test]
+    fn num_treats_nan_as_missing_and_refuses_infinity() {
+        let t = Table::parse("a\n1.5\nnan\n-NaN\n+nan\ninf\n-Infinity\nx\n").unwrap();
+        let c = t.col("a");
+        assert_eq!(t.num(0, c).unwrap(), Some(1.5));
+        for r in 1..4 {
+            assert_eq!(t.num(r, c).unwrap(), None, "row {r}");
+        }
+        assert!(t.num(4, c).unwrap_err().contains("not a finite number"));
+        assert!(t.num(5, c).unwrap_err().contains("not a finite number"));
+        assert!(t.num(6, c).unwrap_err().contains("not a number"));
+    }
 
     #[test]
     fn distances_and_offsets_agree() {
