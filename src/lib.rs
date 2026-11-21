@@ -49,6 +49,7 @@ pub mod connectors;
 pub mod criterion;
 pub mod custody;
 pub mod dependency;
+pub mod deploy_attest;
 pub mod desktop;
 #[cfg(feature = "unfiled-methods")]
 pub mod eloran_attrib;

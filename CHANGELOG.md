@@ -5,6 +5,13 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Ground software deployment integrity and configuration drift, evidence only
+  (docs/DEPLOY-ATTESTATION.md).** `kshana-pro deploy-attest` (`pro-deploy-attestation`, Pro):
+  `baseline` signs a manifest of the SHA-256 of every released file. `check` verifies that
+  baseline against a trusted key, compares operator-supplied host hash snapshots with it
+  (modified, missing, added, and accepted by a change reference) and writes a signed report with
+  a per-host drift timeline and drift episodes. Nothing connects to a host. `deploy-attest synth`
+  is free. Tier manifest regenerated. 3 tests in `tests/custody.rs`.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from

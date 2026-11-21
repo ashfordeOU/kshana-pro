@@ -365,6 +365,7 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-navic-evidence" => Tier::Pro,
         // LEO-PNT evaluation (research 2026-11-20 gaps, E21: B2101, B2107, B2108).
         "pro-leo-evaluation" => Tier::Pro,
+        "pro-deploy-attestation" => Tier::Pro,
         // Maritime casualty reconstruction (research 2026-11-20 gaps, B0601).
         "pro-casualty-reconstruction" => Tier::Pro,
         // Interlaboratory precision study (2026-11-20 gaps, B2505 Pro part).
@@ -511,6 +512,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-decoder-regression",
     "pro-navic-evidence",
     "pro-leo-evaluation",
+    "pro-deploy-attestation",
     "pro-casualty-reconstruction",
     "pro-method-validation",
     "pro-aviation-event-recon",

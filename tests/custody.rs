@@ -260,3 +260,118 @@ fn cli_capture_needs_a_licence_and_the_chain_is_free() {
     let v: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&j).unwrap()).unwrap();
     assert_eq!(v["format"], custody::CHAIN_FORMAT);
 }
+
+/// Ground software deployment integrity and drift (`kshana-pro deploy-attest`,
+/// docs/DEPLOY-ATTESTATION.md).
+mod deploy_attest {
+    use kshana_pro::deploy_attest::{self, Request};
+    use kshana_pro::license::public_key_for;
+
+    const SEED: [u8; 32] = [21; 32];
+
+    fn setup(name: &str) -> (std::path::PathBuf, Request) {
+        let d = std::env::temp_dir().join(format!("kshana-deploy-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        let (rel, snaps, req) = deploy_attest::synth();
+        for (p, t) in &rel {
+            let f = d.join("release").join(p);
+            std::fs::create_dir_all(f.parent().unwrap()).unwrap();
+            std::fs::write(f, t).unwrap();
+        }
+        for (n, t) in &snaps {
+            std::fs::write(d.join(n), t).unwrap();
+        }
+        let b = deploy_attest::baseline_of_dir(
+            &d.join("release"),
+            "SYN-MCS",
+            "4.2.0",
+            &["logs/*".to_string()],
+            "2026-10-30T00:00:00Z",
+        )
+        .unwrap();
+        assert_eq!(b.files.len(), 5);
+        let bp = d.join("baseline-pack");
+        deploy_attest::write_baseline(&bp, &b).unwrap();
+        kshana_pro::signed_dossier::sign(&bp, &SEED, "SYNTHETIC release", "2026-10-30T00:00:00Z")
+            .unwrap();
+        (d, toml::from_str(&req).unwrap())
+    }
+
+    #[test]
+    fn drift_timeline_and_accepted_change() {
+        let (d, q) = setup("timeline");
+        let (r, inputs) = deploy_attest::check(&q, &d, &[public_key_for(&SEED)]).unwrap();
+        assert!(r.baseline_signature.starts_with("verified"));
+        assert_eq!(inputs.len(), 7);
+        let snap = |h: &str, day: &str| {
+            r.snapshots
+                .iter()
+                .find(|s| s.host == h && s.utc.starts_with(day))
+                .unwrap()
+        };
+        // Excluded log changes do not count.
+        assert_eq!(snap("gs-a", "2026-11-01").state, "matches baseline");
+        let a8 = snap("gs-a", "2026-11-08");
+        assert_eq!((a8.modified, a8.added, a8.missing), (1, 1, 0));
+        assert_eq!(a8.new_drift, vec!["bin/helper.sh", "etc/mcs.conf"]);
+        assert_eq!(snap("gs-b", "2026-11-08").missing, 1);
+        let a15 = snap("gs-a", "2026-11-15");
+        assert_eq!(a15.accepted, 1);
+        assert_eq!(a15.reverted, vec!["bin/helper.sh"]);
+        assert!(a15.new_drift.is_empty());
+        let acc = a15.findings.iter().find(|f| f.kind == "accepted").unwrap();
+        assert!(acc.reference.as_deref().unwrap().contains("CR-0042"));
+        assert_eq!(snap("gs-b", "2026-11-15").reverted, vec!["lib/libframe.so"]);
+        let open: Vec<_> = r.episodes.iter().filter(|e| e.open).collect();
+        assert_eq!(open.len(), 1);
+        assert_eq!(open[0].path, "etc/mcs.conf");
+        assert!((open[0].duration_days - 7.0).abs() < 1e-9);
+        let gs_a = r.hosts.iter().find(|h| h.host == "gs-a").unwrap();
+        assert_eq!(gs_a.latest_state, "drifted");
+        assert_eq!(
+            gs_a.first_drift_utc.as_deref(),
+            Some("2026-11-08T06:00:00Z")
+        );
+        assert!(r.verdict.starts_with("1 of 2 hosts"), "{}", r.verdict);
+        assert!(r.verdict.contains("1 drift findings open, 2 reverted"));
+        let _ = std::fs::remove_dir_all(&d);
+    }
+
+    #[test]
+    fn baseline_must_verify_against_a_trusted_key() {
+        let (d, q) = setup("trust");
+        assert!(deploy_attest::check(&q, &d, &[])
+            .unwrap_err()
+            .contains("--trust"));
+        let e = deploy_attest::check(&q, &d, &[public_key_for(&[1; 32])]).unwrap_err();
+        assert!(e.contains("does not verify"), "{e}");
+        // A baseline whose manifest was edited after signing.
+        let m = d.join("baseline-pack").join("manifest.json");
+        let t = std::fs::read_to_string(&m)
+            .unwrap()
+            .replace("4.2.0", "4.2.1");
+        std::fs::write(&m, t).unwrap();
+        let e = deploy_attest::check(&q, &d, &[public_key_for(&SEED)]).unwrap_err();
+        assert!(e.contains("manifest.json: changed"), "{e}");
+        let _ = std::fs::remove_dir_all(&d);
+    }
+
+    #[test]
+    fn hash_lists_in_both_forms() {
+        let h = "a".repeat(64);
+        let l = deploy_attest::parse_hash_list(&format!(
+            "# sha256sum\n{h}  ./bin/x\n{h} *etc/y.conf\n"
+        ))
+        .unwrap();
+        assert_eq!(l[0].path, "bin/x");
+        assert_eq!(l[1].path, "etc/y.conf");
+        let c =
+            deploy_attest::parse_hash_list(&format!("path,sha256\nbin/x,{}\n", h.to_uppercase()))
+                .unwrap();
+        assert_eq!(c[0].sha256, h);
+        assert!(deploy_attest::parse_hash_list("abc  x\n").is_err());
+        assert!(deploy_attest::parse_hash_list(&format!("{h}  x\n{h}  ./x\n")).is_err());
+        assert!(deploy_attest::glob("logs/*", "logs/a/b.log"));
+        assert!(!deploy_attest::glob("*.pid", "run/x.pidfile"));
+    }
+}
