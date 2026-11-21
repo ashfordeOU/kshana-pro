@@ -36,7 +36,11 @@ the hash, so adding logs after registration is allowed.
 * **Authentication and replay window** (`[replay]`: CSV `rx_s,tx_s,accepted`): messages accepted
   later than the window after their authenticated transmit time (each one a replay the receiver
   let in), accepted with a negative latency, refused although inside the window, the largest
-  latency accepted; `held` or `breached`.
+  latency accepted; `held` or `breached`. Both columns must be on one time scale (state it as
+  `time_scale`), or the request must state `tx_minus_rx_scale_s`, the transmit scale minus the
+  receive scale (18 s for GPST against UTC), which is taken off the transmit times. The result
+  records which applied. A median latency within 1 s of 18, 19 or 37 s with a window under 15 s
+  raises `scale_warning`.
 
 Log formats: time error `t_s,te_ns,valid` (time error against the lab or field reference, `valid`
 1 when the receiver reported a timing solution); authentication `rx_s,tx_s,accepted`. Rows that do

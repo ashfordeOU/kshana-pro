@@ -329,6 +329,14 @@ fn load_orbit(t: &Target, base: &std::path::Path) -> Result<Orbit, String> {
                     seg.meta.ref_frame
                 ));
             }
+            // Epochs are taken as UTC (they are compared with UTC windows and SGP4 targets on
+            // UTC); another TIME_SYSTEM would shift every pass by its offset from UTC.
+            if !seg.meta.time_system.trim().eq_ignore_ascii_case("UTC") {
+                return Err(format!(
+                    "{f}: TIME_SYSTEM {} (only UTC is supported here; convert the epochs to UTC first)",
+                    seg.meta.time_system
+                ));
+            }
             let mut v: Vec<(f64, [f64; 3], [f64; 3])> = seg
                 .states
                 .iter()

@@ -525,10 +525,17 @@ pub struct Identification {
     pub best: String,
     /// Next-best RMS over best RMS.
     pub margin: f64,
+    /// The frame and time scale of the ephemeris: declared (`frame`, `time_scale` columns) or
+    /// assumed.
+    pub ephemeris_frame: String,
     pub verdict: String,
 }
 
-/// The operator's ephemeris (`timestamp,x_km,y_km,z_km`, TEME) against candidate TLEs.
+/// The operator's ephemeris (`timestamp,x_km,y_km,z_km[,frame][,time_scale]`) against candidate
+/// TLEs. SGP4 gives TEME positions on UTC, so the ephemeris must be TEME with UTC timestamps: a
+/// `frame` or `time_scale` column with any other value is refused (an EME2000 or ITRF ephemeris,
+/// or GPS-time stamps, would be tens to thousands of km off and could change the best match).
+/// Without the columns, TEME on UTC is assumed and the verdict says so.
 pub fn identify(ephem: &str, cands: &[Candidate]) -> Result<Identification, String> {
     if cands.len() < 2 {
         return Err("identification needs at least two candidates".into());
@@ -540,8 +547,23 @@ pub fn identify(ephem: &str, cands: &[Candidate]) -> Result<Identification, Stri
         t.need("y_km")?,
         t.need("z_km")?,
     );
+    let (cf, cs) = (t.col("frame"), t.col("time_scale"));
     let mut pts = Vec::new();
     for i in 0..t.rows.len() {
+        if cf.is_some() && !t.text(i, cf).eq_ignore_ascii_case("TEME") {
+            return Err(format!(
+                "row {}: frame '{}': the ephemeris must be TEME (convert it first)",
+                i + 2,
+                t.text(i, cf)
+            ));
+        }
+        if cs.is_some() && !t.text(i, cs).eq_ignore_ascii_case("UTC") {
+            return Err(format!(
+                "row {}: time_scale '{}': the timestamps must be UTC (convert them first)",
+                i + 2,
+                t.text(i, cs)
+            ));
+        }
         let ts = t.text(i, Some(ct));
         let tt = parse_utc(ts).ok_or_else(|| format!("row {}: bad timestamp", i + 2))?;
         let n = |c| {
@@ -575,15 +597,22 @@ pub fn identify(ephem: &str, cands: &[Candidate]) -> Result<Identification, Stri
     }
     fits.sort_by(|a, b| a.rms_km.total_cmp(&b.rms_km));
     let margin = fits[1].rms_km / fits[0].rms_km.max(1e-9);
+    let declared = cf.is_some() && cs.is_some();
+    let ephemeris_frame = if declared {
+        "TEME on UTC (declared)".to_string()
+    } else {
+        "TEME on UTC (ASSUMED: no frame and time_scale columns)".to_string()
+    };
     Ok(Identification {
         format: ID_FORMAT,
         points: pts.len(),
         best: fits[0].name.clone(),
         margin,
         verdict: format!(
-            "Best match {} (NORAD {}) at {:.3} km RMS; the next candidate is {:.1} times further. Identification evidence from the operator's ephemeris; MODELLED.",
-            fits[0].name, fits[0].norad_id, fits[0].rms_km, margin
+            "Best match {} (NORAD {}) at {:.3} km RMS; the next candidate is {:.1} times further. Ephemeris {}. Identification evidence from the operator's ephemeris; MODELLED.",
+            fits[0].name, fits[0].norad_id, fits[0].rms_km, margin, ephemeris_frame
         ),
+        ephemeris_frame,
         fits,
     })
 }
@@ -834,7 +863,7 @@ pub fn synth() -> Result<Vec<(&'static str, String)>, String> {
     let c2 = tle_line("2 90003  97.5000 121.0000 0010000  90.0000 270.0000 15.20000000  1000");
     let tle = kshana::tle::parse_tle(&l1, &a2)?;
     let s = tle.to_sgp4(kshana::sgp4::wgs72(), false);
-    let mut eph = String::from("timestamp,x_km,y_km,z_km\n");
+    let mut eph = String::from("timestamp,x_km,y_km,z_km,frame,time_scale\n");
     let mut st: u64 = 5;
     for k in 0..60 {
         let tsince = 60.0 + k as f64;
@@ -848,7 +877,7 @@ pub fn synth() -> Result<Vec<(&'static str, String)>, String> {
             ((st >> 33) as f64 / (1u64 << 31) as f64 - 0.5) * 0.2
         };
         eph.push_str(&format!(
-            "{},{:.4},{:.4},{:.4}\n",
+            "{},{:.4},{:.4},{:.4},TEME,UTC\n",
             crate::forensics::inputs::iso(unix),
             r[0] + n(),
             r[1] + n(),

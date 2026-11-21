@@ -358,6 +358,45 @@ mod debris_obs {
         bad.targets[0].tle_line1 = None;
         assert!(debris_obs::plan(&bad, std::path::Path::new(".")).is_err());
     }
+
+    /// Frame audit: an OEM target's TIME_SYSTEM must be UTC (epochs are compared with UTC
+    /// windows); a GPS-time OEM is refused instead of being shifted by 18 s.
+    #[test]
+    fn oem_time_system_must_be_utc() {
+        let d = std::env::temp_dir().join(format!("kshana-oem-ts-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        let oem = |ts: &str| {
+            let mut s = format!(
+                "CCSDS_OEM_VERS = 2.0\nCREATION_DATE = 2026-11-16T00:00:00\nORIGINATOR = SYNTHETIC\n\nMETA_START\nOBJECT_NAME = SYN-OEM\nOBJECT_ID = SYN-OEM\nCENTER_NAME = EARTH\nREF_FRAME = TEME\nTIME_SYSTEM = {ts}\nSTART_TIME = 2026-11-16T12:00:00\nSTOP_TIME = 2026-11-16T12:03:00\nMETA_STOP\n\n"
+            );
+            for k in 0..4 {
+                let a = k as f64 * 60.0 * 7.5 / 7000.0;
+                s.push_str(&format!(
+                    "2026-11-16T12:0{k}:00 {:.3} {:.3} 0.0 {:.6} {:.6} 0.0\n",
+                    7000.0 * a.cos(),
+                    7000.0 * a.sin(),
+                    -7.5 * a.sin(),
+                    7.5 * a.cos()
+                ));
+            }
+            s
+        };
+        let mut q = req();
+        q.targets.truncate(1);
+        q.targets[0].tle_line1 = None;
+        q.targets[0].tle_line2 = None;
+        q.targets[0].oem = Some("t.oem".into());
+        q.targets[0].oem_object = Some("SYN-OEM".into());
+        std::fs::write(d.join("t.oem"), oem("GPS")).unwrap();
+        let e = debris_obs::plan(&q, &d).unwrap_err();
+        assert!(e.contains("TIME_SYSTEM GPS"), "{e}");
+        std::fs::write(d.join("t.oem"), oem("UTC")).unwrap();
+        if let Err(e) = debris_obs::plan(&q, &d) {
+            assert!(!e.contains("TIME_SYSTEM"), "{e}");
+        }
+        let _ = std::fs::remove_dir_all(&d);
+    }
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -879,4 +918,33 @@ mod pc_dedupe {
         );
         assert!(r.cdms[0].covariance_frames.contains("ASSUMED"));
     }
+/// Frame audit: the identification ephemeris must be TEME on UTC; declared otherwise it is
+/// refused, undeclared it is assumed and said.
+#[test]
+fn identification_ephemeris_frame_is_declared_or_assumed() {
+    let files = so::synth().unwrap();
+    let get = |n: &str| files.iter().find(|(f, _)| *f == n).unwrap().1.clone();
+    #[derive(serde::Deserialize)]
+    struct C {
+        candidate: Vec<so::Candidate>,
+    }
+    let eph = get("ephemeris.csv");
+    let c: C = toml::from_str(&get("candidates.toml")).unwrap();
+    let r = so::identify(&eph, &c.candidate).unwrap();
+    assert_eq!(r.ephemeris_frame, "TEME on UTC (declared)");
+    let bare: String = eph
+        .lines()
+        .map(|l| l.rsplitn(3, ',').nth(2).unwrap().to_string() + "\n")
+        .collect();
+    let r2 = so::identify(&bare, &c.candidate).unwrap();
+    assert!(r2.ephemeris_frame.contains("ASSUMED"));
+    assert_eq!(r2.best, r.best);
+    assert!(
+        so::identify(&eph.replace(",TEME,", ",EME2000,"), &c.candidate)
+            .unwrap_err()
+            .contains("must be TEME")
+    );
+    assert!(so::identify(&eph.replace(",UTC\n", ",GPS\n"), &c.candidate)
+        .unwrap_err()
+        .contains("must be UTC"));
 }

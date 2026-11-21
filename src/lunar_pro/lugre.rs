@@ -306,8 +306,12 @@ pub fn epoch_from_secs(s: f64) -> EpochUtc {
     }
 }
 
-/// The geometry at one epoch, in the mean equator and equinox of date (≈ the SP3 TEME frame to
-/// the nutation level, ≈20″): receiver, boresight, Moon centre.
+/// The geometry at one epoch, in the mean equator and equinox of date: receiver, boresight,
+/// Moon centre. The GNSS positions are the engine's SP3 TEME, rotated from Earth-fixed with the
+/// SP3 GPS epoch used as UT1. Against the mean-of-date frame this differs by nutation (≈20″)
+/// and by the Earth rotation in GPS − UT1 (18 s + DUT1, ≈4.5′), not by nutation alone. At the
+/// Moon's distance that moves a GNSS transmit angle by under 0.1°, about 0.1 dB on the
+/// steepest side-lobe slope of a typical EIRP table.
 #[derive(Clone, Copy, Debug)]
 pub struct RxGeometry {
     pub rx: Vec3,

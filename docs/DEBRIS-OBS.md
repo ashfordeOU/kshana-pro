@@ -22,7 +22,7 @@ is taken and no orbit is determined from data.
   (wrapping through north when `az_min_deg > az_max_deg`), optional maximum range, Sun depression
   for an optical sensor, track and slew times, measurement interval, angle noise and (radar) range
   noise;
-* **targets**: a TLE (`tle_line1`, `tle_line2`) or a CCSDS OEM file (`oem`, `oem_object`, TEME),
+* **targets**: a TLE (`tle_line1`, `tle_line2`) or a CCSDS OEM file (`oem`, `oem_object`; `REF_FRAME` TEME and `TIME_SYSTEM` UTC, others refused),
   a priority (1 = highest) and the prior position and velocity 1-sigma.
 
 Outputs:

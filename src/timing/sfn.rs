@@ -775,6 +775,9 @@ fn monitor(net: &Net, base: &Path) -> Result<Option<Monitor>, String> {
             let (Some(x), Some(y)) = (te[a], te[bb]) else {
                 continue;
             };
+            // A pair's relative offset cancels the reference only if both transmitters' logs are
+            // against one common reference on one time scale, with consistent signs: the
+            // operator's statement; nothing here can check it.
             let rel = (x - y).abs();
             let p = &mut pm[j];
             p.max_abs_relative_s = p.max_abs_relative_s.max(rel);

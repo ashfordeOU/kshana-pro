@@ -704,6 +704,8 @@ pub fn assess_pmus(req: &PmuRequest, base: &Path) -> Result<PmuReport, String> {
         for i in 0..at.len() {
             for j in i + 1..at.len() {
                 if let (Some(a), Some(b)) = (at[i].median_te_s, at[j].median_te_s) {
+                    // The pair's angle error assumes both PMUs' time errors are against one
+                    // common reference on one scale (the operator's statement, not checked).
                     pairs.push(PairAtEvent {
                         a: at[i].name.clone(),
                         b: at[j].name.clone(),
