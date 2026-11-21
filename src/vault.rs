@@ -209,7 +209,11 @@ pub fn detect_format(dir: &Path) -> Option<String> {
         .filter_map(|e| e.ok())
         .filter(|e| e.file_type().is_ok_and(|t| t.is_file()))
         .map(|e| e.file_name().to_string_lossy().into_owned())
-        .filter(|n| n.ends_with(".json") && n != crate::signed_dossier::SIGNATURE_FILE)
+        .filter(|n| {
+            n.ends_with(".json")
+                && n != crate::signed_dossier::SIGNATURE_FILE
+                && n != crate::envelope::FILE
+        })
         .collect();
     names.sort();
     names.into_iter().find_map(|n| {
