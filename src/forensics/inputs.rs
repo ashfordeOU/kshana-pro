@@ -161,10 +161,12 @@ pub fn round(x: f64, d: i32) -> f64 {
 /// Unix seconds to ISO-8601 UTC (`YYYY-MM-DDTHH:MM:SSZ`, fractional seconds kept to 0.1 s
 /// when present).
 pub fn iso(t: f64) -> String {
-    let day = (t / 86_400.0).floor();
-    let (y, m, d) = kshana::interference_map::time::civil_from_days(day as i64);
-    let sod = t - day * 86_400.0;
-    let tenths = (sod * 10.0).round() as i64;
+    // Round to tenths before splitting off the day, so 23:59:59.96 becomes 00:00:00 of the next
+    // day rather than "24:00:00".
+    let all = (t * 10.0).round() as i64;
+    let day = all.div_euclid(864_000);
+    let (y, m, d) = kshana::interference_map::time::civil_from_days(day);
+    let tenths = all.rem_euclid(864_000);
     let (hh, rem) = (tenths / 36_000, tenths % 36_000);
     let (mm, rem) = (rem / 600, rem % 600);
     let (ss, frac) = (rem / 10, rem % 10);
@@ -305,6 +307,23 @@ mod tests {
         assert_eq!(iso(t), "2026-05-14T06:05:30Z");
         assert_eq!(iso(t + 0.5), "2026-05-14T06:05:30.5Z");
         assert_eq!(parse_utc("2026-05-14T06:05:30.250Z"), Some(t + 0.25));
+    }
+
+    /// Time edge audit: a time that rounds up to midnight goes to the next day, never 24:00.
+    #[test]
+    fn iso_rounds_into_the_next_day_not_hour_24() {
+        let midnight = parse_utc("2026-01-01T00:00:00Z").unwrap();
+        assert_eq!(iso(midnight - 0.04), "2026-01-01T00:00:00Z");
+        assert_eq!(iso(midnight - 0.06), "2025-12-31T23:59:59.9Z");
+        assert_eq!(
+            iso(midnight - 86_400.0 * 365.0 - 0.01),
+            "2025-01-01T00:00:00Z"
+        );
+        // The result parses back, so callers that re-read it (schedules, daily bins) get it.
+        assert_eq!(parse_utc(&iso(midnight - 0.04)), Some(midnight));
+        // Before 1970 too.
+        assert_eq!(iso(-0.04), "1970-01-01T00:00:00Z");
+        assert_eq!(iso(-0.5), "1969-12-31T23:59:59.5Z");
     }
 
     #[test]
