@@ -151,7 +151,10 @@ pub fn read_sigmf(base: &Path, max_samples: Option<u64>) -> Result<Recording, St
         .as_f64()
         .ok_or("missing core:sample_rate")?;
     if !(fs_hz.is_finite() && fs_hz > 0.0) {
-        return Err(format!("{}: core:sample_rate {fs_hz} is not positive", meta_path.display()));
+        return Err(format!(
+            "{}: core:sample_rate {fs_hz} is not positive",
+            meta_path.display()
+        ));
     }
     let nch = g["core:num_channels"].as_u64().unwrap_or(1);
     if !(1..=MAX_CHANNELS).contains(&nch) {
