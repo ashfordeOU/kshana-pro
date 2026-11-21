@@ -163,12 +163,32 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-cislunar-catalogue",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-claims-triage",
       "type": "feature",
       "tier": "pro"
     },
     {
+      "kind": "pro-coexistence-catalogue",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-crisis-pnt-availability",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-custody-capture",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-debris-obs-schedule",
       "type": "feature",
       "tier": "pro"
     },
@@ -194,6 +214,11 @@
     },
     {
       "kind": "pro-desktop",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-disposal-sensitivity",
       "type": "feature",
       "tier": "pro"
     },
@@ -263,6 +288,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-hybrid-signal-sim",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-incident-replay",
       "type": "feature",
       "tier": "pro"
@@ -304,6 +334,11 @@
     },
     {
       "kind": "pro-leo-timing-scorecard",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-leo-ue-crosswalk",
       "type": "feature",
       "tier": "pro"
     },
@@ -399,6 +434,11 @@
     },
     {
       "kind": "pro-rail-evidence",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-receiver-fingerprint",
       "type": "feature",
       "tier": "pro"
     },
@@ -499,6 +539,11 @@
     },
     {
       "kind": "pro-space-rx-qual",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-space-rx-resilience",
       "type": "feature",
       "tier": "pro"
     },
@@ -604,6 +649,11 @@
     },
     {
       "kind": "pro-timing-timebomb",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-twin-recalibration",
       "type": "feature",
       "tier": "pro"
     },

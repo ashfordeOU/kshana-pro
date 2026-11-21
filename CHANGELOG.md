@@ -5,6 +5,82 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
+  gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
+  `kshana-pro leo-eval crosswalk` (`pro-leo-ue-crosswalk`, Pro): every step of the published LEO-PNT
+  procedures mapped to public documents read for it (ETSI EN 303 413 V1.2.1 clauses 4.2.1, 4.2.2;
+  ITU-R M.2031 Annex 1 Table 1-1; DHS RPCF; NIST IR 8323r1), each row cited or "to confirm", with
+  the relation to the clause and the clauses no procedure exercises. Tier manifest regenerated; 2
+  tests in `tests/leo_evaluation.rs`.
+- **Receiver behaviour fingerprint for the population benchmark (research 2026-11-20 gaps B2603, Pro
+  side; docs/RECEIVER-FINGERPRINT.md).** `kshana-pro fingerprint build` (`pro-receiver-fingerprint`,
+  Pro): a signed per-firmware behaviour fingerprint from the customer's verified receiver and OSNMA
+  scorecards (one firmware per fingerprint, stable identifier, sources hashed), with a consent flag
+  (scope `population-benchmark` only); with consent, a contribution file carrying identity,
+  features and a salted customer pseudonym for the hosted aggregate. Tier manifest regenerated; 2
+  tests in `tests/receiver_scorecard.rs`.
+- **Combined eLoran and GNSS signal-file scenario (docs/HYBRID-SIM.md).** `kshana-pro hybrid-sim run`
+  (`pro-hybrid-signal-sim`, Pro): one request drives the eLoran scene simulator and the software GNSS
+  bridge on one time base, injects faults on the shared clock (ASF error as an added station delay,
+  fixed skywave, GNSS outage, GNSS interference as the C/N0 drop of a stated J/S), and writes both
+  SigMF files, their truth CSVs, a shared `truth.json` (common start, stream parameters, faults,
+  file hashes) and `truth-timeline.csv`, signed. Files only, no transmit path; no interference
+  waveform synthesised. `hybrid-sim synth` free. Tier manifest regenerated; 2 tests in
+  `tests/eloran_gnss_sdr.rs`. MODELLED.
+- **Crisis PNT service-availability model (docs/CRISIS-PNT.md).** `kshana-pro crisis-pnt run`
+  (`pro-crisis-pnt-availability`, Pro): GNSS denied over a polygon for a duration; per grid cell and
+  user class, the sources that meet the need (eLoran from the network planner on the stations still
+  on air, LEO from Walker coverage geometry with the provider's stated figures, clock holdover from
+  the open engine's classes), modelled availability, accuracy or timing class, and per class the
+  share served and the hours beyond holdover; signed. Planning only: no navigation or timing
+  solution. `crisis-pnt synth` free. Tier manifest regenerated; 2 tests in
+  `tests/eloran_service.rs`. MODELLED.
+- **Observation scheduling for space-debris sensors (docs/DEBRIS-OBS.md).** `kshana-pro debris-obs plan`
+  (`pro-debris-obs-schedule`, Pro): from a sensor (location, limits, optical or radar, track and slew,
+  noise) and targets (TLE or CCSDS OEM, priority, prior covariance), visibility windows (optical:
+  sensor dark, target sunlit), a greedy priority schedule, and the expected position-covariance
+  improvement per scheduled track from the Fisher information of its measurements on the open
+  engine's analytic partials and state-transition matrix; signed. Planning only. `debris-obs synth`
+  free. Tier manifest regenerated; 2 tests in `tests/space_ops_evidence.rs`. MODELLED.
+- **Disposal-plan sensitivity study (docs/SPACE-OPS-EVIDENCE.md).** `kshana-pro space-ops
+  disposal-sensitivity` (`pro-disposal-sensitivity`, Pro): circular-orbit drag lifetime to 120 km
+  across solar-activity bands and a sinusoidal solar cycle (start at minimum and at maximum) with the
+  open engine's Jacchia 1971 density, and the ballistic coefficient at nominal and ± a stated spread;
+  every case against the plan's own deadline, the range, and the elasticities to B and F10.7, beside
+  the US76 reference; signed. Added to `space-ops synth`. Tier manifest regenerated; 2 tests in
+  `tests/space_ops_evidence.rs`. MODELLED; no regulatory determination.
+- **Cislunar catalogue build-up (docs/CISLUNAR-CATALOGUE.md).** `kshana-pro cislunar-catalogue run`
+  (`pro-cislunar-catalogue`, Pro): attributables from angles-only tracklets, pairwise association
+  by range hypotheses refined to a pairwise orbit in the open engine's Earth-Moon CR3BP, objects as
+  linked components, and a six-state batch initial orbit per object with its formal covariance;
+  purity, completeness and IOD error against truth on synthetic data; signed. Planning and evidence
+  only. `cislunar-catalogue synth` free. Tier manifest regenerated; 2 tests in
+  `tests/space_ops_evidence.rs`. MODELLED.
+- **Co-existence and compatibility interference catalogue for civil links (docs/COEXISTENCE.md).**
+  `kshana-pro coexistence catalogue` (free) and `coexistence scenarios` (`pro-coexistence-catalogue`,
+  Pro): co-channel I/N criteria (ITU-R F.758-8 Table 5), RNSS C-band thresholds (ITU-R M.2031),
+  adjacent-band blocking test points (ETSI EN 303 413 Tables 4-2/4-3, EN 300 328 Tables 6-8), the
+  out-of-band / spurious boundary (ITU-R SM.1539-2) and spurious limits (ITU-R SM.329-13 Table 2,
+  EN 300 328 Table 4), each cited to its clause, intermodulation to confirm; a signed scenario pack
+  for a victim receiver and its neighbours with derived levels. Unintentional interference only;
+  no hostile-interference model, no waveform synthesis. Tier manifest regenerated; 2 tests in
+  `tests/threat_library.rs`.
+- **Space-receiver resilience evaluation (docs/SPACE-RECEIVER.md).** `kshana-pro space-rx resilience`
+  (`pro-space-rx-resilience`, Pro): a space receiver's logged behaviour scored against a reference
+  over outage, scintillation, ephemeris-fault and above-constellation windows: availability, 95 %
+  position error, misleading unflagged epochs, time to flag, time to recover, holdover time error,
+  each against the mission's stated limits; signed. `space-rx resilience-synth` free. Evaluation
+  only; no mitigation or authentication technique. Tier manifest regenerated; 2 tests in
+  `tests/space_rx.rs`.
+- **Digital-twin recalibration evidence pack on the hosted calibrate verdict
+  (docs/TWIN-RECALIBRATION.md).** `kshana-pro twin-recal run` (`pro-twin-recalibration`, Pro):
+  telemetry split into windows; per window a `calibrate` request (stated parameters, an expression
+  model or a design of local runs) sent through the verdict client and each signed verdict
+  verified; locally, before/after residuals and the drift per day of each parameter with its
+  standard error. No fitting code in this crate (owner decision of 19 Nov 2026). Worked models:
+  clock (open-engine deterministic TIE) and orbit decay (open-engine US76 density).
+  `twin-recal synth` free. Tier manifest regenerated; 3 tests in `tests/clock_bench.rs` with a mock
+  service.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from

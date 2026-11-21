@@ -38,6 +38,7 @@
 pub mod exposure;
 pub mod obc;
 pub mod qual;
+pub mod resilience;
 pub mod see;
 pub mod see_rate;
 

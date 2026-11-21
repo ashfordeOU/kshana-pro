@@ -16,6 +16,7 @@ pub const SPACE_OPS_USAGE: &str = "usage: kshana-pro space-ops <command>   (each
     ca <request.toml>                         Collision-avoidance decision record: CDMs, recomputed Pc, decision, timeline, the operator's own policy; signed (Pro)\n\
     identify <ephemeris.csv> <candidates.toml>   Identification evidence: the operator's ephemeris against candidate TLEs on the open SGP4; signed (Pro)\n\
     disposal <request.toml>                   Disposal-plan check: drag lifetime against the plan's own deadline; signed (Pro)\n\
+    disposal-sensitivity <request.toml>       Disposal-plan sensitivity: lifetime by solar-activity band, solar cycle and ballistic-coefficient spread (Jacchia 1971), against the plan's deadline; signed (Pro)\n\
     pack <pack.toml>                          Operator evidence pack: the three records with an index, signed together (Pro)\n\
     synth <dir>                               SYNTHETIC inputs for every command (no licence needed)";
 
@@ -233,6 +234,20 @@ pub fn run(args: &[String]) -> ExitCode {
                 &r,
                 ("Disposal-plan check", &r.verdict, &[]),
                 &[disposal_section(&r)],
+                &[("request.toml".into(), s)],
+            )
+        })(),
+        (Some("disposal-sensitivity"), [p]) => (|| {
+            gate(args, crate::disposal_sensitivity::FEATURE)?;
+            let s = read(p)?;
+            let q: crate::disposal_sensitivity::Request = crate::transport::parse_toml(&s, p)?;
+            let r = crate::disposal_sensitivity::study(&q)?;
+            finish(
+                args,
+                "space-ops disposal-sensitivity",
+                &r,
+                ("Disposal-plan sensitivity study", &r.verdict, &[]),
+                &[crate::disposal_sensitivity::section(&r)],
                 &[("request.toml".into(), s)],
             )
         })(),

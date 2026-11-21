@@ -634,7 +634,8 @@ fn tle_checksum(l: &str) -> char {
     char::from_digit(s % 10, 10).unwrap_or('0')
 }
 
-fn tle_line(body: &str) -> String {
+/// A TLE line from its first 68 characters, with the checksum appended.
+pub fn tle_line(body: &str) -> String {
     let b = format!("{body:<68}");
     format!("{b}{}", tle_checksum(&b))
 }
@@ -705,6 +706,10 @@ pub fn synth() -> Result<Vec<(&'static str, String)>, String> {
         ("ephemeris.csv", eph),
         ("candidates.toml", cands),
         ("disposal.toml", disp),
+        (
+            "disposal-sensitivity.toml",
+            crate::disposal_sensitivity::synth(),
+        ),
         ("pack.toml", pk),
     ])
 }

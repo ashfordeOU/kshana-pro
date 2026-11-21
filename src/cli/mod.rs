@@ -19,17 +19,23 @@ mod bench_cmd;
 mod bridge_cmd;
 mod briefing_cmd;
 mod casualty_cmd;
+mod cislunar_cmd;
 mod clock_bench_cmd;
+mod coexistence_cmd;
+mod crisis_cmd;
 mod custody_cmd;
+mod debris_cmd;
 mod dossier_cmd;
 mod eloran_cmd;
 mod enforcement_cmd;
 mod envelope_cmd;
 mod evidence_cmd;
 mod evidence_infra_cmd;
+mod fingerprint_cmd;
 mod fleet_cmd;
 mod forensics_cmd;
 mod grid_cmd;
+mod hybrid_sim_cmd;
 mod iface_cmd;
 mod incident_cmd;
 mod insurance_cmd;
@@ -64,6 +70,7 @@ mod timing_cmd;
 mod timing_net_cmd;
 mod transport_cmd;
 mod trust_cmd;
+mod twin_recal_cmd;
 mod utm_cmd;
 mod vault_cmd;
 mod verdict_cmd;
@@ -115,6 +122,13 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro enforcement <pack|checklist|synth> ...   Jammer enforcement evidence pack: victim timeline and effects, affected area from victim receivers only (no emitter position), custody chain, method statement, checklist from published cases (Pro; checklist and synth free)\n\
        kshana-pro product-bench <register|score|synth> ...   Third-party interference product benchmark under a pre-registered protocol: detection rate, latency, false reports per hour, affected-area accuracy on victim-receiver cells only (score Pro; register and synth free)\n\
        kshana-pro osnma-pack <list|export|score|synth-log> ...   OSNMA scenario pack: key renewal, chain and public-key revocation, subframe loss, replay, time-sync attacks, start-up, meaconing, each with expected authentication states checked against a reference model; receiver-log scoring (export and score Pro; list and synth-log free)\n\
+       kshana-pro fingerprint build ...   Signed per-firmware receiver behaviour fingerprint from verified Pro scorecards, with the consent flag for the population-benchmark give-back (Pro)\n\
+       kshana-pro hybrid-sim <run|synth> ...   One scenario writing time-aligned eLoran (100 kHz) and GNSS baseband SigMF files with injected faults and a shared truth; files only, no transmit path (Pro; synth free)\n\
+       kshana-pro crisis-pnt <run|synth> ...   Crisis PNT service availability: modelled availability, accuracy class and timing holdover per user class when GNSS is denied over an area (Pro; synth free)\n\
+       kshana-pro debris-obs <plan|synth> ...   Observation scheduling for a space-debris sensor: visibility windows, priority schedule, expected orbit-covariance improvement per pass; planning only (Pro; synth free)\n\
+       kshana-pro cislunar-catalogue <run|synth> ...   Cislunar catalogue build-up: angles-only tracklet association and initial orbit determination with covariance in the CR3BP; planning and evidence only (Pro; synth free)\n\
+       kshana-pro coexistence <catalogue|scenarios|synth> ...   Co-existence and compatibility interference catalogue for civil links (co-channel, adjacent-band blocking, out-of-band and spurious emissions), every value cited; signed scenario pack for a victim receiver (scenarios Pro; catalogue and synth free)\n\
+       kshana-pro twin-recal <run|synth> ...   Digital-twin recalibration evidence pack: window-by-window hosted calibrate verdicts (verified), local before/after residuals and parameter drift (Pro; synth free)\n\
        kshana-pro survey-qc <run|synth> ...   Marine survey and construction positioning QC under interference: per-line flags, signed QC annex, site risk plan (Pro; synth free)\n\
        kshana-pro vault <init|ingest|list|hold|release|delete|trend|calendar|submission|verify|export|import> ...   Customer evidence vault: signed packs with legal hold, retention, hash-chained ledger, trends, obligation calendar, submission skeletons, open export (Enterprise; import free)\n\
        kshana-pro method <schedule|budget> ...   Yearly re-scoring schedule and per-test GUM uncertainty budgets with a method report (Pro)\n\
@@ -266,6 +280,13 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "envelope",
     "custody",
     "survey-qc",
+    "fingerprint",
+    "hybrid-sim",
+    "crisis-pnt",
+    "debris-obs",
+    "cislunar-catalogue",
+    "coexistence",
+    "twin-recal",
     "casualty",
     "aviation-recon",
     "enforcement",
@@ -430,6 +451,13 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("envelope") => envelope_cmd::run(&args[1..]),
         Some("custody") => custody_cmd::run(&args[1..]),
         Some("survey-qc") => survey_cmd::run(&args[1..]),
+        Some("fingerprint") => fingerprint_cmd::run(&args[1..]),
+        Some("hybrid-sim") => hybrid_sim_cmd::run(&args[1..]),
+        Some("crisis-pnt") => crisis_cmd::run(&args[1..]),
+        Some("debris-obs") => debris_cmd::run(&args[1..]),
+        Some("cislunar-catalogue") => cislunar_cmd::run(&args[1..]),
+        Some("coexistence") => coexistence_cmd::run(&args[1..]),
+        Some("twin-recal") => twin_recal_cmd::run(&args[1..]),
         Some("casualty") => casualty_cmd::run(&args[1..]),
         Some("aviation-recon") => aviation_recon_cmd::run(&args[1..]),
         Some("enforcement") => enforcement_cmd::run(&args[1..]),

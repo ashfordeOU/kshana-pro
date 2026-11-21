@@ -95,7 +95,12 @@ fn dev_campaign(dir: &Path) -> String {
 }
 
 fn dev_score() -> scorecards::Scorecard {
-    let d = tmp("dev");
+    // One directory per call: tests calling this in parallel must not clear each other's files.
+    static N: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+    let d = tmp(&format!(
+        "dev{}",
+        N.fetch_add(1, std::sync::atomic::Ordering::SeqCst)
+    ));
     let src = dev_campaign(&d);
     std::fs::write(d.join("campaign.toml"), &src).unwrap();
     let (c, src) = Campaign::from_file(&d.join("campaign.toml")).unwrap();
@@ -649,4 +654,104 @@ fn e3b_scored_the_heldout_campaign_is_as_published() {
         text,
         "E3b_results.json is stale; the outcome changed"
     );
+}
+
+// ---------------------------------------------------------------------------------------------
+// B2603: per-firmware behaviour fingerprint for the population-benchmark give-back.
+
+mod fingerprint {
+    use super::*;
+    use kshana_pro::fingerprint::{self, Consent, Request};
+
+    const SEED: [u8; 32] = [21u8; 32];
+
+    fn key_hex() -> String {
+        hex::encode(kshana_pro::license::public_key_for(&SEED))
+    }
+
+    /// Two signed scorecard directories for one firmware: a receiver scorecard and an OSNMA
+    /// scorecard (receiver fields set to the same identity).
+    fn cards(d: &Path, firmware_osnma: &str) {
+        let mut sc = dev_score();
+        sc.receiver.maker = "Synthetic".into();
+        sc.receiver.model = "RX-1".into();
+        sc.receiver.firmware = Some("2.4.0".into());
+        let a = d.join("rx");
+        std::fs::create_dir_all(&a).unwrap();
+        std::fs::write(
+            a.join("receiver-scorecard.json"),
+            serde_json::to_string(&sc).unwrap(),
+        )
+        .unwrap();
+        kshana_pro::signed_dossier::sign(&a, &SEED, "lab", "2026-11-20T00:00:00Z").unwrap();
+        let log = kshana_pro::osnma_conformance::synth::log(true);
+        let bytes = serde_json::to_vec(&log).unwrap();
+        let o = kshana_pro::osnma_conformance::score(&log, &bytes, &Default::default()).unwrap();
+        let mut v = serde_json::to_value(&o).unwrap();
+        v["receiver"] =
+            serde_json::json!({"make": "Synthetic", "model": "RX-1", "firmware": firmware_osnma});
+        let b = d.join("osnma");
+        std::fs::create_dir_all(&b).unwrap();
+        std::fs::write(b.join("osnma-scorecard.json"), v.to_string()).unwrap();
+        kshana_pro::signed_dossier::sign(&b, &SEED, "lab", "2026-11-20T00:00:00Z").unwrap();
+    }
+
+    fn req(give_back: bool) -> Request {
+        Request {
+            title: "t".into(),
+            customer: "Customer Ltd".into(),
+            pseudonym_salt: "salt".into(),
+            scorecards: vec!["rx".into(), "osnma".into()],
+            trust: vec![key_hex()],
+            consent: Consent {
+                give_back,
+                scope: fingerprint::SCOPE.into(),
+                granted_by: "DPO".into(),
+                granted_utc: "2026-11-20T00:00:00Z".into(),
+            },
+        }
+    }
+
+    #[test]
+    fn fingerprint_from_signed_scorecards_with_consent() {
+        let d = tmp("fp");
+        cards(&d, "2.4.0");
+        let (f, c) = fingerprint::build(&req(true), &d).unwrap();
+        assert_eq!(f.identity.firmware, "2.4.0");
+        assert_eq!(f.sources.len(), 2);
+        for k in ["rx.rpcf_level", "osnma.met_share", "osnma.ttfaf"] {
+            assert!(f.features.contains_key(k), "{k}: {:?}", f.features);
+        }
+        let c = c.unwrap();
+        assert_eq!(c.fingerprint_id, f.fingerprint_id);
+        let j = serde_json::to_string(&c).unwrap();
+        assert!(!j.contains("Customer Ltd") && !j.contains("salt"), "{j}");
+        // Stable: the same scorecards give the same identifier.
+        assert_eq!(
+            fingerprint::build(&req(true), &d).unwrap().0.fingerprint_id,
+            f.fingerprint_id
+        );
+        // Without consent the fingerprint stays local.
+        let (f2, c2) = fingerprint::build(&req(false), &d).unwrap();
+        assert!(c2.is_none() && !f2.contributable);
+    }
+
+    #[test]
+    fn fingerprint_refuses_other_scopes_mixed_firmware_and_untrusted_keys() {
+        let d = tmp("fp-bad");
+        cards(&d, "2.5.0");
+        assert!(fingerprint::build(&req(true), &d)
+            .unwrap_err()
+            .contains("per firmware"));
+        let d = tmp("fp-scope");
+        cards(&d, "2.4.0");
+        let mut q = req(true);
+        q.consent.scope = "marketing".into();
+        assert!(fingerprint::build(&q, &d).is_err());
+        let mut q = req(true);
+        q.trust = vec![hex::encode(kshana_pro::license::public_key_for(&[1u8; 32]))];
+        assert!(fingerprint::build(&q, &d)
+            .unwrap_err()
+            .contains("does not verify"));
+    }
 }

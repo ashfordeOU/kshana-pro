@@ -267,3 +267,215 @@ fn operator_pack_is_signed_and_needs_a_licence() {
             .passed());
     }
 }
+// ---------------------------------------------------------------------------------------------
+// Observation scheduling for space-debris sensors (planning only).
+
+mod debris_obs {
+    use kshana_pro::debris_obs::{self, Request};
+
+    fn req() -> Request {
+        toml::from_str(&debris_obs::synth()).unwrap()
+    }
+
+    fn plan(q: &Request) -> debris_obs::Plan {
+        debris_obs::plan(q, std::path::Path::new(".")).unwrap()
+    }
+
+    fn t(s: &str) -> f64 {
+        kshana_pro::forensics::inputs::parse_utc(s).unwrap()
+    }
+
+    #[test]
+    fn windows_schedule_and_covariance_gain() {
+        let q = req();
+        let p = plan(&q);
+        assert_eq!(p.windows.len(), 9);
+        assert_eq!(p.schedule.len(), 6);
+        // The low-inclination object never rises into the radar's sector at 50 deg N.
+        let d4 = p
+            .targets
+            .iter()
+            .find(|x| x.target == "SYNTH-DEB-4")
+            .unwrap();
+        assert_eq!(d4.scheduled, 0);
+        assert!(d4
+            .reason_unscheduled
+            .as_deref()
+            .unwrap()
+            .contains("no visibility window"));
+        // Every track lies inside a window of its target and clears the others by the slew time.
+        for tr in &p.schedule {
+            assert!(p.windows.iter().any(|w| w.target == tr.target
+                && t(&w.start_utc) <= t(&tr.start_utc)
+                && t(&tr.end_utc) <= t(&w.end_utc)));
+            assert!(
+                tr.posterior_pos_sigma_m < tr.prior_pos_sigma_m / 5.0,
+                "{tr:?}"
+            );
+            assert_eq!(tr.measurements, 39, "13 epochs x (az, el, range)");
+        }
+        let mut iv: Vec<(f64, f64)> = p
+            .schedule
+            .iter()
+            .map(|x| (t(&x.start_utc), t(&x.end_utc)))
+            .collect();
+        iv.sort_by(|a, b| a.0.total_cmp(&b.0));
+        for w in iv.windows(2) {
+            assert!(w[1].0 >= w[0].1 + q.sensor.slew_s - 1e-6);
+        }
+        // Noisier measurements give less improvement.
+        let mut noisy = q.clone();
+        noisy.sensor.sigma_angle_arcsec *= 10.0;
+        noisy.sensor.sigma_range_m = Some(150.0);
+        let n = plan(&noisy);
+        assert!(n.schedule[0].posterior_pos_sigma_m > p.schedule[0].posterior_pos_sigma_m);
+        assert!(p.evidence.starts_with("MODELLED") && p.evidence.contains("Planning only"));
+    }
+
+    #[test]
+    fn optical_needs_darkness_and_requests_are_checked() {
+        let mut q = req();
+        q.sensor.kind = debris_obs::SensorKind::Optical;
+        q.sensor.az_min_deg = None;
+        q.sensor.az_max_deg = None;
+        let p = plan(&q);
+        // At 50 deg N, 7 deg E in November the Sun is 12 deg below the horizon only between
+        // about 17:30 and 05:30 UTC: no optical window around local noon.
+        for w in &p.windows {
+            let h = (t(&w.start_utc) / 3600.0).rem_euclid(24.0);
+            assert!(!(8.0..15.0).contains(&h), "{w:?}");
+        }
+        let mut bad = req();
+        bad.sensor.sigma_range_m = None;
+        assert!(
+            debris_obs::plan(&bad, std::path::Path::new(".")).is_err(),
+            "radar needs range noise"
+        );
+        let mut bad = req();
+        bad.targets[0].tle_line1 = None;
+        assert!(debris_obs::plan(&bad, std::path::Path::new(".")).is_err());
+    }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Disposal-plan sensitivity: lifetime against solar activity and ballistic coefficient.
+
+mod disposal_sensitivity {
+    use kshana_pro::disposal_sensitivity::{self, Request};
+
+    fn req() -> Request {
+        toml::from_str(&disposal_sensitivity::synth()).unwrap()
+    }
+
+    #[test]
+    fn lifetime_moves_with_solar_activity_and_ballistic_coefficient() {
+        let s = disposal_sensitivity::study(&req()).unwrap();
+        assert_eq!(s.total, 15, "3 bands x 3 B + 2 cycle starts x 3 B");
+        let y = |a: &str, b: &str| {
+            s.cases
+                .iter()
+                .find(|c| c.activity == a && c.bc == b)
+                .unwrap()
+                .lifetime_years
+                .unwrap()
+        };
+        // Higher activity and larger B shorten the lifetime, monotonically.
+        for b in ["low", "nominal", "high"] {
+            assert!(
+                y("band low", b) > y("band moderate", b)
+                    && y("band moderate", b) > y("band high", b)
+            );
+        }
+        for a in [
+            "band low",
+            "band moderate",
+            "band high",
+            "cycle from minimum",
+            "cycle from maximum",
+        ] {
+            assert!(
+                y(a, "low") > y(a, "nominal") && y(a, "nominal") > y(a, "high"),
+                "{a}"
+            );
+        }
+        // Drag lifetime scales as 1/B: elasticity about -1. Solar activity moves it by an order of magnitude.
+        assert!(
+            (s.elasticity_bc.unwrap() + 1.0).abs() < 0.05,
+            "{:?}",
+            s.elasticity_bc
+        );
+        assert!(y("band low", "nominal") / y("band high", "nominal") > 10.0);
+        // Starting at solar maximum decays faster than starting at minimum.
+        assert!(y("cycle from maximum", "nominal") < y("cycle from minimum", "nominal"));
+        // The plan's deadline splits the cases: some within, some beyond.
+        assert!(s.within_plan > 0 && s.within_plan < s.total);
+        assert!(s.us76_nominal_years.is_some());
+        let j = serde_json::to_string(&s).unwrap().to_lowercase();
+        for w in ["complian", "conform", "certif"] {
+            assert!(!j.contains(w), "{w}");
+        }
+    }
+
+    #[test]
+    fn requests_are_checked() {
+        let mut q = req();
+        q.plan_source = " ".into();
+        assert!(disposal_sensitivity::study(&q).is_err());
+        let mut q = req();
+        q.bc_uncertainty = 1.5;
+        assert!(disposal_sensitivity::study(&q).is_err());
+        let mut q = req();
+        q.altitude_km = 100.0;
+        assert!(disposal_sensitivity::study(&q).is_err());
+    }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Cislunar catalogue build-up: tracklet association and initial orbit determination.
+
+mod cislunar_catalogue {
+    use kshana_pro::cislunar_catalogue as cc;
+
+    #[test]
+    fn tracklets_associate_to_their_objects_and_iod_covers_truth() {
+        let q = cc::synth();
+        assert_eq!(q.tracklets.len(), 9);
+        let r = cc::run(&q).unwrap();
+        assert_eq!(r.objects.len(), 3);
+        assert!(r.unassociated.is_empty());
+        assert_eq!(r.purity, Some(1.0));
+        assert_eq!(r.completeness, Some(1.0));
+        // Every link joins tracklets of one truth object.
+        let label = |id: &str| {
+            q.tracklets
+                .iter()
+                .find(|t| t.id == id)
+                .unwrap()
+                .truth_object
+                .clone()
+        };
+        for l in &r.links {
+            assert_eq!(label(&l.from), label(&l.to), "{l:?}");
+            assert!(l.residual <= q.gate);
+        }
+        for o in &r.objects {
+            assert_eq!(o.tracklets.len(), 3);
+            assert!(o.rms_arcsec.unwrap() < 2.0, "{o:?}");
+            assert_eq!(o.within_3_sigma, Some(true), "{o:?}");
+            assert!(o.pos_sigma_km.unwrap() > 0.0);
+        }
+        assert!(r.evidence.starts_with("MODELLED"));
+    }
+
+    #[test]
+    fn a_tight_gate_leaves_tracklets_unassociated() {
+        let mut q = cc::synth();
+        q.gate = 0.01;
+        let r = cc::run(&q).unwrap();
+        assert!(r.objects.is_empty());
+        assert_eq!(r.unassociated.len(), 9);
+        let mut q = cc::synth();
+        q.data_source = " ".into();
+        assert!(cc::run(&q).is_err());
+    }
+}

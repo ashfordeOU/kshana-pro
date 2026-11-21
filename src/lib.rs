@@ -44,12 +44,17 @@ pub mod benefits;
 pub mod brand_pdf;
 pub mod bridge;
 pub mod briefings;
+pub mod cislunar_catalogue;
 pub mod cli;
+pub mod coexistence;
 pub mod connectors;
+pub mod crisis_pnt;
 pub mod criterion;
 pub mod custody;
+pub mod debris_obs;
 pub mod dependency;
 pub mod desktop;
+pub mod disposal_sensitivity;
 #[cfg(feature = "unfiled-methods")]
 pub mod eloran_attrib;
 pub mod eloran_claims;
@@ -64,8 +69,10 @@ pub mod envelope;
 pub mod exposure;
 pub mod extension;
 pub mod fdm;
+pub mod fingerprint;
 pub mod forensics;
 pub mod frameworks;
+pub mod hybrid_sim;
 pub mod ievents;
 pub mod insurance;
 pub mod integrity;
@@ -139,6 +146,7 @@ pub mod tacho_osnma;
 pub mod timing;
 pub mod transport;
 pub mod twin;
+pub mod twin_recal;
 
 /// The version of this Pro overlay crate (distinct from the embedded open engine).
 pub fn version() -> &'static str {

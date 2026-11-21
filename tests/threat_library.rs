@@ -284,3 +284,71 @@ fn the_kind_and_feature_are_licence_gated_at_pro() {
         assert_eq!(tiers::edition_of(id), Some(tiers::Edition::Pro));
     }
 }
+
+// ---------------------------------------------------------------------------------------------
+// Co-existence and compatibility interference catalogue for civil links.
+
+mod coexistence {
+    use kshana_pro::coexistence::{self as cx, Request, CATALOGUE, SOURCES, TO_CONFIRM};
+
+    #[test]
+    fn every_value_is_cited_or_to_confirm_and_there_is_no_hostile_model() {
+        for e in CATALOGUE {
+            if e.source == TO_CONFIRM {
+                assert_eq!(e.level, TO_CONFIRM, "{}", e.id);
+            } else {
+                assert!(SOURCES.iter().any(|s| s.key == e.source), "{}", e.id);
+                assert!(!e.clause.is_empty() && e.clause != "-", "{}", e.id);
+            }
+            let t = format!("{} {} {}", e.applies_to, e.signal, e.criterion).to_lowercase();
+            for w in ["jam", "hostile", "anti-", "complian", "conform", "certif"] {
+                assert!(!t.contains(w), "{w} in {}", e.id);
+            }
+        }
+        let cats: std::collections::BTreeSet<String> = CATALOGUE
+            .iter()
+            .map(|e| format!("{:?}", e.category))
+            .collect();
+        assert_eq!(cats.len(), 5);
+        assert!(cx::SCOPE.contains("no hostile-interference model"));
+    }
+
+    #[test]
+    fn scenario_pack_derives_levels_from_the_cited_rules() {
+        let q: Request = toml::from_str(&cx::synth()).unwrap();
+        let p = cx::build(&q).unwrap();
+        assert_eq!(p.to_confirm, vec!["im-third-order"]);
+        // I/N -6 dB over 20 MHz with NF 8 dB: N = -174 + 73.0 + 8 = -93.0 dBm; I = -99.0 dBm.
+        let cc = p
+            .scenarios
+            .iter()
+            .find(|s| s.entry == "cc-fs-below-3ghz")
+            .unwrap();
+        assert!(cc.level.starts_with("-99.0 dBm"), "{}", cc.level);
+        // 10 W under 43 + 10 log P: 40 dBm - 53 dB = -13 dBm; less 60 dB coupling = -73 dBm.
+        assert!((cx::sm329_level_dbm(10.0, 70.0) + 13.0).abs() < 1e-9);
+        // 1000 W: the 70 dBc cap applies: 60 dBm - 70 dB = -10 dBm.
+        assert!((cx::sm329_level_dbm(1000.0, 70.0) + 10.0).abs() < 1e-9);
+        let lm = p
+            .scenarios
+            .iter()
+            .find(|s| s.entry == "spur-cat-a-general")
+            .unwrap();
+        assert!(lm.level.starts_with("-73.0 dBm"), "{}", lm.level);
+        let co = p
+            .scenarios
+            .iter()
+            .find(|s| s.entry == "spur-24-tx-1-12ghz")
+            .unwrap();
+        assert!(co.level.starts_with("-70.0 dBm"), "{}", co.level);
+        let blk = p
+            .scenarios
+            .iter()
+            .find(|s| s.entry == "blk-24-cat1")
+            .unwrap();
+        assert_eq!(blk.level, "-34 dBm");
+        let mut bad = q.clone();
+        bad.victim.entries.push("nope".into());
+        assert!(cx::build(&bad).is_err());
+    }
+}

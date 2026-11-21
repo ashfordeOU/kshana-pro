@@ -268,6 +268,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-space-rx-exposure" => Tier::Pro,
         "pro-space-rx-qual" => Tier::Pro,
         "pro-space-rx-see" => Tier::Pro,
+        // Space-receiver resilience evaluation under degradation scenarios (evaluation only).
+        "pro-space-rx-resilience" => Tier::Pro,
         // Insurance and finance analytics (research 2026-11-20 gaps E28): the parametric
         // trigger on the user's station data, basis risk, business-interruption quantification,
         // the underwriting feed and the claims triage aid (Pro); portfolio accumulation
@@ -379,6 +381,24 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-interference-product-benchmark" => Tier::Pro,
         // Pro OSNMA scenario pack (research 2026-11-20 gaps, B1402).
         "pro-osnma-scenario-pack" => Tier::Pro,
+        // Requirements cross-walk of the published LEO-PNT procedures (B2101).
+        "pro-leo-ue-crosswalk" => Tier::Pro,
+        // Receiver behaviour fingerprint for the population benchmark (B2603, Pro side).
+        "pro-receiver-fingerprint" => Tier::Pro,
+        // Combined eLoran and GNSS signal-file scenario with faults and shared truth.
+        "pro-hybrid-signal-sim" => Tier::Pro,
+        // Crisis PNT service-availability model (planning tool).
+        "pro-crisis-pnt-availability" => Tier::Pro,
+        // Observation scheduling evidence pack for space-debris sensors (planning only).
+        "pro-debris-obs-schedule" => Tier::Pro,
+        // Disposal-plan sensitivity study (solar activity, ballistic coefficient).
+        "pro-disposal-sensitivity" => Tier::Pro,
+        // Cislunar catalogue build-up: tracklet association and initial OD (CR3BP).
+        "pro-cislunar-catalogue" => Tier::Pro,
+        // Co-existence and compatibility interference catalogue, scenario pack.
+        "pro-coexistence-catalogue" => Tier::Pro,
+        // Digital-twin recalibration evidence pack on the hosted calibrate verdict.
+        "pro-twin-recalibration" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -461,6 +481,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-space-rx-exposure",
     "pro-space-rx-qual",
     "pro-space-rx-see",
+    "pro-space-rx-resilience",
     "pro-parametric-trigger",
     "pro-basis-risk",
     "pro-accumulation",
@@ -511,6 +532,15 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-decoder-regression",
     "pro-navic-evidence",
     "pro-leo-evaluation",
+    "pro-leo-ue-crosswalk",
+    "pro-receiver-fingerprint",
+    "pro-hybrid-signal-sim",
+    "pro-crisis-pnt-availability",
+    "pro-debris-obs-schedule",
+    "pro-disposal-sensitivity",
+    "pro-cislunar-catalogue",
+    "pro-coexistence-catalogue",
+    "pro-twin-recalibration",
     "pro-casualty-reconstruction",
     "pro-method-validation",
     "pro-aviation-event-recon",

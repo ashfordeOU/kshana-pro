@@ -30,6 +30,9 @@ pub const USAGE: &str = "usage: kshana-pro space-rx <command>\n\
     tolerance --vectors <vectors.json> --log <obc-log.csv> --out <dir> --signer <name> --key-file <file>\n\
         Score an OBC's accept/flag/reject log against the vectors, signed; exits 1 on a vector not met (Pro)\n\
     rate <model.toml> [--out <dir>]                                      SEE rate forecast (Pro)\n\
+    resilience <request.toml> --out <dir> --signer <name> --key-file <file>\n\
+        Resilience evaluation of the receiver's logged behaviour under outages, scintillation, ephemeris faults and loss of signal above the constellation, against mission limits, signed (Pro)\n\
+    resilience-synth <good|faulty> <dir>                                 SYNTHETIC receiver log, reference and request (free)\n\
     sample <campaign|mission|exposure|trace|inject|rate> [--out <file>]  SYNTHETIC sample inputs (free)\n\
     verify <dir> --trust <key hex>[,...]                                 Check a signed output directory (free)";
 
@@ -119,6 +122,49 @@ fn run_inner(args: &[String]) -> Result<ExitCode, String> {
                 sign(&out, args)?;
             }
             print!("{md}");
+            Ok(ExitCode::SUCCESS)
+        }
+        Some("resilience") => {
+            use crate::space_rx::resilience as rs;
+            gate(args, rs::FEATURE)?;
+            let p = first_positional(args).ok_or(USAGE)?;
+            let src = read(p)?;
+            let q: rs::Request = toml::from_str(&src).map_err(|e| format!("{p}: {e}"))?;
+            let base = std::path::Path::new(&p)
+                .parent()
+                .map(std::path::Path::to_path_buf)
+                .unwrap_or_default();
+            let log = read(base.join(&q.log).to_str().unwrap_or_default())?;
+            let reference = read(base.join(&q.reference).to_str().unwrap_or_default())?;
+            signing(args)?;
+            let r = rs::score(&q, &log, &reference)?;
+            let out = out_dir(args)?;
+            write(&out, "resilience.json", &json(&r))?;
+            write(&out, "resilience.html", &rs::html(&r))?;
+            write(&out, "request.toml", &src)?;
+            write(&out, "log.csv", &log)?;
+            write(&out, "reference.csv", &reference)?;
+            sign(&out, args)?;
+            eprintln!("[space-rx] {}", r.verdict);
+            Ok(ExitCode::SUCCESS)
+        }
+        Some("resilience-synth") => {
+            use crate::space_rx::resilience as rs;
+            let (Some(k), Some(d)) = (args.get(1), args.get(2)) else {
+                return Err(USAGE.into());
+            };
+            let good = match k.as_str() {
+                "good" => true,
+                "faulty" => false,
+                _ => return Err(USAGE.into()),
+            };
+            let (l, r, q) = rs::synth(good);
+            std::fs::create_dir_all(d).map_err(|e| format!("{d}: {e}"))?;
+            for (n, t) in [("log.csv", l), ("reference.csv", r), ("request.toml", q)] {
+                std::fs::write(std::path::Path::new(d).join(n), t)
+                    .map_err(|e| format!("{d}: {e}"))?;
+            }
+            eprintln!("[space-rx] SYNTHETIC {k} receiver log, reference and request in {d}");
             Ok(ExitCode::SUCCESS)
         }
         Some("score") => {

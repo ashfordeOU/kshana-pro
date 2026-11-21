@@ -86,6 +86,10 @@ response surface used (kind, runs, leave-one-out error) and `lineage.head`. With
 parameters stay inside the design's range. Calibrated parameters are what best explains the
 telemetry supplied under the model supplied; they are not a validation.
 
+An evidence pack built on `calibrate` (window-by-window recalibration with local residuals and
+parameter drift, no fitting code in this crate): `kshana-pro twin-recal`,
+[TWIN-RECALIBRATION.md](TWIN-RECALIBRATION.md).
+
 The client (`src/remote_verdict.rs`) holds no method code and names no service. The service
 lives in a separate private repository and is never linked into this crate (X3); its
 identifiers are registered `[core]` terms, so the source guard and the binary check fail if
