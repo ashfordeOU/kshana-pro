@@ -138,6 +138,11 @@ own bullet so parallel work merges cleanly.
   else the row is refused with its number; empty cells are still allowed. Test:
   `station_passes_refuse_non_finite_or_unreadable_cells`. The station clock series is covered by
   the clock-log fix.
+- **Fix: flight-inspection truth check read NaN as "consistent" (`navaids inspection`).** The
+  track and measurement parsers accepted `NaN` and `inf`. A NaN residual compared false against
+  the gate, so the epoch's verdict was `consistent`, and a NaN time was paired with the t = 0
+  epoch. **Affected: inspection reports built from inputs holding non-finite values before this
+  fix.** Every number must now be finite. Test: `inspection_inputs_refuse_non_finite_values`.
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**

@@ -117,8 +117,12 @@ fn rows(text: &str, n: usize, what: &str) -> Result<Vec<Vec<String>>, String> {
 }
 
 fn num(s: &str, what: &str) -> Result<f64, String> {
-    s.parse()
-        .map_err(|_| format!("{what}: {s:?} is not a number"))
+    // `str::parse` reads "NaN" and "inf": refuse them, since a NaN residual compares false
+    // against the gate and would read "consistent".
+    s.parse::<f64>()
+        .ok()
+        .filter(|x| x.is_finite())
+        .ok_or_else(|| format!("{what}: {s:?} is not a finite number"))
 }
 
 pub fn parse_track(text: &str) -> Result<Vec<TrackPoint>, String> {
