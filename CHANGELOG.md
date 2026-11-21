@@ -160,6 +160,8 @@ own bullet so parallel work merges cleanly.
   reader now requires 1 to 64 channels and a positive, finite sample rate, and refuses a
   non-finite sample with its index. The two sorts use a total order. Test:
   `sigmf_headers_and_samples_are_checked`, which panicked on the old code.
+  `retention_is_the_same_whatever_form_utc_takes`. A `--utc` under four bytes no longer panics, and
+  `--retain-years` must be 1 to 100; a huge value used to overflow the year.
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
