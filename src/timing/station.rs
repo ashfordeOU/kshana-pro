@@ -169,9 +169,29 @@ fn time(s: &str) -> Option<f64> {
         return None;
     }
     if let Ok(x) = s.parse::<f64>() {
-        return Some(x);
+        return x.is_finite().then_some(x);
     }
     Label::parse_iso(s).ok().map(|l| l.seconds() as f64)
+}
+
+/// An optional cell: empty is `None`; anything else must be a finite number or a UTC time
+/// (a NaN or a typo would otherwise skip that pass's check, or pass it, without a word).
+fn optional(
+    row: usize,
+    name: &str,
+    v: &str,
+    parse: fn(&str) -> Option<f64>,
+) -> Result<Option<f64>, String> {
+    if v.trim().is_empty() {
+        return Ok(None);
+    }
+    parse(v)
+        .map(Some)
+        .ok_or_else(|| format!("passes row {row}: {name} '{v}' is not a finite number or time"))
+}
+
+fn finite_num(s: &str) -> Option<f64> {
+    s.trim().parse::<f64>().ok().filter(|x| x.is_finite())
 }
 
 /// Read the pass CSV (header row; columns `pass_id, satellite, scheduled_aos,
@@ -199,7 +219,9 @@ pub fn read_passes(text: &str) -> Result<Vec<Pass>, String> {
     for (i, l) in lines.enumerate() {
         let c: Vec<&str> = l.split(',').map(str::trim).collect();
         let get = |n: &str| col(n).and_then(|k| c.get(k).copied()).unwrap_or("");
-        let num = |n: &str| get(n).parse::<f64>().ok();
+        let row = i + 2;
+        let num = |n: &str| optional(row, n, get(n), finite_num);
+        let tim = |n: &str| optional(row, n, get(n), time);
         let (Some(a), Some(b)) = (time(get("scheduled_aos")), time(get("scheduled_los"))) else {
             return Err(format!(
                 "passes row {}: scheduled_aos and scheduled_los",
@@ -221,12 +243,12 @@ pub fn read_passes(text: &str) -> Result<Vec<Pass>, String> {
             customer: get("customer").into(),
             scheduled_aos: a,
             scheduled_los: b,
-            actual_aos: time(get("actual_aos")),
-            actual_los: time(get("actual_los")),
-            bytes_planned: num("bytes_planned"),
-            bytes_delivered: num("bytes_delivered"),
-            frames_bad: num("frames_bad"),
-            frames_total: num("frames_total"),
+            actual_aos: tim("actual_aos")?,
+            actual_los: tim("actual_los")?,
+            bytes_planned: num("bytes_planned")?,
+            bytes_delivered: num("bytes_delivered")?,
+            frames_bad: num("frames_bad")?,
+            frames_total: num("frames_total")?,
             status: if st.is_empty() {
                 "ok".into()
             } else {
