@@ -100,7 +100,9 @@ fn timing_evidence_is_signed() {
     let q: navic::TimingRequest =
         toml::from_str(&std::fs::read_to_string(d.join("t.toml")).unwrap()).unwrap();
     let t = navic::timing(&q, &csv).unwrap();
-    assert!((t.navic_minus_gps_mean_s - 5e-9).abs() < 1e-12);
+    // offset_navic = rx − NavIC is 5 ns larger than offset_gps = rx − GPS, so NavIC time is
+    // 5 ns behind GPS time: NavIC − GPS = −5 ns.
+    assert!((t.navic_minus_gps_mean_s + 5e-9).abs() < 1e-12);
     assert!(t.navic_minus_gps_rms_s < 1e-12);
     let hex: String = [4u8; 32].iter().map(|b| format!("{b:02x}")).collect();
     std::fs::write(d.join("k.txt"), format!("private_key={hex}\n")).unwrap();

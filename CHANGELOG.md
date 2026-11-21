@@ -56,6 +56,12 @@ own bullet so parallel work merges cleanly.
   casualty radar fixes (datum, radar-to-GNSS lever arm not applied), and the LuGRE geometry
   (GPS-as-UT1 adds about 4.5 arcmin, under 0.1 degree at the Moon, not only nutation). Tests in
   `tests/space_ops_evidence.rs`, `tests/leo_timing.rs` and `tests/eloran_gnss.rs`.
+- **Fix: sign of the NavIC-minus-GPS offset in NavIC timing evidence (docs/NAVIC.md, B1605).**
+  `navic timing` takes `offset_navic_s` and `offset_gps_s` as the receiver clock minus each
+  system's time, and reported `offset_navic_s − offset_gps_s` as NavIC minus GPS. That
+  difference is GPS minus NavIC. **Affected: the `navic_minus_gps_mean_s` of every signed NavIC
+  timing pack before this fix (sign reversed).** The RMS, peak-to-peak and MTIE are unchanged.
+  The test that encoded the same sign is corrected.
 
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
