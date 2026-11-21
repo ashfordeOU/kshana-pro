@@ -22,6 +22,7 @@ mod casualty_cmd;
 mod cislunar_cmd;
 mod clock_bench_cmd;
 mod crisis_cmd;
+mod coexistence_cmd;
 mod custody_cmd;
 mod debris_cmd;
 mod dossier_cmd;
@@ -125,6 +126,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro crisis-pnt <run|synth> ...   Crisis PNT service availability: modelled availability, accuracy class and timing holdover per user class when GNSS is denied over an area (Pro; synth free)\n\
        kshana-pro debris-obs <plan|synth> ...   Observation scheduling for a space-debris sensor: visibility windows, priority schedule, expected orbit-covariance improvement per pass; planning only (Pro; synth free)\n\
        kshana-pro cislunar-catalogue <run|synth> ...   Cislunar catalogue build-up: angles-only tracklet association and initial orbit determination with covariance in the CR3BP; planning and evidence only (Pro; synth free)\n\
+       kshana-pro coexistence <catalogue|scenarios|synth> ...   Co-existence and compatibility interference catalogue for civil links (co-channel, adjacent-band blocking, out-of-band and spurious emissions), every value cited; signed scenario pack for a victim receiver (scenarios Pro; catalogue and synth free)\n\
        kshana-pro survey-qc <run|synth> ...   Marine survey and construction positioning QC under interference: per-line flags, signed QC annex, site risk plan (Pro; synth free)\n\
        kshana-pro vault <init|ingest|list|hold|release|delete|trend|calendar|submission|verify|export|import> ...   Customer evidence vault: signed packs with legal hold, retention, hash-chained ledger, trends, obligation calendar, submission skeletons, open export (Enterprise; import free)\n\
        kshana-pro method <schedule|budget> ...   Yearly re-scoring schedule and per-test GUM uncertainty budgets with a method report (Pro)\n\
@@ -281,6 +283,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "crisis-pnt",
     "debris-obs",
     "cislunar-catalogue",
+    "coexistence",
     "casualty",
     "aviation-recon",
     "enforcement",
@@ -450,6 +453,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("crisis-pnt") => crisis_cmd::run(&args[1..]),
         Some("debris-obs") => debris_cmd::run(&args[1..]),
         Some("cislunar-catalogue") => cislunar_cmd::run(&args[1..]),
+        Some("coexistence") => coexistence_cmd::run(&args[1..]),
         Some("casualty") => casualty_cmd::run(&args[1..]),
         Some("aviation-recon") => aviation_recon_cmd::run(&args[1..]),
         Some("enforcement") => enforcement_cmd::run(&args[1..]),

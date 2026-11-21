@@ -46,6 +46,7 @@ pub mod bridge;
 pub mod briefings;
 pub mod cislunar_catalogue;
 pub mod cli;
+pub mod coexistence;
 pub mod connectors;
 pub mod crisis_pnt;
 pub mod criterion;
