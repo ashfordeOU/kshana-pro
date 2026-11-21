@@ -168,6 +168,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-decoder-regression",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-dependency-audit",
       "type": "feature",
       "tier": "pro"
@@ -494,6 +499,11 @@
     },
     {
       "kind": "pro-survey-qc",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-tachograph-osnma",
       "type": "feature",
       "tier": "pro"
     },
