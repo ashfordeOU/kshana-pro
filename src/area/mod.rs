@@ -255,7 +255,10 @@ pub struct Inputs {
     pub sha256: String,
 }
 
-/// Parse a station or receiver state file: `t_s,state[,note]`.
+/// Parse a station or receiver state file: `t_s,state[,note]`. `t_s` is Unix seconds on UTC
+/// for every station, receiver and feed (corroboration aligns them second by second); a source
+/// on GPS seconds or another epoch must be converted first, or it is misaligned by 18 s or
+/// more.
 pub fn parse_states(id: &str, text: &str) -> Result<Vec<(f64, StationState)>, String> {
     let mut out: Vec<(f64, StationState)> = Vec::new();
     for (ln, line) in text.lines().enumerate() {
@@ -289,7 +292,8 @@ pub fn parse_states(id: &str, text: &str) -> Result<Vec<(f64, StationState)>, St
     Ok(out)
 }
 
-/// Parse a feed file: `t_start_s,t_end_s,kind,confidence[,lat_deg,lon_deg]`. Returns the
+/// Parse a feed file: `t_start_s,t_end_s,kind,confidence[,lat_deg,lon_deg]`, times in Unix
+/// seconds on UTC like the station files. Returns the
 /// detections at or above `min_conf` and the number of emitter estimates discarded (F2).
 pub fn parse_feed(id: &str, text: &str, min_conf: f64) -> Result<(Vec<Detection>, usize), String> {
     let mut out = Vec::new();

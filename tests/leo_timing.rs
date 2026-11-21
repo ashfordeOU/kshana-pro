@@ -126,3 +126,29 @@ fn bad_logs_and_plans_are_refused() {
     assert!(leo_timing::load(&d.join("plan.toml")).is_err());
     let _ = std::fs::remove_dir_all(&d);
 }
+
+/// Frame audit: the replay latency is taken on one time scale. Transmit times in GPST against
+/// receive times in UTC look like 18 s replays until the scale offset is stated.
+#[test]
+fn replay_latency_needs_one_time_scale() {
+    let mut log = String::from("rx_s,tx_s,accepted\n");
+    for k in 0..20 {
+        let tx = 1000.0 + k as f64 * 10.0;
+        // Received 0.4 s after transmission; transmit time written in GPST (UTC + 18 s).
+        log.push_str(&format!("{},{},1\n", tx + 0.4, tx + 18.0));
+    }
+    let naive = leo_timing::replay_check(&log, 5.0, true).unwrap();
+    assert_eq!(naive.outcome, "breached");
+    assert!(naive.time_scale.contains("ASSUMED"));
+    assert!(
+        naive.scale_warning.as_deref().unwrap().contains("-18"),
+        "{naive:?}"
+    );
+    let ok =
+        leo_timing::replay_check_scaled(&log, 5.0, true, Some("UTC receive, GPST transmit"), 18.0)
+            .unwrap();
+    assert_eq!(ok.outcome, "held", "{ok:?}");
+    assert!(ok.scale_warning.is_none());
+    assert!((ok.max_accepted_latency_s.unwrap() - 0.4).abs() < 1e-9);
+    assert!(leo_timing::replay_check_scaled(&log, 5.0, true, None, f64::NAN).is_err());
+}

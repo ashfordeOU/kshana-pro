@@ -320,6 +320,9 @@ fn wmean(v: &[(f64, f64)]) -> (f64, f64) {
     (m, (1.0 / w).sqrt())
 }
 
+/// Whether two values agree within `k` combined standard uncertainties plus a floor. Every
+/// source's value must already be against one reference on one time scale with the operator's
+/// sign convention; the vote does not convert scales.
 fn agree(a: (f64, f64), b: (f64, f64), k: f64, floor: f64) -> bool {
     (a.0 - b.0).abs() <= k * (a.1 * a.1 + b.1 * b.1).sqrt() + floor
 }

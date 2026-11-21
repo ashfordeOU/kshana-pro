@@ -5,6 +5,27 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Frame and time-scale audit (inputs combined across frames, objects or time scales).**
+  Each place that combines inputs from different frames, objects or time scales was checked.
+  Where a mismatch would silently give a wrong result, an assertion now refuses it or makes it
+  visible:
+  - `space-ops` identification: the ephemeris is TEME on UTC (what SGP4 gives). Optional
+    `frame`/`time_scale` columns are checked, other values are refused, and an undeclared
+    ephemeris is reported as assumed. The synth declares both.
+  - `debris-obs`: an OEM target's `TIME_SYSTEM` must be UTC; others are refused rather than
+    shifting every pass by their offset from UTC.
+  - `leo-timing` replay window: `time_scale` and `tx_minus_rx_scale_s` in `[replay]`; the
+    result records which applied, and `scale_warning` flags latencies near 18, 19 or 37 s.
+  - The software GNSS bridge: a Galileo (`Gst`) residual different from the GPS one is refused
+    while Galileo is on. It was replaced by the GPS residual before.
+
+  The other assumptions are now stated where the data are combined: multi-source time votes
+  (offsets against UTC, scales corrected), the WWRNS position vote (one datum), the area console
+  (Unix seconds on UTC), timing SFN, grid and cross-check pairs (one common reference), the
+  casualty radar fixes (datum, radar-to-GNSS lever arm not applied), and the LuGRE geometry
+  (GPS-as-UT1 adds about 4.5 arcmin, under 0.1 degree at the Moon, not only nutation). Tests in
+  `tests/space_ops_evidence.rs`, `tests/leo_timing.rs` and `tests/eloran_gnss.rs`.
+
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
   `kshana-pro leo-eval crosswalk` (`pro-leo-ue-crosswalk`, Pro): every step of the published LEO-PNT
