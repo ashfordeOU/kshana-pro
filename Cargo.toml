@@ -90,6 +90,9 @@ rand_chacha = "0.3"
 sha2 = "0.10"
 ed25519-dalek = { version = "2", default-features = false, features = ["std", "zeroize"] }
 hex = "0.4"
+# erf for the encounter-plane collision probability (src/space_ops.rs). Already in the graph
+# through the open engine, same version, so nothing new is built.
+libm = "0.2"
 # OIDC token verification (src/serve/oidc.rs): ES256 and RS256. Both are already in the
 # dependency tree through the engine, so they add no crate.
 p256 = { version = "0.14", default-features = false, features = ["ecdsa"] }

@@ -5,6 +5,29 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Fix: collision probability summed object 2's covariance in the wrong frame
+  (docs/SPACE-OPS-EVIDENCE.md).** `space_ops::pc_2d`, used by `space-ops ca` (the
+  collision-avoidance decision record) and the operator evidence pack, took a relative state in
+  object 1's RTN frame and added object 2's position covariance as given. A CCSDS CDM gives
+  object 2's covariance in object 2's own RTN frame, so when the input came from a real CDM the
+  combined covariance, and so the recomputed probability, was wrong by the rotation between the
+  two RTN frames. In a test geometry (orbit planes 70 degrees apart) the error is 18 %; it is
+  zero only when the frames coincide or the geometry is symmetric. **Affected: every MODELLED
+  probability in a decision record or operator pack computed from real CDM data before this
+  fix**, and any policy finding that depended on it. Records built from relative states already
+  in object 1's frame were right. Now `[[cdm]]` takes either both object states in a common
+  inertial frame (each covariance rotated from its own object's RTN frame, as the open engine's
+  CDM path does) or a relative state that declares `cov2_frame = "rtn1"`. An undeclared relative
+  state is computed under that assumption and flagged in the record. Each CDM line states how
+  its covariances were framed. The relative velocity is documented as inertial; no path converts
+  RTN rates. The fixed 200 x 360 polar grid is replaced by the open engine's integration
+  (closed-form inner integral, adaptive quadrature), mirrored until the pinned engine has it.
+  The grid was accurate to about 1e-5 relative; Pro now agrees with the open routine to 1e-9.
+  The SYNTHETIC fixtures' decisions and findings are unchanged (their probabilities move by less
+  than 1e-7 relative); the synth now declares `cov2_frame`. `libm` (already in the graph) is a
+  dependency. Tests in `tests/space_ops_evidence.rs`: the comparison against the open routine
+  (tightened to 1e-9), a CDM with distinct object RTN frames, and the undeclared-frame flag.
+
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
   `kshana-pro leo-eval crosswalk` (`pro-leo-ue-crosswalk`, Pro): every step of the published LEO-PNT
