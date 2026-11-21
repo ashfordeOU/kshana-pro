@@ -139,6 +139,8 @@ at start-up. Details, checks and what remains: [docs/PROTECTION.md](docs/PROTECT
 
 **Sealed incident capture and chain of custody (research 2026-11-20 gaps B0604; feature `pro-custody-capture`; `kshana-pro custody`).** A ring buffer frozen around a trigger in a SigMF recording, the bytes copied as they are, sealed with the calibration ID and an Ed25519 signature in the SigMF metadata; a custody form bound to the capture hash; a signed, hash-chained handover log that any party can extend and verify for free. Any changed byte fails verification. See [`docs/CUSTODY.md`](docs/CUSTODY.md).
 
+**Third-party interference product benchmark (research 2026-11-20 gaps B1005; feature `pro-interference-product-benchmark`; `kshana-pro product-bench`).** A pre-registered scorecard of interference-monitoring products on common events against truth: detection rate, latency, false reports per hour of clean time, and affected-area accuracy (cell precision, recall, IoU) on victim-receiver cells only. A product's emitter-position estimate is refused, never scored. Attribution and false reports come from the open engine's `kshana jammertest locate-score`, used unchanged on position-free inputs. No vendor is named in fixtures. See [`docs/PRODUCT-BENCHMARK.md`](docs/PRODUCT-BENCHMARK.md).
+
 **Marine survey positioning QC (research 2026-11-20 gaps B0807; feature `pro-survey-qc`; `kshana-pro survey-qc`).** Per-line QC flags where interference degraded positioning (C/N0 and AGC drops, satellites, fix quality, correction age, sigma and cross-track against the user's stated tolerance), PASS / DEGRADED / RE-RUN, a signed QC annex and a site risk plan of recurring hours and places. MODELLED. See [`docs/SURVEY-QC.md`](docs/SURVEY-QC.md).
 
 **Customer evidence vault, first slice (research 2026-11-20 gaps B2504; feature `pro-evidence-vault`, Enterprise; `kshana-pro vault`).** Signed evidence directories held with legal hold, retention, a hash-chained ledger, monthly trends, an obligation calendar, submission skeletons citing pack ids, and a full open export that round-trips (import free). See [`docs/EVIDENCE-VAULT.md`](docs/EVIDENCE-VAULT.md).
@@ -304,7 +306,7 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **one hundred and nineteen integration tests** in
+The suite is unit tests across every module plus **one hundred and twenty integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,

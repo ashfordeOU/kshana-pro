@@ -5,6 +5,14 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Third-party interference product benchmark (research 2026-11-20 gaps B1005;
+  docs/PRODUCT-BENCHMARK.md).** `kshana-pro product-bench score` (`pro-interference-product-benchmark`,
+  Pro): protocol hashed at registration (`product-bench register`, free) and checked at scoring;
+  per product, detection rate, latency (median, worst), false reports per clean hour and
+  affected-area precision, recall and IoU on victim-receiver cells. Attribution and false reports
+  from the open engine's referee (`kshana jammertest locate-score`, unchanged, no position in or
+  out); report records carrying an emitter estimate are refused. `product-bench synth` free, two
+  anonymised products. Tier manifest regenerated; `tests/product_bench.rs` (3 tests).
 - **Alternative-PNT evaluation and civil test-campaign evidence (backlog E40 B4004;
   docs/ALTPNT-EVIDENCE.md).** `kshana-pro altpnt` (features `pro-altpnt-evidence` and
   `pro-altpnt-campaign`, Pro): `failure-modes` (architecture failure-mode pack from declared
