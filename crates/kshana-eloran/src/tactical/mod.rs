@@ -547,7 +547,7 @@ fn percentile(v: &mut [f64], q: f64) -> f64 {
     if v.is_empty() {
         return f64::NAN;
     }
-    v.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    v.sort_by(f64::total_cmp);
     let i = ((v.len() as f64 - 1.0) * q).round() as usize;
     v[i]
 }

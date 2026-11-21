@@ -407,7 +407,7 @@ pub fn score_run(run: &Run, seed: u64, t: &mut Tally) {
     let oracle_pick = |k: usize| {
         (0..N_SRC)
             .filter(|&s| gen.obs[k][s].status == Status::Ok && !gen.faulty[k][s])
-            .min_by(|&a, &b| (sig[a], a).partial_cmp(&(sig[b], b)).unwrap())
+            .min_by(|&a, &b| sig[a].total_cmp(&sig[b]).then(a.cmp(&b)))
     };
     for te in baseline(run, &gen, oracle_pick).into_iter().flatten() {
         t.te_oracle.push(te.abs());

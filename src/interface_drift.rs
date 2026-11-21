@@ -117,6 +117,17 @@ pub fn parse_records(text: &str) -> Result<Vec<Record>, String> {
         t.col("prn"),
         t.col("fields"),
     );
+    // An empty subtype or PRN cell is "none"; anything else must be a number, or a decoder
+    // that writes `G33` would make the unknown-PRN alarm silently never fire.
+    let opt = |i: usize, c: Option<usize>, what: &str| -> Result<Option<u32>, String> {
+        let v = t.text(i, c);
+        if v.is_empty() {
+            return Ok(None);
+        }
+        v.parse()
+            .map(Some)
+            .map_err(|_| format!("row {}: {what} '{v}' is not a number", i + 2))
+    };
     let mut out = Vec::new();
     for i in 0..t.rows.len() {
         let ts = t.text(i, Some(ct));
@@ -128,14 +139,14 @@ pub fn parse_records(text: &str) -> Result<Vec<Record>, String> {
             message_type: mt
                 .parse()
                 .map_err(|_| format!("row {}: message_type '{mt}'", i + 2))?,
-            subtype: t.text(i, csub).parse().ok(),
+            subtype: opt(i, csub, "subtype")?,
             gnss_ids: t
                 .text(i, cg)
                 .split(['|', ' '])
                 .filter(|s| !s.is_empty())
                 .map(str::to_string)
                 .collect(),
-            prn: t.text(i, cp).parse().ok(),
+            prn: opt(i, cp, "prn")?,
             fields: t
                 .text(i, cf)
                 .split(';')

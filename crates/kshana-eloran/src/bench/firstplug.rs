@@ -283,7 +283,7 @@ pub fn diagnose(levels: &[LevelCheck]) -> Vec<String> {
     if levels.len() >= 2 {
         let top = levels
             .iter()
-            .max_by(|a, b| a.level_dbfs.partial_cmp(&b.level_dbfs).unwrap())
+            .max_by(|a, b| a.level_dbfs.total_cmp(&b.level_dbfs))
             .unwrap();
         let rest: Vec<f64> = levels
             .iter()
@@ -311,7 +311,7 @@ pub fn diagnose(levels: &[LevelCheck]) -> Vec<String> {
             .iter()
             .map(|l| (l.level_dbfs, l.measured.snr_db))
             .collect();
-        pts.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+        pts.sort_by(|a, b| a.0.total_cmp(&b.0));
         let slope = if pts.len() >= 2 {
             (pts[pts.len() - 1].1 - pts[0].1) / (pts[pts.len() - 1].0 - pts[0].0)
         } else {

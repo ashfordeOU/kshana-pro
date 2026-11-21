@@ -882,7 +882,7 @@ impl RxRun {
         if v.is_empty() {
             return 0.0;
         }
-        v.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        v.sort_by(f64::total_cmp);
         v[v.len() / 2]
     }
 }

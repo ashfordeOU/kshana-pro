@@ -640,7 +640,7 @@ pub fn station_metrics(
             .map(|m| m.toa_s - crate::rx::nominal_emission_s(&chains[ci], si, m.group, start))
             .collect();
         let mut sorted = pd.clone();
-        sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        sorted.sort_by(f64::total_cmp);
         let median = sorted[sorted.len() / 2];
         let toa_jump = pd
             .iter_mut()

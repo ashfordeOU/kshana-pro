@@ -48,7 +48,11 @@ fn emit<T: serde::Serialize>(args: &[String], v: &T) -> Result<(), String> {
 
 fn num(args: &[String], n: &str, d: Option<f64>) -> Result<f64, String> {
     match flag(args, n) {
-        Some(v) => v.parse().map_err(|_| format!("{n} must be a number")),
+        Some(v) => v
+            .parse::<f64>()
+            .ok()
+            .filter(|x| x.is_finite())
+            .ok_or_else(|| format!("{n} must be a finite number")),
         None => d.ok_or_else(|| format!("{n} is needed")),
     }
 }

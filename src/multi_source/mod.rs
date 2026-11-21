@@ -544,7 +544,7 @@ impl Selector {
         // 2.4: choice.
         let best = (0..n)
             .filter(|&i| verdicts[i].qualified())
-            .min_by(|&a, &b| (self.sigma[a], a).partial_cmp(&(self.sigma[b], b)).unwrap());
+            .min_by(|&a, &b| self.sigma[a].total_cmp(&self.sigma[b]).then(a.cmp(&b)));
         let t_up = self.cfg.t_up();
         let (next, reason) = match self.current {
             Choice::Source(c) if verdicts[c].qualified() => {
@@ -553,7 +553,7 @@ impl Selector {
                     .filter(|&i| {
                         self.better(i, c) && self.qualified_since[i].is_some_and(|s| t - s >= t_up)
                     })
-                    .min_by(|&a, &b| (self.sigma[a], a).partial_cmp(&(self.sigma[b], b)).unwrap());
+                    .min_by(|&a, &b| self.sigma[a].total_cmp(&self.sigma[b]).then(a.cmp(&b)));
                 match up {
                     Some(i) => (Choice::Source(i), "better source held"),
                     None => (Choice::Source(c), ""),

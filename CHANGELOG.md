@@ -5,6 +5,25 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Robustness audit: fuzz-style parser tests and small fixes.** New `tests/input_fuzz.rs`: a
+  seeded xorshift mutator (no new dependency) feeds about 45 parsers mutated and random input:
+  NaN, inf, huge numbers, multi-byte characters, empty and stray fields, truncation, and
+  flipped UBX bytes. The families are time stamps, report text and NOTAMs, CSV tables, timing
+  logs, navigation and track files, and binary UBX. Each parser must return a value or an error,
+  never panic. It found the NOTAM Q-line position panic on a multi-byte character, now fixed.
+  Also fixed:
+  - a non-numeric PRN or subtype in decoded interface records is an error rather than "none",
+    which hid the unknown-PRN alarm;
+  - a non-finite device time or lab time in a timebomb CSV is a skipped row (NaN became 1970);
+  - the numeric flags of `attack-iq`, `eloran`, `leo-eval`, `lunar` and `fleet` refuse NaN and
+    inf;
+  - every `partial_cmp(..).unwrap()` sort in Pro and `kshana-eloran` uses a total order, so a
+    NaN cannot panic it. The two in the eLoran receiver are changed on the SigMF branch.
+
+  The README integration-test count is now one hundred and thirty-three. Five real robustness
+  bugs from the same audit are fixed on their own branches: clock-log NaN, station SLA cells,
+  flight-inspection NaN, `Table::num` infinities and malformed SigMF.
+
 - **Fix: collision probability summed object 2's covariance in the wrong frame
   (docs/SPACE-OPS-EVIDENCE.md).** `space_ops::pc_2d`, used by `space-ops ca` (the
   collision-avoidance decision record) and the operator evidence pack, took a relative state in

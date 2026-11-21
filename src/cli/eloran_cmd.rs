@@ -1062,6 +1062,10 @@ fn done(r: Result<String, String>) -> ExitCode {
 fn num_flag<T: std::str::FromStr>(args: &[String], name: &str) -> Result<Option<T>, String> {
     match flag(args, name) {
         None => Ok(None),
+        // NaN and inf parse as floats; a NaN threshold would disable the check it sets.
+        Some(v) if v.parse::<f64>().is_ok_and(|x| !x.is_finite()) => {
+            Err(format!("{name}: not a finite number"))
+        }
         Some(v) => v
             .parse::<T>()
             .map(Some)

@@ -29,7 +29,9 @@ fn num(args: &[String], name: &str, default: Option<f64>) -> Result<f64, KshanaE
     match flag(args, name) {
         Some(v) => v
             .parse::<f64>()
-            .map_err(|_| KshanaError::InvalidInput(format!("{name} needs a number"))),
+            .ok()
+            .filter(|x| x.is_finite())
+            .ok_or_else(|| KshanaError::InvalidInput(format!("{name} needs a finite number"))),
         None => default.ok_or_else(|| KshanaError::InvalidInput(format!("needs {name}"))),
     }
 }
