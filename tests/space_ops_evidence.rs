@@ -427,6 +427,8 @@ mod disposal_sensitivity {
         let mut q = req();
         q.altitude_km = 100.0;
         assert!(disposal_sensitivity::study(&q).is_err());
+    }
+}
 
 // ---------------------------------------------------------------------------------------------
 // Cislunar catalogue build-up: tracklet association and initial orbit determination.
