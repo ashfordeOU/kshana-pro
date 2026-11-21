@@ -367,6 +367,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-leo-evaluation" => Tier::Pro,
         // Maritime casualty reconstruction (research 2026-11-20 gaps, B0601).
         "pro-casualty-reconstruction" => Tier::Pro,
+        // Interlaboratory precision study (2026-11-20 gaps, B2505 Pro part).
+        "pro-method-validation" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -500,6 +502,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-navic-evidence",
     "pro-leo-evaluation",
     "pro-casualty-reconstruction",
+    "pro-method-validation",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

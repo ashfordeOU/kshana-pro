@@ -80,6 +80,7 @@ pub mod lunar_evidence;
 pub mod lunar_pro;
 pub mod lunar_surface;
 pub mod method_uncertainty;
+pub mod method_validation;
 pub mod multi_source;
 pub mod navaids;
 pub mod navic;
