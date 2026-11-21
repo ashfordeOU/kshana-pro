@@ -5,6 +5,13 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
+  gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
+  `kshana-pro leo-eval crosswalk` (`pro-leo-ue-crosswalk`, Pro): every step of the published LEO-PNT
+  procedures mapped to public documents read for it (ETSI EN 303 413 V1.2.1 clauses 4.2.1, 4.2.2;
+  ITU-R M.2031 Annex 1 Table 1-1; DHS RPCF; NIST IR 8323r1), each row cited or "to confirm", with
+  the relation to the clause and the clauses no procedure exercises. Tier manifest regenerated; 2
+  tests in `tests/leo_evaluation.rs`.
 - **Smart tachograph and road-charging OSNMA field verification (research 2026-11-20 gaps
   B1403; docs/TACHOGRAPH-OSNMA.md).** `kshana-pro tacho verify` (`pro-tachograph-osnma`, Pro):
   authenticated share, time conflicts against authenticated GNSS time, time adjustments only from

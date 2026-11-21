@@ -16,9 +16,13 @@
 //!   dataset and measured results; every verdict cites its source and carries its label. The open
 //!   claim datasets are built in the open engine.
 //!
+//! * [`crosswalk`] (B2101): every published procedure step mapped to the public requirement
+//!   documents read for it (L-band and C-band user equipment), each row cited or "to confirm".
+//!
 //! MODELLED unless an output names the validation data it used.
 
 pub mod claims;
+pub mod crosswalk;
 pub mod od;
 pub mod sims;
 pub mod traim;

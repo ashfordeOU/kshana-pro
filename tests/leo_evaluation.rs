@@ -299,3 +299,68 @@ fn dd_template_cites_every_verdict_and_refuses_uncited_values() {
     d.claims[0].quote = None;
     assert!(claims::dd_report(&d, &[], "x").is_err());
 }
+
+// ---------------------------------------------------------------------------------------------
+// B2101: requirements cross-walk for L-band and C-band user equipment.
+
+#[test]
+fn crosswalk_covers_every_published_step_with_a_cited_source_or_to_confirm() {
+    use kshana_pro::leo_eval::crosswalk::{self, Relation, ROWS, SOURCES, TO_CONFIRM};
+    let c = crosswalk::build().unwrap();
+    let steps = crosswalk::published_steps().unwrap();
+    assert_eq!(steps.len(), 12);
+    for s in &steps {
+        assert!(ROWS.iter().any(|r| r.step == s), "{s}");
+    }
+    for r in ROWS {
+        // Every row cites a read source or says to confirm, and nothing else.
+        assert!(
+            r.source == TO_CONFIRM || SOURCES.iter().any(|s| s.key == r.source),
+            "{r:?}"
+        );
+        if r.source == TO_CONFIRM {
+            assert!(
+                matches!(r.relation, Relation::NoneFound | Relation::Gap),
+                "{r:?}"
+            );
+        }
+        assert!(["L", "C", "L+C"].contains(&r.band));
+        for w in ["complian", "conform", "certif"] {
+            let t = format!("{} {} {}", r.requirement, r.note, r.clause).to_lowercase();
+            assert!(!t.contains(w), "{w} in {r:?}");
+        }
+    }
+    for s in SOURCES {
+        assert!(s.url.starts_with("https://") && !s.read.is_empty());
+        assert!(!s.citation.to_lowercase().contains("conform"), "{}", s.key);
+    }
+    // Both bands are mapped to a cited source somewhere.
+    for b in ["L", "C"] {
+        assert!(
+            ROWS.iter().any(|r| r.band == b && r.source != TO_CONFIRM),
+            "{b}"
+        );
+    }
+    assert_eq!(c.steps_cited + c.steps_to_confirm_only.len(), 12);
+    assert!(c
+        .steps_to_confirm_only
+        .contains(&"leo-doppler-stress/doppler-max".to_string()));
+}
+
+#[test]
+fn crosswalk_document_is_in_step_with_the_code() {
+    let c = kshana_pro::leo_eval::crosswalk::build().unwrap();
+    let want = kshana_pro::leo_eval::crosswalk::markdown(&c);
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md"
+    );
+    if std::env::var_os("KSHANA_PRO_REGEN_CROSSWALK").is_some() {
+        std::fs::write(path, &want).unwrap();
+    }
+    assert_eq!(
+        std::fs::read_to_string(path).unwrap_or_default(),
+        want,
+        "regenerate with KSHANA_PRO_REGEN_CROSSWALK=1 cargo test --test leo_evaluation"
+    );
+}
