@@ -189,6 +189,20 @@ fn copy_dir(a: &Path, b: &Path) -> Result<(), String> {
     Ok(())
 }
 
+/// A UTC time as the vault stores it (`YYYY-MM-DDTHH:MM:SSZ`), from any form `parse_utc`
+/// accepts, a bare date (`YYYY-MM-DD`, midnight) included. The calendar arithmetic below works on
+/// that text, so every time is brought to it first.
+fn canon(utc: &str, what: &str) -> Result<String, String> {
+    let s = utc.trim();
+    let full = if s.len() == 10 && s.as_bytes().get(4) == Some(&b'-') {
+        format!("{s}T00:00:00Z")
+    } else {
+        s.to_string()
+    };
+    let t = parse_utc(&full).ok_or_else(|| format!("{what}: '{utc}' is not a UTC time"))?;
+    Ok(crate::forensics::inputs::iso(t.floor()))
+}
+
 fn add_years(utc: &str, years: u32) -> String {
     // Same calendar date `years` later (29 February becomes 28 February).
     let (y, rest) = utc.split_at(4);
@@ -246,6 +260,7 @@ pub fn ingest(
     trust: &[[u8; crate::license::KEY_LEN]],
     utc: &str,
 ) -> Result<Entry, String> {
+    let utc = &canon(utc, "--utc")?;
     let mut idx = index(vault)?;
     let v = crate::signed_dossier::verify(pack, trust).map_err(|e| e.to_string())?;
     let sig_ok = v.signature_ok && v.problems.iter().all(|p| p.contains("not a trusted key"));
@@ -347,7 +362,12 @@ pub fn delete(vault: &Path, id: &str, utc: &str) -> Result<(), String> {
         ));
     }
     let now = parse_utc(utc).ok_or("bad --utc")?;
-    let until = parse_utc(&e.retain_until_utc).unwrap_or(f64::INFINITY);
+    let until = parse_utc(&e.retain_until_utc).ok_or_else(|| {
+        format!(
+            "pack {}: retention date '{}' is not a UTC time",
+            e.id, e.retain_until_utc
+        )
+    })?;
     if now < until {
         return Err(format!(
             "pack {} is retained until {}",
@@ -439,12 +459,7 @@ pub fn calendar(vault: &Path, obligations: &[Obligation], utc: &str) -> Result<V
                 ))
             }
         };
-        let first = if o.first_due.len() == 10 {
-            format!("{}T00:00:00Z", o.first_due)
-        } else {
-            o.first_due.clone()
-        };
-        parse_utc(&first).ok_or_else(|| format!("obligation '{}': bad first_due", o.name))?;
+        let first = canon(&o.first_due, &format!("obligation '{}': first_due", o.name))?;
         // Each due date from the first one, so a month-end date stays at month end.
         let mut k = 0;
         while parse_utc(&add_months(&first, k * step)).is_some_and(|t| t < now) {
