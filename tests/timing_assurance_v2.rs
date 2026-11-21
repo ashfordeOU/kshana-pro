@@ -1022,3 +1022,21 @@ fn cli_vectors_analyse_and_signed_holdover_evidence() {
     let (ok, out) = run(&["timing", "holdover-evidence", "presets"]);
     assert!(ok && out.contains("finland-reg54"), "{out}");
 }
+
+/// Time edge audit: calendar dates that do not exist are refused, not rolled into the next
+/// month (31 February used to parse as 3 March); 29 February only in leap years.
+#[test]
+fn impossible_dates_are_refused_by_the_label_parsers() {
+    assert!(Label::parse_iso("2026-02-31T00:00:00Z").is_err());
+    assert!(Label::parse_iso("2026-04-31T00:00:00Z").is_err());
+    assert!(Label::parse_iso("2026-02-29T00:00:00Z").is_err());
+    assert!(Label::parse_iso("2028-02-29T00:00:00Z").is_ok());
+    assert!(Label::parse_iso("2100-02-29T00:00:00Z").is_err());
+    assert!(Label::parse_iso("2000-02-29T00:00:00Z").is_ok());
+    assert!(kshana_pro::agri::parse_utc("2026-02-30T12:00:00Z").is_err());
+    assert!(kshana_pro::agri::parse_utc("2028-02-29T12:00:00Z").is_ok());
+    assert!(kshana_eloran::time::AbsTime::from_utc_iso("2026-06-31T00:00:00Z").is_err());
+    assert!(kshana_eloran::time::AbsTime::from_utc_iso("2016-12-31T23:59:60Z").is_ok());
+    assert!(kshana_eloran::sync::UtcStamp::parse("2026-09-31T00:00:00Z").is_err());
+    assert!(kshana_eloran::sync::UtcStamp::parse("2026-12-31T23:59:59Z").is_ok());
+}

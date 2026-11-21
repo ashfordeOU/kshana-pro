@@ -106,7 +106,13 @@ impl Label {
         let p = |x: &str| x.trim().parse::<i64>().map_err(|_| bad());
         let (y, mo, da, h, mi) = (p(d[0])?, p(d[1])?, p(d[2])?, p(tm[0])?, p(tm[1])?);
         let sec = p(tm[2].split('.').next().unwrap_or(""))?;
-        if !(1..=12).contains(&mo) || !(1..=31).contains(&da) || h > 23 || mi > 59 || sec > 60 {
+        if !(1..=12).contains(&mo)
+            || da < 1
+            || da > kshana_eloran::time::days_in_month(y, mo)
+            || h > 23
+            || mi > 59
+            || sec > 60
+        {
             return Err(bad());
         }
         if sec == 60 && !(h == 23 && mi == 59) {

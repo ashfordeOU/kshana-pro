@@ -5,6 +5,17 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Time edge-case audit, small fixes.** The timestamp parsers `kshana_eloran::time::AbsTime::
+  from_utc_iso`, `kshana_eloran::sync::UtcStamp::parse`, `agri::parse_utc` and
+  `timing::timebomb::Label::parse_iso` checked only that the day was in 1-31. They accepted
+  31 February, rolling it into March; they now check the day against the month (29 February
+  only in leap years, with the 100/400 rule) through a new `kshana_eloran::time::days_in_month`.
+  `kshana-pro fleet ageing` no longer panics on a `--utc` shorter than a date. The
+  time-transfer `leap_seconds` default (18, valid from 2017) is documented as fixed and to set
+  for other dates. Five real time edge bugs found in the same sweep are fixed on their own
+  branches: leap-second deletion marker, vault retention for non-ISO `--utc`, `iso` hour 24,
+  ephemeris age across the week, and OEM `TIME_SYSTEM` (frame audit).
+
 - **Requirements cross-walk for assured-PNT user equipment, L-band and C-band (research 2026-11-20
   gaps B2101; docs/LEO-EVALUATION.md, docs/leo-procedures/UE-REQUIREMENTS-CROSSWALK.md).**
   `kshana-pro leo-eval crosswalk` (`pro-leo-ue-crosswalk`, Pro): every step of the published LEO-PNT

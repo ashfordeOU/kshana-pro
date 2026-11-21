@@ -118,7 +118,13 @@ pub fn run(args: &[String]) -> ExitCode {
                 }
                 None => None,
             };
-            let today = flag(args, "--today").unwrap_or_else(|| utc[..10].to_string());
+            let today = match flag(args, "--today") {
+                Some(t) => t,
+                None => utc
+                    .get(..10)
+                    .ok_or("--utc must be YYYY-MM-DDTHH:MM:SSZ")?
+                    .to_string(),
+            };
             let a = sf::ageing(
                 p,
                 &need(args, "--subject")?,
